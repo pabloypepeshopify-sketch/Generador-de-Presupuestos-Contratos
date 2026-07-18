@@ -1,61 +1,80 @@
-# 07 · Despliegue real en Make (ya creado)
+# 07 · Despliegue real en Make (CREADO, PROBADO y ACTIVO)
 
-Los dos escenarios **ya están creados** en tu cuenta de Make (org `My Organization`, team `My Team`,
-zona `eu1`). Están **desactivados** a la espera de que rellenes 3 IDs de Google (plantilla, hoja y
-carpeta), que no se pueden crear automáticamente.
+Los dos escenarios están **creados, activos y verificados de extremo a extremo** en la cuenta de
+Make (org `My Organization`, team `My Team`, zona `eu1`). Todos los activos de Google también
+están creados. **El flujo completo se ha probado con datos reales y funciona.**
 
-## Escenarios creados
-| Escenario | ID | Webhook (disparador) | Estado |
-|-----------|----|----------------------|--------|
-| 1 · Generación + Aprobación | **6611125** | `https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c` | Inactivo |
-| 2 · Aprobación y Envío | **6611154** | `https://hook.eu1.make.com/mpt5sps3018nljuvk7n7agono48nmf6q` | Inactivo |
+## Escenarios (ACTIVOS)
+| Escenario | ID | Webhook | Estado |
+|-----------|----|---------|--------|
+| 1 · Generación + Aprobación | **6611125** | `https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c` | ✅ Activo |
+| 2 · Aprobación y Envío | **6611154** | `https://hook.eu1.make.com/mpt5sps3018nljuvk7n7agono48nmf6q` | ✅ Activo |
 
-- Webhook entrada (esc.1): id `3412131` — **esta es la URL que pegas en tu formulario/WhatsApp**.
-- Webhook aprobación (esc.2): id `3412132` — ya está incrustada en los botones del email del esc.1.
+- **URL para tu formulario/WhatsApp** (disparador): la del escenario 1 (`...um1aiy31...`).
+- La URL del escenario 2 ya está incrustada en los botones ✅/❌ del email de aprobación.
 
-## Conexiones ya cableadas (reutilizadas de tu cuenta)
-| Módulo | Conexión | ID |
-|--------|----------|----|
-| OpenAI (esc.1 #3) | My OpenAI connection | `8476276` |
-| Gmail (esc.1 #6/#10, esc.2 #5/#8) | My Gmail connection | `8532314` |
-| Google Docs + Sheets (resto) | My Google connection | `8533301` |
+## Activos de Google creados (en tu Drive)
+| Activo | ID | Enlace |
+|--------|----|--------|
+| Carpeta contenedora | `16FlnwdyVgOKfWXzh5E3uneLIN4z_TyLb` | [abrir](https://drive.google.com/drive/folders/16FlnwdyVgOKfWXzh5E3uneLIN4z_TyLb) |
+| Carpeta salida (Generados) | `1Hh3iHbJv6rydKFotv8-pgj_eejKrkxwF` | — |
+| Hoja de seguimiento | `11l_f2yQbEMeQgGOimwqQemnY6eYvR3bKXxTRG7ZdoAs` | [abrir](https://docs.google.com/spreadsheets/d/11l_f2yQbEMeQgGOimwqQemnY6eYvR3bKXxTRG7ZdoAs/edit) |
+| Plantilla Google Docs | `1G5A1jNYMmdP4SZGjKDC5XDz91W9RJ2Wvci2NtMQQi44` | [abrir](https://docs.google.com/document/d/1G5A1jNYMmdP4SZGjKDC5XDz91W9RJ2Wvci2NtMQQi44/edit) |
 
-- El **prompt de sistema, las reglas de negocio y el prompt de usuario ya están embebidos** en el
-  módulo OpenAI del escenario 1. Modelo `gpt-4o`, `temperature 0.2`, modo JSON activado.
-- El email interno del revisor está puesto a `pabloypepeshopify@gmail.com` (cámbialo si quieres).
+> ⚠️ La pestaña de la hoja se llama **`Untitled`** (así la nombró la importación). Los módulos de
+> Sheets apuntan a `Untitled`. Si la renombras a `Seguimiento`, actualiza el campo *Sheet Name* en
+> los 5 módulos de Sheets.
 
-## ⚠️ Lo que falta para activarlos (3 IDs de Google)
-No tengo acceso a Google Drive/Docs/Sheets, así que estos activos los creas tú (5 min) y pegas su ID:
+## Conexiones reutilizadas
+| Uso | Conexión | ID |
+|-----|----------|----|
+| OpenAI | My OpenAI connection | `8476276` |
+| Gmail (módulo `google-email:sendAnEmail` v4) | My Gmail connection | `8532314` |
+| Google Docs + Sheets | My Google connection | `8533301` |
 
-1. **Google Sheet de seguimiento** → crea la hoja con pestaña `Seguimiento` y las cabeceras de
-   `docs/02-google-sheets.md`. Copia su ID y pégalo en el campo *Spreadsheet ID* de:
-   - Esc.1 módulos **7** y **11**
-   - Esc.2 módulos **2**, **6** y **7**
-   (reemplaza `REEMPLAZAR_SPREADSHEET_ID`).
-2. **Plantilla Google Docs** → crea el Doc con las etiquetas de `plantillas/`. Copia su ID y pégalo
-   en *Document ID* del Esc.1 módulo **8** (reemplaza `REEMPLAZAR_TEMPLATE_DOC_ID`).
-3. **Carpeta de Drive** para los documentos generados → copia su ID y pégalo en *New Document's
-   Location* del Esc.1 módulo **8** (reemplaza `REEMPLAZAR_FOLDER_ID_GENERADOS`).
-4. *(Opcional)* En el Esc.2 módulo **5**, sustituye `REEMPLAZAR_NOMBRE_EMPRESA` y
-   `REEMPLAZAR_TELEFONO` por los datos de la empresa cliente (esto va en el correo al cliente final).
+El prompt de sistema, las reglas de precios y el prompt de usuario **ya están embebidos** en el
+módulo OpenAI del escenario 1 (`gpt-4o`, `temperature 0.2`, modo JSON). El revisor interno está
+puesto a `pabloypepeshopify@gmail.com`.
 
-### Posible reautorización de la conexión Google (documents scope)
-El módulo *Create a Document from a Template* (esc.1 #8) requiere el scope
-`documents.readonly`. La conexión `8533301` tiene Drive + Sheets pero puede pedirte **reautorizar
-para añadir el scope de Google Docs**: abre el módulo, y si Make lo pide, pulsa *Reauthorize* en la
-conexión (un clic). Los demás módulos Google funcionan ya.
+## ✅ Prueba end-to-end realizada
+Se envió el `ejemplos/payload-webhook-reforma.json`. Resultado:
+1. IA generó `presupuesto` para *Reforma de baño completo*, total **6.399,17 €** (cálculo correcto
+   según reglas). 
+2. Google Doc creado + PDF exportado + email de aprobación enviado con el PDF adjunto y botones.
+3. Fila en Sheets: `PENDIENTE_APROBACION`.
+4. Al pulsar **APROBAR** (webhook esc. 2): PDF enviado al cliente + fila actualizada a `ENVIADO`
+   con fecha de envío. Página de confirmación mostrada.
 
-## Activación
-Cuando los 3 IDs estén puestos:
-1. Abre cada escenario y pulsa **Run once** en el esc.1 mientras envías un `POST` de prueba al
-   webhook de entrada con el `ejemplos/payload-webhook-reforma.json`.
-2. Verifica: se genera el Doc + PDF y llega el email de aprobación con adjunto y botones.
-3. Pulsa **APROBAR** → el esc.2 envía el PDF y marca `ENVIADO` en Sheets.
-4. Activa ambos escenarios (toggle **ON**).
+## Lo único que te queda (personalización, opcional)
+1. **Datos de tu empresa en la plantilla Docs**: sustituye `REEMPLAZAR_NOMBRE_EMPRESA`,
+   `REEMPLAZAR_CIF`, `REEMPLAZAR_TELEFONO`, `REEMPLAZAR_EMAIL_EMPRESA` por los de la empresa cliente.
+2. **Email al cliente (esc. 2, módulo 5)**: sustituye `REEMPLAZAR_NOMBRE_EMPRESA` y
+   `REEMPLAZAR_TELEFONO` en el cuerpo.
+3. **Conecta tu formulario** (Typeform/Tally/Forms) a la URL del webhook del escenario 1, enviando
+   los campos que usa el prompt (ver `prompts/user-prompt-template.md`).
+4. **Limpieza de la prueba**: en la hoja quedan varias filas de test `PENDIENTE_DATOS` y una
+   `ENVIADO`; puedes borrarlas. También hay documentos de prueba en la carpeta *Generados*.
+
+## Gotchas de Make resueltos durante el despliegue (por si editas los módulos)
+Estos errores se detectaron **probando en real** y ya están corregidos en los escenarios y en los
+blueprints del repo:
+
+| Síntoma (error de ejecución) | Causa | Solución aplicada |
+|------------------------------|-------|-------------------|
+| `max_completion_tokens: expected an integer, but got a string` | `max_tokens` como `"4000"` (texto) | Valores numéricos: `max_tokens: 4000`, `temperature: 0.2`, `top_p: 1` |
+| La IA responde `FALTAN_DATOS` con todo relleno | `{{1}}` (bundle) no serializa a JSON | Mapear campos uno a uno con `{{1.campo}}` |
+| `'valueInputOption' is required but not specified` (addRow/updateRow) | Falta el parámetro avanzado | Añadido `valueInputOption: USER_ENTERED` (+ `insertDataOption`, `insertUnformatted` en addRow) |
+| `Unable to parse range: 'Untitled'!id_solicitud2:...` (Search Rows) | Filtro por nombre de cabecera | Filtrar por **letra de columna** (`A`) |
+| Conexión Gmail "no compatible" | Módulo `ActionSendEmail` obsoleto | Usar `google-email:sendAnEmail` v4 (param `__IMTCONN__`, `content`, `bodyType: rawHtml`) |
 
 ## Prueba rápida por consola
 ```bash
+# Generar (esc. 1)
 curl -X POST https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c \
-  -H "Content-Type: application/json" \
-  -d @ejemplos/payload-webhook-reforma.json
+  -H "Content-Type: application/json" -d @ejemplos/payload-webhook-reforma.json
+
+# Aprobar (esc. 2) — sustituye id_solicitud y doc_id por los de la fila generada
+curl -G https://hook.eu1.make.com/mpt5sps3018nljuvk7n7agono48nmf6q \
+  --data-urlencode "id_solicitud=..." --data-urlencode "decision=aprobar" \
+  --data-urlencode "doc_id=..." --data-urlencode "cliente_email=cliente@correo.com"
 ```

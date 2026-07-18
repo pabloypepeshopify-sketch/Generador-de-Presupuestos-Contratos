@@ -40,7 +40,7 @@
                 "filter": [
                     [
                         {
-                            "a": "id_solicitud",
+                            "a": "A",
                             "b": "{{1.id_solicitud}}",
                             "o": "text:equal"
                         }
@@ -176,7 +176,8 @@
                                     "9": "{{2.enlace_pdf}}",
                                     "10": "{{formatDate(now; \"DD/MM/YYYY HH:mm\")}}",
                                     "11": "{{2.notas}}"
-                                }
+                                },
+                                "valueInputOption": "USER_ENTERED"
                             },
                             "metadata": {
                                 "designer": {
@@ -234,7 +235,8 @@
                                     "9": "{{2.enlace_pdf}}",
                                     "10": "{{formatDate(now; \"DD/MM/YYYY HH:mm\")}}",
                                     "11": "{{2.notas}}"
-                                }
+                                },
+                                "valueInputOption": "USER_ENTERED"
                             },
                             "metadata": {
                                 "designer": {

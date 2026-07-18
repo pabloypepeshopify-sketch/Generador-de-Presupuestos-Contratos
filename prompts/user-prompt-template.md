@@ -1,13 +1,34 @@
 # Prompt de usuario — Módulo OpenAI (Make)
 
-> Pega este texto en el campo **User** del módulo *OpenAI → Create a Chat Completion*.
-> `{{1}}` es el bundle completo del webhook (los datos del formulario/WhatsApp).
+> Pega este texto en el campo **User** del módulo *OpenAI → Generate a completion*.
 > Las **reglas de negocio** puedes pegarlas fijas aquí, o mapearlas desde un **Data Store** de
 > Make / una pestaña de Google Sheets para poder editarlas sin tocar el escenario.
+>
+> ⚠️ **IMPORTANTE (probado en real):** NO uses `{{1}}` (el bundle completo del webhook) — Make no
+> lo serializa a JSON legible y la IA cree que faltan todos los datos. **Mapea cada campo por
+> separado** con `{{1.nombre_campo}}`, como en el bloque siguiente. Ajusta la lista de campos a los
+> que envíe tu formulario.
 
 ```
-### DATOS DE LA SOLICITUD (JSON de entrada)
-{{1}}
+### DATOS DE LA SOLICITUD
+tipo_documento: {{1.tipo_documento}}
+sector: {{1.sector}}
+canal: {{1.canal}}
+cliente_nombre: {{1.cliente_nombre}}
+cliente_email: {{1.cliente_email}}
+cliente_telefono: {{1.cliente_telefono}}
+cliente_direccion: {{1.cliente_direccion}}
+tipo_reforma: {{1.tipo_reforma}}
+metros_cuadrados: {{1.metros_cuadrados}}
+tipo_acabado: {{1.tipo_acabado}}
+materiales: {{1.materiales}}
+detalles_adicionales: {{1.detalles_adicionales}}
+plazo_deseado: {{1.plazo_deseado}}
+tipo_caso: {{1.tipo_caso}}
+cuantia_reclamada: {{1.cuantia_reclamada}}
+contraparte: {{1.contraparte}}
+descripcion_caso: {{1.descripcion_caso}}
+urgencia: {{1.urgencia}}
 
 ### REGLAS DE NEGOCIO / PRECIOS APLICABLES
 {{ Pega aquí tus reglas, o mapea desde Data Store / Sheets. Ejemplo resumido: }}

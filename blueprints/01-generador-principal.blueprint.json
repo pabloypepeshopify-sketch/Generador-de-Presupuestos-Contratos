@@ -63,10 +63,10 @@
             "mapper": {
                 "select": "chat",
                 "model": "gpt-4o",
-                "temperature": "0.2",
-                "top_p": "1",
-                "max_tokens": "4000",
-                "n_completions": "1",
+                "temperature": 0.2,
+                "top_p": 1,
+                "max_tokens": 4000,
+                "n_completions": 1,
                 "messages": [
                     {
                         "role": "system",
@@ -199,7 +199,10 @@
                                     "9": "",
                                     "10": "",
                                     "11": "{{join(4.campos_faltantes; \", \")}}"
-                                }
+                                },
+                                "insertUnformatted": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertDataOption": "INSERT_ROWS"
                             },
                             "metadata": {
                                 "designer": {
@@ -407,7 +410,10 @@
                                     "9": "{{8.webViewLink}}",
                                     "10": "",
                                     "11": "{{4.notas_internas}}"
-                                }
+                                },
+                                "insertUnformatted": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertDataOption": "INSERT_ROWS"
                             },
                             "metadata": {
                                 "designer": {

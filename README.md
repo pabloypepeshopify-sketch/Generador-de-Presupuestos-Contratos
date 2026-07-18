@@ -13,13 +13,16 @@ el envío al cliente está aislado en un módulo para migrar a **WhatsApp/Twilio
 
 ---
 
-## ✅ Estado: YA DESPLEGADO en Make
-Los 2 escenarios están **creados en la cuenta de Make** (EU), con conexiones (OpenAI, Gmail,
-Google) y prompts ya cableados. Solo faltan 3 IDs de Google para activarlos. Ver
+## ✅ Estado: DESPLEGADO, ACTIVO y PROBADO en Make
+Los 2 escenarios están **creados, activos y verificados de extremo a extremo** en Make (EU), con
+conexiones, prompts, reglas de negocio y activos de Google (hoja, plantilla, carpeta) ya creados y
+cableados. Prueba real: presupuesto de baño **6.399,17 €** generado, PDF creado, aprobado y
+enviado, fila en Sheets a `ENVIADO`. Detalle e IDs en
 [`docs/07-despliegue-en-make.md`](docs/07-despliegue-en-make.md).
 
 - Escenario 1 (Generación + Aprobación): ID `6611125` · webhook `https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c`
 - Escenario 2 (Aprobación y Envío): ID `6611154`
+- Hoja de seguimiento y plantilla Docs: creadas en tu Drive (IDs en el doc 07).
 
 ## 🚀 Puesta en marcha rápida (importar desde cero)
 Si prefieres reimportar en otra cuenta con los blueprints genéricos:
