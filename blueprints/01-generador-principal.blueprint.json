@@ -134,10 +134,10 @@
                     "flow": [
                         {
                             "id": 6,
-                            "module": "google-email:ActionSendEmail",
-                            "version": 1,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
                             "parameters": {
-                                "account": 0
+                                "__IMTCONN__": 0
                             },
                             "filter": {
                                 "name": "Faltan datos",
@@ -152,9 +152,12 @@
                                 ]
                             },
                             "mapper": {
-                                "to": ["REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"],
+                                "to": [
+                                    "REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"
+                                ],
                                 "subject": "[ACCION] Faltan datos para generar documento · {{2.id_solicitud}}",
-                                "html": "<p>No se ha podido generar el documento automaticamente. Faltan o son ambiguos estos datos:</p><ul><li>{{join(4.campos_faltantes; \"</li><li>\")}}</li></ul><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p><b>Datos recibidos:</b><br>{{1}}</p>",
+                                "bodyType": "rawHtml",
+                                "content": "<p>No se ha podido generar el documento automaticamente. Faltan o son ambiguos estos datos:</p><ul><li>{{join(4.campos_faltantes; \"</li><li>\")}}</li></ul><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p><b>Datos recibidos:</b><br>{{1}}</p>",
                                 "attachments": []
                             },
                             "metadata": {
@@ -164,7 +167,7 @@
                                 },
                                 "restore": {
                                     "parameters": {
-                                        "account": {
+                                        "__IMTCONN__": {
                                             "label": "REEMPLAZAR: conexion Gmail"
                                         }
                                     }
@@ -242,21 +245,66 @@
                                 "destination": "drive",
                                 "folderId": "REEMPLAZAR_FOLDER_ID_GENERADOS",
                                 "requests": [
-                                    {"text": "cliente_nombre", "replaceText": "{{4.cliente_nombre}}"},
-                                    {"text": "cliente_direccion", "replaceText": "{{4.cliente_direccion}}"},
-                                    {"text": "cliente_telefono", "replaceText": "{{4.cliente_telefono}}"},
-                                    {"text": "cliente_email", "replaceText": "{{4.cliente_email}}"},
-                                    {"text": "id_solicitud", "replaceText": "{{2.id_solicitud}}"},
-                                    {"text": "proyecto_titulo", "replaceText": "{{4.proyecto_titulo}}"},
-                                    {"text": "fecha_documento", "replaceText": "{{4.fecha_documento}}"},
-                                    {"text": "validez_dias", "replaceText": "{{4.validez_dias}}"},
-                                    {"text": "cuerpo_documento", "replaceText": "{{4.cuerpo_documento}}"},
-                                    {"text": "base_imponible", "replaceText": "{{formatNumber(4.base_imponible; 2; \",\"; \".\")}}"},
-                                    {"text": "iva_porcentaje", "replaceText": "{{4.iva_porcentaje}}"},
-                                    {"text": "iva_importe", "replaceText": "{{formatNumber(4.iva_importe; 2; \",\"; \".\")}}"},
-                                    {"text": "total", "replaceText": "{{formatNumber(4.total; 2; \",\"; \".\")}}"},
-                                    {"text": "condiciones_pago", "replaceText": "{{4.condiciones_pago}}"},
-                                    {"text": "plazo_ejecucion", "replaceText": "{{4.plazo_ejecucion}}"}
+                                    {
+                                        "text": "cliente_nombre",
+                                        "replaceText": "{{4.cliente_nombre}}"
+                                    },
+                                    {
+                                        "text": "cliente_direccion",
+                                        "replaceText": "{{4.cliente_direccion}}"
+                                    },
+                                    {
+                                        "text": "cliente_telefono",
+                                        "replaceText": "{{4.cliente_telefono}}"
+                                    },
+                                    {
+                                        "text": "cliente_email",
+                                        "replaceText": "{{4.cliente_email}}"
+                                    },
+                                    {
+                                        "text": "id_solicitud",
+                                        "replaceText": "{{2.id_solicitud}}"
+                                    },
+                                    {
+                                        "text": "proyecto_titulo",
+                                        "replaceText": "{{4.proyecto_titulo}}"
+                                    },
+                                    {
+                                        "text": "fecha_documento",
+                                        "replaceText": "{{4.fecha_documento}}"
+                                    },
+                                    {
+                                        "text": "validez_dias",
+                                        "replaceText": "{{4.validez_dias}}"
+                                    },
+                                    {
+                                        "text": "cuerpo_documento",
+                                        "replaceText": "{{4.cuerpo_documento}}"
+                                    },
+                                    {
+                                        "text": "base_imponible",
+                                        "replaceText": "{{formatNumber(4.base_imponible; 2; \",\"; \".\")}}"
+                                    },
+                                    {
+                                        "text": "iva_porcentaje",
+                                        "replaceText": "{{4.iva_porcentaje}}"
+                                    },
+                                    {
+                                        "text": "iva_importe",
+                                        "replaceText": "{{formatNumber(4.iva_importe; 2; \",\"; \".\")}}"
+                                    },
+                                    {
+                                        "text": "total",
+                                        "replaceText": "{{formatNumber(4.total; 2; \",\"; \".\")}}"
+                                    },
+                                    {
+                                        "text": "condiciones_pago",
+                                        "replaceText": "{{4.condiciones_pago}}"
+                                    },
+                                    {
+                                        "text": "plazo_ejecucion",
+                                        "replaceText": "{{4.plazo_ejecucion}}"
+                                    }
                                 ]
                             },
                             "metadata": {
@@ -301,18 +349,21 @@
                         },
                         {
                             "id": 10,
-                            "module": "google-email:ActionSendEmail",
-                            "version": 1,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
                             "parameters": {
-                                "account": 0
+                                "__IMTCONN__": 0
                             },
                             "mapper": {
-                                "to": ["REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"],
+                                "to": [
+                                    "REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"
+                                ],
                                 "subject": "[APROBAR] {{4.tipo_documento}} · {{4.cliente_nombre}} · {{4.total}} EUR",
-                                "html": "<p>Documento generado y pendiente de tu aprobacion antes de enviarlo al cliente.</p><p><b>Cliente:</b> {{4.cliente_nombre}} ({{4.cliente_email}})<br><b>Proyecto:</b> {{4.proyecto_titulo}}<br><b>Total:</b> {{4.total}} EUR</p><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p>Revisa el PDF adjunto y pulsa una opcion:</p><p><a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=aprobar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#1a7f37;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">APROBAR Y ENVIAR</a>&nbsp;&nbsp;<a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=rechazar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#cf222e;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">RECHAZAR</a></p>",
+                                "bodyType": "rawHtml",
+                                "content": "<p>Documento generado y pendiente de tu aprobacion antes de enviarlo al cliente.</p><p><b>Cliente:</b> {{4.cliente_nombre}} ({{4.cliente_email}})<br><b>Proyecto:</b> {{4.proyecto_titulo}}<br><b>Total:</b> {{4.total}} EUR</p><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p>Revisa el PDF adjunto y pulsa una opcion:</p><p><a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=aprobar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#1a7f37;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">APROBAR Y ENVIAR</a>&nbsp;&nbsp;<a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=rechazar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#cf222e;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">RECHAZAR</a></p>",
                                 "attachments": [
                                     {
-                                        "fileName": "{{4.tipo_documento}}-{{4.cliente_nombre}}.pdf",
+                                        "filename": "{{4.tipo_documento}}-{{4.cliente_nombre}}.pdf",
                                         "data": "{{9.data}}"
                                     }
                                 ]
@@ -324,7 +375,7 @@
                                 },
                                 "restore": {
                                     "parameters": {
-                                        "account": {
+                                        "__IMTCONN__": {
                                             "label": "REEMPLAZAR: conexion Gmail"
                                         }
                                     }

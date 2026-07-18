@@ -117,18 +117,21 @@
                         },
                         {
                             "id": 5,
-                            "module": "google-email:ActionSendEmail",
-                            "version": 1,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
                             "parameters": {
-                                "account": 0
+                                "__IMTCONN__": 0
                             },
                             "mapper": {
-                                "to": ["{{1.cliente_email}}"],
+                                "to": [
+                                    "{{1.cliente_email}}"
+                                ],
                                 "subject": "Su documento de REEMPLAZAR_NOMBRE_EMPRESA",
-                                "html": "<p>Estimado/a {{2.cliente_nombre}},</p><p>Adjuntamos el documento solicitado. Quedamos a su disposicion para cualquier aclaracion.</p><p>Un saludo,<br>REEMPLAZAR_NOMBRE_EMPRESA<br>REEMPLAZAR_TELEFONO</p>",
+                                "bodyType": "rawHtml",
+                                "content": "<p>Estimado/a {{2.cliente_nombre}},</p><p>Adjuntamos el documento solicitado. Quedamos a su disposicion para cualquier aclaracion.</p><p>Un saludo,<br>REEMPLAZAR_NOMBRE_EMPRESA<br>REEMPLAZAR_TELEFONO</p>",
                                 "attachments": [
                                     {
-                                        "fileName": "{{4.filename}}",
+                                        "filename": "{{4.filename}}",
                                         "data": "{{4.data}}"
                                     }
                                 ]
@@ -140,7 +143,7 @@
                                 },
                                 "restore": {
                                     "parameters": {
-                                        "account": {
+                                        "__IMTCONN__": {
                                             "label": "REEMPLAZAR: conexion Gmail (en produccion: WhatsApp/Twilio)"
                                         }
                                     }
@@ -249,15 +252,18 @@
                         },
                         {
                             "id": 8,
-                            "module": "google-email:ActionSendEmail",
-                            "version": 1,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
                             "parameters": {
-                                "account": 0
+                                "__IMTCONN__": 0
                             },
                             "mapper": {
-                                "to": ["REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"],
+                                "to": [
+                                    "REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"
+                                ],
                                 "subject": "Documento RECHAZADO · {{1.id_solicitud}}",
-                                "html": "<p>El documento {{1.id_solicitud}} ha sido marcado como RECHAZADO. Editalo manualmente en Google Docs o vuelve a lanzar la solicitud con los datos corregidos.</p>",
+                                "bodyType": "rawHtml",
+                                "content": "<p>El documento {{1.id_solicitud}} ha sido marcado como RECHAZADO. Editalo manualmente en Google Docs o vuelve a lanzar la solicitud con los datos corregidos.</p>",
                                 "attachments": []
                             },
                             "metadata": {
@@ -267,7 +273,7 @@
                                 },
                                 "restore": {
                                     "parameters": {
-                                        "account": {
+                                        "__IMTCONN__": {
                                             "label": "REEMPLAZAR: conexion Gmail"
                                         }
                                     }

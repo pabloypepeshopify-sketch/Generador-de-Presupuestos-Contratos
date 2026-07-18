@@ -55,11 +55,11 @@ FORMULARIO / WHATSAPP
 | **3** | **OpenAI → Generate a completion** `openai-gpt-3:CreateCompletion` | Cerebro del flujo. Con el *system prompt* (ver `prompts/system-prompt.md`) redacta el documento, calcula partidas según reglas de negocio y devuelve **JSON estructurado**. `select = chat`, `model = gpt-4o`, `temperature = 0.2`. El modo JSON se fuerza vía *Other Input Parameters* → `response_format = {type: json_object}`. |
 | **4** | **JSON → Parse JSON** `json:ParseJSON` | Convierte la cadena JSON de OpenAI (`{{3.result}}`) en un bundle con campos mapeables (`estado`, `partidas`, `total`, `cuerpo_documento`…). |
 | **5** | **Flow Control → Router** `builtin:BasicRouter` | Bifurca según el campo `estado` que devolvió la IA. Cada ruta lleva un **filtro**. |
-| **6** | **Gmail → Send an email** `google-email:ActionSendEmail` | *(Ruta FALTAN_DATOS)* Avisa al equipo interno de qué datos faltan. **No** se contacta al cliente todavía. |
+| **6** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(Ruta FALTAN_DATOS)* Avisa al equipo interno de qué datos faltan. **No** se contacta al cliente todavía. |
 | **7** | **Google Sheets → Add a Row** `google-sheets:addRow` | *(Ruta FALTAN_DATOS)* Registra la solicitud con estado `PENDIENTE_DATOS` para no perder el lead. |
 | **8** | **Google Docs → Create a Document from a Template** `google-docs:createADocumentFromTemplate` | *(Ruta COMPLETO)* Copia la plantilla y sustituye las etiquetas (`requests[].text` → `replaceText`). Devuelve el `id` y `webViewLink` del nuevo Doc. |
 | **9** | **Google Docs → Download a Document** `google-docs:exportADocument` | *(Ruta COMPLETO)* Exporta el Doc recién creado (`document = {{8.id}}`) a **PDF** (`mimeType = application/pdf`). Devuelve `data` (binario) y `filename`. |
-| **10** | **Gmail → Send an email** `google-email:ActionSendEmail` | *(Ruta COMPLETO)* **Solicitud de aprobación**: envía al revisor interno el PDF adjunto (`{{9.data}}`) + dos enlaces (Aprobar / Rechazar) que apuntan al webhook del escenario 2 con `doc_id = {{8.id}}`. |
+| **10** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(Ruta COMPLETO)* **Solicitud de aprobación**: envía al revisor interno el PDF adjunto (`{{9.data}}`) + dos enlaces (Aprobar / Rechazar) que apuntan al webhook del escenario 2 con `doc_id = {{8.id}}`. |
 | **11** | **Google Sheets → Add a Row** `google-sheets:addRow` | *(Ruta COMPLETO)* Registra la solicitud con estado `PENDIENTE_APROBACION`, importe y enlace al Doc (`{{8.webViewLink}}`). |
 
 > **Por qué el envío al cliente NO está en el escenario 1:** separar la generación de la aprobación
@@ -76,10 +76,10 @@ FORMULARIO / WHATSAPP
 | **2** | **Google Sheets → Search Rows** `google-sheets:filterRows` | Localiza la fila de la solicitud por `id_solicitud`. Devuelve también el **número de fila** (`__ROW_NUMBER__`) para poder actualizarla. |
 | **3** | **Router** `builtin:BasicRouter` | Bifurca por `decision`. |
 | **4** | **Google Docs → Download a Document** `google-docs:exportADocument` | *(aprobar)* Vuelve a exportar el Doc aprobado (`document = {{1.doc_id}}`) a PDF. |
-| **5** | **Gmail → Send an email** `google-email:ActionSendEmail` | *(aprobar)* **Único punto donde se escribe al CLIENTE.** Envía el PDF definitivo. *(En producción, este módulo se sustituye por WhatsApp/Twilio — ver `docs/06-migracion-whatsapp.md`.)* |
+| **5** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(aprobar)* **Único punto donde se escribe al CLIENTE.** Envía el PDF definitivo. *(En producción, este módulo se sustituye por WhatsApp/Twilio — ver `docs/06-migracion-whatsapp.md`.)* |
 | **6** | **Google Sheets → Update a Row** `google-sheets:updateRow` | *(aprobar)* Marca estado `ENVIADO` y fecha de envío (`rowNumber = {{2.__ROW_NUMBER__}}`). |
 | **7** | **Google Sheets → Update a Row** `google-sheets:updateRow` | *(rechazar)* Marca estado `RECHAZADO`. |
-| **8** | **Gmail → Send an email** `google-email:ActionSendEmail` | *(rechazar)* Notifica internamente para editar el documento a mano o relanzar. |
+| **8** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(rechazar)* Notifica internamente para editar el documento a mano o relanzar. |
 | **9** | **Webhook Response** `gateway:WebhookRespond` | Devuelve una página HTML de confirmación al navegador del revisor tras pulsar el botón. |
 
 > **Nota sobre el número de fila:** el módulo *Search Rows* expone el campo **«Row number»**. En el

@@ -41,8 +41,8 @@ que es el marcador a sustituir). Selecciona la conexión correcta:
 - **Escenario 1:** OpenAI (#3), Gmail (#6, #10), Sheets (#7, #11), Docs (#8 crear, #9 exportar PDF).
 - **Escenario 2:** Sheets (#2 buscar, #6, #7), Docs (#4 exportar PDF), Gmail (#5, #8).
 
-> El parámetro de conexión se llama `account` en los módulos de Gmail y `__IMTCONN__` en los de
-> OpenAI, Google Docs y Google Sheets. Ambos se resuelven al reseleccionar la conexión en la UI.
+> El parámetro de conexión es `__IMTCONN__` en todos los módulos (Gmail usa el módulo
+> `google-email:sendAnEmail` v4). Se resuelve al reseleccionar la conexión en la UI.
 
 ## 5. Crear y enganchar los webhooks (los `hook: 0`)
 - [ ] **Escenario 1 → módulo 1 (Webhook):** clic en *Add* → nombre `presupuestos-in` → copia la URL.

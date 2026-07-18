@@ -13,7 +13,16 @@ el envío al cliente está aislado en un módulo para migrar a **WhatsApp/Twilio
 
 ---
 
-## 🚀 Puesta en marcha rápida
+## ✅ Estado: YA DESPLEGADO en Make
+Los 2 escenarios están **creados en la cuenta de Make** (EU), con conexiones (OpenAI, Gmail,
+Google) y prompts ya cableados. Solo faltan 3 IDs de Google para activarlos. Ver
+[`docs/07-despliegue-en-make.md`](docs/07-despliegue-en-make.md).
+
+- Escenario 1 (Generación + Aprobación): ID `6611125` · webhook `https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c`
+- Escenario 2 (Aprobación y Envío): ID `6611154`
+
+## 🚀 Puesta en marcha rápida (importar desde cero)
+Si prefieres reimportar en otra cuenta con los blueprints genéricos:
 1. Lee `docs/05-checklist-post-importacion.md`.
 2. Importa `blueprints/01-generador-principal.blueprint.json` y `blueprints/02-aprobacion-envio.blueprint.json` en Make (EU).
 3. Sustituye todos los `REEMPLAZAR_*`, asigna conexiones y crea los 2 webhooks.
