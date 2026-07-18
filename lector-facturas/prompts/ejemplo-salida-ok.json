@@ -1,0 +1,18 @@
+{
+  "estado": "OK",
+  "proveedor_nombre": "Suministros Eléctricos García S.L.",
+  "proveedor_nif": "B12345678",
+  "numero_factura": "FA-2025-04821",
+  "fecha_factura": "2025-11-03",
+  "concepto": "Material eléctrico: cable RZ1-K, magnetotérmicos y canaleta",
+  "base_imponible": 842.50,
+  "tipo_iva": 21,
+  "cuota_iva": 176.93,
+  "total": 1019.43,
+  "moneda": "EUR",
+  "categoria_gasto": "Material y mercadería",
+  "confianza": 0.97,
+  "motivo_revision": "",
+  "campos_faltantes": [],
+  "notas": "IVA único al 21%. Base + cuota = 842.50 + 176.93 = 1019.43, cuadra con el total."
+}

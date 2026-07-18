@@ -1,0 +1,95 @@
+# Lector Automático de Facturas (Make.com + OCR + IA)
+
+Producto de automatización para **gestorías, talleres y constructoras en España**. Vigila una bandeja de
+correo, lee las **facturas PDF** de proveedores con **OCR**, las **estructura con IA** (proveedor, base,
+IVA, total, fecha, nº de factura), las **valida** y las vuelca en **Google Sheets/Airtable** como registro
+contable. Lo que no puede leer con seguridad **no lo inventa**: lo marca para **revisión humana** y avisa.
+
+Todo **100 % en Make.com** (sin app propia). Fase de pruebas por **Gmail**; disparador ampliable a
+**Google Drive** sin tocar el resto del flujo.
+
+> Elimina la tarea administrativa más odiada y con más errores (importes mal transcritos, IVA mal
+> aplicado). Ahorro típico: **6–10 h/semana**.
+
+---
+
+## ✅ Estado: YA DESPLEGADO en Make
+Escenario creado en la cuenta (EU), con conexiones (Gmail, OpenAI, Google) y prompts cableados, más un
+**Data Store** de antiduplicados. Faltan **3 datos** para activarlo (API key de Mistral, ID del Sheet,
+email de avisos). Detalle en [`docs/06-despliegue-en-make.md`](docs/06-despliegue-en-make.md).
+
+| Recurso | ID |
+|---------|----|
+| Escenario · *Lector Automatico de Facturas · OCR + IA* | **6613926** |
+| Data Store · *Lector Facturas · Dedup* | **149074** |
+| Carpeta · *Lector de Facturas* | 370160 |
+
+---
+
+## 🧭 Flujo en una imagen
+```
+Email con PDF (Gmail)
+   │  Watch → Iterator(adjuntos) → OCR(Mistral) → OpenAI(JSON) → Parse
+   ▼
+¿Duplicada? (Data Store) → Set banderas → ROUTER
+   ├── OK        → Sheets: PROCESADA        + marca en Data Store
+   ├── REVISIÓN  → Sheets: REVISION_MANUAL  + email de aviso
+   └── DUPLICADA → Sheets: DUPLICADA        (traza, no recontabiliza)
+```
+
+---
+
+## 📦 Contenido
+```
+blueprints/
+  lector-facturas.blueprint.json     Escenario completo (plantilla, para reimportar en otra cuenta)
+prompts/
+  system-prompt.md                   Prompt de sistema exacto (no inventa, JSON estricto)
+  user-prompt-template.md            Prompt de usuario + mapeos
+  ejemplo-salida-ok.json             Salida IA de ejemplo (OK)
+  ejemplo-salida-revision.json       Salida IA de ejemplo (REVISIÓN)
+docs/
+  01-arquitectura.md                 Módulo por módulo
+  02-ocr-comparativa.md              Mistral vs Google Vision vs otros + cómo conectar el OCR
+  03-validacion-confianza.md         OK vs revisión: lógica del Router (doble red)
+  04-google-sheets-airtable.md       Columnas de la hoja / tabla de destino
+  05-dedup.md                        Antiduplicados con Data Store
+  06-despliegue-en-make.md           Lo ya creado + activación + ampliación a Drive
+  07-checklist-post-importacion.md   Todo lo que se configura a mano (activar / revender)
+ejemplos/
+  factura-demo.md                    Factura de prueba para la demo
+```
+
+## ✅ Respuesta a los 8 puntos pedidos
+| # | Pedido | Dónde |
+|---|--------|-------|
+| 1 | Arquitectura completa módulo por módulo | [`docs/01-arquitectura.md`](docs/01-arquitectura.md) |
+| 2 | Qué OCR usar + comparativa + cómo conectarlo | [`docs/02-ocr-comparativa.md`](docs/02-ocr-comparativa.md) |
+| 3 | Prompt de sistema exacto + esquema JSON | [`prompts/system-prompt.md`](prompts/system-prompt.md) |
+| 4 | Lógica de validación/confianza con Router | [`docs/03-validacion-confianza.md`](docs/03-validacion-confianza.md) |
+| 5 | Estructura de columnas Sheets/Airtable | [`docs/04-google-sheets-airtable.md`](docs/04-google-sheets-airtable.md) |
+| 6 | Evitar duplicados (proveedor + nº factura) | [`docs/05-dedup.md`](docs/05-dedup.md) |
+| 7 | JSON del blueprint (con partes a completar señaladas) | [`blueprints/`](blueprints/) |
+| 8 | Checklist de configuración manual | [`docs/07-checklist-post-importacion.md`](docs/07-checklist-post-importacion.md) |
+
+---
+
+## 🧠 Qué hace la IA (y qué NO)
+- **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).
+- **Clasifica** el gasto en una categoría cerrada (para sumar por tipo).
+- **Detecta anomalías**: descuadre `base + IVA ≠ total`, campos ilegibles, confianza baja.
+- **No inventa**: si no lee un dato con seguridad, lo deja vacío y manda la factura a revisión.
+
+## 🔒 Responsabilidad
+Las facturas dudosas **nunca** se contabilizan en automático: se marcan `REVISION_MANUAL` y se avisa por
+email. El objetivo es reducir errores contables (pagos de más, problemas con Hacienda), no sustituir el
+criterio del gestor.
+
+## 🔮 Ampliaciones futuras
+- Disparador por **Google Drive** además de Gmail.
+- **Export directo** a Contasol / A3 / Sage vía HTTP tras la ruta OK.
+- **Conciliación** con extractos bancarios y **alertas de gasto anómalo** por proveedor.
+- **Resumen diario** agregado (Aggregator) de facturas procesadas / pendientes de revisión.
+
+## 💶 Datos comerciales (orientativos)
+Instalación 800–1.500 € · Cuota 150–250 €/mes · Dificultad 6/10 · Construcción 10–14 h.

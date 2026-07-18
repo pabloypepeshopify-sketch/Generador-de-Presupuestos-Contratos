@@ -13,6 +13,15 @@ el envío al cliente está aislado en un módulo para migrar a **WhatsApp/Twilio
 
 ---
 
+## 📂 Este repositorio contiene 2 productos
+1. **Generador de Presupuestos / Contratos** (este README, raíz del repo).
+2. **[Lector Automático de Facturas (OCR + IA)](lector-facturas/README.md)** → en la carpeta
+   [`lector-facturas/`](lector-facturas/). Vigila el correo, lee facturas PDF con OCR + IA, valida y las
+   vuelca en Sheets/Airtable, marcando las dudosas para revisión humana. **Ya desplegado en Make**
+   (escenario `6613926`).
+
+---
+
 ## ✅ Estado: YA DESPLEGADO en Make
 Los 2 escenarios están **creados en la cuenta de Make** (EU), con conexiones (OpenAI, Gmail,
 Google) y prompts ya cableados. Solo faltan 3 IDs de Google para activarlos. Ver

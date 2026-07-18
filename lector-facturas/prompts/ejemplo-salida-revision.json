@@ -1,0 +1,18 @@
+{
+  "estado": "REVISION",
+  "proveedor_nombre": "Talleres Hnos. Ruiz",
+  "proveedor_nif": "",
+  "numero_factura": "2025/337",
+  "fecha_factura": "2025-10-28",
+  "concepto": "Reparación vehículo furgoneta - mano de obra y recambios",
+  "base_imponible": 310.00,
+  "tipo_iva": 21,
+  "cuota_iva": 65.10,
+  "total": 415.10,
+  "moneda": "EUR",
+  "categoria_gasto": "Reparación y mantenimiento",
+  "confianza": 0.62,
+  "motivo_revision": "El total impreso (415.10) no cuadra con base + IVA (310.00 + 65.10 = 375.10). Posible partida no leída por el OCR. Además falta el CIF del proveedor.",
+  "campos_faltantes": ["proveedor_nif"],
+  "notas": "Descuadre de 40.00 EUR. El sello del taller tapa parte de la tabla de importes; conviene revisión humana."
+}

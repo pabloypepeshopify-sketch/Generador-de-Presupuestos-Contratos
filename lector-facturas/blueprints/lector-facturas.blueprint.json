@@ -1,0 +1,551 @@
+{
+    "name": "Lector Automatico de Facturas · OCR + IA",
+    "flow": [
+        {
+            "id": 1,
+            "module": "google-email:triggerWatchNewEmails",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 0,
+                "filterType": "gmailSearch",
+                "q": "has:attachment filename:pdf",
+                "markSeen": true,
+                "format": "full",
+                "limit": 10
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0,
+                    "name": "Watch: emails con PDF adjunto"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Gmail connection (pabloypepeshopify@gmail.com)"
+                        },
+                        "filterType": {
+                            "label": "Gmail filter"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "module": "builtin:BasicFeeder",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "array": "{{1.attachments[]}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0,
+                    "name": "Iterar adjuntos"
+                }
+            }
+        },
+        {
+            "id": 3,
+            "module": "http:MakeRequest",
+            "version": 4,
+            "parameters": {
+                "authenticationType": "noAuth"
+            },
+            "filter": {
+                "name": "Solo PDF",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{2.contentType}}",
+                            "b": "pdf",
+                            "o": "text:contains"
+                        }
+                    ],
+                    [
+                        {
+                            "a": "{{lower(2.fileName)}}",
+                            "b": ".pdf",
+                            "o": "text:contains"
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "url": "https://api.mistral.ai/v1/ocr",
+                "method": "post",
+                "headers": [
+                    {
+                        "name": "Authorization",
+                        "value": "Bearer REEMPLAZAR_MISTRAL_API_KEY"
+                    }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "jsonStringBodyContent": "{\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"data:{{2.contentType}};base64,{{base64(2.data)}}\"\n  },\n  \"include_image_base64\": false\n}",
+                "parseResponse": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0,
+                    "name": "OCR (Mistral OCR)"
+                }
+            }
+        },
+        {
+            "id": 4,
+            "module": "openai-gpt-3:CreateCompletion",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 0
+            },
+            "mapper": {
+                "select": "chat",
+                "model": "gpt-4o",
+                "temperature": "0",
+                "top_p": "1",
+                "max_tokens": "2000",
+                "n_completions": "1",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Eres un asistente experto en contabilidad espanola que extrae datos estructurados de facturas de proveedores a partir del texto OCR de un documento. Tu unica salida es un objeto JSON valido, sin markdown, sin comentarios y sin texto adicional.\n\nREGLAS CRITICAS\n1. NO inventes ni deduzcas datos. Si un dato no aparece de forma legible e inequivoca en el texto, dejalo vacio (\"\") o null y reflejalo en \"campos_faltantes\".\n2. Trabaja solo con lo que ves en el texto OCR. No completes NIF, importes, fechas ni numeros de factura por probabilidad.\n3. Importes: usa punto como separador decimal y sin separador de miles (1234.56). Convierte el formato espanol 1.234,56 a 1234.56. Nunca devuelvas el simbolo de moneda dentro del numero.\n4. IVA espanol: los tipos habituales son 21, 10, 4 y 0. \"tipo_iva\" es el porcentaje (numero). \"cuota_iva\" es el importe del IVA. Si hay varios tipos, usa la base y la cuota totales y anota el desglose en \"notas\".\n5. Comprobacion aritmetica: base_imponible + cuota_iva debe ser igual a total (tolerancia 0.02). Si NO cuadra, o si falta cualquiera de los tres, pon estado REVISION y explica en \"motivo_revision\".\n6. Fechas en formato ISO YYYY-MM-DD. Interpreta 12/03/2025 como DD/MM/YYYY (formato espanol).\n7. \"confianza\": numero entre 0 y 1 que refleja tu seguridad global. Bajala si el OCR esta incompleto, borroso, cortado o ambiguo.\n8. \"estado\": OK solo si TODOS los campos criticos (proveedor_nombre, numero_factura, fecha_factura, base_imponible, cuota_iva, total) estan presentes y son legibles, la aritmetica cuadra y confianza >= 0.85. En cualquier otro caso REVISION.\n9. \"categoria_gasto\": clasifica en UNA de estas categorias exactas: Suministros, Material y mercaderia, Servicios profesionales, Alquileres, Transporte y logistica, Reparacion y mantenimiento, Seguros, Impuestos y tasas, Marketing y publicidad, Software y tecnologia, Otros. Si dudas, usa Otros.\n10. \"proveedor_nif\": NIF/CIF del EMISOR de la factura (quien cobra), no del receptor/cliente.\n\nESQUEMA DE SALIDA (devuelve exactamente estas claves):\n{\n  \"estado\": \"OK\" | \"REVISION\",\n  \"proveedor_nombre\": \"string\",\n  \"proveedor_nif\": \"string\",\n  \"numero_factura\": \"string\",\n  \"fecha_factura\": \"YYYY-MM-DD\",\n  \"concepto\": \"string\",\n  \"base_imponible\": number,\n  \"tipo_iva\": number,\n  \"cuota_iva\": number,\n  \"total\": number,\n  \"moneda\": \"string (codigo ISO, p.ej. EUR)\",\n  \"categoria_gasto\": \"string (una de la lista)\",\n  \"confianza\": number,\n  \"motivo_revision\": \"string (vacio si estado=OK)\",\n  \"campos_faltantes\": [\"string\"],\n  \"notas\": \"string\"\n}"
+                    },
+                    {
+                        "role": "user",
+                        "content": "Extrae los datos de la siguiente factura de proveedor.\n\nMETADATOS DEL EMAIL (contexto, no forman parte de la factura salvo que esta los confirme):\n- Remitente: {{1.fromEmail}}\n- Asunto: {{1.subject}}\n- Fichero adjunto: {{2.fileName}}\n- Fecha de recepcion: {{1.internalDate}}\n\nTEXTO OCR DE LA FACTURA (Mistral OCR, formato markdown; las tablas conservan el desglose de partidas e IVA):\n\"\"\"\n{{join(3.data.pages[].markdown; \" \")}}\n\"\"\"\n\nDevuelve unicamente el JSON con el esquema indicado."
+                    }
+                ],
+                "additionalParameters": [
+                    {
+                        "key": "response_format",
+                        "type": "any",
+                        "value": {
+                            "type": "json_object"
+                        }
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0,
+                    "name": "IA: estructura a JSON"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My OpenAI connection"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": 5,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": ""
+            },
+            "mapper": {
+                "json": "{{4.result}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0,
+                    "name": "Parse JSON"
+                }
+            }
+        },
+        {
+            "id": 6,
+            "module": "datastore:ExistRecord",
+            "version": 1,
+            "parameters": {
+                "datastore": 0
+            },
+            "mapper": {
+                "key": "{{lower(ifempty(5.proveedor_nif; 5.proveedor_nombre))}}|{{lower(5.numero_factura)}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1500,
+                    "y": 0,
+                    "name": "Dedup: existe ya?"
+                }
+            }
+        },
+        {
+            "id": 7,
+            "module": "util:SetVariables",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "variables": [
+                    {
+                        "name": "clave_factura",
+                        "value": "{{lower(ifempty(5.proveedor_nif; 5.proveedor_nombre))}}|{{lower(5.numero_factura)}}"
+                    },
+                    {
+                        "name": "id_registro",
+                        "value": "{{formatDate(now; \"YYYYMMDDHHmmss\")}}-{{5.numero_factura}}"
+                    },
+                    {
+                        "name": "fecha_proceso",
+                        "value": "{{formatDate(now; \"YYYY-MM-DD HH:mm\")}}"
+                    },
+                    {
+                        "name": "dup",
+                        "value": "{{if(6.exist; \"SI\"; \"NO\")}}"
+                    },
+                    {
+                        "name": "descuadre",
+                        "value": "{{if(abs((5.base_imponible + 5.cuota_iva) - 5.total) > 0.02; \"SI\"; \"NO\")}}"
+                    }
+                ],
+                "scope": "roundtrip"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1800,
+                    "y": 0,
+                    "name": "Variables + banderas"
+                }
+            }
+        },
+        {
+            "id": 8,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 2100,
+                    "y": 0
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 9,
+                            "module": "google-sheets:addRow",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "filter": {
+                                "name": "Procesada OK",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{7.dup}}",
+                                            "b": "NO",
+                                            "o": "text:equal"
+                                        },
+                                        {
+                                            "a": "{{5.estado}}",
+                                            "b": "OK",
+                                            "o": "text:equal"
+                                        },
+                                        {
+                                            "a": "{{5.confianza}}",
+                                            "b": "0.85",
+                                            "o": "number:greaterorequal"
+                                        },
+                                        {
+                                            "a": "{{7.descuadre}}",
+                                            "b": "NO",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "mode": "map",
+                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                "sheetId": "Facturas",
+                                "tableFirstRow": "A1:S1",
+                                "values": {
+                                    "0": "{{7.id_registro}}",
+                                    "1": "{{7.fecha_proceso}}",
+                                    "2": "PROCESADA",
+                                    "3": "{{5.proveedor_nombre}}",
+                                    "4": "{{5.proveedor_nif}}",
+                                    "5": "{{5.numero_factura}}",
+                                    "6": "{{5.fecha_factura}}",
+                                    "7": "{{5.concepto}}",
+                                    "8": "{{5.base_imponible}}",
+                                    "9": "{{5.tipo_iva}}",
+                                    "10": "{{5.cuota_iva}}",
+                                    "11": "{{5.total}}",
+                                    "12": "{{5.moneda}}",
+                                    "13": "{{5.categoria_gasto}}",
+                                    "14": "{{5.confianza}}",
+                                    "15": "",
+                                    "16": "{{1.fromEmail}}",
+                                    "17": "{{2.fileName}}",
+                                    "18": "{{7.clave_factura}}"
+                                }
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2400,
+                                    "y": -300,
+                                    "name": "Sheets: registro PROCESADA"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "My Google connection (pabloypepeshopify@gmail.com)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": 10,
+                            "module": "datastore:AddRecord",
+                            "version": 1,
+                            "parameters": {
+                                "datastore": 0
+                            },
+                            "mapper": {
+                                "key": "{{7.clave_factura}}",
+                                "proveedor_nombre": "{{5.proveedor_nombre}}",
+                                "proveedor_nif": "{{5.proveedor_nif}}",
+                                "numero_factura": "{{5.numero_factura}}",
+                                "fecha_factura": "{{5.fecha_factura}}",
+                                "total": "{{5.total}}",
+                                "fecha_proceso": "{{7.fecha_proceso}}",
+                                "email_origen": "{{1.fromEmail}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2700,
+                                    "y": -300,
+                                    "name": "Dedup: marcar como procesada"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 11,
+                            "module": "google-sheets:addRow",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "filter": {
+                                "name": "Revision manual",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{7.dup}}",
+                                            "b": "NO",
+                                            "o": "text:equal"
+                                        },
+                                        {
+                                            "a": "{{5.estado}}",
+                                            "b": "REVISION",
+                                            "o": "text:equal"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "a": "{{7.dup}}",
+                                            "b": "NO",
+                                            "o": "text:equal"
+                                        },
+                                        {
+                                            "a": "{{5.confianza}}",
+                                            "b": "0.85",
+                                            "o": "number:less"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "a": "{{7.dup}}",
+                                            "b": "NO",
+                                            "o": "text:equal"
+                                        },
+                                        {
+                                            "a": "{{7.descuadre}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "mode": "map",
+                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                "sheetId": "Facturas",
+                                "tableFirstRow": "A1:S1",
+                                "values": {
+                                    "0": "{{7.id_registro}}",
+                                    "1": "{{7.fecha_proceso}}",
+                                    "2": "REVISION_MANUAL",
+                                    "3": "{{5.proveedor_nombre}}",
+                                    "4": "{{5.proveedor_nif}}",
+                                    "5": "{{5.numero_factura}}",
+                                    "6": "{{5.fecha_factura}}",
+                                    "7": "{{5.concepto}}",
+                                    "8": "{{5.base_imponible}}",
+                                    "9": "{{5.tipo_iva}}",
+                                    "10": "{{5.cuota_iva}}",
+                                    "11": "{{5.total}}",
+                                    "12": "{{5.moneda}}",
+                                    "13": "{{5.categoria_gasto}}",
+                                    "14": "{{5.confianza}}",
+                                    "15": "{{ifempty(5.motivo_revision; join(5.campos_faltantes; \", \"))}}",
+                                    "16": "{{1.fromEmail}}",
+                                    "17": "{{2.fileName}}",
+                                    "18": "{{7.clave_factura}}"
+                                }
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2400,
+                                    "y": 0,
+                                    "name": "Sheets: registro REVISION"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "My Google connection (pabloypepeshopify@gmail.com)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": 12,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "mapper": {
+                                "to": [
+                                    "REEMPLAZAR_EMAIL_REVISION@tu-cliente.com"
+                                ],
+                                "subject": "[REVISAR FACTURA] {{ifempty(5.proveedor_nombre; \"Proveedor desconocido\")}} · {{ifempty(5.total; \"?\")}} {{ifempty(5.moneda; \"EUR\")}}",
+                                "bodyType": "rawHtml",
+                                "content": "<div style=\"font-family:Arial,sans-serif;max-width:620px;margin:0 auto\"><div style=\"background:#fff4e5;border-left:5px solid #e8890c;padding:16px 20px;border-radius:6px\"><h2 style=\"margin:0;color:#a85c00;font-size:18px\">Factura marcada para revision manual</h2></div><p style=\"color:#555;line-height:1.5\">La IA no ha podido validar esta factura con seguridad suficiente para contabilizarla automaticamente. Revisala en la hoja de facturas.</p><table style=\"width:100%;border-collapse:collapse;font-size:14px\"><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold;width:38%\">Proveedor</td><td style=\"padding:9px\">{{5.proveedor_nombre}} ({{5.proveedor_nif}})</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Nº factura</td><td style=\"padding:9px\">{{5.numero_factura}}</td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Fecha</td><td style=\"padding:9px\">{{5.fecha_factura}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Base / IVA / Total</td><td style=\"padding:9px\">{{5.base_imponible}} / {{5.cuota_iva}} / <strong>{{5.total}}</strong></td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Confianza IA</td><td style=\"padding:9px\">{{5.confianza}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Motivo</td><td style=\"padding:9px;color:#a85c00\">{{ifempty(5.motivo_revision; join(5.campos_faltantes; \", \"))}}</td></tr></table><p style=\"font-size:12px;color:#999;margin-top:14px\">Fichero: {{2.fileName}} · Recibido de: {{1.fromEmail}}</p></div>"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2700,
+                                    "y": 0,
+                                    "name": "Aviso: revision manual"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "My Gmail connection (pabloypepeshopify@gmail.com)"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 13,
+                            "module": "google-sheets:addRow",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "filter": {
+                                "name": "Duplicada",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{7.dup}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "mode": "map",
+                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                "sheetId": "Facturas",
+                                "tableFirstRow": "A1:S1",
+                                "values": {
+                                    "0": "{{7.id_registro}}",
+                                    "1": "{{7.fecha_proceso}}",
+                                    "2": "DUPLICADA",
+                                    "3": "{{5.proveedor_nombre}}",
+                                    "4": "{{5.proveedor_nif}}",
+                                    "5": "{{5.numero_factura}}",
+                                    "6": "{{5.fecha_factura}}",
+                                    "7": "{{5.concepto}}",
+                                    "8": "{{5.base_imponible}}",
+                                    "9": "{{5.tipo_iva}}",
+                                    "10": "{{5.cuota_iva}}",
+                                    "11": "{{5.total}}",
+                                    "12": "{{5.moneda}}",
+                                    "13": "{{5.categoria_gasto}}",
+                                    "14": "{{5.confianza}}",
+                                    "15": "Ya registrada anteriormente (mismo proveedor + numero de factura)",
+                                    "16": "{{1.fromEmail}}",
+                                    "17": "{{2.fileName}}",
+                                    "18": "{{7.clave_factura}}"
+                                }
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2400,
+                                    "y": 300,
+                                    "name": "Sheets: registro DUPLICADA"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "My Google connection (pabloypepeshopify@gmail.com)"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com"
+    }
+}
