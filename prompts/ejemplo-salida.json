@@ -1,0 +1,58 @@
+{
+    "estado": "COMPLETO",
+    "campos_faltantes": [],
+    "notas_internas": "Se aplica IVA 21% por tratarse de reforma sin acreditar antigüedad >2 años. Revisar si el cliente aporta documentación para aplicar 10%. Presupuesto sin licencias municipales (excluidas).",
+    "tipo_documento": "presupuesto",
+    "cliente_nombre": "María López Fernández",
+    "cliente_email": "maria.lopez@example.com",
+    "cliente_telefono": "600123456",
+    "cliente_direccion": "Calle Mayor 12, 3ºB, 28013 Madrid",
+    "proyecto_titulo": "Reforma integral de baño",
+    "proyecto_descripcion": "Reforma completa de baño de 5 m²: demolición, nueva fontanería, alicatado, sanitarios y pintura.",
+    "fecha_documento": "18/07/2026",
+    "validez_dias": 30,
+    "partidas": [
+        {
+            "concepto": "Reforma de baño completo (hasta 5 m²)",
+            "unidad": "ud",
+            "cantidad": 1,
+            "precio_unitario": 4800.00,
+            "importe": 4800.00
+        },
+        {
+            "concepto": "Puntos de fontanería adicionales",
+            "unidad": "ud",
+            "cantidad": 2,
+            "precio_unitario": 95.00,
+            "importe": 190.00
+        },
+        {
+            "concepto": "Gestión de proyecto",
+            "unidad": "%",
+            "cantidad": 1,
+            "precio_unitario": 299.40,
+            "importe": 299.40
+        }
+    ],
+    "base_imponible": 5289.40,
+    "iva_porcentaje": 21,
+    "iva_importe": 1110.77,
+    "total": 6400.17,
+    "condiciones_pago": "40 % a la firma, 30 % a mitad de obra, 30 % a la entrega.",
+    "plazo_ejecucion": "10-12 días laborables desde el inicio de la obra.",
+    "clausulas": [
+        {
+            "titulo": "Validez de la oferta",
+            "texto": "El presente presupuesto tiene una validez de 30 días naturales desde su fecha de emisión."
+        },
+        {
+            "titulo": "Exclusiones",
+            "texto": "Quedan excluidos elementos ocultos no visibles en la visita, licencias municipales e imprevistos estructurales, que se presupuestarán aparte."
+        },
+        {
+            "titulo": "Garantía",
+            "texto": "Los trabajos cuentan con una garantía de 1 año sobre mano de obra desde la finalización."
+        }
+    ],
+    "cuerpo_documento": "PRESUPUESTO DE REFORMA\n\nCliente: María López Fernández\nProyecto: Reforma integral de baño (5 m²)\n\nDESCRIPCIÓN\nReforma completa que incluye demolición del baño actual, renovación de la instalación de fontanería, alicatado y solado, colocación de sanitarios y pintura final.\n\nPARTIDAS\n- Reforma de baño completo (hasta 5 m²): 4.800,00 €\n- Puntos de fontanería adicionales (2 ud): 190,00 €\n- Gestión de proyecto: 299,40 €\n\nBase imponible: 5.289,40 €\nIVA (21 %): 1.110,77 €\nTOTAL: 6.400,17 €\n\nCONDICIONES DE PAGO\n40 % a la firma, 30 % a mitad de obra, 30 % a la entrega.\n\nPLAZO DE EJECUCIÓN\n10-12 días laborables desde el inicio de la obra.\n\nCLÁUSULAS\nValidez de la oferta: 30 días naturales. Exclusiones: elementos ocultos, licencias e imprevistos estructurales. Garantía: 1 año sobre mano de obra."
+}

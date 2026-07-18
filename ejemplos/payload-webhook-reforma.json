@@ -1,0 +1,15 @@
+{
+    "canal": "formulario",
+    "tipo_documento": "presupuesto",
+    "sector": "reformas",
+    "cliente_nombre": "María López Fernández",
+    "cliente_email": "maria.lopez@example.com",
+    "cliente_telefono": "600123456",
+    "cliente_direccion": "Calle Mayor 12, 3ºB, 28013 Madrid",
+    "tipo_reforma": "baño completo",
+    "metros_cuadrados": 5,
+    "tipo_acabado": "estándar",
+    "materiales": "gres porcelánico, sanitarios suspendidos gama media",
+    "detalles_adicionales": "2 puntos de fontanería nuevos para lavadora y bidet",
+    "plazo_deseado": "lo antes posible"
+}

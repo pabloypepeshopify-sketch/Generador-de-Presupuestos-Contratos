@@ -1,0 +1,27 @@
+{
+    "estado": "FALTAN_DATOS",
+    "campos_faltantes": [
+        "metros_cuadrados",
+        "tipo_acabado (estándar/premium)",
+        "cliente_email"
+    ],
+    "notas_internas": "El cliente indica 'reforma del baño' pero no aporta metros cuadrados ni nivel de acabado, imprescindibles para calcular la partida. Falta también el email de contacto. No se genera presupuesto: solicitar estos datos antes de continuar.",
+    "tipo_documento": "presupuesto",
+    "cliente_nombre": "Juan García",
+    "cliente_email": "",
+    "cliente_telefono": "611222333",
+    "cliente_direccion": "",
+    "proyecto_titulo": "",
+    "proyecto_descripcion": "",
+    "fecha_documento": "",
+    "validez_dias": 30,
+    "partidas": [],
+    "base_imponible": 0,
+    "iva_porcentaje": 21,
+    "iva_importe": 0,
+    "total": 0,
+    "condiciones_pago": "",
+    "plazo_ejecucion": "",
+    "clausulas": [],
+    "cuerpo_documento": ""
+}

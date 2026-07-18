@@ -1,0 +1,14 @@
+{
+    "canal": "whatsapp",
+    "tipo_documento": "contrato",
+    "sector": "legal",
+    "cliente_nombre": "Empresa Ejemplo S.L.",
+    "cliente_email": "administracion@empresaejemplo.com",
+    "cliente_telefono": "915556677",
+    "cliente_direccion": "Av. de la Constitución 45, 41001 Sevilla",
+    "tipo_caso": "reclamación de cantidad",
+    "cuantia_reclamada": 8500,
+    "contraparte": "Proveedor Moroso S.A.",
+    "descripcion_caso": "Facturas impagadas de suministro de material, vencidas hace 4 meses",
+    "urgencia": "alta"
+}
