@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitud de Presupuesto — Demo</title>
+<style>
+  :root{--brand:#0e7a5f;--brand2:#0a5c47;--bg:#f4f7f6;--card:#fff;--text:#22312c;--muted:#6b7a74;--line:#e2e8e5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 16px 60px}
+  .card{background:var(--card);border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.07);overflow:hidden}
+  .head{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:28px 26px}
+  .head h1{margin:0 0 4px;font-size:22px}
+  .head p{margin:0;opacity:.9;font-size:14px}
+  form{padding:22px 26px}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var(--text)}
+  .req::after{content:" *";color:#cf222e}
+  input,select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit;background:#fff;color:var(--text)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(14,122,95,.15)}
+  .row{display:flex;gap:12px}
+  .row>div{flex:1}
+  textarea{min-height:74px;resize:vertical}
+  button{margin-top:24px;width:100%;padding:14px;background:var(--brand);color:#fff;border:0;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:background .15s}
+  button:hover{background:var(--brand2)}
+  button:disabled{opacity:.6;cursor:default}
+  .note{font-size:12px;color:var(--muted);margin-top:14px;text-align:center}
+  .ok{display:none;padding:40px 26px;text-align:center}
+  .ok .tick{width:64px;height:64px;border-radius:50%;background:#e7f4ef;color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px}
+  .ok h2{margin:0 0 8px}
+  .ok p{color:var(--muted);margin:4px 0}
+  .ok button{max-width:220px;margin:20px auto 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Solicita tu presupuesto</h1>
+      <p>Rellena los datos y recibirás tu presupuesto profesional en minutos.</p>
+    </div>
+
+    <form id="f" action="https://hook.eu1.make.com/um1aiy31btng29en6mukyff4v1puvy6c" method="POST" target="sink">
+      <input type="hidden" name="tipo_documento" value="presupuesto">
+      <input type="hidden" name="sector" value="reformas">
+      <input type="hidden" name="canal" value="formulario">
+
+      <label class="req">Nombre del cliente</label>
+      <input name="cliente_nombre" required placeholder="Ej. María López Fernández">
+
+      <div class="row">
+        <div>
+          <label class="req">Email</label>
+          <input type="email" name="cliente_email" required placeholder="cliente@correo.com">
+        </div>
+        <div>
+          <label>Teléfono</label>
+          <input name="cliente_telefono" placeholder="600 123 456">
+        </div>
+      </div>
+
+      <label>Dirección de la obra</label>
+      <input name="cliente_direccion" placeholder="Calle, nº, ciudad">
+
+      <div class="row">
+        <div>
+          <label class="req">Tipo de reforma</label>
+          <select name="tipo_reforma" required>
+            <option value="">Selecciona…</option>
+            <option>baño completo</option>
+            <option>cocina completa</option>
+            <option>reforma integral vivienda</option>
+          </select>
+        </div>
+        <div>
+          <label class="req">Metros cuadrados</label>
+          <input name="metros_cuadrados" type="number" min="1" required placeholder="Ej. 5">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Acabado</label>
+          <select name="tipo_acabado">
+            <option>estándar</option>
+            <option>premium</option>
+          </select>
+        </div>
+        <div>
+          <label>Plazo deseado</label>
+          <input name="plazo_deseado" placeholder="Ej. lo antes posible">
+        </div>
+      </div>
+
+      <label>Materiales / detalles</label>
+      <textarea name="materiales" placeholder="Ej. gres porcelánico, sanitarios suspendidos gama media"></textarea>
+
+      <label>Detalles adicionales</label>
+      <textarea name="detalles_adicionales" placeholder="Ej. 2 puntos de fontanería nuevos"></textarea>
+
+      <button type="submit" id="btn">Solicitar presupuesto</button>
+      <p class="note">Al enviar, se genera el documento automáticamente y llega para revisión.</p>
+    </form>
+
+    <div class="ok" id="ok">
+      <div class="tick">✓</div>
+      <h2>¡Solicitud enviada!</h2>
+      <p>El presupuesto se está generando automáticamente.</p>
+      <p>En ~1 minuto estará listo el PDF para revisar y enviar.</p>
+      <button onclick="location.reload()">Enviar otra</button>
+    </div>
+  </div>
+</div>
+
+<!-- iframe oculto: recibe la respuesta del webhook sin recargar la página ni bloqueos CORS -->
+<iframe name="sink" style="display:none"></iframe>
+
+<script>
+  var f = document.getElementById('f'), ok = document.getElementById('ok'), btn = document.getElementById('btn');
+  f.addEventListener('submit', function(){
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    setTimeout(function(){ f.style.display = 'none'; ok.style.display = 'block'; }, 600);
+  });
+</script>
+</body>
+</html>
