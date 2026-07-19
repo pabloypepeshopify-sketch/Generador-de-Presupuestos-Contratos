@@ -20,7 +20,8 @@ ID del Google Sheet y email de avisos).
 | Google Sheets (9, 11, 13) | My Google connection | `8533301` |
 | OCR (3) | HTTP con API key de Mistral en el header | — (pegar la key) |
 
-- **Prompts ya embebidos** en el módulo OpenAI (system + user). Modelo `gpt-4o`, `temperature 0`, modo JSON.
+- **Prompts ya embebidos** en el módulo OpenAI (system + user). Modelo `gpt-4o-mini`, modo JSON. Los campos
+  `Temperature`/`Max tokens`/`Top P`/`Number of completions` se dejan **vacíos** a propósito (ver más abajo).
 - **Trigger Gmail** con filtro `has:attachment filename:pdf`, `format = Full`, `mark as read`.
 - **Programación:** cada 15 min (`indefinitely / 900s`). Para la demo, usa **Run once**.
 
@@ -50,5 +51,8 @@ ID del Google Sheet y email de avisos).
 - **El OCR devuelve 401** → API key de Mistral mal pegada o sin saldo.
 - **La IA devuelve texto no-JSON** → confirma que `response_format = {type: json_object}` sigue en
   *Other input parameters* del módulo 4.
+- **Error `[400] ... expected an integer/decimal, but got a string`** en el módulo OpenAI → tienes
+  algún valor en `Temperature`, `Max tokens`, `Top P` o `Number of completions`. **Vacíalos**: este
+  módulo los envía como texto y la API los rechaza. El escenario ya viene con esos campos vacíos.
 - **Sheets da error de columnas** → la pestaña debe llamarse `Facturas` y tener las 19 cabeceras A→S.
 - **No detecta duplicados** → revisa que el Data Store seleccionado en módulos 6 y 10 es el `149074`.

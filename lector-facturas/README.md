@@ -74,6 +74,21 @@ ejemplos/
 
 ---
 
+## ✅ Verificado en ejecución real
+El "cerebro" del escenario (IA → validación → deduplicación → Router) se probó de extremo a extremo con
+un escenario de pruebas gemelo, inyectando el texto OCR de facturas reales. Resultados confirmados leyendo
+los Data Stores:
+
+| Caso de prueba | Ruta esperada | Resultado |
+|----------------|---------------|-----------|
+| Factura limpia (base+IVA=total) | OK / PROCESADA | ✅ registrada + marcada en dedup |
+| Misma factura reenviada (×varias) | DUPLICADA | ✅ no se recontabiliza (dedup queda en 1 registro) |
+| Factura con descuadre (base+IVA≠total) | REVISIÓN | ✅ marcada para revisión |
+| Factura con total ilegible | REVISIÓN | ✅ marcada para revisión |
+
+La IA extrajo correctamente NIF, nº de factura, base/IVA/total y categoría; la clave de deduplicación
+(`nif|numero`) se construyó bien y las 3 rutas del Router se dispararon como se diseñó.
+
 ## 🧠 Qué hace la IA (y qué NO)
 - **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).
 - **Clasifica** el gasto en una categoría cerrada (para sumar por tipo).

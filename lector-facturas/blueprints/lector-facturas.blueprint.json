@@ -105,11 +105,7 @@
             },
             "mapper": {
                 "select": "chat",
-                "model": "gpt-4o",
-                "temperature": "0",
-                "top_p": "1",
-                "max_tokens": "2000",
-                "n_completions": "1",
+                "model": "gpt-4o-mini",
                 "messages": [
                     {
                         "role": "system",

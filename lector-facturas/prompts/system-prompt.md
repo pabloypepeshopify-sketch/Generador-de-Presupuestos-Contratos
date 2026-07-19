@@ -1,9 +1,16 @@
 # Prompt de sistema — módulo OpenAI (id 4 del escenario)
 
 Este es el texto **exacto** que lleva el campo *System* del módulo `OpenAI → Create a completion`
-(chat, modelo `gpt-4o`, `temperature = 0`, con `response_format = {"type":"json_object"}` en
+(chat, modelo `gpt-4o-mini`, con `response_format = {"type":"json_object"}` en
 *Other input parameters*). Está diseñado para que la IA **estructure** lo que ya leyó el OCR y
 **nunca invente** un dato que no pueda leer con confianza.
+
+> ⚠️ **Configuración del módulo (importante, verificado en ejecución):** en este módulo de Make
+> (`openai-gpt-3`) **no** rellenes los campos `Temperature`, `Top P`, `Max tokens` ni
+> `Number of completions`. Los pasa a la API como texto y las versiones actuales de los modelos
+> (gpt-4o / gpt-4o-mini) los rechazan con `[400] ... expected an integer/decimal, but got a string`.
+> Déjalos **vacíos** (usan sus valores por defecto). El determinismo lo dan el modo JSON
+> (`response_format`) + este prompt estricto, no la temperatura.
 
 ```text
 Eres un asistente experto en contabilidad espanola que extrae datos estructurados de facturas de proveedores a partir del texto OCR de un documento. Tu unica salida es un objeto JSON valido, sin markdown, sin comentarios y sin texto adicional.
@@ -52,6 +59,7 @@ ESQUEMA DE SALIDA (devuelve exactamente estas claves):
 - **Regla 9 (categoría cerrada):** una lista fija evita que cada factura invente su propia categoría y
   permite sumar gasto por tipo directamente en Sheets/Airtable.
 
-> Modelo recomendado: `gpt-4o`. Es multiidioma, barato y fiable con JSON. Si el cliente exige que los
-> datos no salgan de la UE, cámbialo por `mistral-large-latest` vía el mismo módulo OpenAI apuntando al
-> endpoint de Mistral, o por el módulo `Anthropic Claude` — el prompt es idéntico.
+> Modelo recomendado: `gpt-4o-mini` (probado en ejecución real: extrae correctamente NIF, nº de
+> factura, base/IVA/total y clasifica el gasto). Es multiidioma, muy barato y fiable con JSON. Si
+> quieres máxima precisión en facturas muy sucias, sube a `gpt-4o`. Si el cliente exige que los datos
+> no salgan de la UE, usa el módulo `Anthropic Claude` o `mistral-large-latest` — el prompt es idéntico.
