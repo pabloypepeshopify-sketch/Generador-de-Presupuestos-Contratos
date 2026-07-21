@@ -1,0 +1,125 @@
+{
+    "name": "Cobrador Automatico de Impagos · 2 · Resumen semanal",
+    "flow": [
+        {
+            "id": 1,
+            "module": "google-sheets:filterRows",
+            "version": 2,
+            "parameters": { "__IMTCONN__": 0 },
+            "mapper": {
+                "from": "drive",
+                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                "sheetId": "REEMPLAZAR_NOMBRE_PESTANA",
+                "includesHeaders": true,
+                "tableFirstRow": "A1:Z1",
+                "filter": [
+                    [
+                        { "a": "H", "b": "PAGADO", "o": "text:notequal" }
+                    ]
+                ],
+                "sortOrder": "asc",
+                "limit": 500
+            },
+            "metadata": {
+                "designer": { "x": 0, "y": 0 },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": { "label": "REEMPLAZAR: conexion Google (Sheets)" }
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "module": "util:SetVariables",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "variables": [
+                    {
+                        "name": "dias_impago",
+                        "value": "{{floor((now - parseDate(1.`4`; \"YYYY-MM-DD\")) / 86400000)}}"
+                    }
+                ],
+                "scope": "roundtrip"
+            },
+            "metadata": { "designer": { "x": 300, "y": 0 } }
+        },
+        {
+            "id": 3,
+            "module": "builtin:BasicAggregator",
+            "version": 1,
+            "parameters": { "feeder": 1 },
+            "mapper": {
+                "importe": "{{1.`5`}}",
+                "linea": "{{1.`0`}} — {{1.`1`}} — {{formatNumber(1.`5`; 2; \",\"; \".\")}} € — {{2.dias_impago}} días — {{1.`7`}}"
+            },
+            "metadata": { "designer": { "x": 600, "y": 0 } }
+        },
+        {
+            "id": 4,
+            "module": "openai-gpt-3:CreateCompletion",
+            "version": 1,
+            "parameters": { "__IMTCONN__": 0 },
+            "mapper": {
+                "select": "chat",
+                "model": "gpt-4o",
+                "temperature": 0.4,
+                "top_p": 1,
+                "max_tokens": 900,
+                "n_completions": 1,
+                "messages": [
+                    { "role": "system", "content": "PEGAR AQUI el system prompt de prompts/system-prompt-resumen-semanal.md" },
+                    { "role": "user", "content": "RESUMEN SEMANAL DE IMPAGOS — {{formatDate(now; \"DD/MM/YYYY\")}}\n\nTotal pendiente de cobro: {{formatNumber(sum(map(3.array; \"importe\")); 2; \",\"; \".\")}} €\nNúmero de facturas pendientes: {{length(3.array)}}\n\nDetalle (factura — cliente — importe — días de retraso — estado):\n{{join(map(3.array; \"linea\"); \"\n\")}}\n\nRedacta el cuerpo HTML del resumen semanal interno." }
+                ]
+            },
+            "metadata": {
+                "designer": { "x": 900, "y": 0 },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": { "label": "REEMPLAZAR: conexion OpenAI" }
+                    }
+                }
+            }
+        },
+        {
+            "id": 5,
+            "module": "google-email:sendAnEmail",
+            "version": 4,
+            "parameters": { "__IMTCONN__": 0 },
+            "mapper": {
+                "to": ["REEMPLAZAR_EMAIL_INTERNO@tu-empresa.com"],
+                "subject": "Resumen semanal de impagos · Total pendiente {{formatNumber(sum(map(3.array; \"importe\")); 2; \",\"; \".\")}} € ({{length(3.array)}} facturas)",
+                "bodyType": "rawHtml",
+                "content": "{{4.result}}",
+                "attachments": []
+            },
+            "metadata": {
+                "designer": { "x": 1200, "y": 0 },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": { "label": "REEMPLAZAR: conexion Gmail" }
+                    }
+                }
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": { "orphans": [] },
+        "zone": "eu1.make.com"
+    }
+}

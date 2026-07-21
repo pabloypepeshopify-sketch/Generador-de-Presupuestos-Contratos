@@ -13,6 +13,19 @@ el envío al cliente está aislado en un módulo para migrar a **WhatsApp/Twilio
 
 ---
 
+## 📁 Productos de este repositorio
+
+Este repo contiene automatizaciones de Make.com para la agencia. Además del generador de
+presupuestos/contratos (documentado abajo), incluye:
+
+- **[`cobrador-impagos/`](cobrador-impagos/README.md) — Cobrador Automático de Impagos**: cron diario
+  que reclama por email (fase de pruebas) las facturas impagadas de una hoja de Google Sheets, con
+  tono adaptado por IA a la antigüedad de la deuda (amable → firme → escalado interno), enlace de
+  pago opcional, trazabilidad en la hoja y resumen semanal. **Creado y probado en Make** (escenarios
+  `6620630` y `6651592`).
+
+---
+
 ## ✅ Estado: DESPLEGADO, ACTIVO y PROBADO en Make
 Los 2 escenarios están **creados, activos y verificados de extremo a extremo** en Make (EU), con
 conexiones, prompts, reglas de negocio y activos de Google (hoja, plantilla, carpeta) ya creados y

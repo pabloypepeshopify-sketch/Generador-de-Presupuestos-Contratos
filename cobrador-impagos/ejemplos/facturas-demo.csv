@@ -1,0 +1,8 @@
+id_factura,cliente_nombre,cliente_email,cliente_telefono,fecha_emision,importe,concepto,estado_pago,fecha_ultimo_recordatorio,nivel_escalado,enlace_pago,notas
+F-2026-001,Taller Hermanos Ruiz,cliente1@ejemplo.com,600123123,2026-06-14,450.00,Revision y cambio de embrague,PENDIENTE,,0,https://buy.stripe.com/test_demo123,
+F-2026-002,Clinica Dental Sonrisa,,600222333,2026-06-29,120.00,Limpieza bucal,PENDIENTE,,0,,
+F-2026-003,Academia Idiomas Global,cliente3@ejemplo.com,600333444,2026-06-09,300.00,Cuota trimestral ingles,PAGADO,,0,,
+F-2026-004,Gimnasio FitZone,cliente4@ejemplo.com,600444555,2026-07-17,39.90,Cuota mensual julio,PENDIENTE,,0,,
+F-2026-005,Peluqueria Estilo,cliente5@ejemplo.com,600555666,2026-06-20,85.00,Corte y tinte,PENDIENTE,,1,https://buy.stripe.com/test_demo005,
+F-2026-006,Autoescuela Volante,cliente6@ejemplo.com,600666777,2026-06-01,540.00,Pack 10 clases practicas,PENDIENTE,,2,,
+F-2026-007,Fisioterapia Bienestar,cliente7@ejemplo.com,600777888,2026-06-10,220.00,Sesiones rehabilitacion,PENDIENTE,2026-07-10,3,,Escalado al responsable 2026-07-10 — decision humana
