@@ -65,7 +65,7 @@
                 "model": "gpt-4o",
                 "temperature": 0.2,
                 "top_p": 1,
-                "max_tokens": 4000,
+                "max_tokens": 6000,
                 "n_completions": 1,
                 "messages": [
                     {
@@ -109,7 +109,7 @@
                 "type": ""
             },
             "mapper": {
-                "json": "{{3.result}}"
+                "json": "{{trim(replace(replace(3.result; \"```json\"; \"\"); \"```\"; \"\"))}}"
             },
             "metadata": {
                 "designer": {
