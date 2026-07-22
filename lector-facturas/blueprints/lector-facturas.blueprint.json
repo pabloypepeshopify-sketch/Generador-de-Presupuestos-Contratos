@@ -265,6 +265,9 @@
                             },
                             "mapper": {
                                 "mode": "map",
+                                "insertUnformatted": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertDataOption": "INSERT_ROWS",
                                 "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
                                 "sheetId": "Facturas",
                                 "tableFirstRow": "A1:S1",
@@ -384,6 +387,9 @@
                             },
                             "mapper": {
                                 "mode": "map",
+                                "insertUnformatted": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertDataOption": "INSERT_ROWS",
                                 "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
                                 "sheetId": "Facturas",
                                 "tableFirstRow": "A1:S1",
@@ -479,6 +485,9 @@
                             },
                             "mapper": {
                                 "mode": "map",
+                                "insertUnformatted": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertDataOption": "INSERT_ROWS",
                                 "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
                                 "sheetId": "Facturas",
                                 "tableFirstRow": "A1:S1",

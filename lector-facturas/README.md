@@ -13,15 +13,17 @@ Todo **100 % en Make.com** (sin app propia). Fase de pruebas por **Gmail**; disp
 
 ---
 
-## ✅ Estado: YA DESPLEGADO en Make
-Escenario creado en la cuenta (EU), con conexiones (Gmail, OpenAI, Google) y prompts cableados, más un
-**Data Store** de antiduplicados. Faltan **3 datos** para activarlo (API key de Mistral, ID del Sheet,
-email de avisos). Detalle en [`docs/06-despliegue-en-make.md`](docs/06-despliegue-en-make.md).
+## ✅ Estado: YA DESPLEGADO y CABLEADO en Make
+Escenario creado en la cuenta (EU) con conexiones (Gmail, OpenAI, Google) y prompts cableados, **Data
+Store** de antiduplicados, **hoja de Google Sheets ya creada y conectada** (escritura probada) y **email
+de avisos puesto**. Falta **1 solo dato** para activarlo: la **API key de Mistral** (el OCR). Detalle en
+[`docs/06-despliegue-en-make.md`](docs/06-despliegue-en-make.md).
 
 | Recurso | ID |
 |---------|----|
 | Escenario · *Lector Automatico de Facturas · OCR + IA* | **6613926** |
 | Data Store · *Lector Facturas · Dedup* | **149074** |
+| Google Sheet de destino (pestaña `Untitled`) | `1qtZNixNsExhuDdXBVP3FcnNHu-xfyu4hul97ot2CFUE` |
 | Carpeta · *Lector de Facturas* | 370160 |
 
 ---
@@ -88,6 +90,11 @@ los Data Stores:
 
 La IA extrajo correctamente NIF, nº de factura, base/IVA/total y categoría; la clave de deduplicación
 (`nif|numero`) se construyó bien y las 3 rutas del Router se dispararon como se diseñó.
+
+Además se probó en real la **escritura en Google Sheets** (una fila entra correctamente en las 19
+columnas de la hoja de destino). Durante las pruebas se detectaron y corrigieron dos incompatibilidades
+del módulo OpenAI de Make (parámetros numéricos enviados como texto) y del módulo Google Sheets
+(`valueInputOption` obligatorio) — ya corregidas en el escenario y en el blueprint.
 
 ## 🧠 Qué hace la IA (y qué NO)
 - **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).
