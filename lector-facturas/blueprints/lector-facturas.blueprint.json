@@ -113,7 +113,7 @@
                     },
                     {
                         "role": "user",
-                        "content": "Extrae los datos de la siguiente factura de proveedor.\n\nMETADATOS DEL EMAIL (contexto, no forman parte de la factura salvo que esta los confirme):\n- Remitente: {{1.fromEmail}}\n- Asunto: {{1.subject}}\n- Fichero adjunto: {{2.fileName}}\n- Fecha de recepcion: {{1.internalDate}}\n\nTEXTO OCR DE LA FACTURA (Mistral OCR, formato markdown; las tablas conservan el desglose de partidas e IVA):\n\"\"\"\n{{join(3.data.pages[].markdown; \" \")}}\n\"\"\"\n\nDevuelve unicamente el JSON con el esquema indicado."
+                        "content": "Extrae los datos de la siguiente factura de proveedor.\n\nMETADATOS DEL EMAIL (contexto, no forman parte de la factura salvo que esta los confirme):\n- Remitente: {{1.fromEmail}}\n- Asunto: {{1.subject}}\n- Fichero adjunto: {{2.fileName}}\n- Fecha de recepcion: {{1.internalDate}}\n\nTEXTO OCR DE LA FACTURA (Mistral OCR, formato markdown; las tablas conservan el desglose de partidas e IVA):\n\"\"\"\n{{join(map(3.data.pages; \"markdown\"); \" \")}}\n\"\"\"\n\nDevuelve unicamente el JSON con el esquema indicado."
                     }
                 ],
                 "additionalParameters": [
@@ -149,7 +149,7 @@
                 "type": ""
             },
             "mapper": {
-                "json": "{{4.result}}"
+                "json": "{{replace(replace(4.result; \"```json\"; \"\"); \"```\"; \"\")}}"
             },
             "metadata": {
                 "designer": {

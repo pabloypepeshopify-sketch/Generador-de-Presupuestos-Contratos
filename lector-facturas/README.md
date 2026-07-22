@@ -91,10 +91,20 @@ los Data Stores:
 La IA extrajo correctamente NIF, nº de factura, base/IVA/total y categoría; la clave de deduplicación
 (`nif|numero`) se construyó bien y las 3 rutas del Router se dispararon como se diseñó.
 
-Además se probó en real la **escritura en Google Sheets** (una fila entra correctamente en las 19
-columnas de la hoja de destino). Durante las pruebas se detectaron y corrigieron dos incompatibilidades
-del módulo OpenAI de Make (parámetros numéricos enviados como texto) y del módulo Google Sheets
-(`valueInputOption` obligatorio) — ya corregidas en el escenario y en el blueprint.
+**Probado de extremo a extremo con una factura PDF real** (PDF → Mistral OCR → IA → Google Sheets):
+la fila entró como `PROCESADA` con extracción 100% correcta — proveedor, CIF `B12345678`,
+nº `FA-2025-04821`, base **842,50**, IVA **176,93**, total **1019,43**, categoría `Suministros`.
+
+Durante las pruebas se detectaron y corrigieron **varias incompatibilidades del entorno Make** (todas ya
+aplicadas en el escenario y en el blueprint):
+- Módulo OpenAI: envía `temperature`/`max_tokens` como texto → la API los rechaza. Solución: `gpt-4o-mini`
+  y esos campos vacíos.
+- Módulo Google Sheets: `valueInputOption` (`USER_ENTERED`) es obligatorio.
+- Respuesta del OCR: hay que leer el texto con `join(map(3.data.pages; "markdown"); " ")` — la notación
+  `pages[].markdown` dentro de `join()` devuelve vacío.
+- La IA a veces envuelve el JSON en ```` ```json ````; el módulo *Parse JSON* limpia esas comillas antes
+  de parsear.
+- La API key de Mistral debe llevar el prefijo **`Bearer `** en el header `Authorization`.
 
 ## 🧠 Qué hace la IA (y qué NO)
 - **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).

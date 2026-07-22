@@ -33,7 +33,10 @@ de avisos ya están puestos.**
 **API key de Mistral** → módulo **3** (OCR), header `Authorization`, sustituir
 `REEMPLAZAR_MISTRAL_API_KEY` por `Bearer <tu_key>`.
 - Alta en `console.mistral.ai` → **API Keys → Create new key** (tiene plan gratuito para empezar).
-- Pega la clave y listo. La hoja y el email ya están puestos.
+- **IMPORTANTE:** el valor del header debe ser `Bearer <tu_key>` (con el prefijo `Bearer ` y un espacio).
+  Pegar solo la clave da error 401 y el OCR devuelve texto vacío.
+- El escenario ya está **probado de extremo a extremo** con este OCR (ver README); la hoja y el email ya
+  están cableados. Tras pegar la key, pulsa **Run once** o activa el toggle **ON**.
 
 > La pestaña de la hoja se llama **`Untitled`** (así se creó al generarla automáticamente). Si la
 > renombras, actualiza el campo *Sheet* de los módulos 9, 11 y 13. También hay una fila `SMOKE-TEST` de
