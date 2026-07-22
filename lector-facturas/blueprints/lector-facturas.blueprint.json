@@ -34,17 +34,28 @@
         },
         {
             "id": 2,
-            "module": "builtin:BasicFeeder",
-            "version": 1,
-            "parameters": {},
+            "module": "google-email:listEmailAttachments",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 0
+            },
             "mapper": {
-                "array": "{{1.attachments[]}}"
+                "messageId": "{{1.id}}",
+                "include": "attachment",
+                "returnAttachmentData": true
             },
             "metadata": {
                 "designer": {
                     "x": 300,
                     "y": 0,
-                    "name": "Iterar adjuntos"
+                    "name": "Descargar adjuntos"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Gmail connection (pabloypepeshopify@gmail.com)"
+                        }
+                    }
                 }
             }
         },
@@ -60,14 +71,14 @@
                 "conditions": [
                     [
                         {
-                            "a": "{{2.contentType}}",
+                            "a": "{{2.mimeType}}",
                             "b": "pdf",
                             "o": "text:contains"
                         }
                     ],
                     [
                         {
-                            "a": "{{lower(2.fileName)}}",
+                            "a": "{{lower(2.filename)}}",
                             "b": ".pdf",
                             "o": "text:contains"
                         }
@@ -85,7 +96,7 @@
                 ],
                 "contentType": "json",
                 "inputMethod": "jsonString",
-                "jsonStringBodyContent": "{\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"data:{{2.contentType}};base64,{{base64(2.data)}}\"\n  },\n  \"include_image_base64\": false\n}",
+                "jsonStringBodyContent": "{\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"data:{{2.mimeType}};base64,{{base64(2.data)}}\"\n  },\n  \"include_image_base64\": false\n}",
                 "parseResponse": true
             },
             "metadata": {
@@ -113,7 +124,7 @@
                     },
                     {
                         "role": "user",
-                        "content": "Extrae los datos de la siguiente factura de proveedor.\n\nMETADATOS DEL EMAIL (contexto, no forman parte de la factura salvo que esta los confirme):\n- Remitente: {{1.fromEmail}}\n- Asunto: {{1.subject}}\n- Fichero adjunto: {{2.fileName}}\n- Fecha de recepcion: {{1.internalDate}}\n\nTEXTO OCR DE LA FACTURA (Mistral OCR, formato markdown; las tablas conservan el desglose de partidas e IVA):\n\"\"\"\n{{join(map(3.data.pages; \"markdown\"); \" \")}}\n\"\"\"\n\nDevuelve unicamente el JSON con el esquema indicado."
+                        "content": "Extrae los datos de la siguiente factura de proveedor.\n\nMETADATOS DEL EMAIL (contexto, no forman parte de la factura salvo que esta los confirme):\n- Remitente: {{1.fromEmail}}\n- Asunto: {{1.subject}}\n- Fichero adjunto: {{2.filename}}\n- Fecha de recepcion: {{1.internalDate}}\n\nTEXTO OCR DE LA FACTURA (Mistral OCR, formato markdown; las tablas conservan el desglose de partidas e IVA):\n\"\"\"\n{{join(map(3.data.pages; \"markdown\"); \" \")}}\n\"\"\"\n\nDevuelve unicamente el JSON con el esquema indicado."
                     }
                 ],
                 "additionalParameters": [
@@ -289,7 +300,7 @@
                                     "14": "{{5.confianza}}",
                                     "15": "",
                                     "16": "{{1.fromEmail}}",
-                                    "17": "{{2.fileName}}",
+                                    "17": "{{2.filename}}",
                                     "18": "{{7.clave_factura}}"
                                 }
                             },
@@ -411,7 +422,7 @@
                                     "14": "{{5.confianza}}",
                                     "15": "{{ifempty(5.motivo_revision; join(5.campos_faltantes; \", \"))}}",
                                     "16": "{{1.fromEmail}}",
-                                    "17": "{{2.fileName}}",
+                                    "17": "{{2.filename}}",
                                     "18": "{{7.clave_factura}}"
                                 }
                             },
@@ -443,7 +454,7 @@
                                 ],
                                 "subject": "[REVISAR FACTURA] {{ifempty(5.proveedor_nombre; \"Proveedor desconocido\")}} · {{ifempty(5.total; \"?\")}} {{ifempty(5.moneda; \"EUR\")}}",
                                 "bodyType": "rawHtml",
-                                "content": "<div style=\"font-family:Arial,sans-serif;max-width:620px;margin:0 auto\"><div style=\"background:#fff4e5;border-left:5px solid #e8890c;padding:16px 20px;border-radius:6px\"><h2 style=\"margin:0;color:#a85c00;font-size:18px\">Factura marcada para revision manual</h2></div><p style=\"color:#555;line-height:1.5\">La IA no ha podido validar esta factura con seguridad suficiente para contabilizarla automaticamente. Revisala en la hoja de facturas.</p><table style=\"width:100%;border-collapse:collapse;font-size:14px\"><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold;width:38%\">Proveedor</td><td style=\"padding:9px\">{{5.proveedor_nombre}} ({{5.proveedor_nif}})</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Nº factura</td><td style=\"padding:9px\">{{5.numero_factura}}</td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Fecha</td><td style=\"padding:9px\">{{5.fecha_factura}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Base / IVA / Total</td><td style=\"padding:9px\">{{5.base_imponible}} / {{5.cuota_iva}} / <strong>{{5.total}}</strong></td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Confianza IA</td><td style=\"padding:9px\">{{5.confianza}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Motivo</td><td style=\"padding:9px;color:#a85c00\">{{ifempty(5.motivo_revision; join(5.campos_faltantes; \", \"))}}</td></tr></table><p style=\"font-size:12px;color:#999;margin-top:14px\">Fichero: {{2.fileName}} · Recibido de: {{1.fromEmail}}</p></div>"
+                                "content": "<div style=\"font-family:Arial,sans-serif;max-width:620px;margin:0 auto\"><div style=\"background:#fff4e5;border-left:5px solid #e8890c;padding:16px 20px;border-radius:6px\"><h2 style=\"margin:0;color:#a85c00;font-size:18px\">Factura marcada para revision manual</h2></div><p style=\"color:#555;line-height:1.5\">La IA no ha podido validar esta factura con seguridad suficiente para contabilizarla automaticamente. Revisala en la hoja de facturas.</p><table style=\"width:100%;border-collapse:collapse;font-size:14px\"><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold;width:38%\">Proveedor</td><td style=\"padding:9px\">{{5.proveedor_nombre}} ({{5.proveedor_nif}})</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Nº factura</td><td style=\"padding:9px\">{{5.numero_factura}}</td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Fecha</td><td style=\"padding:9px\">{{5.fecha_factura}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Base / IVA / Total</td><td style=\"padding:9px\">{{5.base_imponible}} / {{5.cuota_iva}} / <strong>{{5.total}}</strong></td></tr><tr style=\"background:#f6f6f6\"><td style=\"padding:9px;font-weight:bold\">Confianza IA</td><td style=\"padding:9px\">{{5.confianza}}</td></tr><tr><td style=\"padding:9px;font-weight:bold\">Motivo</td><td style=\"padding:9px;color:#a85c00\">{{ifempty(5.motivo_revision; join(5.campos_faltantes; \", \"))}}</td></tr></table><p style=\"font-size:12px;color:#999;margin-top:14px\">Fichero: {{2.filename}} · Recibido de: {{1.fromEmail}}</p></div>"
                             },
                             "metadata": {
                                 "designer": {
@@ -509,7 +520,7 @@
                                     "14": "{{5.confianza}}",
                                     "15": "Ya registrada anteriormente (mismo proveedor + numero de factura)",
                                     "16": "{{1.fromEmail}}",
-                                    "17": "{{2.fileName}}",
+                                    "17": "{{2.filename}}",
                                     "18": "{{7.clave_factura}}"
                                 }
                             },

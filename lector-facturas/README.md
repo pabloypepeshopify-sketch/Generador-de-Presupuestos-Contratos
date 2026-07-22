@@ -105,6 +105,9 @@ aplicadas en el escenario y en el blueprint):
 - La IA a veces envuelve el JSON en ```` ```json ````; el módulo *Parse JSON* limpia esas comillas antes
   de parsear.
 - La API key de Mistral debe llevar el prefijo **`Bearer `** en el header `Authorization`.
+- **El trigger *Watch emails* de Gmail NO entrega el binario del adjunto** (solo `hasAttachment`). Hay que
+  añadir el módulo ***List email attachments and media*** (`Return file data = Yes`) para descargar el PDF —
+  verificado en real (`mimeType = application/pdf`, datos presentes).
 
 ## 🧠 Qué hace la IA (y qué NO)
 - **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).
