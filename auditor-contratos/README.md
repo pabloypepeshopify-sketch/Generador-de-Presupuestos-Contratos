@@ -17,6 +17,32 @@ decida un humano.** Todo se construye **100 % en Make.com** (sin app propia), zo
 > ✅ **Validado contra la API real de Make** (org VISAX AI, `eu1.make.com`): los 8 módulos distintos
 > pasan `validate_module_configuration` y replican patrones ya probados en producción en tu cuenta.
 > Activos de Google (plantilla, hoja, carpeta) **ya creados**. Detalle en `docs/07`.
+>
+> 🟢 **Ya montado en tu cuenta de Make** — escenario **`6696980`** "Auditor de Contratos · Detector
+> de Clausulas de Riesgo", **creado e inactivo**, cableado a tus conexiones (Gmail, Google, OpenAI),
+> tu clave de Mistral y los 3 activos de Google. Los 20 módulos importaron sin errores. **Solo falta:**
+> (1) acotar el disparador a una etiqueta/carpeta de Gmail (para no auditar TODOS los PDF de tu
+> bandeja) y (2) activarlo. Ver "Ya montado en tu cuenta" abajo.
+
+## 🟢 Ya montado en tu cuenta (VISAX AI)
+
+| Recurso | ID / valor |
+|---------|-----------|
+| Escenario Make (inactivo) | `6696980` |
+| Carpeta de informes (Drive) | `1ugUnyqwYW7yL3OBqBV1Tr9XomiLMVTm-` |
+| Plantilla del informe (Docs) | `1AqZ6dcTLWwDFHgCG5OAdO5tVd6BzzCCduJQp-_pvrXw` |
+| Hoja de trazabilidad (Sheets) | `135y-0zqrnJcbJgJdUD0gZwgLWau9h_soIRrfymOo74w` (pestaña `Untitled`) |
+| Conexiones usadas | Gmail `8532314` · Google `8533301` · OpenAI `8476276` |
+
+**Antes de activarlo (2 minutos):**
+1. Crea en Gmail una etiqueta/filtro `Contratos-Entrantes` y cambia el campo `q` del módulo 1 a
+   `label:Contratos-Entrantes has:attachment filename:pdf` (si no, auditaría **todos** los PDF que
+   te lleguen: facturas, etc.).
+2. Cambia los emails `to`/`cc` (ahora tu correo) por los del cliente y su asesor legal.
+3. *(Opcional, máxima calidad)* sustituye el prompt del módulo 8 por la versión completa de
+   `prompts/system-prompt.md` + `prompts/user-prompt-template.md` (el escenario lleva ya una versión
+   compacta funcional).
+4. Pulsa **Activar**.
 
 ## 🧭 Flujo en una imagen
 
