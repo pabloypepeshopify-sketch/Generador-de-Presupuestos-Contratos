@@ -122,3 +122,13 @@ Detalle y pasos exactos en [`docs/05-checklist-post-importacion.md`](docs/05-che
 - Varias opciones de presupuesto (básico / premium) con un Router adicional.
 - Seguimiento automático de presupuestos no respondidos (3.º escenario programado sobre la misma
   hoja de Sheets).
+
+---
+
+## 🧩 Producto relacionado: Auditor de Contratos (detector de cláusulas de riesgo)
+En este mismo repositorio, [`auditor-contratos/`](auditor-contratos/) es un **segundo producto**
+independiente: recibe un contrato por email (Gmail), extrae su texto (OCR si es escaneado), lo
+analiza con IA contra una **checklist cerrada de riesgos**, lo clasifica con un **semáforo
+(verde/ámbar/rojo)** y envía un **informe en PDF** al responsable. Nunca decide ni aconseja firmar:
+solo detecta riesgos para que decida un humano. Blueprint, prompts, plantilla, checklist de riesgos
+y guía completa en [`auditor-contratos/README.md`](auditor-contratos/README.md).

@@ -1,0 +1,81 @@
+{
+    "estado_analisis": "ANALIZADO",
+    "motivo_no_analizable": "",
+    "tipo_contrato_detectado": "alquiler",
+    "resumen_ejecutivo": "Contrato de alquiler de vivienda a 5 años con prórrogas conforme a la LAU, renta actualizable por índice legal y fianza de una mensualidad. No se detectan cláusulas de riesgo alto; el contrato está equilibrado en sus puntos principales.",
+    "puntos": [
+        {
+            "id": "renovacion_automatica",
+            "nombre": "Renovación automática / tácita reconducción",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "Llegado el vencimiento, el contrato se prorrogará conforme a lo dispuesto en la Ley de Arrendamientos Urbanos, pudiendo el arrendatario no renovar preavisando con 30 días.",
+            "explicacion_llana": "La renovación sigue la ley de alquileres y puedes no renovar avisando con 30 días. Es lo habitual y razonable."
+        },
+        {
+            "id": "duracion_permanencia",
+            "nombre": "Duración y plazo de permanencia",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "La duración del contrato será de cinco (5) años, con las prórrogas legales previstas en la LAU.",
+            "explicacion_llana": "Dura 5 años con las prórrogas que marca la ley. No hay permanencia abusiva."
+        },
+        {
+            "id": "forma_pago",
+            "nombre": "Forma y condiciones de pago",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "La renta se abonará dentro de los siete primeros días de cada mes mediante transferencia bancaria.",
+            "explicacion_llana": "Se paga por transferencia en los primeros 7 días del mes. Condición normal y clara."
+        },
+        {
+            "id": "resolucion",
+            "nombre": "Cláusula de resolución / desistimiento",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "El arrendatario podrá desistir del contrato una vez transcurridos seis meses, preavisando con 30 días de antelación.",
+            "explicacion_llana": "Puedes dejar el piso pasados 6 meses avisando con un mes. Tienes vía de salida clara."
+        },
+        {
+            "id": "jurisdiccion",
+            "nombre": "Jurisdicción y ley aplicable",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "Para cualquier controversia las partes se someten a los Juzgados y Tribunales del lugar donde radica la vivienda.",
+            "explicacion_llana": "Los conflictos se resuelven en los tribunales de la zona de la vivienda. Es lo lógico y no te perjudica."
+        },
+        {
+            "id": "alq_actualizacion_renta",
+            "nombre": "Actualización de renta",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "La renta se actualizará anualmente conforme al índice de referencia legal aplicable a los arrendamientos de vivienda.",
+            "explicacion_llana": "La renta sube cada año según el índice oficial, no de forma libre. Está dentro de lo permitido."
+        },
+        {
+            "id": "alq_fianza_garantias",
+            "nombre": "Fianza y garantías adicionales",
+            "critico": true,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "El arrendatario entrega una mensualidad de renta en concepto de fianza legal.",
+            "explicacion_llana": "Piden una mensualidad de fianza, que es lo que marca la ley para vivienda. Sin garantías extra abusivas."
+        }
+    ],
+    "contadores": {
+        "riesgo_alto": 0,
+        "riesgo_medio": 0,
+        "riesgo_bajo": 4,
+        "faltan_criticos": 0,
+        "faltan_no_criticos": 0,
+        "cubiertos": 7
+    },
+    "semaforo_sugerido": "VERDE",
+    "informe_cuerpo": "RENOVACIÓN AUTOMÁTICA — [CUBIERTO · ninguno]\nQué dice el contrato: «...el contrato se prorrogará conforme a lo dispuesto en la Ley de Arrendamientos Urbanos, pudiendo el arrendatario no renovar preavisando con 30 días.»\nQué significa: La renovación sigue la ley y puedes no renovar avisando con 30 días.\n\nDURACIÓN Y PERMANENCIA — [CUBIERTO · bajo]\nQué dice el contrato: «La duración del contrato será de cinco (5) años, con las prórrogas legales previstas en la LAU.»\nQué significa: Dura 5 años con las prórrogas que marca la ley. Sin permanencia abusiva.\n\nACTUALIZACIÓN DE RENTA — [CUBIERTO · bajo]\nQué dice el contrato: «La renta se actualizará anualmente conforme al índice de referencia legal aplicable.»\nQué significa: La renta sube según el índice oficial, dentro de lo permitido.\n\n(...resto de puntos en el mismo formato...)"
+}

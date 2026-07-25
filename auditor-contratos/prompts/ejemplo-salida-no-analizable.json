@@ -1,0 +1,17 @@
+{
+    "estado_analisis": "NO_ANALIZABLE",
+    "motivo_no_analizable": "El texto recibido es un galimatías de OCR sin estructura de contrato reconocible: fragmentos sueltos, caracteres corruptos y ausencia de cláusulas legibles. No es posible evaluar la checklist con fiabilidad. Se recomienda revisión manual o reenvío de una copia de mejor calidad.",
+    "tipo_contrato_detectado": "otro",
+    "resumen_ejecutivo": "",
+    "puntos": [],
+    "contadores": {
+        "riesgo_alto": 0,
+        "riesgo_medio": 0,
+        "riesgo_bajo": 0,
+        "faltan_criticos": 0,
+        "faltan_no_criticos": 0,
+        "cubiertos": 0
+    },
+    "semaforo_sugerido": "AMBAR",
+    "informe_cuerpo": ""
+}

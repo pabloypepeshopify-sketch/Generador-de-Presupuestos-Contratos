@@ -1,0 +1,180 @@
+{
+    "estado_analisis": "ANALIZADO",
+    "motivo_no_analizable": "",
+    "tipo_contrato_detectado": "proveedor",
+    "resumen_ejecutivo": "Contrato de suministro de servicios a 36 meses con renovación automática por periodos iguales y preaviso de 90 días. Incluye penalización del 50% del importe restante por baja anticipada y plazo de pago a 90 días. Se detectan varios puntos de riesgo alto que conviene revisar antes de firmar.",
+    "puntos": [
+        {
+            "id": "renovacion_automatica",
+            "nombre": "Renovación automática / tácita reconducción",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "El contrato se renovará automáticamente por periodos sucesivos de 36 meses salvo preaviso fehaciente de al menos 90 días antes de cada vencimiento.",
+            "explicacion_llana": "El contrato se renueva solo por otros 3 años si no avisas por escrito con 90 días de antelación. Es fácil pasarse la fecha y quedar atado tres años más."
+        },
+        {
+            "id": "duracion_permanencia",
+            "nombre": "Duración y plazo de permanencia",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "El presente contrato tendrá una duración inicial de 36 meses con permanencia obligatoria durante todo el periodo.",
+            "explicacion_llana": "Te comprometes a 3 años completos sin posibilidad de salir antes sin penalización. Es una permanencia larga para un servicio de este tipo."
+        },
+        {
+            "id": "penalizaciones",
+            "nombre": "Penalizaciones e indemnizaciones",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "En caso de resolución anticipada por el CLIENTE, este abonará el 50% de las cuotas pendientes hasta la finalización del periodo en vigor.",
+            "explicacion_llana": "Si rompes el contrato antes de tiempo, pagas la mitad de todo lo que quedaba. En un contrato de 3 años eso puede ser mucho dinero."
+        },
+        {
+            "id": "resolucion",
+            "nombre": "Cláusula de resolución / desistimiento",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "medio",
+            "cita_textual": "El PROVEEDOR podrá resolver el contrato en cualquier momento con 15 días de preaviso; el CLIENTE únicamente por incumplimiento grave acreditado.",
+            "explicacion_llana": "El proveedor puede irse cuando quiera avisando con 15 días, pero tú solo puedes salir si demuestras un incumplimiento grave. La salida no está equilibrada."
+        },
+        {
+            "id": "forma_pago",
+            "nombre": "Forma y condiciones de pago",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "medio",
+            "cita_textual": "Las facturas se abonarán a 90 días fecha de factura mediante domiciliación bancaria.",
+            "explicacion_llana": "El pago se fija a 90 días. La ley española de morosidad marca un máximo de 60 días entre empresas salvo pacto justificado; conviene revisarlo."
+        },
+        {
+            "id": "garantias",
+            "nombre": "Garantías, fianzas y avales",
+            "critico": false,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "No se exige fianza ni aval para la prestación del servicio.",
+            "explicacion_llana": "No te piden fianza ni aval. Este punto no supone riesgo."
+        },
+        {
+            "id": "responsabilidad",
+            "nombre": "Responsabilidad y limitación de responsabilidad",
+            "critico": false,
+            "estado": "riesgo",
+            "nivel_riesgo": "medio",
+            "cita_textual": "El PROVEEDOR no responderá en ningún caso por daños indirectos, lucro cesante ni por importe superior a una mensualidad.",
+            "explicacion_llana": "Si el proveedor falla y te causa un perjuicio grande, su responsabilidad queda limitada a una sola mensualidad. Podrías cubrir tú la diferencia."
+        },
+        {
+            "id": "confidencialidad_rgpd",
+            "nombre": "Confidencialidad y protección de datos (RGPD)",
+            "critico": false,
+            "estado": "cubierto",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "Ambas partes se obligan a la confidencialidad y al tratamiento de datos conforme al RGPD y a la LOPDGDD.",
+            "explicacion_llana": "El contrato incluye confidencialidad y menciona la normativa de protección de datos. Correcto."
+        },
+        {
+            "id": "modificacion_unilateral",
+            "nombre": "Modificación unilateral de condiciones",
+            "critico": false,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "El PROVEEDOR podrá revisar y actualizar las tarifas anualmente comunicándolo con 30 días de antelación, entendiéndose aceptadas salvo oposición.",
+            "explicacion_llana": "El proveedor puede subir los precios cada año y se dan por aceptados si no te opones a tiempo. Puedes acabar pagando más sin negociarlo."
+        },
+        {
+            "id": "cesion_subcontratacion",
+            "nombre": "Cesión y subcontratación",
+            "critico": false,
+            "estado": "falta",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "",
+            "explicacion_llana": "El contrato no dice nada sobre si el proveedor puede ceder el contrato o subcontratar a un tercero. Conviene aclararlo."
+        },
+        {
+            "id": "jurisdiccion",
+            "nombre": "Jurisdicción y ley aplicable",
+            "critico": true,
+            "estado": "falta",
+            "nivel_riesgo": "medio",
+            "cita_textual": "",
+            "explicacion_llana": "No se indica qué tribunales resolverían un conflicto ni qué ley se aplica. Ante una disputa, esto genera incertidumbre."
+        },
+        {
+            "id": "prov_precio_revision",
+            "nombre": "Precio y revisión de precios",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "El PROVEEDOR podrá revisar y actualizar las tarifas anualmente comunicándolo con 30 días de antelación, entendiéndose aceptadas salvo oposición.",
+            "explicacion_llana": "El precio no es cerrado: se puede subir cada año de forma unilateral. No hay tope ni fórmula pactada."
+        },
+        {
+            "id": "prov_plazos_entrega",
+            "nombre": "Plazos de entrega y penalización por retraso",
+            "critico": true,
+            "estado": "falta",
+            "nivel_riesgo": "medio",
+            "cita_textual": "",
+            "explicacion_llana": "No se fijan plazos de entrega ni penalización si el proveedor se retrasa. Quedas sin protección ante retrasos."
+        },
+        {
+            "id": "prov_morosidad",
+            "nombre": "Pago y morosidad (Ley 3/2004)",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "medio",
+            "cita_textual": "Las facturas se abonarán a 90 días fecha de factura mediante domiciliación bancaria.",
+            "explicacion_llana": "El plazo de pago de 90 días supera el máximo legal orientativo de 60 días entre empresas. Revisar si está justificado."
+        },
+        {
+            "id": "prov_garantia_sla",
+            "nombre": "Garantía / nivel de servicio (SLA)",
+            "critico": false,
+            "estado": "falta",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "",
+            "explicacion_llana": "No hay compromiso de nivel de servicio ni garantía de funcionamiento. Si el servicio falla, no hay remedio pactado."
+        },
+        {
+            "id": "prov_exclusividad",
+            "nombre": "Exclusividad y no competencia",
+            "critico": false,
+            "estado": "cubierto",
+            "nivel_riesgo": "ninguno",
+            "cita_textual": "El presente contrato no implica exclusividad para ninguna de las partes.",
+            "explicacion_llana": "No te obliga a trabajar solo con este proveedor. Sin riesgo en este punto."
+        },
+        {
+            "id": "prov_propiedad_intelectual",
+            "nombre": "Propiedad intelectual y entregables",
+            "critico": false,
+            "estado": "falta",
+            "nivel_riesgo": "bajo",
+            "cita_textual": "",
+            "explicacion_llana": "No se aclara de quién son los entregables o materiales generados. Conviene definirlo si hay trabajo creativo o desarrollos."
+        },
+        {
+            "id": "prov_duracion_prorroga",
+            "nombre": "Duración y prórroga automática",
+            "critico": true,
+            "estado": "riesgo",
+            "nivel_riesgo": "alto",
+            "cita_textual": "El contrato se renovará automáticamente por periodos sucesivos de 36 meses salvo preaviso fehaciente de al menos 90 días antes de cada vencimiento.",
+            "explicacion_llana": "La prórroga automática es de 3 años cada vez, con un preaviso largo. Riesgo de quedar atado mucho tiempo por no avisar a tiempo."
+        }
+    ],
+    "contadores": {
+        "riesgo_alto": 5,
+        "riesgo_medio": 5,
+        "riesgo_bajo": 0,
+        "faltan_criticos": 2,
+        "faltan_no_criticos": 3,
+        "cubiertos": 3
+    },
+    "semaforo_sugerido": "ROJO",
+    "informe_cuerpo": "RENOVACIÓN AUTOMÁTICA / TÁCITA RECONDUCCIÓN — [RIESGO · alto]\nQué dice el contrato: «El contrato se renovará automáticamente por periodos sucesivos de 36 meses salvo preaviso fehaciente de al menos 90 días antes de cada vencimiento.»\nQué significa: El contrato se renueva solo por otros 3 años si no avisas por escrito con 90 días de antelación. Es fácil pasarse la fecha y quedar atado tres años más.\n\nDURACIÓN Y PLAZO DE PERMANENCIA — [RIESGO · alto]\nQué dice el contrato: «El presente contrato tendrá una duración inicial de 36 meses con permanencia obligatoria durante todo el periodo.»\nQué significa: Te comprometes a 3 años completos sin poder salir antes sin penalización.\n\nPENALIZACIONES E INDEMNIZACIONES — [RIESGO · alto]\nQué dice el contrato: «En caso de resolución anticipada por el CLIENTE, este abonará el 50% de las cuotas pendientes.»\nQué significa: Si rompes el contrato antes de tiempo, pagas la mitad de todo lo que quedaba.\n\nMODIFICACIÓN UNILATERAL / PRECIO — [RIESGO · alto]\nQué dice el contrato: «El PROVEEDOR podrá revisar y actualizar las tarifas anualmente... entendiéndose aceptadas salvo oposición.»\nQué significa: El precio puede subir cada año de forma unilateral, sin tope pactado.\n\nJURISDICCIÓN Y LEY APLICABLE — [FALTA · medio]\nQué dice el contrato: No se menciona.\nQué significa: No se indica qué tribunales ni qué ley se aplican ante un conflicto.\n\n(...resto de puntos en el mismo formato...)"
+}
