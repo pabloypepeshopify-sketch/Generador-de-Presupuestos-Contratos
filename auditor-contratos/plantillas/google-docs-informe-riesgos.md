@@ -1,6 +1,6 @@
 # Plantilla de Google Docs — Informe de auditoría de contrato
 
-Crea un Google Doc (será la **plantilla** del módulo *Create a Document from a Template*, paso 15) y
+Crea un Google Doc (será la **plantilla** del módulo *Create a Document from a Template*, paso 14) y
 copia su ID de la URL (`docs.google.com/document/d/<TEMPLATE_INFORME_ID>/edit`). Las etiquetas van
 **con llaves** en el Doc (`{{semaforo}}`); en el módulo de Make se escriben **sin llaves**
 (`semaforo`) — Make añade las llaves.
@@ -57,20 +57,24 @@ directa contra el contrato original, que se adjunta a este envío.
 
 ---
 
-## Etiquetas → mapeo en el módulo 15 (*Create a Document from a Template*)
+## Etiquetas → mapeo en el módulo 14 (*Create a Document from a Template*)
 
 | Etiqueta (Tag, sin llaves) | Replaced Value (mapeo Make) |
 |----------------------------|-----------------------------|
-| `id_auditoria` | `{{5.id_auditoria}}` |
-| `fecha_analisis` | `{{5.fecha_analisis}}` |
-| `nombre_archivo` | `{{5.nombre_archivo}}` |
-| `remitente` | `{{5.remitente}}` |
-| `tipo_contrato` | `{{10.tipo_contrato_detectado}}` |
-| `semaforo` | `{{11.semaforo}}` |
-| `semaforo_texto` | `{{11.semaforo_texto}}` |
-| `resumen_ejecutivo` | `{{10.resumen_ejecutivo}}` |
-| `informe_cuerpo` | `{{10.informe_cuerpo}}` |
+| `id_auditoria` | `{{4.id_auditoria}}` |
+| `fecha_analisis` | `{{4.fecha_analisis}}` |
+| `nombre_archivo` | `{{4.nombre_archivo}}` |
+| `remitente` | `{{4.remitente}}` |
+| `tipo_contrato` | `{{9.tipo_contrato_detectado}}` |
+| `semaforo` | `{{10.semaforo}}` |
+| `semaforo_texto` | `{{10.semaforo_texto}}` |
+| `resumen_ejecutivo` | `{{9.resumen_ejecutivo}}` |
+| `informe_cuerpo` | `{{9.informe_cuerpo}}` |
 | `nombre_empresa` | `REEMPLAZAR_NOMBRE_EMPRESA` |
+
+> **Ya creada en tu Drive:** plantilla `Plantilla Informe Auditoria de Contrato`
+> (ID `1AqZ6dcTLWwDFHgCG5OAdO5tVd6BzzCCduJQp-_pvrXw`), dentro de la carpeta
+> `Informes Auditoria de Contratos` (ID `1ugUnyqwYW7yL3OBqBV1Tr9XomiLMVTm-`).
 
 > Da formato en el Doc (colores del semáforo, negritas, tabla si quieres). El módulo solo
 > **sustituye texto**; el estilo lo pones tú una vez en la plantilla.

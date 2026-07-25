@@ -3,26 +3,30 @@
     "flow": [
         {
             "id": 1,
-            "module": "google-email:watchEmails",
-            "version": 2,
+            "module": "google-email:triggerWatchNewEmails",
+            "version": 4,
             "parameters": {
                 "__IMTCONN__": 0,
-                "folder": "INBOX",
-                "maxResults": 1,
-                "markSeen": true
+                "q": "has:attachment filename:pdf",
+                "limit": 1,
+                "format": "full",
+                "markSeen": true,
+                "filterType": "gmailSearch"
             },
-            "mapper": {
-                "query": "has:attachment"
-            },
+            "mapper": {},
             "metadata": {
                 "designer": {
                     "x": 0,
-                    "y": 0
+                    "y": 0,
+                    "name": "Watch: correos con contrato PDF adjunto"
                 },
                 "restore": {
                     "parameters": {
+                        "filterType": {
+                            "label": "Gmail filter"
+                        },
                         "__IMTCONN__": {
-                            "label": "REEMPLAZAR: conexion Gmail (google-email). Tras importar, re-selecciona el modulo de disparo 'Watch emails' y su carpeta/etiqueta (p.ej. Contratos-Entrantes) y el filtro has:attachment."
+                            "label": "REEMPLAZAR: conexion Gmail (google-email). Ajusta 'q' a tu bandeja/etiqueta (p.ej. label:Contratos-Entrantes has:attachment)."
                         }
                     }
                 }
@@ -30,21 +34,28 @@
         },
         {
             "id": 2,
-            "module": "builtin:BasicFeeder",
-            "version": 1,
-            "parameters": {},
+            "module": "google-email:listEmailAttachments",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 0
+            },
             "mapper": {
-                "array": "{{1.attachments}}"
+                "include": [
+                    "attachment"
+                ],
+                "messageId": "{{1.id}}",
+                "returnAttachmentData": true
             },
             "metadata": {
                 "designer": {
                     "x": 300,
-                    "y": 0
+                    "y": 0,
+                    "name": "Descargar adjuntos (itera cada adjunto)"
                 },
                 "restore": {
-                    "extra": {
-                        "feeder": {
-                            "label": "Itera cada adjunto del correo (attachments[])"
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "REEMPLAZAR: conexion Gmail"
                         }
                     }
                 }
@@ -52,86 +63,67 @@
         },
         {
             "id": 3,
-            "module": "google-drive:uploadAFile",
-            "version": 3,
+            "module": "http:MakeRequest",
+            "version": 4,
             "parameters": {
-                "__IMTCONN__": 0
+                "authenticationType": "noAuth"
             },
             "filter": {
-                "name": "Solo PDF o Word",
+                "name": "Solo PDF",
                 "conditions": [
                     [
                         {
                             "a": "{{2.mimeType}}",
-                            "b": "application/pdf",
-                            "o": "text:equal"
+                            "b": "pdf",
+                            "o": "text:contain"
                         }
                     ],
                     [
                         {
-                            "a": "{{2.mimeType}}",
-                            "b": "wordprocessingml",
-                            "o": "text:contains"
+                            "a": "{{lower(2.filename)}}",
+                            "b": ".pdf",
+                            "o": "text:contain"
                         }
                     ]
                 ]
             },
             "mapper": {
-                "folderId": "REEMPLAZAR_FOLDER_ID_TRABAJO",
-                "name": "{{2.fileName}}",
-                "data": "{{2.data}}",
-                "convert": true
+                "url": "https://api.mistral.ai/v1/ocr",
+                "method": "post",
+                "headers": [
+                    {
+                        "name": "Authorization",
+                        "value": "Bearer REEMPLAZAR_MISTRAL_API_KEY"
+                    }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"data:{{2.mimeType}};base64,{{base64(2.data)}}\"\n  },\n  \"include_image_base64\": false\n}",
+                "requestCompressedContent": true
             },
             "metadata": {
                 "designer": {
                     "x": 600,
-                    "y": 0
-                },
-                "restore": {
-                    "parameters": {
-                        "__IMTCONN__": {
-                            "label": "REEMPLAZAR: conexion Google Drive. convert=true convierte PDF/Word a Google Doc y aplica OCR si es escaneado."
-                        }
-                    }
+                    "y": 0,
+                    "name": "OCR (Mistral OCR) - extrae texto del PDF (nativo o escaneado)"
                 }
             }
         },
         {
             "id": 4,
-            "module": "google-docs:exportADocument",
-            "version": 1,
-            "parameters": {
-                "__IMTCONN__": 0
-            },
-            "mapper": {
-                "destination": "drive",
-                "document": "{{3.id}}",
-                "mimeType": "text/plain"
-            },
-            "metadata": {
-                "designer": {
-                    "x": 900,
-                    "y": 0
-                },
-                "restore": {
-                    "parameters": {
-                        "__IMTCONN__": {
-                            "label": "REEMPLAZAR: conexion Google Docs. Exporta a text/plain -> el texto del contrato sale en {{4.data}}. Si tu version nombra el campo distinto (body/content), remapea {{4.data}} en el paso 5."
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "id": 5,
             "module": "util:SetVariables",
             "version": 1,
             "parameters": {},
             "mapper": {
+                "scope": "roundtrip",
                 "variables": [
                     {
                         "name": "id_auditoria",
-                        "value": "{{formatDate(now; \"YYYYMMDD-HHmmss\")}}-{{2.fileName}}"
+                        "value": "{{formatDate(now; \"YYYYMMDD-HHmmss\")}}-{{2.filename}}"
                     },
                     {
                         "name": "fecha_analisis",
@@ -139,7 +131,7 @@
                     },
                     {
                         "name": "remitente",
-                        "value": "{{1.from}}"
+                        "value": "{{1.fromEmail}}"
                     },
                     {
                         "name": "asunto",
@@ -147,57 +139,58 @@
                     },
                     {
                         "name": "nombre_archivo",
-                        "value": "{{2.fileName}}"
+                        "value": "{{2.filename}}"
                     },
                     {
                         "name": "texto_contrato",
-                        "value": "{{4.data}}"
+                        "value": "{{join(map(3.data.pages; \"markdown\"); \" \")}}"
                     },
                     {
                         "name": "n_chars",
-                        "value": "{{length(4.data)}}"
+                        "value": "{{length(join(map(3.data.pages; \"markdown\"); \" \"))}}"
                     },
                     {
                         "name": "tipo_contrato",
                         "value": "{{if(contains(lower(1.subject); \"alquiler\"); \"alquiler\"; if(contains(lower(1.subject); \"proveedor\"); \"proveedor\"; if(contains(lower(1.subject); \"laboral\"); \"laboral\"; \"auto\")))}}"
                     }
-                ],
-                "scope": "roundtrip"
+                ]
             },
             "metadata": {
                 "designer": {
-                    "x": 1200,
-                    "y": 0
+                    "x": 900,
+                    "y": 0,
+                    "name": "Variables: texto, n_chars, ids, tipo"
                 }
             }
         },
         {
-            "id": 6,
+            "id": 5,
             "module": "builtin:BasicRouter",
             "version": 1,
             "mapper": null,
             "metadata": {
                 "designer": {
-                    "x": 1500,
-                    "y": 0
+                    "x": 1200,
+                    "y": 0,
+                    "name": "GATE de legibilidad"
                 }
             },
             "routes": [
                 {
                     "flow": [
                         {
-                            "id": 7,
+                            "id": 6,
                             "module": "google-email:sendAnEmail",
                             "version": 4,
                             "parameters": {
                                 "__IMTCONN__": 0
                             },
                             "filter": {
-                                "name": "ILEGIBLE (n_chars < MIN)",
+                                "name": "ILEGIBLE (n_chars < 400)",
                                 "conditions": [
                                     [
                                         {
-                                            "a": "{{5.n_chars}}",
+                                            "a": "{{4.n_chars}}",
                                             "b": "400",
                                             "o": "number:less"
                                         }
@@ -208,20 +201,21 @@
                                 "to": [
                                     "REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com"
                                 ],
-                                "subject": "[REVISAR A MANO] Contrato no legible · {{5.nombre_archivo}}",
+                                "subject": "[REVISAR A MANO] Contrato no legible · {{4.nombre_archivo}}",
                                 "bodyType": "rawHtml",
-                                "content": "<p><b>No se pudo auditar este contrato automaticamente.</b></p><p>El texto extraido es insuficiente ({{5.n_chars}} caracteres). Suele indicar un PDF escaneado de baja calidad, un archivo corrupto o un formato no soportado.</p><p><b>Que hacer:</b> revisa el contrato adjunto manualmente o reenvia una copia de mejor calidad (PDF con texto o Word).</p><p>Recibido de: {{5.remitente}} · Asunto: {{5.asunto}}</p><hr><p style=\"font-size:12px;color:#666\">Sistema automatico de deteccion de riesgos. NO es asesoramiento juridico. La decision es siempre humana.</p>",
+                                "content": "<p><b>No se pudo auditar este contrato automaticamente.</b></p><p>El texto extraido por OCR es insuficiente ({{4.n_chars}} caracteres). Suele indicar un PDF escaneado de muy baja calidad, un archivo corrupto o un adjunto que no es el contrato.</p><p><b>Que hacer:</b> revisa el contrato adjunto manualmente o reenvia una copia de mejor calidad.</p><p>Recibido de: {{4.remitente}} · Asunto: {{4.asunto}}</p><hr><p style=\"font-size:12px;color:#666\">Sistema automatico de deteccion de riesgos. NO es asesoramiento juridico. La decision es siempre humana.</p>",
                                 "attachments": [
                                     {
-                                        "filename": "{{2.fileName}}",
+                                        "filename": "{{2.filename}}",
                                         "data": "{{2.data}}"
                                     }
                                 ]
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 1800,
-                                    "y": -300
+                                    "x": 1500,
+                                    "y": -300,
+                                    "name": "Email: revisar a mano (ilegible)"
                                 },
                                 "restore": {
                                     "parameters": {
@@ -233,7 +227,7 @@
                             }
                         },
                         {
-                            "id": 8,
+                            "id": 7,
                             "module": "google-sheets:addRow",
                             "version": 2,
                             "parameters": {
@@ -245,19 +239,19 @@
                                 "sheetId": "Auditorias",
                                 "tableFirstRow": "A1:Z1",
                                 "values": {
-                                    "0": "{{5.id_auditoria}}",
-                                    "1": "{{5.fecha_analisis}}",
-                                    "2": "{{5.remitente}}",
-                                    "3": "{{5.asunto}}",
-                                    "4": "{{5.nombre_archivo}}",
-                                    "5": "{{5.tipo_contrato}}",
+                                    "0": "{{4.id_auditoria}}",
+                                    "1": "{{4.fecha_analisis}}",
+                                    "2": "{{4.remitente}}",
+                                    "3": "{{4.asunto}}",
+                                    "4": "{{4.nombre_archivo}}",
+                                    "5": "{{4.tipo_contrato}}",
                                     "6": "",
                                     "7": "",
                                     "8": "",
                                     "9": "",
                                     "10": "",
                                     "11": "ILEGIBLE_REVISION_MANUAL",
-                                    "12": "Texto extraido insuficiente ({{5.n_chars}} caracteres)",
+                                    "12": "Texto OCR insuficiente ({{4.n_chars}} caracteres)",
                                     "13": ""
                                 },
                                 "insertUnformatted": false,
@@ -266,13 +260,14 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 2100,
-                                    "y": -300
+                                    "x": 1800,
+                                    "y": -300,
+                                    "name": "Sheets: ILEGIBLE_REVISION_MANUAL"
                                 },
                                 "restore": {
                                     "parameters": {
                                         "__IMTCONN__": {
-                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                            "label": "REEMPLAZAR: conexion Google (google) para Sheets"
                                         }
                                     }
                                 }
@@ -283,18 +278,18 @@
                 {
                     "flow": [
                         {
-                            "id": 9,
+                            "id": 8,
                             "module": "openai-gpt-3:CreateCompletion",
                             "version": 1,
                             "parameters": {
                                 "__IMTCONN__": 0
                             },
                             "filter": {
-                                "name": "ANALIZABLE (n_chars >= MIN)",
+                                "name": "ANALIZABLE (n_chars >= 400)",
                                 "conditions": [
                                     [
                                         {
-                                            "a": "{{5.n_chars}}",
+                                            "a": "{{4.n_chars}}",
                                             "b": "400",
                                             "o": "number:greaterorequal"
                                         }
@@ -315,7 +310,7 @@
                                     },
                                     {
                                         "role": "user",
-                                        "content": "PEGAR AQUI el user prompt de prompts/user-prompt-template.md . Debe incluir {{5.tipo_contrato}}, la checklist cerrada, {{5.texto_contrato}} y el esquema JSON de salida."
+                                        "content": "PEGAR AQUI el user prompt de prompts/user-prompt-template.md . Debe incluir {{4.tipo_contrato}}, la checklist cerrada, {{4.texto_contrato}} y el esquema JSON de salida."
                                     }
                                 ],
                                 "additionalParameters": [
@@ -330,8 +325,9 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 1800,
-                                    "y": 300
+                                    "x": 1500,
+                                    "y": 300,
+                                    "name": "OpenAI: analiza contrato contra checklist -> JSON"
                                 },
                                 "restore": {
                                     "parameters": {
@@ -343,63 +339,66 @@
                             }
                         },
                         {
-                            "id": 10,
+                            "id": 9,
                             "module": "json:ParseJSON",
                             "version": 1,
                             "parameters": {
                                 "type": ""
                             },
                             "mapper": {
-                                "json": "{{trim(replace(replace(9.result; \"```json\"; \"\"); \"```\"; \"\"))}}"
+                                "json": "{{trim(replace(replace(8.result; \"```json\"; \"\"); \"```\"; \"\"))}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1800,
+                                    "y": 300,
+                                    "name": "Parse JSON"
+                                }
+                            }
+                        },
+                        {
+                            "id": 10,
+                            "module": "util:SetVariables",
+                            "version": 1,
+                            "parameters": {},
+                            "mapper": {
+                                "scope": "roundtrip",
+                                "variables": [
+                                    {
+                                        "name": "semaforo",
+                                        "value": "{{if(9.estado_analisis = \"NO_ANALIZABLE\"; \"MANUAL\"; if(9.contadores.riesgo_alto > 0; \"ROJO\"; if(9.contadores.riesgo_medio > 0; \"AMBAR\"; if(9.contadores.faltan_criticos > 0; \"AMBAR\"; \"VERDE\"))))}}"
+                                    },
+                                    {
+                                        "name": "semaforo_texto",
+                                        "value": "{{if(9.estado_analisis = \"NO_ANALIZABLE\"; \"REVISION MANUAL\"; if(9.contadores.riesgo_alto > 0; \"RIESGO ALTO - NO FIRMAR SIN ASESORIA LEGAL\"; if(9.contadores.riesgo_medio > 0; \"REVISAR ANTES DE FIRMAR\"; if(9.contadores.faltan_criticos > 0; \"REVISAR ANTES DE FIRMAR\"; \"SIN RIESGOS RELEVANTES\"))))}}"
+                                    }
+                                ]
                             },
                             "metadata": {
                                 "designer": {
                                     "x": 2100,
-                                    "y": 300
+                                    "y": 300,
+                                    "name": "Variables: semaforo determinista"
                                 }
                             }
                         },
                         {
                             "id": 11,
-                            "module": "util:SetVariables",
-                            "version": 1,
-                            "parameters": {},
-                            "mapper": {
-                                "variables": [
-                                    {
-                                        "name": "semaforo",
-                                        "value": "{{if(10.estado_analisis = \"NO_ANALIZABLE\"; \"MANUAL\"; if(10.contadores.riesgo_alto > 0; \"ROJO\"; if(10.contadores.riesgo_medio > 0; \"AMBAR\"; if(10.contadores.faltan_criticos > 0; \"AMBAR\"; \"VERDE\"))))}}"
-                                    },
-                                    {
-                                        "name": "semaforo_texto",
-                                        "value": "{{switch(11.semaforo; \"VERDE\"; \"SIN RIESGOS RELEVANTES\"; \"AMBAR\"; \"REVISAR ANTES DE FIRMAR\"; \"ROJO\"; \"RIESGO ALTO - NO FIRMAR SIN ASESORIA LEGAL\"; \"REVISION MANUAL\")}}"
-                                    }
-                                ],
-                                "scope": "roundtrip"
-                            },
-                            "metadata": {
-                                "designer": {
-                                    "x": 2400,
-                                    "y": 300
-                                }
-                            }
-                        },
-                        {
-                            "id": 12,
                             "module": "builtin:BasicRouter",
                             "version": 1,
                             "mapper": null,
                             "metadata": {
                                 "designer": {
-                                    "x": 2700,
-                                    "y": 300
+                                    "x": 2400,
+                                    "y": 300,
+                                    "name": "RESULTADO del analisis"
                                 }
                             },
                             "routes": [
                                 {
                                     "flow": [
                                         {
-                                            "id": 13,
+                                            "id": 12,
                                             "module": "google-email:sendAnEmail",
                                             "version": 4,
                                             "parameters": {
@@ -410,7 +409,7 @@
                                                 "conditions": [
                                                     [
                                                         {
-                                                            "a": "{{10.estado_analisis}}",
+                                                            "a": "{{9.estado_analisis}}",
                                                             "b": "NO_ANALIZABLE",
                                                             "o": "text:equal"
                                                         }
@@ -421,20 +420,21 @@
                                                 "to": [
                                                     "REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com"
                                                 ],
-                                                "subject": "[REVISAR A MANO] La IA no pudo analizar · {{5.nombre_archivo}}",
+                                                "subject": "[REVISAR A MANO] La IA no pudo analizar · {{4.nombre_archivo}}",
                                                 "bodyType": "rawHtml",
-                                                "content": "<p><b>La IA no pudo analizar este contrato con fiabilidad.</b></p><p>Motivo: {{10.motivo_no_analizable}}</p><p>No se ha generado informe para evitar conclusiones con huecos. Revisa el contrato adjunto manualmente.</p><p>Recibido de: {{5.remitente}}</p><hr><p style=\"font-size:12px;color:#666\">Sistema automatico de deteccion de riesgos. NO es asesoramiento juridico. La decision es siempre humana.</p>",
+                                                "content": "<p><b>La IA no pudo analizar este contrato con fiabilidad.</b></p><p>Motivo: {{9.motivo_no_analizable}}</p><p>No se ha generado informe para evitar conclusiones con huecos. Revisa el contrato adjunto manualmente.</p><p>Recibido de: {{4.remitente}}</p><hr><p style=\"font-size:12px;color:#666\">Sistema automatico de deteccion de riesgos. NO es asesoramiento juridico. La decision es siempre humana.</p>",
                                                 "attachments": [
                                                     {
-                                                        "filename": "{{2.fileName}}",
+                                                        "filename": "{{2.filename}}",
                                                         "data": "{{2.data}}"
                                                     }
                                                 ]
                                             },
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3000,
-                                                    "y": 150
+                                                    "x": 2700,
+                                                    "y": 150,
+                                                    "name": "Email: revisar a mano (IA)"
                                                 },
                                                 "restore": {
                                                     "parameters": {
@@ -446,7 +446,7 @@
                                             }
                                         },
                                         {
-                                            "id": 14,
+                                            "id": 13,
                                             "module": "google-sheets:addRow",
                                             "version": 2,
                                             "parameters": {
@@ -458,19 +458,19 @@
                                                 "sheetId": "Auditorias",
                                                 "tableFirstRow": "A1:Z1",
                                                 "values": {
-                                                    "0": "{{5.id_auditoria}}",
-                                                    "1": "{{5.fecha_analisis}}",
-                                                    "2": "{{5.remitente}}",
-                                                    "3": "{{5.asunto}}",
-                                                    "4": "{{5.nombre_archivo}}",
-                                                    "5": "{{10.tipo_contrato_detectado}}",
+                                                    "0": "{{4.id_auditoria}}",
+                                                    "1": "{{4.fecha_analisis}}",
+                                                    "2": "{{4.remitente}}",
+                                                    "3": "{{4.asunto}}",
+                                                    "4": "{{4.nombre_archivo}}",
+                                                    "5": "{{9.tipo_contrato_detectado}}",
                                                     "6": "",
                                                     "7": "",
                                                     "8": "",
                                                     "9": "",
                                                     "10": "",
                                                     "11": "NO_ANALIZABLE_IA",
-                                                    "12": "{{10.motivo_no_analizable}}",
+                                                    "12": "{{9.motivo_no_analizable}}",
                                                     "13": ""
                                                 },
                                                 "insertUnformatted": false,
@@ -479,13 +479,14 @@
                                             },
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3300,
-                                                    "y": 150
+                                                    "x": 3000,
+                                                    "y": 150,
+                                                    "name": "Sheets: NO_ANALIZABLE_IA"
                                                 },
                                                 "restore": {
                                                     "parameters": {
                                                         "__IMTCONN__": {
-                                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                                            "label": "REEMPLAZAR: conexion Google (google) para Sheets"
                                                         }
                                                     }
                                                 }
@@ -496,7 +497,7 @@
                                 {
                                     "flow": [
                                         {
-                                            "id": 15,
+                                            "id": 14,
                                             "module": "google-docs:createADocumentFromTemplate",
                                             "version": 1,
                                             "parameters": {
@@ -507,7 +508,7 @@
                                                 "conditions": [
                                                     [
                                                         {
-                                                            "a": "{{10.estado_analisis}}",
+                                                            "a": "{{9.estado_analisis}}",
                                                             "b": "ANALIZADO",
                                                             "o": "text:equal"
                                                         }
@@ -517,45 +518,45 @@
                                             "mapper": {
                                                 "select": "map",
                                                 "document": "REEMPLAZAR_TEMPLATE_INFORME_ID",
-                                                "name": "Informe auditoria · {{5.nombre_archivo}} · {{11.semaforo}} · {{5.id_auditoria}}",
+                                                "name": "Informe auditoria · {{4.nombre_archivo}} · {{10.semaforo}} · {{4.id_auditoria}}",
                                                 "destination": "drive",
                                                 "folderId": "REEMPLAZAR_FOLDER_ID_INFORMES",
                                                 "requests": [
                                                     {
                                                         "text": "id_auditoria",
-                                                        "replaceText": "{{5.id_auditoria}}"
+                                                        "replaceText": "{{4.id_auditoria}}"
                                                     },
                                                     {
                                                         "text": "fecha_analisis",
-                                                        "replaceText": "{{5.fecha_analisis}}"
+                                                        "replaceText": "{{4.fecha_analisis}}"
                                                     },
                                                     {
                                                         "text": "nombre_archivo",
-                                                        "replaceText": "{{5.nombre_archivo}}"
+                                                        "replaceText": "{{4.nombre_archivo}}"
                                                     },
                                                     {
                                                         "text": "remitente",
-                                                        "replaceText": "{{5.remitente}}"
+                                                        "replaceText": "{{4.remitente}}"
                                                     },
                                                     {
                                                         "text": "tipo_contrato",
-                                                        "replaceText": "{{10.tipo_contrato_detectado}}"
+                                                        "replaceText": "{{9.tipo_contrato_detectado}}"
                                                     },
                                                     {
                                                         "text": "semaforo",
-                                                        "replaceText": "{{11.semaforo}}"
+                                                        "replaceText": "{{10.semaforo}}"
                                                     },
                                                     {
                                                         "text": "semaforo_texto",
-                                                        "replaceText": "{{11.semaforo_texto}}"
+                                                        "replaceText": "{{10.semaforo_texto}}"
                                                     },
                                                     {
                                                         "text": "resumen_ejecutivo",
-                                                        "replaceText": "{{10.resumen_ejecutivo}}"
+                                                        "replaceText": "{{9.resumen_ejecutivo}}"
                                                     },
                                                     {
                                                         "text": "informe_cuerpo",
-                                                        "replaceText": "{{10.informe_cuerpo}}"
+                                                        "replaceText": "{{9.informe_cuerpo}}"
                                                     },
                                                     {
                                                         "text": "nombre_empresa",
@@ -565,20 +566,21 @@
                                             },
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3000,
-                                                    "y": 450
+                                                    "x": 2700,
+                                                    "y": 450,
+                                                    "name": "Docs: crea informe desde plantilla"
                                                 },
                                                 "restore": {
                                                     "parameters": {
                                                         "__IMTCONN__": {
-                                                            "label": "REEMPLAZAR: conexion Google Docs"
+                                                            "label": "REEMPLAZAR: conexion Google (google) para Docs"
                                                         }
                                                     }
                                                 }
                                             }
                                         },
                                         {
-                                            "id": 16,
+                                            "id": 15,
                                             "module": "google-docs:exportADocument",
                                             "version": 1,
                                             "parameters": {
@@ -586,25 +588,26 @@
                                             },
                                             "mapper": {
                                                 "destination": "drive",
-                                                "document": "{{15.id}}",
+                                                "document": "{{14.id}}",
                                                 "mimeType": "application/pdf"
                                             },
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3300,
-                                                    "y": 450
+                                                    "x": 3000,
+                                                    "y": 450,
+                                                    "name": "Docs: exporta informe a PDF"
                                                 },
                                                 "restore": {
                                                     "parameters": {
                                                         "__IMTCONN__": {
-                                                            "label": "REEMPLAZAR: conexion Google Docs"
+                                                            "label": "REEMPLAZAR: conexion Google (google) para Docs"
                                                         }
                                                     }
                                                 }
                                             }
                                         },
                                         {
-                                            "id": 17,
+                                            "id": 16,
                                             "module": "google-sheets:addRow",
                                             "version": 2,
                                             "parameters": {
@@ -616,17 +619,17 @@
                                                 "sheetId": "Auditorias",
                                                 "tableFirstRow": "A1:Z1",
                                                 "values": {
-                                                    "0": "{{5.id_auditoria}}",
-                                                    "1": "{{5.fecha_analisis}}",
-                                                    "2": "{{5.remitente}}",
-                                                    "3": "{{5.asunto}}",
-                                                    "4": "{{5.nombre_archivo}}",
-                                                    "5": "{{10.tipo_contrato_detectado}}",
-                                                    "6": "{{11.semaforo}}",
-                                                    "7": "{{10.contadores.riesgo_alto}}",
-                                                    "8": "{{10.contadores.riesgo_medio}}",
-                                                    "9": "{{10.contadores.faltan_criticos}}",
-                                                    "10": "{{15.webViewLink}}",
+                                                    "0": "{{4.id_auditoria}}",
+                                                    "1": "{{4.fecha_analisis}}",
+                                                    "2": "{{4.remitente}}",
+                                                    "3": "{{4.asunto}}",
+                                                    "4": "{{4.nombre_archivo}}",
+                                                    "5": "{{9.tipo_contrato_detectado}}",
+                                                    "6": "{{10.semaforo}}",
+                                                    "7": "{{9.contadores.riesgo_alto}}",
+                                                    "8": "{{9.contadores.riesgo_medio}}",
+                                                    "9": "{{9.contadores.faltan_criticos}}",
+                                                    "10": "{{14.webViewLink}}",
                                                     "11": "INFORME_ENVIADO",
                                                     "12": "",
                                                     "13": ""
@@ -637,34 +640,36 @@
                                             },
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3600,
-                                                    "y": 450
+                                                    "x": 3300,
+                                                    "y": 450,
+                                                    "name": "Sheets: INFORME_ENVIADO"
                                                 },
                                                 "restore": {
                                                     "parameters": {
                                                         "__IMTCONN__": {
-                                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                                            "label": "REEMPLAZAR: conexion Google (google) para Sheets"
                                                         }
                                                     }
                                                 }
                                             }
                                         },
                                         {
-                                            "id": 18,
+                                            "id": 17,
                                             "module": "builtin:BasicRouter",
                                             "version": 1,
                                             "mapper": null,
                                             "metadata": {
                                                 "designer": {
-                                                    "x": 3900,
-                                                    "y": 450
+                                                    "x": 3600,
+                                                    "y": 450,
+                                                    "name": "SEMAFORO (solo cambia la notificacion)"
                                                 }
                                             },
                                             "routes": [
                                                 {
                                                     "flow": [
                                                         {
-                                                            "id": 19,
+                                                            "id": 18,
                                                             "module": "google-email:sendAnEmail",
                                                             "version": 4,
                                                             "parameters": {
@@ -675,7 +680,7 @@
                                                                 "conditions": [
                                                                     [
                                                                         {
-                                                                            "a": "{{11.semaforo}}",
+                                                                            "a": "{{10.semaforo}}",
                                                                             "b": "VERDE",
                                                                             "o": "text:equal"
                                                                         }
@@ -686,24 +691,81 @@
                                                                 "to": [
                                                                     "REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com"
                                                                 ],
-                                                                "subject": "[VERDE] Informe de auditoria · {{5.nombre_archivo}} · sin riesgos relevantes",
+                                                                "subject": "[VERDE] Informe de auditoria · {{4.nombre_archivo}} · sin riesgos relevantes",
                                                                 "bodyType": "rawHtml",
-                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{5.nombre_archivo}}</b>.</p><p><b>Semaforo: VERDE</b> - sin riesgos relevantes detectados.</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
+                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{4.nombre_archivo}}</b>.</p><p><b>Semaforo: VERDE</b> - sin riesgos relevantes detectados.</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
                                                                 "attachments": [
                                                                     {
-                                                                        "filename": "Informe-{{5.nombre_archivo}}.pdf",
-                                                                        "data": "{{16.data}}"
+                                                                        "filename": "Informe-{{4.nombre_archivo}}.pdf",
+                                                                        "data": "{{15.data}}"
                                                                     },
                                                                     {
-                                                                        "filename": "{{2.fileName}}",
+                                                                        "filename": "{{2.filename}}",
                                                                         "data": "{{2.data}}"
                                                                     }
                                                                 ]
                                                             },
                                                             "metadata": {
                                                                 "designer": {
-                                                                    "x": 4200,
-                                                                    "y": 300
+                                                                    "x": 3900,
+                                                                    "y": 300,
+                                                                    "name": "Email informe VERDE"
+                                                                },
+                                                                "restore": {
+                                                                    "parameters": {
+                                                                        "__IMTCONN__": {
+                                                                            "label": "REEMPLAZAR: conexion Gmail"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "flow": [
+                                                        {
+                                                            "id": 19,
+                                                            "module": "google-email:sendAnEmail",
+                                                            "version": 4,
+                                                            "parameters": {
+                                                                "__IMTCONN__": 0
+                                                            },
+                                                            "filter": {
+                                                                "name": "AMBAR",
+                                                                "conditions": [
+                                                                    [
+                                                                        {
+                                                                            "a": "{{10.semaforo}}",
+                                                                            "b": "AMBAR",
+                                                                            "o": "text:equal"
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                            },
+                                                            "mapper": {
+                                                                "to": [
+                                                                    "REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com"
+                                                                ],
+                                                                "subject": "[AMBAR] Informe de auditoria · {{4.nombre_archivo}} · revisar antes de firmar",
+                                                                "bodyType": "rawHtml",
+                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{4.nombre_archivo}}</b>.</p><p><b>Semaforo: AMBAR</b> - revisar antes de firmar. Hay puntos de riesgo medio o faltan clausulas criticas (ver informe).</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
+                                                                "attachments": [
+                                                                    {
+                                                                        "filename": "Informe-{{4.nombre_archivo}}.pdf",
+                                                                        "data": "{{15.data}}"
+                                                                    },
+                                                                    {
+                                                                        "filename": "{{2.filename}}",
+                                                                        "data": "{{2.data}}"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "metadata": {
+                                                                "designer": {
+                                                                    "x": 3900,
+                                                                    "y": 450,
+                                                                    "name": "Email informe AMBAR"
                                                                 },
                                                                 "restore": {
                                                                     "parameters": {
@@ -726,66 +788,11 @@
                                                                 "__IMTCONN__": 0
                                                             },
                                                             "filter": {
-                                                                "name": "AMBAR",
-                                                                "conditions": [
-                                                                    [
-                                                                        {
-                                                                            "a": "{{11.semaforo}}",
-                                                                            "b": "AMBAR",
-                                                                            "o": "text:equal"
-                                                                        }
-                                                                    ]
-                                                                ]
-                                                            },
-                                                            "mapper": {
-                                                                "to": [
-                                                                    "REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com"
-                                                                ],
-                                                                "subject": "[AMBAR] Informe de auditoria · {{5.nombre_archivo}} · revisar antes de firmar",
-                                                                "bodyType": "rawHtml",
-                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{5.nombre_archivo}}</b>.</p><p><b>Semaforo: AMBAR</b> - revisar antes de firmar. Hay puntos de riesgo medio o faltan clausulas criticas (ver informe).</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
-                                                                "attachments": [
-                                                                    {
-                                                                        "filename": "Informe-{{5.nombre_archivo}}.pdf",
-                                                                        "data": "{{16.data}}"
-                                                                    },
-                                                                    {
-                                                                        "filename": "{{2.fileName}}",
-                                                                        "data": "{{2.data}}"
-                                                                    }
-                                                                ]
-                                                            },
-                                                            "metadata": {
-                                                                "designer": {
-                                                                    "x": 4200,
-                                                                    "y": 450
-                                                                },
-                                                                "restore": {
-                                                                    "parameters": {
-                                                                        "__IMTCONN__": {
-                                                                            "label": "REEMPLAZAR: conexion Gmail"
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "flow": [
-                                                        {
-                                                            "id": 21,
-                                                            "module": "google-email:sendAnEmail",
-                                                            "version": 4,
-                                                            "parameters": {
-                                                                "__IMTCONN__": 0
-                                                            },
-                                                            "filter": {
                                                                 "name": "ROJO",
                                                                 "conditions": [
                                                                     [
                                                                         {
-                                                                            "a": "{{11.semaforo}}",
+                                                                            "a": "{{10.semaforo}}",
                                                                             "b": "ROJO",
                                                                             "o": "text:equal"
                                                                         }
@@ -799,24 +806,25 @@
                                                                 "cc": [
                                                                     "REEMPLAZAR_EMAIL_ASESOR_LEGAL@tu-cliente.com"
                                                                 ],
-                                                                "subject": "[ROJO] Informe de auditoria · {{5.nombre_archivo}} · riesgo alto, no firmar sin asesoria",
+                                                                "subject": "[ROJO] Informe de auditoria · {{4.nombre_archivo}} · riesgo alto, no firmar sin asesoria",
                                                                 "bodyType": "rawHtml",
-                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{5.nombre_archivo}}</b>.</p><p><b>Semaforo: ROJO</b> - riesgo alto detectado. <b>No firmar sin asesoria legal.</b> Se pone en copia al asesor legal.</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
+                                                                "content": "<p>Adjuntamos el <b>informe de auditoria</b> del contrato <b>{{4.nombre_archivo}}</b>.</p><p><b>Semaforo: ROJO</b> - riesgo alto detectado. <b>No firmar sin asesoria legal.</b> Se pone en copia al asesor legal.</p><p>Informe automatico de deteccion de riesgos. <b>NO es asesoramiento juridico</b> ni sustituye a un abogado. La decision de firmar es suya. Se adjunta el contrato original para su verificacion.</p>",
                                                                 "attachments": [
                                                                     {
-                                                                        "filename": "Informe-{{5.nombre_archivo}}.pdf",
-                                                                        "data": "{{16.data}}"
+                                                                        "filename": "Informe-{{4.nombre_archivo}}.pdf",
+                                                                        "data": "{{15.data}}"
                                                                     },
                                                                     {
-                                                                        "filename": "{{2.fileName}}",
+                                                                        "filename": "{{2.filename}}",
                                                                         "data": "{{2.data}}"
                                                                     }
                                                                 ]
                                                             },
                                                             "metadata": {
                                                                 "designer": {
-                                                                    "x": 4200,
-                                                                    "y": 600
+                                                                    "x": 3900,
+                                                                    "y": 600,
+                                                                    "name": "Email informe ROJO + CC legal"
                                                                 },
                                                                 "restore": {
                                                                     "parameters": {

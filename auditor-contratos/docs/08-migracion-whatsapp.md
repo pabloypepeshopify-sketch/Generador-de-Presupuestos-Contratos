@@ -1,15 +1,15 @@
 # 08 · Migración de la salida: Gmail → WhatsApp / Twilio
 
 La fase de pruebas usa **Gmail** como canal de salida. Todo el "hacia la persona" está aislado en
-los módulos de email: **#7, #13, #19, #20, #21**. Migrar a WhatsApp = sustituir esos módulos; **el
-resto del flujo (extracción, IA, semáforo, informe, Sheets) no cambia**.
+los módulos de email: **#6, #12, #18, #19, #20**. Migrar a WhatsApp = sustituir esos módulos; **el
+resto del flujo (OCR, IA, semáforo, informe, Sheets) no cambia**.
 
 ## Qué se sustituye
 | Módulo actual (Gmail) | Rol | Reemplazo en producción |
 |-----------------------|-----|-------------------------|
-| #19 / #20 / #21 | Informe VERDE/ÁMBAR/ROJO al responsable | WhatsApp Business API o Twilio |
-| #21 (CC legal) | Copia al asesor en ROJO | 2.º mensaje WhatsApp al número del legal |
-| #7 / #13 | Avisos de revisión manual | Mensaje WhatsApp de aviso |
+| #18 / #19 / #20 | Informe VERDE/ÁMBAR/ROJO al responsable | WhatsApp Business API o Twilio |
+| #20 (CC legal) | Copia al asesor en ROJO | 2.º mensaje WhatsApp al número del legal |
+| #6 / #12 | Avisos de revisión manual | Mensaje WhatsApp de aviso |
 
 ## Opción A · WhatsApp Business Cloud API (Meta)
 - App en Make: **WhatsApp Business Cloud** (`whatsapp-business-cloud`).

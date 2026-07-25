@@ -1,107 +1,98 @@
 # 07 · Checklist de configuración manual post-importación
 
-Todo lo que **NO** puede venir pre-rellenado en el blueprint (conexiones OAuth, IDs de carpetas/hoja/
-plantilla, emails) y hay que configurar tras importar. Los `REEMPLAZAR_*` y los `0` en `__IMTCONN__`
-son los marcadores a sustituir.
+Todo lo que **NO** puede venir pre-rellenado en el blueprint genérico (conexiones OAuth, clave de
+Mistral, IDs de carpeta/hoja/plantilla, emails) y hay que configurar tras importar. Los `REEMPLAZAR_*`
+y los `0` en `__IMTCONN__` son los marcadores a sustituir.
+
+> **Nota:** para **tu** cuenta (VISAX AI) ya he creado los 3 activos de Google y validado todos los
+> módulos contra la API de Make; los IDs reales están en la sección 8. Para **vender/instalar en otro
+> cliente**, crea sus propios activos y conexiones siguiendo estos mismos pasos.
 
 ## 0. Antes de importar
 - [ ] Cuenta Make en zona **EU (eu1.make.com)**.
 - [ ] Cuenta de OpenAI con **API key** activa y saldo.
-- [ ] Cuenta de Google (Gmail, Drive, Docs, Sheets) para las pruebas.
-- [ ] *(Opcional, solo si usas OCR dedicado)* API key de **Mistral** o proyecto de **Google Vision**.
+- [ ] **API key de Mistral** (para el OCR). La misma que ya usas en "Lector de Facturas · OCR + IA".
+- [ ] Cuenta de Google (Gmail, Docs, Sheets) para las pruebas.
 
-## 1. Crear conexiones (una vez, reutilizables)
-En Make → *Connections* (**5** conexiones):
+## 1. Conexiones (solo 3, reutilizables) — sin Google Drive
+En Make → *Connections*:
 - [ ] **OpenAI** — app `openai-gpt-3`.
 - [ ] **Google (Gmail)** — app `google-email`. Autoriza lectura de correo (watch) y envío.
-- [ ] **Google Drive** — app `google-drive`. **Necesaria aquí** (subir/convertir el adjunto para OCR).
-- [ ] **Google Docs** — app `google-docs` (crear informe y exportar a texto/PDF).
-- [ ] **Google Sheets** — app `google-sheets`.
+- [ ] **Google** — app `google` (**la misma conexión sirve para Docs y Sheets**).
 
-> ⚠️ Google puede exigir que la app OAuth de Make esté verificada o que añadas tu cuenta como
-> *usuario de prueba* si usas un proyecto propio de Google Cloud. Con las conexiones estándar de
-> Make, basta con autorizar.
+> El OCR (módulo HTTP #3) **no usa conexión de Make**: la clave de Mistral va en su cabecera
+> `Authorization`. Y Google Docs crea/exporta el informe sin el conector de Drive.
 
 ## 2. Preparar los activos de Google
-- [ ] Crear en Drive una **carpeta de trabajo** (donde se suben/convierten los adjuntos) →
-      copia su `FOLDER_ID_TRABAJO`.
-- [ ] Crear en Drive una **carpeta de informes generados** → copia su `FOLDER_ID_INFORMES`.
-- [ ] Crear la **plantilla del informe** en Google Docs con las etiquetas y el descargo legal fijo
-      (ver `plantillas/google-docs-informe-riesgos.md`). Copia su `TEMPLATE_INFORME_ID` de la URL.
-      En el Doc las etiquetas van **con llaves** (`{{semaforo}}`); en Make se escriben **sin llaves**.
-- [ ] Crear el **Google Sheet** `Auditorias - Contratos` con la pestaña `Auditorias` y las cabeceras
-      de `docs/04-informe-y-trazabilidad.md`. Copia el `SPREADSHEET_ID`.
-- [ ] Dar acceso a la cuenta conectada sobre las dos carpetas, la plantilla y la hoja.
-- [ ] *(Fase pruebas Gmail)* Crea una **etiqueta/carpeta** `Contratos-Entrantes` si prefieres vigilar
-      solo ahí en vez de toda la bandeja.
+- [ ] **Carpeta de informes generados** en Drive → copia su `FOLDER_ID_INFORMES`.
+- [ ] **Plantilla del informe** en Google Docs con las etiquetas y el descargo legal fijo (ver
+      `plantillas/google-docs-informe-riesgos.md`). Copia su `TEMPLATE_INFORME_ID`. Etiquetas **con
+      llaves** en el Doc (`{{semaforo}}`); en Make **sin llaves**.
+- [ ] **Google Sheet** de trazabilidad con las 14 cabeceras de `docs/04-informe-y-trazabilidad.md`.
+      Copia el `SPREADSHEET_ID` y el **nombre de la pestaña** (`sheetId`).
+- [ ] *(Fase pruebas Gmail)* opcional: etiqueta/carpeta `Contratos-Entrantes` si prefieres vigilar
+      solo ahí.
 
 ## 3. Importar el blueprint
 - [ ] Make → *Create a new scenario* → menú `···` → **Import Blueprint** →
       `blueprints/auditor-contratos.blueprint.json`.
 
-## 4. Reasignar conexiones en cada módulo
-Tras importar, cada módulo mostrará "conexión no encontrada" (`__IMTCONN__: 0`). Reasigna:
-- **Gmail** (`google-email`): #1 (watch), #7, #13, #19, #20, #21.
-- **Google Drive** (`google-drive`): #3 (upload+convert).
-- **Google Docs** (`google-docs`): #4 (export texto), #15 (crear informe), #16 (export PDF).
-- **OpenAI** (`openai-gpt-3`): #9.
-- **Google Sheets** (`google-sheets`): #8, #14, #17.
+## 4. Reasignar conexiones en cada módulo (`__IMTCONN__: 0`)
+- **Gmail** (`google-email`): #1 (watch), #2 (adjuntos), #6, #12, #18, #19, #20.
+- **Google** (`google`, Docs+Sheets): #7, #13, #14 (crear informe), #15 (export PDF), #16.
+- **OpenAI** (`openai-gpt-3`): #8.
+- **HTTP** (#3): sin conexión; pega la clave de Mistral en la cabecera (sección 5).
 
-## 5. Verificar el módulo de disparo (#1, Watch emails)
-- [ ] Reselecciona **carpeta/etiqueta** a vigilar (`INBOX` o `Contratos-Entrantes`).
-- [ ] Filtro `has:attachment` (o el criterio que use tu versión del módulo).
-- [ ] *Scheduling* del escenario: **cada X minutos** (Gmail watch es trigger de sondeo, no instant).
-- [ ] Si tu versión etiqueta el remitente distinto de `{{1.from}}` o el asunto distinto de
-      `{{1.subject}}`, remapea esas dos referencias en el paso 5.
+## 5. Pegar la clave de Mistral (módulo #3, HTTP)
+- [ ] En *Headers* → `Authorization` sustituye `Bearer REEMPLAZAR_MISTRAL_API_KEY` por
+      `Bearer <tu-clave-Mistral>`.
+- [ ] El cuerpo ya trae `data:{{2.mimeType}};base64,{{base64(2.data)}}` y `parseResponse = true`.
 
-## 6. Verificar la extracción de texto (#3 → #4)
-- [ ] En #3 (**Google Drive Upload**): confirma `folderId = FOLDER_ID_TRABAJO`, `convert = true`,
-      `data = {{2.data}}`, `name = {{2.fileName}}`. (Si tu versión del módulo usa otros nombres de
-      campo para el binario, mapea el adjunto del iterator ahí.)
-- [ ] En #4 (**Google Docs Export**): `document = {{3.id}}`, `mimeType = text/plain`. El texto sale
-      en `{{4.data}}`. **Si tu versión nombra el campo distinto** (`content`/`body`), remapea
-      `texto_contrato` y `n_chars` en el paso 5 a ese campo.
-- [ ] *(Opcional OCR dedicado)* Si sustituyes #3–#4 por HTTP → Mistral OCR, mapea
-      `texto_contrato = {{join(map(body.pages; "markdown"); "\n\n")}}` (ver `docs/01-arquitectura.md`).
+## 6. Verificar el disparador (#1) y el OCR (#3)
+- [ ] #1 *Watch emails*: campo `q` = `has:attachment filename:pdf` (o `label:Contratos-Entrantes
+      has:attachment`). *Scheduling* del escenario: **cada X minutos** (es trigger de sondeo).
+- [ ] #3 filtro "Solo PDF" activo. Salida del OCR: `{{3.data.pages[].markdown}}` (ya mapeado en #4
+      como `texto_contrato` y `n_chars`).
 
-## 7. Rellenar el prompt de OpenAI (#9)
+## 7. Rellenar el prompt de OpenAI (#8)
 - [ ] `model = gpt-4o`, `temperature = 0.1`.
 - [ ] Pega el **system prompt** (`prompts/system-prompt.md`) como mensaje **System**.
-- [ ] Pega el **user prompt** (`prompts/user-prompt-template.md`) como mensaje **User**, con la
-      **checklist cerrada** y `{{5.texto_contrato}}` / `{{5.tipo_contrato}}`.
-- [ ] El **modo JSON** ya viene forzado en el blueprint (*Other Input Parameters* →
-      `response_format = {"type":"json_object"}`).
+- [ ] Pega el **user prompt** (`prompts/user-prompt-template.md`) como mensaje **User** (incluye la
+      checklist cerrada, `{{4.tipo_contrato}}` y `{{4.texto_contrato}}`).
+- [ ] El **modo JSON** ya viene forzado (*Other Input Parameters* → `response_format = {"type":"json_object"}`).
 
 ## 8. Sustituir los marcadores `REEMPLAZAR_*`
-| Marcador | Dónde | Valor |
-|----------|-------|-------|
-| `REEMPLAZAR_FOLDER_ID_TRABAJO` | #3 `folderId` | Carpeta de trabajo (subida/convert) |
-| `REEMPLAZAR_TEMPLATE_INFORME_ID` | #15 `document` | ID de la plantilla del informe |
-| `REEMPLAZAR_FOLDER_ID_INFORMES` | #15 `folderId` | Carpeta de informes generados |
-| `REEMPLAZAR_SPREADSHEET_ID` | #8, #14, #17 | ID del Google Sheet |
-| `REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com` | #7, #13, #19, #20, #21 (`to`) | Email del responsable |
-| `REEMPLAZAR_EMAIL_ASESOR_LEGAL@tu-cliente.com` | #21 (`cc`) | Email del asesor legal (solo ROJO) |
-| `REEMPLAZAR_NOMBRE_EMPRESA` | #15 (etiqueta `nombre_empresa`) | Nombre de tu empresa/cliente |
+| Marcador | Dónde | Valor genérico | **Ya creado en tu cuenta (VISAX AI)** |
+|----------|-------|----------------|----------------------------------------|
+| `REEMPLAZAR_MISTRAL_API_KEY` | #3 (header) | Tu clave Mistral | *(usa tu clave existente de Mistral)* |
+| `REEMPLAZAR_FOLDER_ID_INFORMES` | #14 `folderId` | Carpeta de informes | `1ugUnyqwYW7yL3OBqBV1Tr9XomiLMVTm-` |
+| `REEMPLAZAR_TEMPLATE_INFORME_ID` | #14 `document` | Plantilla Docs | `1AqZ6dcTLWwDFHgCG5OAdO5tVd6BzzCCduJQp-_pvrXw` |
+| `REEMPLAZAR_SPREADSHEET_ID` | #7, #13, #16 | Google Sheet | `135y-0zqrnJcbJgJdUD0gZwgLWau9h_soIRrfymOo74w` |
+| `sheetId` (pestaña) | #7, #13, #16 | Nombre de tu pestaña | `Untitled` |
+| `REEMPLAZAR_EMAIL_RESPONSABLE@tu-cliente.com` | #6, #12, #18, #19, #20 (`to`) | Email del responsable | `pabloypepeshopify@gmail.com` (cámbialo por el del cliente) |
+| `REEMPLAZAR_EMAIL_ASESOR_LEGAL@tu-cliente.com` | #20 (`cc`) | Email del asesor legal | *(pon el del abogado)* |
+| `REEMPLAZAR_NOMBRE_EMPRESA` | #14 (etiqueta `nombre_empresa`) | Nombre de la empresa | `VISAX AI` |
 
 ## 9. Ajustar el umbral de legibilidad (`MIN_CHARS`)
-- [ ] En los filtros de #7 (`number:less 400`) y #9 (`number:greaterorequal 400`), ajusta el `400`
-      a tu realidad documental (recomendado 400). **Deben coincidir** para no dejar huecos entre rutas.
+- [ ] En los filtros de #6 (`number:less 400`) y #8 (`number:greaterorequal 400`), ajusta el `400`
+      a tu realidad documental. **Deben coincidir** para no dejar huecos entre rutas.
 
 ## 10. Pruebas (fase Gmail)
 - [ ] Activa el escenario y *Run once*.
-- [ ] Envía un **contrato de prueba con riesgo** (renovación automática + permanencia larga + pena
-      desproporcionada) → debe llegar informe **ROJO** con CC al legal y fila `INFORME_ENVIADO`.
+- [ ] Envía un **contrato PDF con riesgo** (renovación automática + permanencia larga + pena
+      desproporcionada) → informe **ROJO** con CC al legal y fila `INFORME_ENVIADO`.
 - [ ] Envía un **contrato equilibrado** → informe **VERDE**.
 - [ ] Envía un **PDF escaneado en blanco / imagen basura** → email `ILEGIBLE_REVISION_MANUAL`, **sin**
       informe, sin llamada a OpenAI.
-- [ ] Comprueba en Sheets las 3 filas con estados y semáforos correctos, y el enlace al informe.
-- [ ] Abre un informe PDF y confirma que el **descargo legal fijo** aparece y que cada punto muestra
-      su **cita textual**.
+- [ ] Comprueba en Sheets las filas con estados y semáforos correctos, y el enlace al informe.
+- [ ] Abre un informe PDF: confirma el **descargo legal fijo** y la **cita textual** de cada punto.
 
 ## 11. Activar
 - [ ] Activa el escenario (*Scheduling* cada X min). Revisa consumo de operaciones y límites del plan.
 
-## Verificación con MCP (opcional, si usas el MCP de Make)
-- Estructura del blueprint: `validate_blueprint_schema`.
-- Config de cada módulo: `validate_module_configuration` (útil para confirmar los nombres de campo
-  reales de `google-drive:uploadAFile` y `google-docs:exportADocument` en tu versión).
+## Estado de validación (hecho por mí contra tu org de Make)
+- ✅ Los **8 módulos distintos** validados con `validate_module_configuration` (org 8133524, team
+  1998941): `triggerWatchNewEmails` v4, `listEmailAttachments` v4 (`include` como **array**),
+  `http:MakeRequest` v4, `openai-gpt-3:CreateCompletion` v1, `google-docs:createADocumentFromTemplate`
+  v1, `google-docs:exportADocument` v1, `google-sheets:addRow` v2, `google-email:sendAnEmail` v4.
+- ✅ Activos de Google creados (sección 8) y pestaña de la hoja confirmada (`Untitled`) vía RPC.

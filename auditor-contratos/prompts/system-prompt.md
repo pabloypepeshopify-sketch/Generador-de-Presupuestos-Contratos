@@ -106,8 +106,8 @@ FORMATO DE SALIDA (OBLIGATORIO)
 
 - El **mensaje de usuario** (rol `user`) contiene, en este orden: (1) el `tipo_contrato`, (2) la
   **checklist cerrada aplicable** (BASE + extensión del tipo, con `id`/`nombre`/`critico`), (3) el
-  **texto del contrato** `{{5.texto_contrato}}` y (4) el **esquema JSON de salida**. Plantilla en
-  [`user-prompt-template.md`](./user-prompt-template.md).
+  **texto del contrato** `{{4.texto_contrato}}` (OCR de Mistral, paso 3, fijado en el paso 4) y (4)
+  el **esquema JSON de salida**. Plantilla en [`user-prompt-template.md`](./user-prompt-template.md).
 - `temperature = 0.1` para maximizar fidelidad de las citas y reproducibilidad del recuento.
 - El modo JSON evita que el módulo *Parse JSON* siguiente falle por texto extra o markdown.
 - Ejemplos de salida reales en `ejemplo-salida-verde.json`, `ejemplo-salida-rojo.json` y

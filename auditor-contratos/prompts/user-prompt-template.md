@@ -1,7 +1,7 @@
 # Prompt de usuario — Módulo OpenAI (auditoría de contratos)
 
 > Pega este texto como mensaje **User** del mismo módulo OpenAI. Sustituye los `[[...]]` por
-> mapeos de Make. `{{5.tipo_contrato}}` y `{{5.texto_contrato}}` vienen del *Set Variables* (paso 5).
+> mapeos de Make. `{{4.tipo_contrato}}` y `{{4.texto_contrato}}` vienen del *Set Variables* (paso 5).
 > La **checklist** va incrustada aquí; si quieres editarla sin tocar el prompt, externalízala a un
 > Data Store (ver `docs/02-checklist-riesgos.md`).
 
@@ -10,7 +10,7 @@
 ## USER
 
 ```
-TIPO DE CONTRATO: {{5.tipo_contrato}}
+TIPO DE CONTRATO: {{4.tipo_contrato}}
 (Si es "auto", detecta el tipo entre: alquiler | proveedor | laboral | otro, y aplica la extensión
 que corresponda. Deja constancia del tipo detectado en "tipo_contrato_detectado".)
 
@@ -67,7 +67,7 @@ Y AÑADE los puntos de la extensión según el tipo:
 TEXTO DEL CONTRATO A AUDITAR
 ═══════════════════════════════════════════════════════════════════
 <<<INICIO_CONTRATO>>>
-{{5.texto_contrato}}
+{{4.texto_contrato}}
 <<<FIN_CONTRATO>>>
 
 ═══════════════════════════════════════════════════════════════════
@@ -107,8 +107,8 @@ Devuelve SOLO ese JSON.
 ---
 
 ## Mapeos de Make usados aquí
-- `{{5.tipo_contrato}}` — variable del paso 5 (deducida del asunto o `auto`).
-- `{{5.texto_contrato}}` — texto plano extraído (paso 4 → paso 5).
+- `{{4.tipo_contrato}}` — variable del paso 4 (deducida del asunto o `auto`).
+- `{{4.texto_contrato}}` — texto del contrato extraído por OCR (Mistral, paso 3) y fijado en el paso 4.
 
 > El campo `puntos[]` debe tener **una entrada por cada punto** de la checklist aplicable (BASE +
 > extensión). El ejemplo del esquema muestra solo una entrada por brevedad.

@@ -6,10 +6,10 @@ detección y **no un dictamen jurídico**, y que **la decisión de firmar es sie
 ## Dónde aparece (redundancia deliberada)
 
 1. **En el informe PDF — texto FIJO de la plantilla.** No es una etiqueta que rellene la IA, sino
-   texto escrito directamente en la plantilla de Google Docs (paso 15). La IA **no puede omitirlo,
+   texto escrito directamente en la plantilla de Google Docs (paso 14). La IA **no puede omitirlo,
    editarlo ni moverlo**. Ver `plantillas/google-docs-informe-riesgos.md`, bloque "AVISO IMPORTANTE".
 
-2. **En el cuerpo del email** (pasos 19/20/21) — una línea antes del informe adjunto:
+2. **En el cuerpo del email** (pasos 18/19/20) — una línea antes del informe adjunto:
    > *Informe automático de detección de riesgos. NO es asesoramiento jurídico ni sustituye a un
    > abogado. La decisión de firmar es suya. Contrato original adjunto para su verificación.*
 

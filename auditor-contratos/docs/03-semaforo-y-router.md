@@ -22,51 +22,47 @@ reproducible y no depende del "criterio" del modelo en cada ejecución.
 > En **todos** los casos analizables se envía el informe a un humano. El semáforo **nunca** aprueba
 > ni rechaza: solo colorea, prioriza y (en rojo) añade al asesor legal en copia.
 
-## Implementación en Make
+## Implementación en Make (numeración del blueprint validado)
 
-### Paso 11 — Calcular `semaforo` (Tools → Set variable)
-Una sola variable con `if()` anidado sobre los `contadores` del *Parse JSON* (módulo 10). Es la
-**fuente única de verdad** que consumen el informe (paso 15), la hoja (paso 17) y el Router 18:
+### Paso 10 — Calcular `semaforo` (Tools → Set variable)
+Una sola variable con `if()` anidado sobre los `contadores` del *Parse JSON* (módulo 9). Es la
+**fuente única de verdad** que consumen el informe (paso 14), la hoja (paso 16) y el Router 17:
 
 ```
 Nombre:  semaforo
-Valor:   {{if(10.estado_analisis = "NO_ANALIZABLE"; "MANUAL";
-           if(10.contadores.riesgo_alto > 0; "ROJO";
-           if(10.contadores.riesgo_medio > 0; "AMBAR";
-           if(10.contadores.faltan_criticos > 0; "AMBAR"; "VERDE"))))}}
+Valor:   {{if(9.estado_analisis = "NO_ANALIZABLE"; "MANUAL";
+           if(9.contadores.riesgo_alto > 0; "ROJO";
+           if(9.contadores.riesgo_medio > 0; "AMBAR";
+           if(9.contadores.faltan_criticos > 0; "AMBAR"; "VERDE"))))}}
 ```
 
-En el mismo módulo conviene fijar también, para el informe y la hoja:
-```
-Nombre: semaforo_texto
-Valor:  {{switch(11.semaforo; "VERDE"; "SIN RIESGOS RELEVANTES";
-                              "AMBAR"; "REVISAR ANTES DE FIRMAR";
-                              "ROJO";  "RIESGO ALTO — NO FIRMAR SIN ASESORÍA LEGAL";
-                              "REVISIÓN MANUAL")}}
-```
-*(`switch` referencia `11.semaforo`, la variable que se acaba de definir en el propio módulo.)*
+En el mismo módulo se fija también `semaforo_texto` (el literal que se imprime en el informe), con la
+misma lógica de `if()` anidado sobre `{{9.contadores...}}` (VERDE→"SIN RIESGOS RELEVANTES",
+AMBAR→"REVISAR ANTES DE FIRMAR", ROJO→"RIESGO ALTO - NO FIRMAR SIN ASESORIA LEGAL",
+MANUAL→"REVISION MANUAL"). *(Se usa `if()` en lugar de auto-referenciar la variable `semaforo` dentro
+del mismo módulo, para no depender del orden de evaluación.)*
 
-### Paso 12 — Router "Resultado del análisis" (2 rutas)
+### Paso 11 — Router "Resultado del análisis" (2 rutas)
 Filtra por `estado_analisis` (no por el semáforo todavía):
 
 | Ruta | Filtro | Qué hace |
 |------|--------|----------|
-| NO_ANALIZABLE | `{{10.estado_analisis}}` **text:equal** `NO_ANALIZABLE` | Email de revisión manual + Sheets `NO_ANALIZABLE_IA`. **No genera informe.** |
-| ANALIZADO | `{{10.estado_analisis}}` **text:equal** `ANALIZADO` | Genera Doc → PDF → Sheets → Router 18. |
+| NO_ANALIZABLE | `{{9.estado_analisis}}` **text:equal** `NO_ANALIZABLE` | Email de revisión manual + Sheets `NO_ANALIZABLE_IA`. **No genera informe.** |
+| ANALIZADO | `{{9.estado_analisis}}` **text:equal** `ANALIZADO` | Genera Doc → PDF → Sheets → Router 17. |
 
-### Paso 18 — Router "Semáforo" (3 rutas)
+### Paso 17 — Router "Semáforo" (3 rutas)
 Dentro de la ruta ANALIZADO, **después** de generar el informe y registrar la fila (para no
 duplicar módulos pesados), este Router solo diferencia la **notificación**. Filtra por la variable
-`{{11.semaforo}}`:
+`{{10.semaforo}}`:
 
 | Ruta | Filtro | Notificación |
 |------|--------|--------------|
-| VERDE | `{{11.semaforo}}` **text:equal** `VERDE` | Email verde: "sin riesgos relevantes". |
-| ÁMBAR | `{{11.semaforo}}` **text:equal** `AMBAR` | Email ámbar: "revisar antes de firmar". |
-| ROJO  | `{{11.semaforo}}` **text:equal** `ROJO`  | Email rojo: "riesgo alto" **+ CC al asesor legal**. |
+| VERDE | `{{10.semaforo}}` **text:equal** `VERDE` | Email verde: "sin riesgos relevantes". |
+| ÁMBAR | `{{10.semaforo}}` **text:equal** `AMBAR` | Email ámbar: "revisar antes de firmar". |
+| ROJO  | `{{10.semaforo}}` **text:equal** `ROJO`  | Email rojo: "riesgo alto" **+ CC al asesor legal**. |
 
 > Como la variable `semaforo` nunca vale `VERDE/AMBAR/ROJO` cuando el análisis es `NO_ANALIZABLE`
-> (vale `MANUAL`, y esa rama ni siquiera llega al Router 18), las tres rutas cubren todos los casos
+> (vale `MANUAL`, y esa rama ni siquiera llega al Router 17), las tres rutas cubren todos los casos
 > analizables sin solapamiento.
 
 ## Por qué determinista y no "que lo diga la IA"

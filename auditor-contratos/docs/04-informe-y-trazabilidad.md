@@ -13,8 +13,8 @@ Resumen de secciones:
 5. **Descargo legal fijo** — texto no editable de la plantilla (ver `06-descargo-legal.md`).
 6. **Pie** — nombre de empresa, aviso de correo automático.
 
-El informe se genera como Google Doc (paso 15) y se exporta a **PDF** (paso 16). El email (pasos
-19/20/21) adjunta **el informe PDF + el contrato original** para que el responsable verifique cada
+El informe se genera como Google Doc (paso 14) y se exporta a **PDF** (paso 15). El email (pasos
+18/19/20) adjunta **el informe PDF + el contrato original** para que el responsable verifique cada
 cita contra la fuente.
 
 ---
@@ -25,20 +25,26 @@ Crea un Google Sheet **`Auditorias - Contratos`** con la pestaña (`sheetId`) **
 
 | Col | Cabecera | Contenido | Escrito por |
 |:---:|----------|-----------|-------------|
-| A | `id_auditoria` | Clave única (fecha+remitente+archivo). | paso 8/14/17 |
-| B | `fecha_analisis` | Fecha/hora del análisis. | paso 5 |
-| C | `remitente` | Email de quien envió el contrato. | paso 5 |
-| D | `asunto` | Asunto del correo entrante. | paso 5 |
-| E | `nombre_archivo` | Nombre del adjunto analizado. | paso 5 |
-| F | `tipo_contrato` | `alquiler`/`proveedor`/`laboral`/`otro` (detectado). | IA (paso 10) |
-| G | `semaforo` | `VERDE`/`AMBAR`/`ROJO` (o vacío si ilegible). | paso 11 |
-| H | `n_riesgo_alto` | Nº de puntos con riesgo alto. | IA (paso 10) |
-| I | `n_riesgo_medio` | Nº de puntos con riesgo medio. | IA (paso 10) |
-| J | `n_faltan_criticos` | Nº de puntos críticos ausentes. | IA (paso 10) |
-| K | `enlace_informe` | URL del informe (Doc) en Drive. | paso 15 |
-| L | `estado` | Ciclo de vida (ver abajo). | pasos 8/14/17 |
-| M | `motivo` | Motivo si ilegible/no analizable. | pasos 5/10 |
+| A | `id_auditoria` | Clave única (fecha+archivo). | pasos 7/13/16 |
+| B | `fecha_analisis` | Fecha/hora del análisis. | paso 4 |
+| C | `remitente` | Email de quien envió el contrato. | paso 4 |
+| D | `asunto` | Asunto del correo entrante. | paso 4 |
+| E | `nombre_archivo` | Nombre del adjunto analizado. | paso 4 |
+| F | `tipo_contrato` | `alquiler`/`proveedor`/`laboral`/`otro` (detectado). | IA (paso 9) |
+| G | `semaforo` | `VERDE`/`AMBAR`/`ROJO` (o vacío si ilegible). | paso 10 |
+| H | `n_riesgo_alto` | Nº de puntos con riesgo alto. | IA (paso 9) |
+| I | `n_riesgo_medio` | Nº de puntos con riesgo medio. | IA (paso 9) |
+| J | `n_faltan_criticos` | Nº de puntos críticos ausentes. | IA (paso 9) |
+| K | `enlace_informe` | URL del informe (Doc) en Drive. | paso 14 |
+| L | `estado` | Ciclo de vida (ver abajo). | pasos 7/13/16 |
+| M | `motivo` | Motivo si ilegible/no analizable. | pasos 4/9 |
 | N | `revisado_por_humano` | Casilla que marca el responsable al revisar. | manual |
+
+> **Ya creada en tu Drive:** hoja `Auditorias - Contratos`
+> (ID `135y-0zqrnJcbJgJdUD0gZwgLWau9h_soIRrfymOo74w`), pestaña **`Untitled`** con las 14 cabeceras.
+> En el blueprint el campo `sheetId` = `Untitled` (así nombra la API de Google la 1.ª pestaña de una
+> hoja creada por programa). Si creas la hoja a mano en la UI, la pestaña será `Hoja 1`/`Sheet1`:
+> ajusta `sheetId` a ese nombre.
 
 ### Fila de cabeceras lista para pegar (fila 1)
 ```

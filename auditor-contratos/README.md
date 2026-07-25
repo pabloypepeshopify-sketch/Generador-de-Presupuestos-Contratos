@@ -14,13 +14,17 @@ decida un humano.** Todo se construye **100 % en Make.com** (sin app propia), zo
 
 ---
 
+> ✅ **Validado contra la API real de Make** (org VISAX AI, `eu1.make.com`): los 8 módulos distintos
+> pasan `validate_module_configuration` y replican patrones ya probados en producción en tu cuenta.
+> Activos de Google (plantilla, hoja, carpeta) **ya creados**. Detalle en `docs/07`.
+
 ## 🧭 Flujo en una imagen
 
 ```
-Correo con contrato adjunto (Gmail)
+Correo con contrato PDF adjunto (Gmail)
         │
         ▼
-[Watch] → [Iterator adjuntos] → [Drive Upload+OCR] → [Docs Export texto] → [Set vars: n_chars]
+[Gmail Watch] → [List Attachments (itera)] → [HTTP Mistral OCR] → [Set vars: texto, n_chars]
         │
         ▼
   ROUTER · GATE LEGIBILIDAD
@@ -36,6 +40,9 @@ Correo con contrato adjunto (Gmail)
                                                 ├─ 🟡 ÁMBAR ─► email informe
                                                 └─ 🔴 ROJO  ─► email informe + CC asesor legal
 ```
+
+**OCR con Mistral OCR por HTTP** (una llamada, base64) — maneja PDF nativo y escaneado sin conector
+de Google Drive. `listEmailAttachments` itera los adjuntos de forma nativa.
 
 ---
 
@@ -86,20 +93,22 @@ auditor-contratos/
 
 1. Lee `docs/07-checklist-post-importacion.md`.
 2. Importa `blueprints/auditor-contratos.blueprint.json` en Make (zona EU).
-3. Crea las **5 conexiones** (OpenAI, Gmail, Drive, Docs, Sheets) y reasígnalas en cada módulo.
-4. Sustituye todos los `REEMPLAZAR_*` (carpetas Drive, plantilla, hoja, emails).
-5. Pega el system + user prompt de `prompts/` en el módulo OpenAI (#9).
+3. Reasigna las **3 conexiones** (OpenAI, Gmail, Google) en cada módulo y pega tu **clave de Mistral**
+   en la cabecera del módulo HTTP (#3).
+4. Sustituye los `REEMPLAZAR_*` (carpeta, plantilla, hoja, emails). *Para tu cuenta, los IDs de los
+   activos ya creados están en `docs/07` sección 8.*
+5. Pega el system + user prompt de `prompts/` en el módulo OpenAI (#8).
 6. Prueba con un contrato con riesgo (→ ROJO), uno equilibrado (→ VERDE) y un escaneo basura (→ ILEGIBLE).
 
 ---
 
 ## ⚠️ Partes que NO se pueden pre-rellenar en el blueprint
 Marcadas con `REEMPLAZAR_*` (strings) y `0` en `__IMTCONN__` (IDs de conexión):
-- **Conexiones OAuth** (OpenAI, Gmail, Google Drive, Google Docs, Google Sheets) — **5 conexiones**.
-- **IDs de Drive**: carpeta de trabajo, carpeta de informes.
-- **ID de la plantilla** del informe (Google Docs) y **ID del Google Sheet**.
+- **Conexiones OAuth** (OpenAI, Gmail, Google) — **3 conexiones** (Docs y Sheets comparten la de Google).
+- **Clave API de Mistral** (cabecera del módulo HTTP #3) — no es conexión de Make.
+- **ID de la carpeta** de informes, **ID de la plantilla** (Docs) y **ID + pestaña del Google Sheet**.
 - **Emails** del responsable y del asesor legal (CC en ROJO), y **nombre de empresa**.
-- **Carpeta/etiqueta y filtro** del módulo de disparo Watch emails.
+- **Filtro `q`** del módulo de disparo Watch emails.
 
 Detalle y pasos exactos en [`docs/07-checklist-post-importacion.md`](docs/07-checklist-post-importacion.md).
 
