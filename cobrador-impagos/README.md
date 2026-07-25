@@ -49,6 +49,7 @@ cobrador-impagos/
     06-despliegue-en-make.md                  IDs reales, prueba realizada y gotchas resueltos
     07-checklist-post-importacion.md          Configuración manual tras importar
     08-migracion-whatsapp-stripe.md           Salida por WhatsApp/Twilio y cobro Stripe/Bizum
+    09-demo-5-min.md                          Guion de la demo de 5 minutos
   ejemplos/
     facturas-demo.csv                         Datos de prueba (7 facturas, todos los casos)
 ```
