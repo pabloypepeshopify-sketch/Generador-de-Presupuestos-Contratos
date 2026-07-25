@@ -7,7 +7,7 @@
             "version": 4,
             "parameters": {
                 "__IMTCONN__": 0,
-                "q": "has:attachment filename:pdf",
+                "q": "subject:AUDITAR has:attachment filename:pdf",
                 "limit": 1,
                 "format": "full",
                 "markSeen": true,
@@ -26,7 +26,7 @@
                             "label": "Gmail filter"
                         },
                         "__IMTCONN__": {
-                            "label": "REEMPLAZAR: conexion Gmail (google-email). Ajusta 'q' a tu bandeja/etiqueta (p.ej. label:Contratos-Entrantes has:attachment)."
+                            "label": "REEMPLAZAR: conexion Gmail (google-email). 'q' filtra por asunto AUDITAR para NO auditar facturas ni otros PDF: el usuario/cliente reenvia contratos con AUDITAR en el asunto. Ajustable (p.ej. to:alias+contratos@... o label:Contratos-Entrantes)."
                         }
                     }
                 }

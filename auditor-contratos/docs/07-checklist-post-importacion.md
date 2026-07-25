@@ -96,3 +96,13 @@ En Make → *Connections*:
   `http:MakeRequest` v4, `openai-gpt-3:CreateCompletion` v1, `google-docs:createADocumentFromTemplate`
   v1, `google-docs:exportADocument` v1, `google-sheets:addRow` v2, `google-email:sendAnEmail` v4.
 - ✅ Activos de Google creados (sección 8) y pestaña de la hoja confirmada (`Untitled`) vía RPC.
+- ✅ **Prueba real end-to-end superada** (escenario **`6697383`**, ACTIVO): un contrato PDF de
+  proveedor de riesgo enviado con asunto `AUDITAR` → OCR Mistral → OpenAI (conexión `8476285`) →
+  semáforo **ROJO** → informe Google Doc con etiquetas sustituidas (cita + explicación por punto +
+  descargo fijo) → PDF → fila Sheets `INFORME_ENVIADO` → email. También verificado que la IA marca
+  facturas reales como `NO_ANALIZABLE_IA` sin inventar (red de seguridad OK).
+- ⚠️ **Conexión OpenAI:** usa la que responda en tu cuenta (aquí `8476285`). En una prueba previa
+  hubo HTTP 500 por una **incidencia de OpenAI** (confirmada en status.openai.com), no por el
+  escenario.
+- ⚠️ **Disparador acotado:** `q = subject:AUDITAR has:attachment filename:pdf` para no auditar
+  facturas. Reenvía contratos con `AUDITAR` en el asunto (o cambia el filtro a un alias/etiqueta).

@@ -18,41 +18,47 @@ decida un humano.** Todo se construye **100 % en Make.com** (sin app propia), zo
 > pasan `validate_module_configuration` y replican patrones ya probados en producción en tu cuenta.
 > Activos de Google (plantilla, hoja, carpeta) **ya creados**. Detalle en `docs/07`.
 >
-> 🟢 **Ya montado y probado en tu cuenta de Make** — escenario **`6696980`** "Auditor de Contratos ·
-> Detector de Clausulas de Riesgo", cableado a tus conexiones (Gmail, Google, OpenAI), tu clave de
-> Mistral y los 3 activos de Google. Los 20 módulos importaron sin errores.
+> 🟢 **Montado, PROBADO end-to-end y ACTIVO en tu cuenta de Make** — escenario **`6697383`** "Auditor
+> de Contratos · Detector de Clausulas de Riesgo", cableado a tus conexiones (Gmail, Google, OpenAI
+> `8476285`), tu clave de Mistral y los 3 activos de Google. Los 20 módulos importaron sin errores.
 >
-> **Prueba real de extremo a extremo** (con un contrato PDF de proveedor de riesgo enviado al inbox):
-> ✅ trigger Gmail → ✅ descarga del adjunto → ✅ **OCR de Mistral** (devolvió texto, pasó el gate) →
-> ✅ variables/router → llegó a OpenAI. ❌ **OpenAI devolvió HTTP 500** en ese momento: un
-> **incidente activo de OpenAI** (confirmado en status.openai.com; también fallaba un request trivial
-> con gpt-4o y gpt-4o-mini). **No es un fallo del escenario** — el flujo es correcto hasta OpenAI y
-> completará (Docs→PDF→Sheets→email) en cuanto OpenAI se restablezca.
+> **Prueba real de extremo a extremo superada** (contrato PDF de proveedor de riesgo → asunto
+> `AUDITAR`): ✅ trigger Gmail → ✅ descarga adjunto → ✅ **OCR Mistral** → ✅ **OpenAI** (con la
+> conexión `8476285`) → ✅ Parse → ✅ semáforo **ROJO** (riesgo_alto=2, medio=4, faltan_criticos=1) →
+> ✅ **informe Google Doc con etiquetas sustituidas** (cita textual + explicación llana por punto +
+> descargo legal fijo) → ✅ export **PDF** → ✅ fila Sheets `INFORME_ENVIADO` con enlace → ✅ email con
+> informe + contrato. También verificado el caso **NO_ANALIZABLE**: la IA marcó correctamente varias
+> facturas reales (Shopify/Anthropic) como "no es un contrato" sin inventar análisis.
 >
-> Lo he dejado **inactivo (seguro)** a propósito: activarlo durante la caída de OpenAI —y con el
-> filtro amplio— marcaría PDFs entrantes como leídos sin auditarlos. **Para dejarlo en marcha:** (1)
-> acota el `q` del módulo 1 a una etiqueta (p.ej. `label:Contratos-Entrantes has:attachment
-> filename:pdf`), (2) confirma que OpenAI ya responde, (3) actívalo. Ver "Ya montado en tu cuenta".
+> **Filtro seguro:** el disparador usa `q = subject:AUDITAR has:attachment filename:pdf`, así **solo
+> audita lo que reenvíes con `AUDITAR` en el asunto** (nunca facturas ni otros PDF). Cámbialo si
+> prefieres un alias `+contratos@` o una etiqueta. Nota histórica: durante una prueba previa OpenAI
+> tuvo una incidencia (HTTP 500 confirmada en status.openai.com); se resolvió al usar la conexión
+> `8476285`.
 
-## 🟢 Ya montado en tu cuenta (VISAX AI)
+## 🟢 Ya montado, probado y ACTIVO en tu cuenta (VISAX AI)
 
 | Recurso | ID / valor |
 |---------|-----------|
-| Escenario Make (inactivo, probado hasta OpenAI) | `6696980` |
+| **Escenario Make (ACTIVO, cada 15 min)** | **`6697383`** |
+| Disparador (filtro seguro) | `q = subject:AUDITAR has:attachment filename:pdf` |
 | Carpeta de informes (Drive) | `1ugUnyqwYW7yL3OBqBV1Tr9XomiLMVTm-` |
 | Plantilla del informe (Docs) | `1AqZ6dcTLWwDFHgCG5OAdO5tVd6BzzCCduJQp-_pvrXw` |
 | Hoja de trazabilidad (Sheets) | `135y-0zqrnJcbJgJdUD0gZwgLWau9h_soIRrfymOo74w` (pestaña `Untitled`) |
-| Conexiones usadas | Gmail `8532314` · Google `8533301` · OpenAI `8476276` |
+| Conexiones usadas | Gmail `8532314` · Google `8533301` · **OpenAI `8476285`** |
 
-**Antes de activarlo (2 minutos):**
-1. Crea en Gmail una etiqueta/filtro `Contratos-Entrantes` y cambia el campo `q` del módulo 1 a
-   `label:Contratos-Entrantes has:attachment filename:pdf` (si no, auditaría **todos** los PDF que
-   te lleguen: facturas, etc.).
-2. Cambia los emails `to`/`cc` (ahora tu correo) por los del cliente y su asesor legal.
-3. *(Opcional, máxima calidad)* sustituye el prompt del módulo 8 por la versión completa de
+**Cómo usarlo (ya funciona):** reenvía/envía un contrato **PDF** al correo con la palabra
+**`AUDITAR`** en el asunto. En ≤15 min recibirás el informe (verde/ámbar/rojo) + el contrato, y
+quedará la fila en la hoja. Así **no** audita facturas ni otros PDF.
+
+**Ajustes recomendados (opcionales):**
+1. Cambia los emails `to`/`cc` de los módulos de email (ahora tu correo) por los del cliente y su
+   asesor legal.
+2. *(Máxima calidad)* sustituye el prompt del módulo 8 por la versión completa de
    `prompts/system-prompt.md` + `prompts/user-prompt-template.md` (el escenario lleva ya una versión
-   compacta funcional).
-4. Pulsa **Activar**.
+   compacta funcional; con la completa el `resumen_ejecutivo` y la coherencia de niveles mejoran).
+3. En la hoja `Auditorias - Contratos` hay **5 filas de prueba** (4 facturas marcadas
+   `NO_ANALIZABLE_IA` + 1 contrato `ROJO`) que puedes borrar a mano.
 
 ## 🧭 Flujo en una imagen
 
