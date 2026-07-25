@@ -18,17 +18,27 @@ decida un humano.** Todo se construye **100 % en Make.com** (sin app propia), zo
 > pasan `validate_module_configuration` y replican patrones ya probados en producción en tu cuenta.
 > Activos de Google (plantilla, hoja, carpeta) **ya creados**. Detalle en `docs/07`.
 >
-> 🟢 **Ya montado en tu cuenta de Make** — escenario **`6696980`** "Auditor de Contratos · Detector
-> de Clausulas de Riesgo", **creado e inactivo**, cableado a tus conexiones (Gmail, Google, OpenAI),
-> tu clave de Mistral y los 3 activos de Google. Los 20 módulos importaron sin errores. **Solo falta:**
-> (1) acotar el disparador a una etiqueta/carpeta de Gmail (para no auditar TODOS los PDF de tu
-> bandeja) y (2) activarlo. Ver "Ya montado en tu cuenta" abajo.
+> 🟢 **Ya montado y probado en tu cuenta de Make** — escenario **`6696980`** "Auditor de Contratos ·
+> Detector de Clausulas de Riesgo", cableado a tus conexiones (Gmail, Google, OpenAI), tu clave de
+> Mistral y los 3 activos de Google. Los 20 módulos importaron sin errores.
+>
+> **Prueba real de extremo a extremo** (con un contrato PDF de proveedor de riesgo enviado al inbox):
+> ✅ trigger Gmail → ✅ descarga del adjunto → ✅ **OCR de Mistral** (devolvió texto, pasó el gate) →
+> ✅ variables/router → llegó a OpenAI. ❌ **OpenAI devolvió HTTP 500** en ese momento: un
+> **incidente activo de OpenAI** (confirmado en status.openai.com; también fallaba un request trivial
+> con gpt-4o y gpt-4o-mini). **No es un fallo del escenario** — el flujo es correcto hasta OpenAI y
+> completará (Docs→PDF→Sheets→email) en cuanto OpenAI se restablezca.
+>
+> Lo he dejado **inactivo (seguro)** a propósito: activarlo durante la caída de OpenAI —y con el
+> filtro amplio— marcaría PDFs entrantes como leídos sin auditarlos. **Para dejarlo en marcha:** (1)
+> acota el `q` del módulo 1 a una etiqueta (p.ej. `label:Contratos-Entrantes has:attachment
+> filename:pdf`), (2) confirma que OpenAI ya responde, (3) actívalo. Ver "Ya montado en tu cuenta".
 
 ## 🟢 Ya montado en tu cuenta (VISAX AI)
 
 | Recurso | ID / valor |
 |---------|-----------|
-| Escenario Make (inactivo) | `6696980` |
+| Escenario Make (inactivo, probado hasta OpenAI) | `6696980` |
 | Carpeta de informes (Drive) | `1ugUnyqwYW7yL3OBqBV1Tr9XomiLMVTm-` |
 | Plantilla del informe (Docs) | `1AqZ6dcTLWwDFHgCG5OAdO5tVd6BzzCCduJQp-_pvrXw` |
 | Hoja de trazabilidad (Sheets) | `135y-0zqrnJcbJgJdUD0gZwgLWau9h_soIRrfymOo74w` (pestaña `Untitled`) |
