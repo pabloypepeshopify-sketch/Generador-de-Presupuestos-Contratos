@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200" fill="none">
+  <defs>
+    <linearGradient id="vk" x1="40" y1="30" x2="150" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#33C6F4"/>
+      <stop offset="0.45" stop-color="#3F7DFB"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="ai" x1="520" y1="60" x2="620" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#33C6F4"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <!-- Monograma V -->
+  <path d="M40 44 L96 168 L152 44" stroke="url(#vk)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Acento K / cinta metálica -->
+  <path d="M118 78 L92 118 L122 158" stroke="#EAF0F8" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Wordmark -->
+  <text x="205" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="96" letter-spacing="6" fill="#F5F7FB">VISAX</text>
+  <text x="545" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="96" letter-spacing="4" fill="url(#ai)">AI</text>
+</svg>

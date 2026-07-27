@@ -1,0 +1,279 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────────────────────────────────────────
+   SISTEMA DE COLOR — derivado del logotipo VISAX AI
+   Cambia estas variables para reajustar toda la identidad.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  --brand-cyan: #33c6f4;
+  --brand-blue: #3f7dfb;
+  --brand-indigo: #5a5cf5;
+  --brand-violet: #7c5cff;
+  --brand-purple: #8b5cf6;
+  --brand-deep: #6d28d9;
+  --brand-silver: #eaf0f8;
+
+  --brand-primary: var(--brand-blue);
+  --brand-secondary: var(--brand-violet);
+  --brand-accent: var(--brand-cyan);
+
+  --bg: #06060b;
+  --bg-soft: #0a0a12;
+  --bg-raise: #101019;
+
+  --ink: #f5f7fb;
+  --ink-soft: #aeb4c6;
+  --ink-faint: #6b7086;
+  --line: rgba(255, 255, 255, 0.08);
+
+  --brand-gradient: linear-gradient(
+    120deg,
+    var(--brand-cyan) 0%,
+    var(--brand-blue) 42%,
+    var(--brand-violet) 72%,
+    var(--brand-purple) 100%
+  );
+
+  --radius: 18px;
+}
+
+/* Tema claro opcional (data-theme="light") */
+:root[data-theme='light'] {
+  --bg: #f6f7fb;
+  --bg-soft: #ffffff;
+  --bg-raise: #ffffff;
+  --ink: #0b0c14;
+  --ink-soft: #3d4257;
+  --ink-faint: #6b7086;
+  --line: rgba(10, 12, 20, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: auto; /* Lenis se encarga del smooth scroll */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Cuando Lenis está activo */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Tipografía base ── */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+
+::selection {
+  background: rgba(124, 92, 255, 0.35);
+  color: #fff;
+}
+
+/* ── Scrollbar de lujo ── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--brand-blue), var(--brand-violet));
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+/* ───────────────────────────────────────────────────────────
+   UTILIDADES DE MARCA
+   ─────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    background: var(--brand-gradient);
+    background-size: 180% 180%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .text-gradient-animate {
+    background: var(--brand-gradient);
+    background-size: 220% 220%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradient-pan 8s ease infinite;
+  }
+  .bg-brand {
+    background: var(--brand-gradient);
+  }
+  .border-gradient {
+    position: relative;
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    margin: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      130deg,
+      rgba(51, 198, 244, 0.6),
+      rgba(124, 92, 255, 0.15) 45%,
+      rgba(124, 92, 255, 0.6)
+    );
+  }
+  .glass {
+    background: rgba(16, 16, 25, 0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--line);
+  }
+  .glow-blue {
+    box-shadow: 0 0 60px -12px rgba(63, 125, 251, 0.45);
+  }
+  .glow-violet {
+    box-shadow: 0 0 70px -14px rgba(124, 92, 255, 0.5);
+  }
+  .section {
+    position: relative;
+    padding-block: clamp(5rem, 12vh, 10rem);
+  }
+  .container-x {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 3rem);
+  }
+  .eyebrow {
+    font-family: var(--font-sans), sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+}
+
+/* ── Grano / ruido animado sutil ── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url('/noise.svg');
+  background-repeat: repeat;
+  animation: grain 0.7s steps(6) infinite;
+  mix-blend-mode: overlay;
+}
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-4%, -4%);
+  }
+  30% {
+    transform: translate(3%, -2%);
+  }
+  50% {
+    transform: translate(-2%, 3%);
+  }
+  70% {
+    transform: translate(4%, 2%);
+  }
+  90% {
+    transform: translate(-3%, 4%);
+  }
+}
+
+/* ── Cursor personalizado ── */
+@media (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor [data-cursor] {
+    cursor: none;
+  }
+}
+
+/* ── Reveal helpers (fallback CSS antes de que entre JS) ── */
+.reveal-hidden {
+  opacity: 0;
+}
+
+/* ── Marquee wrapper ── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+.marquee-paused:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ───────────────────────────────────────────────────────────
+   ACCESIBILIDAD: prefers-reduced-motion
+   ─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain,
+  .marquee-track {
+    animation: none !important;
+  }
+  .reveal-hidden {
+    opacity: 1 !important;
+  }
+}
+
+/* Foco visible accesible */
+:focus-visible {
+  outline: 2px solid var(--brand-cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
