@@ -1,0 +1,1123 @@
+{
+  "flow": [
+    {
+      "id": 55,
+      "mapper": {},
+      "module": "google-email:triggerWatchNewEmails",
+      "version": 4,
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 900
+        }
+      },
+      "parameters": {
+        "from": "",
+        "size": {
+          "unit": "M",
+          "amount": null,
+          "criteria": "larger"
+        },
+        "limit": 1,
+        "folder": "INBOX",
+        "format": "full",
+        "subject": "",
+        "criteria": "is:unread",
+        "markSeen": true,
+        "filterType": "simpleSearch",
+        "__IMTCONN__": 8532314,
+        "excludeWords": "",
+        "includeWords": "",
+        "hasAttachment": false
+      }
+    },
+    {
+      "id": 2,
+      "mapper": {
+        "from": "drive",
+        "filter": [
+          [
+            {
+              "a": "A",
+              "b": "{{55.fromEmail}}",
+              "o": "text:equal"
+            }
+          ]
+        ],
+        "orderBy": "__ROW_NUMBER__",
+        "sheetId": "Hoja 1",
+        "fieldType": "string",
+        "sortOrder": "asc",
+        "spreadsheetId": "18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+        "tableFirstRow": "A1:CZ1",
+        "includesHeaders": true,
+        "valueRenderOption": "FORMATTED_VALUE",
+        "dateTimeRenderOption": "FORMATTED_STRING"
+      },
+      "module": "google-sheets:filterRows",
+      "version": 2,
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 900,
+          "name": "Buscar Fila de Paciente"
+        }
+      },
+      "parameters": {
+        "__IMTCONN__": 8533301
+      }
+    },
+    {
+      "id": 5,
+      "mapper": {
+        "model": "gpt-4o-mini",
+        "top_p": 1.0,
+        "select": "chat",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Actúa como el asistente automatizado de recepción de la Clínica Cuerpo Sano. Tu único trabajo es analizar el correo recibido y devolver un objeto JSON limpio y válido.\r\n\r\nFecha y hora actuales de referencia: {{formatDate(now; \"YYYY-MM-DD\")}} ({{formatDate(now; \"dddd\")}}). Úsalas para resolver expresiones relativas como \"mañana\", \"el lunes\" o \"la próxima semana\".\r\n\r\nResponde ÚNICAMENTE con el objeto JSON. Sin texto introductorio, sin saludos, sin markdown (no uses ```).\r\n\r\nFormato EXACTO:\r\n{\"intencion\": \"crear_cita\", \"fecha\": \"AAAA-MM-DD\", \"hora\": \"HH:MM\", \"resumen\": \"Breve descripción de lo que solicita\"}\r\n\r\nValores posibles de \"intencion\" y cuándo usarlos:\r\n1. \"crear_cita\": el paciente quiere pedir, reservar o agendar una cita nueva. Cualquier mención de querer una cita, hora o visita cuenta como crear_cita (aunque haga además una pregunta).\r\n2. \"modificar_cita\": quiere cambiar el día u hora de una cita que YA tiene.\r\n3. \"cancelar_cita\": quiere anular, cancelar o darse de baja de una cita que ya tiene.\r\n4. \"consultar_disponibilidad\": pregunta qué horarios/huecos/días hay libres, sin pedir aún una cita concreta. Si menciona un día concreto, extrae la fecha; si no, fecha=null. hora siempre null.\r\n5. \"consulta\": pregunta médica o administrativa real dirigida a la clínica, sin pedir, cambiar ni cancelar cita.\r\n6. \"hablar_con_humano\": pide explícitamente hablar con una persona/agente/humano, o no quiere seguir con un asistente automático. fecha y hora = null.\r\n7. \"ignorar\": el correo NO procede de un paciente que se dirige a la clínica. Úsalo para spam, publicidad, promociones, newsletters, tiendas online (p. ej. AliExpress, Amazon), redes sociales, notificaciones automáticas, facturas de terceros, o cualquier mensaje sin relación con pedir/gestionar una cita o consulta médica en la clínica. fecha y hora = null.\r\n\r\nReglas de formato:\r\n- Ante la duda entre \"consulta\" e \"ignorar\": si el remitente no es una persona escribiendo a la clínica, usa \"ignorar\".\r\n- Ante la duda entre \"crear_cita\" y \"consulta\": si pide/menciona una cita, usa \"crear_cita\".\r\n- Si no menciona fecha u hora, pon null en esos campos.\r\n- La fecha siempre en formato AAAA-MM-DD y la hora en HH:MM de 24 horas.\r\n- \"resumen\": frase breve en español con lo que pide el paciente."
+          },
+          {
+            "role": "user",
+            "content": "Asunto del correo: {{55.subject}}\n\nCuerpo del correo:\n{{55.fullTextBody}}",
+            "imageDetail": "auto"
+          }
+        ],
+        "max_tokens": 300,
+        "temperature": 0.0,
+        "n_completions": 1,
+        "response_format": "json_object",
+        "parseJSONResponse": true
+      },
+      "module": "openai-gpt-3:CreateCompletion",
+      "version": 1,
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 900,
+          "name": "Analizar Intención con GPT-4o-mini"
+        }
+      },
+      "parameters": {
+        "__IMTCONN__": 8476276
+      }
+    },
+    {
+      "id": 6,
+      "mapper": {
+        "json": "{{5.choices[].message.content}}"
+      },
+      "module": "json:ParseJSON",
+      "version": 1,
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 900,
+          "name": "Parsear Intención JSON"
+        }
+      },
+      "parameters": {
+        "type": 473739
+      }
+    },
+    {
+      "id": 7,
+      "mapper": null,
+      "module": "builtin:BasicRouter",
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 80,
+              "filter": {
+                "name": "Crear Cita",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "crear_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.fecha}}",
+                      "o": "exist"
+                    },
+                    {
+                      "a": "{{6.hora}}",
+                      "o": "exist"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "item": [
+                  {
+                    "id": "pabloypepeshopify@gmail.com"
+                  }
+                ],
+                "timeMax": "{{addMinutes(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); 30)}}",
+                "timeMin": "{{parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\")}}"
+              },
+              "module": "google-calendar:getFreeBusyInformation",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1350,
+                  "y": 150,
+                  "name": "Comprobar Disponibilidad del Hueco"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 81,
+              "mapper": null,
+              "module": "builtin:BasicRouter",
+              "routes": [
+                {
+                  "flow": [
+                    {
+                      "id": 8,
+                      "filter": {
+                        "name": "Hueco Libre",
+                        "conditions": [
+                          [
+                            {
+                              "a": "{{80.result[1].start}}",
+                              "o": "notexist"
+                            }
+                          ]
+                        ]
+                      },
+                      "mapper": {
+                        "end": "{{addMinutes(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); 30)}}",
+                        "start": "{{6.fecha}} {{6.hora}}",
+                        "select": "detail",
+                        "summary": "Cita Médica - {{55.fromEmail}}",
+                        "calendar": "pabloypepeshopify@gmail.com",
+                        "visibility": "default",
+                        "allDayEvent": false,
+                        "description": "{{6.resumen}}\n\nPaciente: {{55.fromName}} ({{55.fromEmail}})",
+                        "sendUpdates": "none",
+                        "transparency": "opaque",
+                        "conferenceDate": false,
+                        "guestPermissions": {
+                          "guestsCanModify": false,
+                          "guestsCanInviteOthers": true,
+                          "guestsCanSeeOtherGuests": true
+                        }
+                      },
+                      "module": "google-calendar:createAnEvent",
+                      "version": 5,
+                      "metadata": {
+                        "designer": {
+                          "x": 1950,
+                          "y": 150
+                        }
+                      },
+                      "parameters": {
+                        "__IMTCONN__": 8533301
+                      }
+                    },
+                    {
+                      "id": 31,
+                      "mapper": null,
+                      "module": "builtin:BasicRouter",
+                      "routes": [
+                        {
+                          "flow": [
+                            {
+                              "id": 4,
+                              "filter": {
+                                "name": "Paciente Nuevo ",
+                                "conditions": [
+                                  [
+                                    {
+                                      "a": "{{2.`__IMTLENGTH__`}}",
+                                      "b": "0",
+                                      "o": "text:equal"
+                                    }
+                                  ]
+                                ]
+                              },
+                              "mapper": {
+                                "from": "drive",
+                                "mode": "select",
+                                "values": {
+                                  "0": "{{55.fromEmail}}",
+                                  "1": "{{55.fromName}}",
+                                  "2": "{{55.internalDate}}",
+                                  "3": "{{6.resumen}}",
+                                  "4": "Confirmada",
+                                  "5": "{{6.fecha}}",
+                                  "6": "{{6.hora}}"
+                                },
+                                "sheetId": "Hoja 1",
+                                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                                "includesHeaders": true,
+                                "insertDataOption": "INSERT_ROWS",
+                                "useColumnHeaders": false,
+                                "valueInputOption": "USER_ENTERED",
+                                "insertUnformatted": false
+                              },
+                              "module": "google-sheets:addRow",
+                              "version": 2,
+                              "metadata": {
+                                "designer": {
+                                  "x": 2100,
+                                  "y": 0,
+                                  "name": "Registrar Nuevo Paciente + Cita"
+                                }
+                              },
+                              "parameters": {
+                                "__IMTCONN__": 8533301
+                              }
+                            },
+                            {
+                              "id": 28,
+                              "mapper": {
+                                "to": [
+                                  "{{55.fromEmail}}"
+                                ],
+                                "content": "Hola {{55.fromName}},<br><br>¡Tu cita ha quedado confirmada! Estos son los detalles:<br><br><b>Fecha:</b> {{6.fecha}}<br><b>Hora:</b> {{6.hora}}<br><b>Motivo:</b> {{6.resumen}}<br><br>Si necesitas modificarla o cancelarla, responde a este mismo correo indicándolo.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                                "subject": "Cita confirmada - Clínica Cuerpo Sano",
+                                "bodyType": "rawHtml"
+                              },
+                              "module": "google-email:sendAnEmail",
+                              "version": 4,
+                              "metadata": {
+                                "designer": {
+                                  "x": 2400,
+                                  "y": 0
+                                }
+                              },
+                              "parameters": {
+                                "__IMTCONN__": 8532314
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "flow": [
+                            {
+                              "id": 30,
+                              "filter": {
+                                "name": "Paciente Existente",
+                                "conditions": [
+                                  [
+                                    {
+                                      "a": "{{2.`__ROW_NUMBER__`}}",
+                                      "o": "exist"
+                                    }
+                                  ]
+                                ]
+                              },
+                              "mapper": {
+                                "from": "drive",
+                                "mode": "select",
+                                "values": {
+                                  "4": "Confirmada",
+                                  "5": "{{6.fecha}}",
+                                  "6": "{{6.hora}}"
+                                },
+                                "sheetId": "Hoja 1",
+                                "rowNumber": "{{2.`__ROW_NUMBER__`}}",
+                                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                                "includesHeaders": true,
+                                "useColumnHeaders": false,
+                                "valueInputOption": "USER_ENTERED"
+                              },
+                              "module": "google-sheets:updateRow",
+                              "version": 2,
+                              "metadata": {
+                                "designer": {
+                                  "x": 2100,
+                                  "y": 300,
+                                  "name": "Actualizar Cita Paciente Existente"
+                                }
+                              },
+                              "parameters": {
+                                "__IMTCONN__": 8533301
+                              }
+                            },
+                            {
+                              "id": 32,
+                              "mapper": {
+                                "to": [
+                                  "{{55.fromEmail}}"
+                                ],
+                                "content": "Hola {{55.fromName}},<br><br>¡Tu cita ha quedado confirmada! Estos son los detalles:<br><br><b>Fecha:</b> {{6.fecha}}<br><b>Hora:</b> {{6.hora}}<br><b>Motivo:</b> {{6.resumen}}<br><br>Si necesitas modificarla o cancelarla, responde a este mismo correo indicándolo.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                                "subject": "Cita confirmada - Clínica Cuerpo Sano",
+                                "bodyType": "rawHtml"
+                              },
+                              "module": "google-email:sendAnEmail",
+                              "version": 4,
+                              "metadata": {
+                                "designer": {
+                                  "x": 2400,
+                                  "y": 300
+                                }
+                              },
+                              "parameters": {
+                                "__IMTCONN__": 8532314
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "version": 1,
+                      "metadata": {
+                        "designer": {
+                          "x": 2250,
+                          "y": 150,
+                          "name": "¿Paciente Nuevo o Existente?"
+                        }
+                      },
+                      "parameters": {}
+                    }
+                  ]
+                },
+                {
+                  "flow": [
+                    {
+                      "id": 82,
+                      "filter": {
+                        "name": "Hueco Ocupado",
+                        "conditions": [
+                          [
+                            {
+                              "a": "{{80.result[1].start}}",
+                              "o": "exist"
+                            }
+                          ]
+                        ]
+                      },
+                      "mapper": {
+                        "to": [
+                          "{{55.fromEmail}}"
+                        ],
+                        "content": "Hola {{55.fromName}},<br><br>Lo sentimos, el horario que has solicitado (<b>{{6.fecha}} a las {{6.hora}}</b>) ya está ocupado.<br><br>Nuestro horario es de lunes a viernes, de 09:00 a 13:00 y de 16:00 a 19:30 (citas cada 30 minutos). Respóndenos con otra fecha u hora y te confirmamos la disponibilidad.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                        "subject": "Ese horario no está disponible - Clínica Cuerpo Sano",
+                        "bodyType": "rawHtml"
+                      },
+                      "module": "google-email:sendAnEmail",
+                      "version": 4,
+                      "metadata": {
+                        "designer": {
+                          "x": 1650,
+                          "y": 450,
+                          "name": "Avisar Hueco Ocupado"
+                        }
+                      },
+                      "parameters": {
+                        "__IMTCONN__": 8532314
+                      }
+                    }
+                  ]
+                }
+              ],
+              "version": 1,
+              "metadata": {
+                "designer": {
+                  "x": 1650,
+                  "y": 150,
+                  "name": "¿Hueco libre?"
+                }
+              },
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 10,
+              "filter": {
+                "name": "Consulta - Paciente Existente",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.`__ROW_NUMBER__`}}",
+                      "o": "exist"
+                    },
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "consulta",
+                      "o": "text:equal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                  "4": "Pendiente de atención humana"
+                },
+                "sheetId": "Hoja 1",
+                "rowNumber": "{{2.`__ROW_NUMBER__`}}",
+                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                "includesHeaders": true,
+                "useColumnHeaders": false,
+                "valueInputOption": "USER_ENTERED"
+              },
+              "module": "google-sheets:updateRow",
+              "version": 2,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 600,
+                  "name": "Marcar Consulta Pendiente"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 24,
+              "mapper": {
+                "to": [
+                  "pabloypepeshopify@gmail.com"
+                ],
+                "content": "Hola,<br><br>El asistente virtual ha recibido una consulta que requiere atención humana.<br><br><b>Paciente:</b> {{55.fromName}} ({{55.fromEmail}})<br><b>Resumen (IA):</b> {{6.resumen}}<br><br><b>Mensaje original:</b><br>{{55.fullTextBody}}<br>",
+                "subject": "Nueva consulta de paciente - {{55.fromEmail}}",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 600
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 22,
+              "filter": {
+                "name": "Modificar Cita",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "modificar_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{2.`__ROW_NUMBER__`}}",
+                      "o": "exist"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "q": "{{55.fromEmail}}",
+                "limit": "1",
+                "timeMax": "{{addDays(2.`5`; 1)}}",
+                "timeMin": "{{2.`5`}}",
+                "calendar": "pabloypepeshopify@gmail.com",
+                "singleEvents": false
+              },
+              "module": "google-calendar:searchEvents",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 900
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 29,
+              "mapper": {
+                "end": "{{addMinutes(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); 30)}}",
+                "event": "{{22.id}}",
+                "start": "{{6.fecha}} {{6.hora}}",
+                "append": false,
+                "calendar": "pabloypepeshopify@gmail.com",
+                "allDayEvent": false,
+                "sendUpdates": "none",
+                "guestPermissions": {}
+              },
+              "module": "google-calendar:updateAnEvent",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 900
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 33,
+              "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                  "4": "Confirmada",
+                  "5": "{{6.fecha}}",
+                  "6": "{{6.hora}}"
+                },
+                "sheetId": "Hoja 1",
+                "rowNumber": "{{2.`__ROW_NUMBER__`}}",
+                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                "includesHeaders": true,
+                "useColumnHeaders": false,
+                "valueInputOption": "USER_ENTERED"
+              },
+              "module": "google-sheets:updateRow",
+              "version": 2,
+              "metadata": {
+                "designer": {
+                  "x": 2100,
+                  "y": 900,
+                  "name": "Actualizar Fecha de Cita en Sheets"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 34,
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Hemos actualizado tu cita con la nueva información:<br><br><b>Nueva fecha:</b> {{6.fecha}}<br><b>Nueva hora:</b> {{6.hora}}<br><br>Si esto no es correcto o necesitas otro cambio, responde a este correo.<br><br>Atentamente,<br>El equipo de la Clínica Cuerpo Sano.",
+                "subject": "Tu cita ha sido modificada - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 2400,
+                  "y": 900
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 35,
+              "filter": {
+                "name": "Consulta - Paciente Nuevo",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "consulta",
+                      "o": "text:equal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                  "0": "{{55.fromEmail}}",
+                  "1": "{{55.fromName}}",
+                  "2": "{{55.internalDate}}",
+                  "3": "{{6.resumen}}",
+                  "4": "Pendiente de atención humana"
+                },
+                "sheetId": "Hoja 1",
+                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                "includesHeaders": true,
+                "insertDataOption": "INSERT_ROWS",
+                "useColumnHeaders": false,
+                "valueInputOption": "USER_ENTERED",
+                "insertUnformatted": false
+              },
+              "module": "google-sheets:addRow",
+              "version": 2,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 1200,
+                  "name": "Registrar Paciente Nuevo (Consulta)"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 36,
+              "mapper": {
+                "to": [
+                  "pabloypepeshopify@gmail.com"
+                ],
+                "content": "Hola,<br><br>El asistente virtual ha recibido una consulta que requiere atención humana.<br><br><b>Paciente:</b> {{55.fromName}} ({{55.fromEmail}})<br><b>Resumen (IA):</b> {{6.resumen}}<br><br><b>Mensaje original:</b><br>{{55.fullTextBody}}<br>",
+                "subject": "Nueva consulta de paciente - {{55.fromEmail}}",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 1200
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 50,
+              "filter": {
+                "name": "Consultar Disponibilidad (con fecha)",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "consultar_disponibilidad",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.fecha}}",
+                      "o": "exist"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "limit": "20",
+                "orderBy": "startTime",
+                "timeMax": "{{6.fecha}}T23:59:59",
+                "timeMin": "{{6.fecha}}T00:00:00",
+                "calendar": "pabloypepeshopify@gmail.com",
+                "singleEvents": true
+              },
+              "module": "google-calendar:searchEvents",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 1500,
+                  "name": "Buscar Citas del Día Solicitado"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 51,
+              "mapper": {
+                "value": "Cita ocupada: de {{50.start}} a {{50.end}}"
+              },
+              "module": "util:TextAggregator",
+              "version": 1,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 1500
+                }
+              },
+              "parameters": {
+                "feeder": 50,
+                "rowSeparator": ""
+              }
+            },
+            {
+              "id": 52,
+              "mapper": {
+                "model": "gpt-4o-mini",
+                "top_p": 1.0,
+                "select": "chat",
+                "messages": [
+                  {
+                    "role": "system",
+                    "content": "Eres el asistente virtual de la Clínica Cuerpo Sano. Un paciente quiere saber qué horarios hay disponibles para una cita.\n\nHORARIO OFICIAL DE LA CLÍNICA (lunes a viernes únicamente):\nMAÑANA — slots de 30 min: 09:00, 09:30, 10:00, 10:30, 11:00, 11:30, 12:00, 12:30\nTARDE  — slots de 30 min: 16:00, 16:30, 17:00, 17:30, 18:00, 18:30, 19:00, 19:30\nLa clínica NO atiende sábados ni domingos.\n\nSe te proporciona:\n1. El nombre y la fecha solicitada por el paciente.\n2. Lista de citas ya ocupadas ese día (formato INICIO - FIN). Si la lista está vacía, todos los slots están libres.\n\nINSTRUCCIONES:\nA) Si la fecha es sábado o domingo: informa amablemente que no hay consultas ese día y sugiere el lunes más próximo.\nB) Si es día laborable: calcula qué slots de 30 min NO solapan con ninguna cita existente. Un slot está ocupado si cualquier parte de él se superpone con una cita. Lista primero los huecos de mañana, luego los de tarde. Si no hay huecos libres, ofrece sugerir otro día.\n\nFORMATO DE RESPUESTA: escribe ÚNICAMENTE el cuerpo del email en HTML (sin etiquetas html/head/body). Usa <br> para saltos de línea y <b> para negritas. El email debe: saludar al paciente por su nombre, indicar la fecha en formato legible (ej. 'martes 6 de mayo de 2025'), mostrar los horarios disponibles con claridad, pedir que respondan confirmando el horario elegido, y despedirse como 'El equipo de la Clínica Cuerpo Sano'.\nNo incluyas bloques de código markdown."
+                  },
+                  {
+                    "role": "user",
+                    "content": "Nombre del paciente: {{55.fromName}}\nFecha consultada: {{6.fecha}}\n\nCitas ya reservadas ese día:\n{{if(51.text = \"\"; \"(ninguna — todos los slots disponibles)\"; 51.text)}}",
+                    "imageDetail": "auto"
+                  }
+                ],
+                "max_tokens": 700,
+                "temperature": 0.2,
+                "n_completions": 1,
+                "response_format": "text"
+              },
+              "module": "openai-gpt-3:CreateCompletion",
+              "version": 1,
+              "metadata": {
+                "designer": {
+                  "x": 2100,
+                  "y": 1500,
+                  "name": "Generar Email de Disponibilidad"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8476276
+              }
+            },
+            {
+              "id": 53,
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "{{52.choices[].message.content}}",
+                "subject": "Disponibilidad el {{6.fecha}} - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 2400,
+                  "y": 1500,
+                  "name": "Enviar Disponibilidad al Paciente"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 54,
+              "filter": {
+                "name": "Consultar Disponibilidad (sin fecha)",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "consultar_disponibilidad",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.fecha}}",
+                      "o": "missing"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Gracias por contactar con la Clínica Cuerpo Sano. Estaremos encantados de atenderte.<br><br>Nuestro horario de atención es de <b>lunes a viernes</b>:<br>&bull; <b>Mañana:</b> de 09:00 a 13:00 (citas cada 30 minutos)<br>&bull; <b>Tarde:</b> de 16:00 a 19:30 (citas cada 30 minutos)<br><br>Para consultar la disponibilidad de un día concreto, responde a este correo indicando la <b>fecha que te interesa</b> (por ejemplo: 'quiero saber si el 15 de mayo hay huecos') y te informaremos de inmediato.<br><br>Atentamente,<br>El equipo de la Clínica Cuerpo Sano.",
+                "subject": "Horarios de atención - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1476,
+                  "y": 1731,
+                  "name": "Enviar Horario General (sin fecha)"
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 60,
+              "filter": {
+                "name": "Cancelar Cita",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "cancelar_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{2.`__ROW_NUMBER__`}}",
+                      "o": "exist"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "q": "{{55.fromEmail}}",
+                "limit": "1",
+                "timeMax": "{{addDays(2.`5`; 1)}}",
+                "timeMin": "{{2.`5`}}",
+                "calendar": "pabloypepeshopify@gmail.com",
+                "singleEvents": false
+              },
+              "module": "google-calendar:searchEvents",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 1950
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 61,
+              "mapper": {
+                "event": "{{60.id}}",
+                "calendar": "pabloypepeshopify@gmail.com",
+                "sendUpdates": "none"
+              },
+              "module": "google-calendar:deleteAnEvent",
+              "version": 5,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 1950
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 62,
+              "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                  "4": "Cancelada"
+                },
+                "sheetId": "Hoja 1",
+                "rowNumber": "{{2.`__ROW_NUMBER__`}}",
+                "spreadsheetId": "/18dTIvftn_Xu9TbifGy3BJ_kny0N4AH9ESW-6-pFttMU",
+                "includesHeaders": true,
+                "useColumnHeaders": false,
+                "valueInputOption": "USER_ENTERED"
+              },
+              "module": "google-sheets:updateRow",
+              "version": 2,
+              "metadata": {
+                "designer": {
+                  "x": 2100,
+                  "y": 1950
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8533301
+              }
+            },
+            {
+              "id": 63,
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Hemos cancelado tu cita correctamente. Ya no consta ninguna reserva a tu nombre.<br><br>Si deseas pedir una nueva cita, solo tienes que escribirnos indicando el día y la hora que prefieras.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                "subject": "Tu cita ha sido cancelada - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 2400,
+                  "y": 1950
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 70,
+              "filter": {
+                "name": "Hablar con Humano",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "hablar_con_humano",
+                      "o": "text:equal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "to": [
+                  "pabloypepeshopify@gmail.com"
+                ],
+                "content": "El asistente virtual ha detectado que un paciente quiere hablar con una persona.<br><br><b>Paciente:</b> {{55.fromName}} ({{55.fromEmail}})<br><b>Resumen (IA):</b> {{6.resumen}}<br><br><b>Mensaje original:</b><br>{{55.fullTextBody}}",
+                "subject": "Un paciente solicita atención humana - {{55.fromEmail}}",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 2250
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            },
+            {
+              "id": 71,
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Hemos recibido tu mensaje y un miembro de nuestro equipo se pondrá en contacto contigo lo antes posible.<br><br>Gracias por tu paciencia.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                "subject": "Hemos recibido tu mensaje - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 2250
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 65,
+              "filter": {
+                "name": "Crear Cita - Faltan datos",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "crear_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.fecha}}",
+                      "o": "missing"
+                    }
+                  ],
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "crear_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{6.hora}}",
+                      "o": "missing"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Gracias por escribirnos. Para agendar tu cita necesitamos que nos indiques el <b>día</b> y la <b>hora</b> que prefieres.<br><br>Nuestro horario es de lunes a viernes, de 09:00 a 13:00 y de 16:00 a 19:30 (citas cada 30 minutos).<br><br>Respóndenos con la fecha y la hora deseadas y te la confirmamos.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                "subject": "Necesitamos algún dato más para tu cita - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 2550
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        }
+      ],
+      "version": 1,
+      "metadata": {
+        "designer": {
+          "x": 1200,
+          "y": 900,
+          "name": "Router de Intenciones"
+        }
+      },
+      "parameters": {}
+    }
+  ],
+  "name": "Recepcionista Virtual Inteligente - Clínica Cuerpo Sano (con Disponibilidad)",
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "designer": {
+      "orphans": []
+    },
+    "scenario": {
+      "dlq": false,
+      "slots": null,
+      "dataloss": false,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "roundtrips": 1,
+      "sequential": false,
+      "confidential": false,
+      "freshVariables": false,
+      "autoCommitTriggerLast": true
+    }
+  },
+  "scheduling": {
+    "type": "indefinitely",
+    "interval": 900
+  },
+  "interface": {
+    "input": [],
+    "output": []
+  }
+}
