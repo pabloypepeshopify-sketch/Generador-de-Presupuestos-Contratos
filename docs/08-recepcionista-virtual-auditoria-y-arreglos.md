@@ -119,19 +119,29 @@ ROUTER DE INTENCIONES  ── 9 rutas ──▶ (ver §3)
 
 ---
 
-## 4. Recomendaciones (mejoras, no bloqueantes) para dejarlo redondo
+## 4. Mejoras aplicadas (endurecimiento para venta)
 
-1. **Reservas fuera de horario.** La ruta de *crear cita* solo comprueba conflictos en el
-   calendario, no el horario comercial. Un paciente podría reservar sábado o de madrugada si el
-   hueco está libre. Sugerencia: añadir un filtro/validación de día laborable y franja
-   (L-V 09:00-13:00 / 16:00-19:30) antes de crear el evento, reutilizando la lógica del prompt
-   de la ruta 5.
-2. **Bucle de auto-correo.** Los avisos internos van a `pabloypepeshopify@gmail.com`, la misma
-   bandeja que vigila el disparador → cada aviso se reprocesa (la IA lo clasifica como `ignorar`,
-   pero consume operaciones). Sugerencia: excluir el propio remitente en el disparador
-   (`from` / palabras excluidas) o usar una dirección de staff distinta.
-3. **Datos de la clínica** (email interno, calendario, hoja) están cableados a la cuenta de
-   pruebas. Para revender, parametrizarlos por cliente.
+Se cerraron los 3 límites detectados en la primera auditoría (escenario ahora con **36 módulos**
+y **10 rutas** en el router principal):
+
+1. **✅ Reservas fuera de horario bloqueadas.** En la Ruta 1 (crear cita), antes de confirmar el
+   hueco se evalúa una fórmula de **franja válida** (día laborable L-V + horario 09:00-13:00 /
+   16:00-19:30). Si la fecha/hora está fuera, se envía un email «fuera de horario» en lugar de
+   reservar. Fórmula (verificada con 11 combinaciones de fecha/hora):
+   ```
+   if(dow="0"→no; if(dow="6"→no; if(mins 900..1230→si; else if 1600..1930→si; else no)))
+   dow  = formatDate(parseDate(fecha;"YYYY-MM-DD");"d")        // 0=domingo … 6=sábado
+   mins = parseNumber(formatDate(parseDate(fecha+" "+hora;"YYYY-MM-DD HH:mm");"HHmm"))
+   ```
+   > Para cambiar el horario del cliente, editar los números `900/1230/1600/1930` en los 3
+   > filtros de la Ruta 1 (Fuera de horario / Hueco Libre / Hueco Ocupado).
+2. **✅ Cortesía en modificar/cancelar sin cita.** Nueva ruta 10: si la intención es
+   `modificar_cita` o `cancelar_cita` y el paciente **no** consta en la hoja (`__IMTLENGTH__ = 0`),
+   se responde «no encontramos ninguna cita a tu nombre…» en vez de quedarse en silencio.
+3. **✅ Bucle de auto-correo cortado.** El disparador ahora filtra
+   `is:unread -from:pabloypepeshopify@gmail.com`, así los avisos internos no se reprocesan.
+
+Pendiente (solo al revender): parametrizar email interno, calendario y hoja por cliente.
 
 ---
 
@@ -158,16 +168,24 @@ y se leyó la clasificación devuelta. **Resultado: 10/10 correctos.**
 > La sonda se eliminó tras la prueba (no queda scaffolding). El clasificador acierta el 100 %
 > de los tipos de consulta y resuelve fechas absolutas y relativas.
 
-### Límites conocidos (no rompen, pero conviene cerrarlos para vender)
-- **Modificar/Cancelar de paciente no registrado:** las rutas 3 y 7 exigen que el paciente ya
-  esté en la hoja (`__ROW_NUMBER__`). Si alguien pide cancelar/modificar y no consta, ningún
-  router coincide → el asistente no responde. Recomendado: añadir una rama de cortesía.
-- **Reservas fuera de horario / fin de semana** (ver §4.1).
-- **Bucle de auto-correo** con los avisos internos (ver §4.2).
+### Límites conocidos → **todos cerrados** (ver §4)
+- ~~Modificar/Cancelar de paciente no registrado~~ → **resuelto** (ruta 10 de cortesía).
+- ~~Reservas fuera de horario / fin de semana~~ → **resuelto** (fórmula de franja válida).
+- ~~Bucle de auto-correo~~ → **resuelto** (`-from:` en el disparador).
+
+### Verificación de la fórmula de franja horaria (11 casos, sonda temporal borrada)
+| Fecha / hora | | Fecha / hora |
+|---|---|---|
+| vie 10:00 → ✅ si | | vie 20:00 → ✅ no |
+| vie 12:30 → ✅ si | | vie 08:30 → ✅ no |
+| vie 13:00 → ✅ no | | **sábado** 10:00 → ✅ no |
+| vie 14:00 → ✅ no | | **domingo** 11:00 → ✅ no |
+| vie 16:00 / 19:30 → ✅ si | | jue 17:00 → ✅ si |
 
 ## 6. Estado final
 
 - ✅ Fallo de OpenAI (texto vs número) corregido en los 2 módulos de IA.
 - ✅ Fórmula de disponibilidad y fechas de calendario robustecidas.
 - ✅ Escenario **válido** y **activo**, verificado con ejecución real en verde.
-- ✅ Las 9 rutas del router revisadas y coherentes de principio a fin.
+- ✅ Las **10 rutas** del router revisadas y coherentes de principio a fin.
+- ✅ 3 mejoras de venta aplicadas (fuera de horario, cortesía cancelar/modificar, anti-bucle).

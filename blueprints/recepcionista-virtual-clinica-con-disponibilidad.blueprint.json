@@ -22,7 +22,7 @@
         "folder": "INBOX",
         "format": "full",
         "subject": "",
-        "criteria": "is:unread",
+        "criteria": "is:unread -from:pabloypepeshopify@gmail.com",
         "markSeen": true,
         "filterType": "simpleSearch",
         "__IMTCONN__": 8532314,
@@ -71,7 +71,7 @@
       "id": 5,
       "mapper": {
         "model": "gpt-4o-mini",
-        "top_p": 1.0,
+        "top_p": 1,
         "select": "chat",
         "messages": [
           {
@@ -85,7 +85,7 @@
           }
         ],
         "max_tokens": 300,
-        "temperature": 0.0,
+        "temperature": 0,
         "n_completions": 1,
         "response_format": "json_object",
         "parseJSONResponse": true
@@ -180,11 +180,55 @@
                 {
                   "flow": [
                     {
+                      "id": 95,
+                      "filter": {
+                        "name": "Fuera de horario",
+                        "conditions": [
+                          [
+                            {
+                              "a": "{{if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"0\"; \"no\"; if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"6\"; \"no\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 900; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1230; \"si\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\")); if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\"))))}}",
+                              "b": "no",
+                              "o": "text:equal"
+                            }
+                          ]
+                        ]
+                      },
+                      "mapper": {
+                        "to": [
+                          "{{55.fromEmail}}"
+                        ],
+                        "content": "Hola {{55.fromName}},<br><br>La fecha y hora que has solicitado (<b>{{6.fecha}} a las {{6.hora}}</b>) está fuera de nuestro horario de atención.<br><br>Atendemos de <b>lunes a viernes</b>, de 09:00 a 13:00 y de 16:00 a 19:30 (citas cada 30 minutos). No atendemos sábados ni domingos.<br><br>Respóndenos con otra fecha y hora dentro de ese horario y te confirmamos la cita.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                        "subject": "Ese horario está fuera de nuestro horario de atención - Clínica Cuerpo Sano",
+                        "bodyType": "rawHtml"
+                      },
+                      "module": "google-email:sendAnEmail",
+                      "version": 4,
+                      "metadata": {
+                        "designer": {
+                          "x": 1650,
+                          "y": -150,
+                          "name": "Avisar Fuera de Horario"
+                        }
+                      },
+                      "parameters": {
+                        "__IMTCONN__": 8532314
+                      }
+                    }
+                  ]
+                },
+                {
+                  "flow": [
+                    {
                       "id": 8,
                       "filter": {
                         "name": "Hueco Libre",
                         "conditions": [
                           [
+                            {
+                              "a": "{{if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"0\"; \"no\"; if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"6\"; \"no\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 900; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1230; \"si\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\")); if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\"))))}}",
+                              "b": "si",
+                              "o": "text:equal"
+                            },
                             {
                               "a": "{{80.result[1].start}}",
                               "o": "notexist"
@@ -388,6 +432,11 @@
                         "name": "Hueco Ocupado",
                         "conditions": [
                           [
+                            {
+                              "a": "{{if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"0\"; \"no\"; if(formatDate(parseDate(6.fecha; \"YYYY-MM-DD\"); \"d\") = \"6\"; \"no\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 900; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1230; \"si\"; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\")); if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) >= 1600; if(parseNumber(formatDate(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); \"HHmm\")) <= 1930; \"si\"; \"no\"); \"no\"))))}}",
+                              "b": "si",
+                              "o": "text:equal"
+                            },
                             {
                               "a": "{{80.result[1].start}}",
                               "o": "exist"
@@ -758,7 +807,7 @@
               "id": 52,
               "mapper": {
                 "model": "gpt-4o-mini",
-                "top_p": 1.0,
+                "top_p": 1,
                 "select": "chat",
                 "messages": [
                   {
@@ -1072,6 +1121,62 @@
                 "designer": {
                   "x": 1500,
                   "y": 2550
+                }
+              },
+              "parameters": {
+                "__IMTCONN__": 8532314
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 100,
+              "filter": {
+                "name": "Modificar/Cancelar sin cita registrada",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "modificar_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{2.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:equal"
+                    }
+                  ],
+                  [
+                    {
+                      "a": "{{6.intencion}}",
+                      "b": "cancelar_cita",
+                      "o": "text:equal"
+                    },
+                    {
+                      "a": "{{2.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:equal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "to": [
+                  "{{55.fromEmail}}"
+                ],
+                "content": "Hola {{55.fromName}},<br><br>Hemos recibido tu solicitud, pero <b>no encontramos ninguna cita registrada a tu nombre</b> con este correo electrónico.<br><br>Si querías <b>pedir una cita nueva</b>, respóndenos indicando el día y la hora que prefieres (lunes a viernes, 09:00-13:00 o 16:00-19:30).<br><br>Si crees que se trata de un error, escríbenos y un miembro del equipo lo revisará.<br><br>Un saludo,<br>Clínica Cuerpo Sano",
+                "subject": "No encontramos tu cita - Clínica Cuerpo Sano",
+                "bodyType": "rawHtml"
+              },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 2850,
+                  "name": "Cortesia: cita no encontrada"
                 }
               },
               "parameters": {
