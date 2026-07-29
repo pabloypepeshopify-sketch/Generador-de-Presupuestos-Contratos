@@ -238,7 +238,7 @@
                       },
                       "mapper": {
                         "end": "{{addMinutes(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); 30)}}",
-                        "start": "{{6.fecha}} {{6.hora}}",
+                        "start": "{{parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\")}}",
                         "select": "detail",
                         "summary": "Cita Médica - {{55.fromEmail}}",
                         "calendar": "pabloypepeshopify@gmail.com",
@@ -595,7 +595,7 @@
               "mapper": {
                 "end": "{{addMinutes(parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\"); 30)}}",
                 "event": "{{22.id}}",
-                "start": "{{6.fecha}} {{6.hora}}",
+                "start": "{{parseDate(6.fecha + \" \" + 6.hora; \"YYYY-MM-DD HH:mm\")}}",
                 "append": false,
                 "calendar": "pabloypepeshopify@gmail.com",
                 "allDayEvent": false,
@@ -878,7 +878,7 @@
                     },
                     {
                       "a": "{{6.fecha}}",
-                      "o": "missing"
+                      "o": "notexist"
                     }
                   ]
                 ]
@@ -1091,7 +1091,7 @@
                     },
                     {
                       "a": "{{6.fecha}}",
-                      "o": "missing"
+                      "o": "notexist"
                     }
                   ],
                   [
@@ -1102,7 +1102,7 @@
                     },
                     {
                       "a": "{{6.hora}}",
-                      "o": "missing"
+                      "o": "notexist"
                     }
                   ]
                 ]
