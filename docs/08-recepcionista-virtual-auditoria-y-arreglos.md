@@ -135,7 +135,37 @@ ROUTER DE INTENCIONES  ── 9 rutas ──▶ (ver §3)
 
 ---
 
-## 5. Estado final
+## 5. Verificación de las 9 rutas (test del clasificador real)
+
+Como el disparador es email, se probó el **motor de decisión** (módulo OpenAI, el único
+componente "inteligente") con una sonda temporal que replica exactamente el modelo y el prompt
+de producción (`gpt-4o-mini`, mismo system prompt). Se enviaron 10 mensajes de paciente reales
+y se leyó la clasificación devuelta. **Resultado: 10/10 correctos.**
+
+| Caso de paciente | Intención devuelta | Fecha / Hora | Ruta que dispara |
+|---|---|---|---|
+| "cita el viernes 7 de agosto a las 10:00" | `crear_cita` | 2026-08-07 / 10:00 | **1** Crear cita |
+| "quiero reservar una cita de fisioterapia" (sin día/hora) | `crear_cita` | null / null | **9** Faltan datos |
+| "cambiarla al lunes 10 de agosto a las 17:00" | `modificar_cita` | 2026-08-10 / 17:00 | **3** Modificar |
+| "quiero cancelar mi cita" | `cancelar_cita` | null / null | **7** Cancelar |
+| "¿qué horas libres el miércoles 12 de agosto?" | `consultar_disponibilidad` | 2026-08-12 / null | **5** Disponibilidad (con fecha) |
+| "¿qué horarios tenéis para pedir cita?" | `consultar_disponibilidad` | null / null | **6** Disponibilidad (sin fecha) |
+| "¿tratáis tendinitis? ¿llevo informes?" | `consulta` | null / null | **2/4** Consulta |
+| "ponme con una persona, no un robot" | `hablar_con_humano` | null / null | **8** Hablar con humano |
+| "🎉 OFERTA 50% en MegaShop, compra ya" | `ignorar` | null / null | — (se descarta) |
+| "cita para **mañana** a las 17:00" | `crear_cita` | 2026-07-30 / 17:00 | **1** (fecha relativa resuelta ✔) |
+
+> La sonda se eliminó tras la prueba (no queda scaffolding). El clasificador acierta el 100 %
+> de los tipos de consulta y resuelve fechas absolutas y relativas.
+
+### Límites conocidos (no rompen, pero conviene cerrarlos para vender)
+- **Modificar/Cancelar de paciente no registrado:** las rutas 3 y 7 exigen que el paciente ya
+  esté en la hoja (`__ROW_NUMBER__`). Si alguien pide cancelar/modificar y no consta, ningún
+  router coincide → el asistente no responde. Recomendado: añadir una rama de cortesía.
+- **Reservas fuera de horario / fin de semana** (ver §4.1).
+- **Bucle de auto-correo** con los avisos internos (ver §4.2).
+
+## 6. Estado final
 
 - ✅ Fallo de OpenAI (texto vs número) corregido en los 2 módulos de IA.
 - ✅ Fórmula de disponibilidad y fechas de calendario robustecidas.
