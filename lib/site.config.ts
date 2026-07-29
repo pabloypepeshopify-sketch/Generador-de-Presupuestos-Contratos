@@ -30,11 +30,17 @@ export const site = {
     note: 'Tus automatizaciones, en cambio, trabajan 24/7.',
   },
 
-  // ── WEBHOOK DE MAKE (reservas / contacto) ───────────────────
-  // Este escenario en Make crea el evento en Google Calendar y envía
-  // el email de confirmación. Si aún no está activo, la web muestra
-  // igualmente la animación de éxito (modo demo).
+  // ── WEBHOOKS DE MAKE (citas por correo) ─────────────────────
+  // 1) RESERVA: crea el evento en Google Calendar y envía el email de
+  //    confirmación. Recibe { nombre, email, telefono, fecha, hora }.
   makeWebhook: 'https://hook.eu1.make.com/i3sffiqtduc3jhr93kxvvi2j04oejptg',
+  // 2) DISPONIBILIDAD: dado un día { fecha: "YYYY-MM-DD" } devuelve el
+  //    horario y las horas ya ocupadas para pintar los tramos libres.
+  //    Respuesta JSON: { inicio, fin, duracion, ocupadas_inicio, ocupadas_fin }.
+  //    IMPORTANTE: para poder LEER esta respuesta desde el navegador, el
+  //    módulo "Webhook response" de Make debe devolver la cabecera
+  //    Access-Control-Allow-Origin: *  (CORS). Ver README.
+  availabilityWebhook: 'https://hook.eu1.make.com/30lkmlm2w48g77cnz93it7firfdenh4s',
 
   // ── REDES SOCIALES (deja vacío para ocultar) ────────────────
   social: {

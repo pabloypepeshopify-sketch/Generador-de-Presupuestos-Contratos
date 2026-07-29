@@ -115,35 +115,53 @@ Si tienes el logo original en PNG/SVG, colócalo en `public/` y ajusta esos tres
 
 ---
 
-## 🔌 El formulario y el webhook de Make
+## 🔌 Reserva de citas con disponibilidad en vivo
 
-Los formularios de **reserva** (`components/BookingForm.tsx`) y de **contacto**
-(`components/Contact.tsx`) hacen un `POST` con `fetch` al webhook definido en `site.makeWebhook`.
+El formulario de reserva (`components/BookingForm.tsx`) funciona en **dos pasos** conectados a
+**dos escenarios de Make** ("citas por correo"):
 
-- Los webhooks de Make no devuelven cabeceras CORS, por eso se usa `mode: 'no-cors'` (respuesta
-  opaca) y se asume éxito si la petición no lanza error de red — el mismo enfoque que ya funcionaba
-  en tu demo.
-- El escenario de Make se encarga de **crear el evento en Google Calendar** y **enviar el email de
-  confirmación**.
-- Si el webhook aún **no está activo**, la web sigue mostrando la animación de éxito (modo demo).
-  Para desactivar el envío real, comenta el bloque `await fetch(...)` en esos dos componentes (está
-  señalado con comentarios).
-
-Ejemplo de _payload_ enviado:
+**Paso 1 — Disponibilidad** (`site.availabilityWebhook`)
+El usuario elige un día en el calendario (fines de semana y días pasados bloqueados, sin escribir a
+mano). Al elegirlo, la web hace `POST` con `{ "fecha": "YYYY-MM-DD" }` y **lee** la respuesta JSON:
 
 ```json
 {
-  "nombre": "…",
-  "email": "…",
-  "telefono": "…",
-  "servicio": "Recepcionista Virtual IA",
-  "fecha": "2026-01-15",
-  "hora": "10:00",
-  "mensaje": "…",
-  "origen": "web-visax-ai",
-  "enviadoEn": "2026-01-10T09:00:00.000Z"
+  "inicio": "09:00",
+  "fin": "18:00",
+  "duracion": 45,
+  "ocupadas_inicio": "2026-01-15T10:30:00,2026-01-15T12:00:00",
+  "ocupadas_fin": "2026-01-15T11:15:00,2026-01-15T12:45:00"
 }
 ```
+
+Con eso genera los tramos (`inicio` → `fin` en pasos de `duracion` min). Los que se solapan con una
+franja ocupada salen **tachados y en gris ("Reservado")**; el resto, clicables.
+
+> ⚠️ **CORS obligatorio aquí.** Para que el navegador pueda **leer** esta respuesta, el módulo
+> **"Webhook response"** de ese escenario en Make debe devolver la cabecera
+> `Access-Control-Allow-Origin: *`. Si no, las horas no cargarán (verás un aviso con botón de
+> reintentar). `ocupadas_inicio` / `ocupadas_fin` pueden venir **vacíos** = todo libre.
+
+**Paso 2 — Reserva** (`site.makeWebhook`)
+El usuario clica una hora libre, pone **nombre + email** (teléfono opcional) y envía. Se hace `POST`
+con `mode: 'no-cors'` (envío garantizado) de:
+
+```json
+{ "nombre": "…", "email": "…", "telefono": "…", "fecha": "2026-01-15", "hora": "10:30" }
+```
+
+El escenario **crea el evento en Google Calendar** y **envía el email de confirmación**. Tras el
+envío, la web muestra la confirmación y **vuelve a consultar la disponibilidad** (con unos segundos
+de margen) para que la hora recién reservada aparezca ya tachada.
+
+Ambos webhooks se configuran en `lib/site.config.ts`. El formulario de **contacto**
+(`components/Contact.tsx`) sigue usando `site.makeWebhook` con `no-cors`.
+
+### 🧪 Probarlo sin instalar nada
+
+En `demo/reserva-citas-demo.html` tienes el **mismo flujo en un solo archivo HTML** conectado a los
+webhooks reales. Ábrelo con doble clic en el navegador para comprobar al instante si la
+disponibilidad carga (CORS) y si la reserva llega a Make.
 
 ---
 
