@@ -99,6 +99,9 @@ export function BookingForm() {
   const [avail, setAvail] = useState<Availability | null>(null);
   const [availState, setAvailState] = useState<'idle' | 'loading' | 'error' | 'done'>('idle');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  // Horas reservadas en esta sesión (marcado optimista hasta que el
+  // calendario las refleje en free/busy).
+  const [justBooked, setJustBooked] = useState<string[]>([]);
 
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
@@ -132,6 +135,7 @@ export function BookingForm() {
   }
 
   function pickDay(fecha: string) {
+    if (fecha !== selectedDate) setJustBooked([]);
     setSelectedDate(fecha);
     setSubmit('idle');
     loadAvailability(fecha);
@@ -159,11 +163,13 @@ export function BookingForm() {
 
     const out: Slot[] = [];
     for (let m = startMin; m + dur <= endMin; m += dur) {
-      const reserved = occ.some(([os, oe]) => m < oe && m + dur > os);
-      out.push({ min: m, label: fmtMin(m), reserved });
+      const label = fmtMin(m);
+      const reserved =
+        justBooked.includes(label) || occ.some(([os, oe]) => m < oe && m + dur > os);
+      out.push({ min: m, label, reserved });
     }
     return out;
-  }, [avail]);
+  }, [avail, justBooked]);
 
   const freeCount = slots.filter((s) => !s.reserved).length;
 
@@ -185,18 +191,23 @@ export function BookingForm() {
       hora: selectedSlot,
     };
     try {
-      // Envío garantizado (no-cors): el escenario de Make crea el evento
-      // y manda el email de confirmación. No necesitamos leer la respuesta.
+      // El webhook de Make TIENE CORS habilitado, así que enviamos una
+      // petición normal con Content-Type: application/json para que Make
+      // reciba y parsee bien los campos. (Con `no-cors` el navegador
+      // degrada el cuerpo a text/plain y Make no leía nombre/fecha/hora,
+      // por lo que el filtro bloqueaba la creación de la cita.)
       await fetch(site.makeWebhook, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      // Marcamos la hora como ocupada al instante (optimista): Google
+      // Calendar tarda unos segundos en reflejarla en free/busy.
+      const bookedSlot = selectedSlot;
+      setJustBooked((prev) => (bookedSlot ? [...prev, bookedSlot] : prev));
       setSubmit('success');
-      // Paso 6: refrescamos la disponibilidad para que la hora recién
-      // reservada aparezca ya tachada (damos margen a que Make la cree).
-      setTimeout(() => selectedDate && loadAvailability(selectedDate), 2200);
+      // Refresco de respaldo para sincronizar con el calendario real.
+      setTimeout(() => selectedDate && loadAvailability(selectedDate), 8000);
     } catch (err) {
       console.error('Error enviando la reserva:', err);
       setSubmit('error');

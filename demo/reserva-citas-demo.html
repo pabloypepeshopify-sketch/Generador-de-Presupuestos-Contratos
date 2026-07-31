@@ -290,7 +290,7 @@ document.getElementById('submitBtn').onclick=async()=>{
   }
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Reservando…';
   try{
-    await fetch(BOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    await fetch(BOOK,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({nombre,email,telefono,fecha:selectedDate,hora:selectedSlot})});
     document.getElementById('okMsg').innerHTML='Tu cita del <b style="text-transform:capitalize">'+prettyDate(selectedDate)+'</b> a las <b>'+selectedSlot+'</b> está solicitada. Te enviamos la confirmación a <b>'+email+'</b>.';
     document.getElementById('formCard').classList.add('hidden');
