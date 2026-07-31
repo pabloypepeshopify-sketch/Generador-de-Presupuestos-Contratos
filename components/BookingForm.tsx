@@ -30,17 +30,42 @@ type Slot = { min: number; label: string; reserved: boolean };
 const pad = (n: number) => String(n).padStart(2, '0');
 const fmtMin = (m: number) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 
-/** Convierte "09:00", "09:00:00" o un ISO "...T09:00..." a minutos del día. */
+/**
+ * Convierte una hora a minutos del día EN LA ZONA HORARIA DEL NEGOCIO.
+ *  - "09:00" / "09:00:00"  → hora local del negocio, se usa tal cual.
+ *  - ISO con zona ("...T10:00:00Z" o "+01:00") → se convierte a la zona
+ *    del negocio (el calendario devuelve las ocupadas en UTC).
+ *  - ISO sin zona ("...T09:00") → se toma la hora de pared directamente.
+ */
 function toMinutes(value?: string): number | null {
   if (!value) return null;
   const v = String(value).trim();
   if (!v) return null;
+
+  const hasTime = /T\d{2}:\d{2}/.test(v);
+  const hasZone = /(Z|[+-]\d{2}:?\d{2})$/.test(v);
+
+  // ISO absoluto (con Z u offset): convertir a la zona del negocio
+  if (hasTime && hasZone) {
+    const d = new Date(v);
+    if (!Number.isNaN(d.getTime())) {
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: site.businessTimezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).formatToParts(d);
+      const hh = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+      const mm = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+      return hh * 60 + mm;
+    }
+  }
+  // ISO sin zona: la hora de pared ya es la del negocio
   const iso = v.match(/T(\d{2}):(\d{2})/);
   if (iso) return +iso[1] * 60 + +iso[2];
+  // Hora simple "HH:mm"
   const hm = v.match(/^(\d{1,2}):(\d{2})/);
   if (hm) return +hm[1] * 60 + +hm[2];
-  const d = new Date(v);
-  if (!Number.isNaN(d.getTime())) return d.getHours() * 60 + d.getMinutes();
   return null;
 }
 

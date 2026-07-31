@@ -30,6 +30,10 @@ export const site = {
     note: 'Tus automatizaciones, en cambio, trabajan 24/7.',
   },
 
+  // Zona horaria del negocio (IANA). El calendario devuelve las horas
+  // ocupadas en UTC; la web las convierte a esta zona para pintarlas bien.
+  businessTimezone: 'Europe/Madrid',
+
   // ── WEBHOOKS DE MAKE (citas por correo) ─────────────────────
   // 1) RESERVA: crea el evento en Google Calendar y envía el email de
   //    confirmación. Recibe { nombre, email, telefono, fecha, hora }.

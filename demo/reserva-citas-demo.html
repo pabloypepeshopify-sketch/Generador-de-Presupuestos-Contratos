@@ -168,11 +168,21 @@ let view=new Date(today.getFullYear(),today.getMonth(),1);
 let selectedDate=null, avail=null, selectedSlot=null;
 
 // ---- utilidades de datos ----
+const BUSINESS_TZ='Europe/Madrid';
 function toMin(v){
   if(!v)return null; v=String(v).trim(); if(!v)return null;
+  const hasTime=/T\d{2}:\d{2}/.test(v), hasZone=/(Z|[+-]\d{2}:?\d{2})$/.test(v);
+  // ISO absoluto (UTC u offset) -> convertir a hora de Madrid
+  if(hasTime&&hasZone){
+    const d=new Date(v);
+    if(!isNaN(d)){
+      const p=new Intl.DateTimeFormat('en-GB',{timeZone:BUSINESS_TZ,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d);
+      const hh=+(p.find(x=>x.type==='hour')?.value||0), mm=+(p.find(x=>x.type==='minute')?.value||0);
+      return hh*60+mm;
+    }
+  }
   let m=v.match(/T(\d{2}):(\d{2})/); if(m)return +m[1]*60+ +m[2];
   m=v.match(/^(\d{1,2}):(\d{2})/); if(m)return +m[1]*60+ +m[2];
-  const d=new Date(v); if(!isNaN(d))return d.getHours()*60+d.getMinutes();
   return null;
 }
 function list(v){
