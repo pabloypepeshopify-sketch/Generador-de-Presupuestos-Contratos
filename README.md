@@ -24,6 +24,18 @@ enviado, fila en Sheets a `ENVIADO`. Detalle e IDs en
 - Escenario 2 (Aprobación y Envío): ID `6611154`
 - Hoja de seguimiento y plantilla Docs: creadas en tu Drive (IDs en el doc 07).
 
+## 📲 Envío por WhatsApp (API oficial de Meta) — preparado
+El canal de salida al cliente se puede cambiar de **email** a **WhatsApp** con la **API oficial de
+WhatsApp (Cloud API de Meta)**. Ya está todo preparado salvo el paso que **depende físicamente de la
+SIM** (registrar el número en Meta y crear la conexión en Make; sin el número, Make no deja crear el
+módulo). Detalle y checklist "el día que llegue la SIM" en
+[`docs/06-migracion-whatsapp.md`](docs/06-migracion-whatsapp.md).
+
+- **Blueprint listo**: `blueprints/03-envio-whatsapp.blueprint.json` (WhatsApp + email de reserva).
+- **Plantilla de mensaje** para aprobar en Meta: `plantillas/whatsapp-plantilla-mensaje.md`.
+- El **teléfono del cliente ya viaja por el flujo** normalizado a formato internacional
+  (`cliente_telefono_e164`) y se pasa en los botones de aprobación (ver `blueprints/01-...`).
+
 ## 🚀 Puesta en marcha rápida (importar desde cero)
 Si prefieres reimportar en otra cuenta con los blueprints genéricos:
 1. Lee `docs/05-checklist-post-importacion.md`.
@@ -39,7 +51,8 @@ Si prefieres reimportar en otra cuenta con los blueprints genéricos:
 ```
 blueprints/
   01-generador-principal.blueprint.json   Escenario 1: recibe datos → IA → Doc → PDF → aprobación
-  02-aprobacion-envio.blueprint.json      Escenario 2: aprobar/rechazar → envío al cliente
+  02-aprobacion-envio.blueprint.json      Escenario 2 (email): aprobar/rechazar → envío al cliente
+  03-envio-whatsapp.blueprint.json        Escenario 2 (WhatsApp): envío por WhatsApp + email de reserva
 prompts/
   system-prompt.md                        Prompt de sistema exacto (fiable, JSON, no inventa)
   user-prompt-template.md                 Prompt de usuario + esquema de salida
@@ -48,6 +61,7 @@ prompts/
 plantillas/
   google-docs-presupuesto-reforma.md      Placeholders del Doc (reformas)
   google-docs-contrato-legal.md           Placeholders del Doc (legal)
+  whatsapp-plantilla-mensaje.md           Plantilla de mensaje de WhatsApp para aprobar en Meta
 reglas-negocio/
   reglas-precios-reformas.md               Precios/cláusulas que aplica la IA (editable)
 ejemplos/
@@ -59,7 +73,7 @@ docs/
   03-aprobacion-humana.md                  Dónde y cómo se aprueba antes de enviar
   04-datos-insuficientes.md                Qué pasa si faltan datos (no inventar)
   05-checklist-post-importacion.md         Todo lo que hay que configurar a mano
-  06-migracion-whatsapp.md                 Cómo pasar de Gmail a WhatsApp/Twilio
+  06-migracion-whatsapp.md                 Guía para enviar por WhatsApp (API oficial de Meta + SIM prepago)
 ```
 
 ---

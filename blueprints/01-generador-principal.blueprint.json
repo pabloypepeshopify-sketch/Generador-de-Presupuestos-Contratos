@@ -42,6 +42,10 @@
                     {
                         "name": "canal_entrada",
                         "value": "{{ifempty(1.canal; \"formulario\")}}"
+                    },
+                    {
+                        "name": "cliente_telefono_e164",
+                        "value": "{{if(replace(replace(replace(ifempty(1.cliente_telefono; \"\"); \" \"; \"\"); \"+\"; \"\"); \"-\"; \"\") = \"\"; \"\"; if(substring(replace(replace(replace(ifempty(1.cliente_telefono; \"\"); \" \"; \"\"); \"+\"; \"\"); \"-\"; \"\"); 0; 2) = \"34\"; replace(replace(replace(ifempty(1.cliente_telefono; \"\"); \" \"; \"\"); \"+\"; \"\"); \"-\"; \"\"); \"34\" + replace(replace(replace(ifempty(1.cliente_telefono; \"\"); \" \"; \"\"); \"+\"; \"\"); \"-\"; \"\")))}}"
                     }
                 ],
                 "scope": "roundtrip"
@@ -363,7 +367,7 @@
                                 ],
                                 "subject": "[APROBAR] {{4.tipo_documento}} · {{4.cliente_nombre}} · {{4.total}} EUR",
                                 "bodyType": "rawHtml",
-                                "content": "<p>Documento generado y pendiente de tu aprobacion antes de enviarlo al cliente.</p><p><b>Cliente:</b> {{4.cliente_nombre}} ({{4.cliente_email}})<br><b>Proyecto:</b> {{4.proyecto_titulo}}<br><b>Total:</b> {{4.total}} EUR</p><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p>Revisa el PDF adjunto y pulsa una opcion:</p><p><a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=aprobar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#1a7f37;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">APROBAR Y ENVIAR</a>&nbsp;&nbsp;<a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=rechazar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}\" style=\"background:#cf222e;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">RECHAZAR</a></p>",
+                                "content": "<p>Documento generado y pendiente de tu aprobacion antes de enviarlo al cliente.</p><p><b>Cliente:</b> {{4.cliente_nombre}} ({{4.cliente_email}})<br><b>Telefono:</b> {{2.cliente_telefono_e164}}<br><b>Proyecto:</b> {{4.proyecto_titulo}}<br><b>Total:</b> {{4.total}} EUR</p><p><b>Notas de la IA:</b> {{4.notas_internas}}</p><p>Revisa el PDF adjunto y pulsa una opcion:</p><p><a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=aprobar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}&cliente_telefono={{2.cliente_telefono_e164}}\" style=\"background:#1a7f37;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">APROBAR Y ENVIAR</a>&nbsp;&nbsp;<a href=\"https://hook.eu1.make.com/REEMPLAZAR_HOOK_APROBACION?id_solicitud={{2.id_solicitud}}&decision=rechazar&doc_id={{8.id}}&cliente_email={{4.cliente_email}}&cliente_telefono={{2.cliente_telefono_e164}}\" style=\"background:#cf222e;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px\">RECHAZAR</a></p>",
                                 "attachments": [
                                     {
                                         "filename": "{{4.tipo_documento}}-{{4.cliente_nombre}}.pdf",

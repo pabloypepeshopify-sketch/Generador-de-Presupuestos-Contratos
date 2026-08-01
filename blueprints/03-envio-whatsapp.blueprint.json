@@ -1,0 +1,471 @@
+{
+    "name": "Generador Presupuestos-Contratos · 2 · Aprobacion y Envio (WhatsApp)",
+    "flow": [
+        {
+            "id": 1,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 0,
+                "maxResults": 1
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "label": "REEMPLAZAR: crear webhook 'presupuestos-aprobacion' tras importar"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "module": "google-sheets:filterRows",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 0
+            },
+            "mapper": {
+                "from": "drive",
+                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                "sheetId": "Seguimiento",
+                "includesHeaders": true,
+                "tableFirstRow": "A1:Z1",
+                "filter": [
+                    [
+                        {
+                            "a": "A",
+                            "b": "{{1.id_solicitud}}",
+                            "o": "text:equal"
+                        }
+                    ]
+                ],
+                "sortOrder": "desc",
+                "limit": "1"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "REEMPLAZAR: conexion Google Sheets"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": 3,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 4,
+                            "module": "google-docs:exportADocument",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "filter": {
+                                "name": "Aprobado",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{1.decision}}",
+                                            "b": "aprobar",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "destination": "drive",
+                                "document": "{{1.doc_id}}",
+                                "mimeType": "application/pdf"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 900,
+                                    "y": -150
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "REEMPLAZAR: conexion Google Docs"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": 13,
+                            "module": "builtin:BasicRouter",
+                            "version": 1,
+                            "mapper": null,
+                            "metadata": {
+                                "designer": {
+                                    "x": 1200,
+                                    "y": -150
+                                }
+                            },
+                            "routes": [
+                                {
+                                    "flow": [
+                                        {
+                                            "id": 10,
+                                            "module": "whatsapp-business-cloud:uploadMedia",
+                                            "version": 1,
+                                            "parameters": {
+                                                "__IMTCONN__": 0
+                                            },
+                                            "filter": {
+                                                "name": "Cliente tiene telefono",
+                                                "conditions": [
+                                                    [
+                                                        {
+                                                            "a": "{{1.cliente_telefono}}",
+                                                            "o": "exist"
+                                                        }
+                                                    ]
+                                                ]
+                                            },
+                                            "mapper": {
+                                                "fromId": "REEMPLAZAR_PHONE_NUMBER_ID",
+                                                "filename": "{{4.filename}}",
+                                                "data": "{{4.data}}"
+                                            },
+                                            "metadata": {
+                                                "designer": {
+                                                    "x": 1500,
+                                                    "y": -300
+                                                },
+                                                "restore": {
+                                                    "parameters": {
+                                                        "__IMTCONN__": {
+                                                            "label": "REEMPLAZAR: conexion WhatsApp Business Cloud"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "id": 11,
+                                            "module": "whatsapp-business-cloud:sendTemplateMessage",
+                                            "version": 1,
+                                            "parameters": {
+                                                "__IMTCONN__": 0
+                                            },
+                                            "mapper": {
+                                                "fromId": "REEMPLAZAR_PHONE_NUMBER_ID",
+                                                "to": "+{{1.cliente_telefono}}",
+                                                "messageTemplate": "REEMPLAZAR_TEMPLATE_NAME"
+                                            },
+                                            "metadata": {
+                                                "designer": {
+                                                    "x": 1800,
+                                                    "y": -300
+                                                },
+                                                "restore": {
+                                                    "parameters": {
+                                                        "__IMTCONN__": {
+                                                            "label": "REEMPLAZAR: conexion WhatsApp Business Cloud"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "id": 12,
+                                            "module": "google-sheets:updateRow",
+                                            "version": 2,
+                                            "parameters": {
+                                                "__IMTCONN__": 0
+                                            },
+                                            "mapper": {
+                                                "mode": "map",
+                                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                                "sheetId": "Seguimiento",
+                                                "tableFirstRow": "A1:Z1",
+                                                "rowNumber": "{{2.__ROW_NUMBER__}}",
+                                                "values": {
+                                                    "0": "{{2.id_solicitud}}",
+                                                    "1": "{{2.fecha_recepcion}}",
+                                                    "2": "{{2.cliente_nombre}}",
+                                                    "3": "{{2.cliente_email}}",
+                                                    "4": "{{2.tipo_documento}}",
+                                                    "5": "{{2.proyecto_titulo}}",
+                                                    "6": "{{2.importe_total}}",
+                                                    "7": "ENVIADO",
+                                                    "8": "whatsapp",
+                                                    "9": "{{2.enlace_pdf}}",
+                                                    "10": "{{formatDate(now; \"DD/MM/YYYY HH:mm\")}}",
+                                                    "11": "{{2.notas}}"
+                                                },
+                                                "valueInputOption": "USER_ENTERED"
+                                            },
+                                            "metadata": {
+                                                "designer": {
+                                                    "x": 2100,
+                                                    "y": -300
+                                                },
+                                                "restore": {
+                                                    "parameters": {
+                                                        "__IMTCONN__": {
+                                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "flow": [
+                                        {
+                                            "id": 5,
+                                            "module": "google-email:sendAnEmail",
+                                            "version": 4,
+                                            "parameters": {
+                                                "__IMTCONN__": 0
+                                            },
+                                            "filter": {
+                                                "name": "Sin telefono (fallback email)",
+                                                "conditions": [
+                                                    [
+                                                        {
+                                                            "a": "{{1.cliente_telefono}}",
+                                                            "o": "notexist"
+                                                        }
+                                                    ]
+                                                ]
+                                            },
+                                            "mapper": {
+                                                "to": [
+                                                    "{{1.cliente_email}}"
+                                                ],
+                                                "subject": "Su documento de REEMPLAZAR_NOMBRE_EMPRESA",
+                                                "bodyType": "rawHtml",
+                                                "content": "<p>Estimado/a {{2.cliente_nombre}},</p><p>Adjuntamos el documento solicitado. Quedamos a su disposicion para cualquier aclaracion.</p><p>Un saludo,<br>REEMPLAZAR_NOMBRE_EMPRESA<br>REEMPLAZAR_TELEFONO</p>",
+                                                "attachments": [
+                                                    {
+                                                        "filename": "{{4.filename}}",
+                                                        "data": "{{4.data}}"
+                                                    }
+                                                ]
+                                            },
+                                            "metadata": {
+                                                "designer": {
+                                                    "x": 1500,
+                                                    "y": 0
+                                                },
+                                                "restore": {
+                                                    "parameters": {
+                                                        "__IMTCONN__": {
+                                                            "label": "REEMPLAZAR: conexion Gmail (fallback si el cliente no dio telefono)"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "id": 6,
+                                            "module": "google-sheets:updateRow",
+                                            "version": 2,
+                                            "parameters": {
+                                                "__IMTCONN__": 0
+                                            },
+                                            "mapper": {
+                                                "mode": "map",
+                                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                                "sheetId": "Seguimiento",
+                                                "tableFirstRow": "A1:Z1",
+                                                "rowNumber": "{{2.__ROW_NUMBER__}}",
+                                                "values": {
+                                                    "0": "{{2.id_solicitud}}",
+                                                    "1": "{{2.fecha_recepcion}}",
+                                                    "2": "{{2.cliente_nombre}}",
+                                                    "3": "{{2.cliente_email}}",
+                                                    "4": "{{2.tipo_documento}}",
+                                                    "5": "{{2.proyecto_titulo}}",
+                                                    "6": "{{2.importe_total}}",
+                                                    "7": "ENVIADO",
+                                                    "8": "email",
+                                                    "9": "{{2.enlace_pdf}}",
+                                                    "10": "{{formatDate(now; \"DD/MM/YYYY HH:mm\")}}",
+                                                    "11": "{{2.notas}}"
+                                                },
+                                                "valueInputOption": "USER_ENTERED"
+                                            },
+                                            "metadata": {
+                                                "designer": {
+                                                    "x": 1800,
+                                                    "y": 0
+                                                },
+                                                "restore": {
+                                                    "parameters": {
+                                                        "__IMTCONN__": {
+                                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 7,
+                            "module": "google-sheets:updateRow",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "filter": {
+                                "name": "Rechazado",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{1.decision}}",
+                                            "b": "rechazar",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "mode": "map",
+                                "spreadsheetId": "REEMPLAZAR_SPREADSHEET_ID",
+                                "sheetId": "Seguimiento",
+                                "tableFirstRow": "A1:Z1",
+                                "rowNumber": "{{2.__ROW_NUMBER__}}",
+                                "values": {
+                                    "0": "{{2.id_solicitud}}",
+                                    "1": "{{2.fecha_recepcion}}",
+                                    "2": "{{2.cliente_nombre}}",
+                                    "3": "{{2.cliente_email}}",
+                                    "4": "{{2.tipo_documento}}",
+                                    "5": "{{2.proyecto_titulo}}",
+                                    "6": "{{2.importe_total}}",
+                                    "7": "RECHAZADO",
+                                    "8": "{{2.canal}}",
+                                    "9": "{{2.enlace_pdf}}",
+                                    "10": "{{formatDate(now; \"DD/MM/YYYY HH:mm\")}}",
+                                    "11": "{{2.notas}}"
+                                },
+                                "valueInputOption": "USER_ENTERED"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 900,
+                                    "y": 150
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "REEMPLAZAR: conexion Google Sheets"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": 8,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": 0
+                            },
+                            "mapper": {
+                                "to": [
+                                    "REEMPLAZAR_EMAIL_INTERNO@tu-agencia.com"
+                                ],
+                                "subject": "Documento RECHAZADO · {{1.id_solicitud}}",
+                                "bodyType": "rawHtml",
+                                "content": "<p>El documento {{1.id_solicitud}} ha sido marcado como RECHAZADO. Editalo manualmente en Google Docs o vuelve a lanzar la solicitud con los datos corregidos.</p>",
+                                "attachments": []
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1200,
+                                    "y": 150
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "REEMPLAZAR: conexion Gmail"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "module": "gateway:WebhookRespond",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "status": 200,
+                "body": "<html><body style=\"font-family:sans-serif;text-align:center;padding:40px\"><h2>Decision registrada: {{1.decision}}</h2><p>Ya puedes cerrar esta pestana.</p></body></html>",
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "text/html; charset=utf-8"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1800,
+                    "y": 0
+                }
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com"
+    }
+}

@@ -76,7 +76,7 @@ FORMULARIO / WHATSAPP
 | **2** | **Google Sheets → Search Rows** `google-sheets:filterRows` | Localiza la fila de la solicitud por `id_solicitud`. Devuelve también el **número de fila** (`__ROW_NUMBER__`) para poder actualizarla. |
 | **3** | **Router** `builtin:BasicRouter` | Bifurca por `decision`. |
 | **4** | **Google Docs → Download a Document** `google-docs:exportADocument` | *(aprobar)* Vuelve a exportar el Doc aprobado (`document = {{1.doc_id}}`) a PDF. |
-| **5** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(aprobar)* **Único punto donde se escribe al CLIENTE.** Envía el PDF definitivo. *(En producción, este módulo se sustituye por WhatsApp/Twilio — ver `docs/06-migracion-whatsapp.md`.)* |
+| **5** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(aprobar)* **Único punto donde se escribe al CLIENTE.** Envía el PDF definitivo. *(Versión WhatsApp ya construida en `blueprints/03-envio-whatsapp.blueprint.json`: se sustituye por `WhatsApp → Upload a Media` + `Send a Template Message`, dejando el email como reserva. Guía: `docs/06-migracion-whatsapp.md`.)* |
 | **6** | **Google Sheets → Update a Row** `google-sheets:updateRow` | *(aprobar)* Marca estado `ENVIADO` y fecha de envío (`rowNumber = {{2.__ROW_NUMBER__}}`). |
 | **7** | **Google Sheets → Update a Row** `google-sheets:updateRow` | *(rechazar)* Marca estado `RECHAZADO`. |
 | **8** | **Gmail → Send an email** `google-email:sendAnEmail` (v4) | *(rechazar)* Notifica internamente para editar el documento a mano o relanzar. |

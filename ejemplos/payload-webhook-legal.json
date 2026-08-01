@@ -4,7 +4,7 @@
     "sector": "legal",
     "cliente_nombre": "Empresa Ejemplo S.L.",
     "cliente_email": "administracion@empresaejemplo.com",
-    "cliente_telefono": "915556677",
+    "cliente_telefono": "+34 600 44 55 66",
     "cliente_direccion": "Av. de la Constitución 45, 41001 Sevilla",
     "tipo_caso": "reclamación de cantidad",
     "cuantia_reclamada": 8500,

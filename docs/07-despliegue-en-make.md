@@ -45,6 +45,15 @@ Se envió el `ejemplos/payload-webhook-reforma.json`. Resultado:
 4. Al pulsar **APROBAR** (webhook esc. 2): PDF enviado al cliente + fila actualizada a `ENVIADO`
    con fecha de envío. Página de confirmación mostrada.
 
+## 📲 Paso a WhatsApp (API oficial de Meta)
+El envío al cliente puede pasar de email a **WhatsApp Cloud API**. El blueprint del escenario 2 en
+versión WhatsApp está en `blueprints/03-envio-whatsapp.blueprint.json` y el escenario 1 ya normaliza
+y **pasa el teléfono** (`cliente_telefono_e164`) en los botones de aprobación.
+
+> ⚠️ El módulo de WhatsApp **no se puede crear en Make hasta tener el número dado de alta en Meta y
+> una conexión de WhatsApp** (sin ella Make responde `Connection not found`). Por eso este paso se
+> hace **el día que tengas la SIM prepago**. Checklist completo en `docs/06-migracion-whatsapp.md`.
+
 ## Lo único que te queda (personalización, opcional)
 1. **Datos de tu empresa en la plantilla Docs**: sustituye `REEMPLAZAR_NOMBRE_EMPRESA`,
    `REEMPLAZAR_CIF`, `REEMPLAZAR_TELEFONO`, `REEMPLAZAR_EMAIL_EMPRESA` por los de la empresa cliente.
