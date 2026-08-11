@@ -120,7 +120,7 @@
                 "messages": [
                     {
                         "role": "system",
-                        "content": "Eres un asistente experto en contabilidad espanola que extrae datos estructurados de facturas de proveedores a partir del texto OCR de un documento. Tu unica salida es un objeto JSON valido, sin markdown, sin comentarios y sin texto adicional.\n\nREGLAS CRITICAS\n1. NO inventes ni deduzcas datos. Si un dato no aparece de forma legible e inequivoca en el texto, dejalo vacio (\"\") o null y reflejalo en \"campos_faltantes\".\n2. Trabaja solo con lo que ves en el texto OCR. No completes NIF, importes, fechas ni numeros de factura por probabilidad.\n3. Importes: usa punto como separador decimal y sin separador de miles (1234.56). Convierte el formato espanol 1.234,56 a 1234.56. Nunca devuelvas el simbolo de moneda dentro del numero.\n4. IVA espanol: los tipos habituales son 21, 10, 4 y 0. \"tipo_iva\" es el porcentaje (numero). \"cuota_iva\" es el importe del IVA. Si hay varios tipos, usa la base y la cuota totales y anota el desglose en \"notas\".\n5. Comprobacion aritmetica: base_imponible + cuota_iva debe ser igual a total (tolerancia 0.02). Si NO cuadra, o si falta cualquiera de los tres, pon estado REVISION y explica en \"motivo_revision\".\n6. Fechas en formato ISO YYYY-MM-DD. Interpreta 12/03/2025 como DD/MM/YYYY (formato espanol).\n7. \"confianza\": numero entre 0 y 1 que refleja tu seguridad global. Bajala si el OCR esta incompleto, borroso, cortado o ambiguo.\n8. \"estado\": OK solo si TODOS los campos criticos (proveedor_nombre, numero_factura, fecha_factura, base_imponible, cuota_iva, total) estan presentes y son legibles, la aritmetica cuadra y confianza >= 0.85. En cualquier otro caso REVISION.\n9. \"categoria_gasto\": clasifica en UNA de estas categorias exactas: Suministros, Material y mercaderia, Servicios profesionales, Alquileres, Transporte y logistica, Reparacion y mantenimiento, Seguros, Impuestos y tasas, Marketing y publicidad, Software y tecnologia, Otros. Si dudas, usa Otros.\n10. \"proveedor_nif\": NIF/CIF del EMISOR de la factura (quien cobra), no del receptor/cliente.\n\nESQUEMA DE SALIDA (devuelve exactamente estas claves):\n{\n  \"estado\": \"OK\" | \"REVISION\",\n  \"proveedor_nombre\": \"string\",\n  \"proveedor_nif\": \"string\",\n  \"numero_factura\": \"string\",\n  \"fecha_factura\": \"YYYY-MM-DD\",\n  \"concepto\": \"string\",\n  \"base_imponible\": number,\n  \"tipo_iva\": number,\n  \"cuota_iva\": number,\n  \"total\": number,\n  \"moneda\": \"string (codigo ISO, p.ej. EUR)\",\n  \"categoria_gasto\": \"string (una de la lista)\",\n  \"confianza\": number,\n  \"motivo_revision\": \"string (vacio si estado=OK)\",\n  \"campos_faltantes\": [\"string\"],\n  \"notas\": \"string\"\n}"
+                        "content": "Eres un asistente experto en contabilidad espanola que extrae datos estructurados de facturas de proveedores a partir del texto OCR de un documento. Tu unica salida es un objeto JSON valido, sin markdown, sin comentarios y sin texto adicional.\n\nREGLAS CRITICAS\n1. NO inventes ni deduzcas datos. Si un dato no aparece de forma legible e inequivoca en el texto, dejalo vacio (\"\") o null y reflejalo en \"campos_faltantes\".\n2. Trabaja solo con lo que ves en el texto OCR. No completes NIF, importes, fechas ni numeros de factura por probabilidad.\n3. Importes: usa punto como separador decimal y sin separador de miles (1234.56). Convierte el formato espanol 1.234,56 a 1234.56. Nunca devuelvas el simbolo de moneda dentro del numero.\n4. IVA espanol: los tipos habituales son 21, 10, 4 y 0. \"tipo_iva\" es el porcentaje (numero). \"cuota_iva\" es el importe del IVA. Si hay varios tipos, usa la base y la cuota totales y anota el desglose en \"notas\".\n5. Comprobacion aritmetica: base_imponible + cuota_iva debe ser igual a total (tolerancia 0.02). Si NO cuadra, o si falta cualquiera de los tres, pon estado REVISION y explica en \"motivo_revision\".\n6. Fechas en formato ISO YYYY-MM-DD. Interpreta 12/03/2025 como DD/MM/YYYY (formato espanol).\n7. \"confianza\": numero entre 0 y 1 que refleja tu seguridad global. Bajala si el OCR esta incompleto, borroso, cortado o ambiguo.\n8. \"estado\": OK solo si TODOS los campos criticos (proveedor_nombre, numero_factura, fecha_factura, base_imponible, cuota_iva, total) estan presentes y son legibles, la aritmetica cuadra y confianza >= 0.85. En cualquier otro caso REVISION.\n9. \"categoria_gasto\": clasifica en UNA de estas categorias exactas: Suministros, Material y mercaderia, Servicios profesionales, Alquileres, Transporte y logistica, Reparacion y mantenimiento, Seguros, Impuestos y tasas, Marketing y publicidad, Software y tecnologia, Otros. Si dudas, usa Otros.\n10. \"proveedor_nif\": NIF/CIF del EMISOR de la factura (quien cobra), no del receptor/cliente.\n11. \"es_factura\": indica si el documento es REALMENTE una factura de proveedor. Pon true si lo es. Pon false SOLO si el documento es claramente OTRA cosa: un presupuesto/cotizacion, un albaran, una nota de pedido, un ticket sin datos fiscales, un recordatorio o aviso de pago, un extracto bancario, un contrato, publicidad, una firma o un logo. Ante la duda, si el documento tiene un numero de factura Y algun importe economico, pon true (ya se enviara a REVISION si faltan datos). MUY IMPORTANTE: una factura real a la que le falten campos (IVA, total, fecha...) SIGUE siendo una factura: pon es_factura true y estado REVISION, nunca false. Solo con es_factura=false el documento se descarta sin registrar.\n\nESQUEMA DE SALIDA (devuelve exactamente estas claves):\n{\n  \"es_factura\": true | false,\n  \"estado\": \"OK\" | \"REVISION\",\n  \"proveedor_nombre\": \"string\",\n  \"proveedor_nif\": \"string\",\n  \"numero_factura\": \"string\",\n  \"fecha_factura\": \"YYYY-MM-DD\",\n  \"concepto\": \"string\",\n  \"base_imponible\": number,\n  \"tipo_iva\": number,\n  \"cuota_iva\": number,\n  \"total\": number,\n  \"moneda\": \"string (codigo ISO, p.ej. EUR)\",\n  \"categoria_gasto\": \"string (una de la lista)\",\n  \"confianza\": number,\n  \"motivo_revision\": \"string (vacio si estado=OK)\",\n  \"campos_faltantes\": [\"string\"],\n  \"notas\": \"string\"\n}"
                     },
                     {
                         "role": "user",
@@ -214,6 +214,10 @@
                     {
                         "name": "descuadre",
                         "value": "{{if(abs((5.base_imponible + 5.cuota_iva) - 5.total) > 0.02; \"SI\"; \"NO\")}}"
+                    },
+                    {
+                        "name": "es_fac",
+                        "value": "{{if(5.es_factura; \"SI\"; \"NO\")}}"
                     }
                 ],
                 "scope": "roundtrip"
@@ -251,6 +255,11 @@
                                 "name": "Procesada OK",
                                 "conditions": [
                                     [
+                                        {
+                                            "a": "{{7.es_fac}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        },
                                         {
                                             "a": "{{7.dup}}",
                                             "b": "NO",
@@ -360,6 +369,11 @@
                                 "conditions": [
                                     [
                                         {
+                                            "a": "{{7.es_fac}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        },
+                                        {
                                             "a": "{{7.dup}}",
                                             "b": "NO",
                                             "o": "text:equal"
@@ -372,6 +386,11 @@
                                     ],
                                     [
                                         {
+                                            "a": "{{7.es_fac}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        },
+                                        {
                                             "a": "{{7.dup}}",
                                             "b": "NO",
                                             "o": "text:equal"
@@ -383,6 +402,11 @@
                                         }
                                     ],
                                     [
+                                        {
+                                            "a": "{{7.es_fac}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        },
                                         {
                                             "a": "{{7.dup}}",
                                             "b": "NO",
@@ -486,6 +510,11 @@
                                 "name": "Duplicada",
                                 "conditions": [
                                     [
+                                        {
+                                            "a": "{{7.es_fac}}",
+                                            "b": "SI",
+                                            "o": "text:equal"
+                                        },
                                         {
                                             "a": "{{7.dup}}",
                                             "b": "SI",

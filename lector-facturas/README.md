@@ -31,8 +31,10 @@ de avisos puesto**. Falta **1 solo dato** para activarlo: la **API key de Mistra
 ## 🧭 Flujo en una imagen
 ```
 Email con PDF (Gmail)
-   │  Watch → Iterator(adjuntos) → OCR(Mistral) → OpenAI(JSON) → Parse
+   │  Watch → List adjuntos → OCR(Mistral) → OpenAI(¿es factura? + JSON) → Parse
    ▼
+¿Es factura? ─NO→ se descarta (no se registra nada)
+   │ SI
 ¿Duplicada? (Data Store) → Set banderas → ROUTER
    ├── OK        → Sheets: PROCESADA        + marca en Data Store
    ├── REVISIÓN  → Sheets: REVISION_MANUAL  + email de aviso
@@ -110,6 +112,10 @@ aplicadas en el escenario y en el blueprint):
   verificado en real (`mimeType = application/pdf`, datos presentes).
 
 ## 🧠 Qué hace la IA (y qué NO)
+- **Filtra los que NO son facturas** (`es_factura`): Gmail trae cualquier PDF adjunto (presupuestos,
+  albaranes, avisos de pago, publicidad…). La IA decide primero si el documento es una **factura de verdad**;
+  si no lo es, se **descarta sin registrarse**. Es permisivo: una factura real con campos faltantes sí pasa
+  (va a REVISIÓN). Así la hoja deja de llenarse de `REVISION_MANUAL` con importes a 0 de PDFs que ni eran facturas.
 - **Estructura** el texto del OCR en campos limpios y normalizados (formato español → decimal con punto).
 - **Clasifica** el gasto en una categoría cerrada (para sumar por tipo).
 - **Detecta anomalías**: descuadre `base + IVA ≠ total`, campos ilegibles, confianza baja.

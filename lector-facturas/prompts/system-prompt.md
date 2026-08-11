@@ -26,9 +26,11 @@ REGLAS CRITICAS
 8. "estado": OK solo si TODOS los campos criticos (proveedor_nombre, numero_factura, fecha_factura, base_imponible, cuota_iva, total) estan presentes y son legibles, la aritmetica cuadra y confianza >= 0.85. En cualquier otro caso REVISION.
 9. "categoria_gasto": clasifica en UNA de estas categorias exactas: Suministros, Material y mercaderia, Servicios profesionales, Alquileres, Transporte y logistica, Reparacion y mantenimiento, Seguros, Impuestos y tasas, Marketing y publicidad, Software y tecnologia, Otros. Si dudas, usa Otros.
 10. "proveedor_nif": NIF/CIF del EMISOR de la factura (quien cobra), no del receptor/cliente.
+11. "es_factura": indica si el documento es REALMENTE una factura de proveedor. Pon true si lo es. Pon false SOLO si el documento es claramente OTRA cosa: un presupuesto/cotizacion, un albaran, una nota de pedido, un ticket sin datos fiscales, un recordatorio o aviso de pago, un extracto bancario, un contrato, publicidad, una firma o un logo. Ante la duda, si el documento tiene un numero de factura Y algun importe economico, pon true (ya se enviara a REVISION si faltan datos). MUY IMPORTANTE: una factura real a la que le falten campos (IVA, total, fecha...) SIGUE siendo una factura: pon es_factura true y estado REVISION, nunca false. Solo con es_factura=false el documento se descarta sin registrar.
 
 ESQUEMA DE SALIDA (devuelve exactamente estas claves):
 {
+  "es_factura": true | false,
   "estado": "OK" | "REVISION",
   "proveedor_nombre": "string",
   "proveedor_nif": "string",
@@ -58,6 +60,13 @@ ESQUEMA DE SALIDA (devuelve exactamente estas claves):
   de modo que hay **doble red**: la de la IA y la del Router.
 - **Regla 9 (categoría cerrada):** una lista fija evita que cada factura invente su propia categoría y
   permite sumar gasto por tipo directamente en Sheets/Airtable.
+- **Regla 11 (`es_factura`, filtro de "no-facturas"):** el disparador de Gmail trae **cualquier** PDF
+  adjunto (presupuestos, albaranes, avisos de pago, publicidad…). Sin este filtro, esos documentos se
+  colaban en la hoja como `REVISION_MANUAL` con importes a 0. Ahora la IA decide primero **si el documento
+  es una factura de verdad**; el escenario recalcula la bandera `es_fac` (Set Variables) y **las 3 rutas
+  del Router exigen `es_fac = SI`**, de modo que un no-factura no coincide con ninguna ruta y **se descarta
+  sin registrar**. Es deliberadamente **permisivo**: una factura real a la que le falten IVA/total sigue
+  siendo factura (`es_factura = true`, `estado = REVISION`) y **sí** se registra para que un humano la revise.
 
 > Modelo recomendado: `gpt-4o-mini` (probado en ejecución real: extrae correctamente NIF, nº de
 > factura, base/IVA/total y clasifica el gasto). Es multiidioma, muy barato y fiable con JSON. Si
