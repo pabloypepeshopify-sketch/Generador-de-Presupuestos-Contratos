@@ -20,7 +20,11 @@
 const CONFIG = {
   nombreLocal: "nuestro local",
   enlaceGoogle: "#",
-  emailFeedback: ""
+  emailFeedback: "",
+  // Access key de Web3Forms (envío de comentarios por email, sin backend).
+  // Consíguela gratis en https://web3forms.com poniendo el email del local.
+  // Se puede sobrescribir por URL con el parámetro ?key=...
+  accessKey: ""
 };
 </script>
 
@@ -177,9 +181,17 @@ function limpiarEmail(v){
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) ? s : "";
 }
 
+// Saneado de la access key de Web3Forms (formato UUID: hex y guiones).
+function limpiarClave(v){
+  if(v == null) return "";
+  const s = String(v).trim();
+  return /^[a-f0-9-]{8,40}$/i.test(s) ? s : "";
+}
+
 const nombreLocal  = limpiarTexto(params.get("local")) || CONFIG.nombreLocal;
 const enlaceGoogle = limpiarEnlace(params.get("g"))    || limpiarEnlace(CONFIG.enlaceGoogle) || "#";
 const emailFeedback= limpiarEmail(params.get("mail"))  || limpiarEmail(CONFIG.emailFeedback) || "";
+const accessKey    = limpiarClave(params.get("key"))   || limpiarClave(CONFIG.accessKey) || "";
 
 // Título (textContent = a prueba de inyección de HTML)
 document.getElementById('titulo').textContent = "¿Qué tal en " + nombreLocal + "?";
@@ -223,12 +235,51 @@ function choose(n,el){
   },450);
 }
 
-document.getElementById('enviar').addEventListener('click',()=>{
-  const txt=document.getElementById('comentario').value.trim();
-  const asunto=encodeURIComponent("Feedback "+rating+"★ — "+nombreLocal);
-  const cuerpo=encodeURIComponent(txt || "(sin comentario)");
-  window.location.href="mailto:"+emailFeedback+"?subject="+asunto+"&body="+cuerpo;
+const btnEnviar=document.getElementById('enviar');
+
+// Fallback: abre el borrador de correo (poco fiable en móvil, pero mejor que nada).
+function enviarPorMailto(txt){
+  if(emailFeedback){
+    const asunto=encodeURIComponent("Feedback "+rating+"★ — "+nombreLocal);
+    const cuerpo=encodeURIComponent(txt || "(sin comentario)");
+    window.location.href="mailto:"+emailFeedback+"?subject="+asunto+"&body="+cuerpo;
+  }
   show('thanks');
+}
+
+btnEnviar.addEventListener('click',async ()=>{
+  const txt=document.getElementById('comentario').value.trim();
+
+  // Si hay access key de Web3Forms, envía el comentario por email desde la web.
+  if(accessKey){
+    const textoOriginal=btnEnviar.textContent;
+    btnEnviar.disabled=true; btnEnviar.textContent="Enviando…";
+    try{
+      const res=await fetch("https://api.web3forms.com/submit",{
+        method:"POST",
+        headers:{"Content-Type":"application/json",Accept:"application/json"},
+        body:JSON.stringify({
+          access_key:accessKey,
+          subject:"Feedback "+rating+"★ — "+nombreLocal,
+          from_name:"Reseñas — "+nombreLocal,
+          Local:nombreLocal,
+          "Valoración":rating+"★",
+          Comentario:txt || "(sin comentario)"
+        })
+      });
+      const data=await res.json();
+      if(data.success){ show('thanks'); }
+      else { enviarPorMailto(txt); }   // si Web3Forms falla, cae a mailto
+    }catch(e){
+      enviarPorMailto(txt);            // sin red / error → mailto
+    }finally{
+      btnEnviar.disabled=false; btnEnviar.textContent=textoOriginal;
+    }
+    return;
+  }
+
+  // Sin access key: comportamiento clásico por mailto.
+  enviarPorMailto(txt);
 });
 
 document.getElementById('volverHigh').addEventListener('click',()=>{rating=0;paint(0);hint.innerHTML='&nbsp;';show('rate');});
