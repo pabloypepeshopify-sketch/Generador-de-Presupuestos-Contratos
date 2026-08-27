@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu opinión</title>
+
+<!-- ═══════════════════════════════════════════════════
+     VALORES POR DEFECTO (genéricos)
+     La página es GENÉRICA: no hace falta configurarla por local.
+     Estos valores solo se usan si la URL no trae parámetros.
+     Sobrescríbelos desde la URL de la tarjeta NFC:
+       ?local=Bar%20Pepe&g=https://g.page/r/XXXX/review&mail=dueno@bar.com
+     Parámetros admitidos:
+       local → nombre del local        (por defecto: "nuestro local")
+       g     → enlace de reseña Google (por defecto: "#")
+       mail  → email de feedback       (por defecto: vacío)
+     ═══════════════════════════════════════════════════ -->
+<script>
+const CONFIG = {
+  nombreLocal: "nuestro local",
+  enlaceGoogle: "#",
+  emailFeedback: ""
+};
+</script>
+
+<style>
+:root{
+  --bg:#0e1420;
+  --card:#161d2b;
+  --ink:#f2f5fa;
+  --muted:#8a97ac;
+  --line:#26303f;
+  --star:#ffc043;
+  --star-off:#3a4557;
+  --accent:#4ade80;
+  --accent-ink:#0e1420;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:radial-gradient(120% 80% at 50% -10%,#1a2436 0%,var(--bg) 55%);
+  color:var(--ink);
+  min-height:100dvh;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;-webkit-font-smoothing:antialiased;
+}
+.card{
+  width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);
+  border-radius:24px;padding:36px 28px 30px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.6);text-align:center;
+}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+h1{font-size:26px;line-height:1.2;font-weight:700;margin-bottom:8px}
+.sub{color:var(--muted);font-size:15px;margin-bottom:28px;line-height:1.5}
+.stars{display:flex;justify-content:center;gap:8px;margin:8px 0 4px}
+.star{width:44px;height:44px;cursor:pointer;color:var(--star-off);transition:transform .12s ease,color .12s ease}
+.star svg{width:100%;height:100%;display:block}
+.star:active{transform:scale(.88)}
+.star.on{color:var(--star)}
+.star.pop{animation:pop .3s ease}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.3)}100%{transform:scale(1)}}
+.hint{font-size:13px;color:var(--muted);min-height:18px;margin-top:12px;transition:opacity .2s}
+.view{display:none}
+.view.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+textarea{
+  width:100%;min-height:110px;background:var(--bg);border:1px solid var(--line);
+  border-radius:14px;padding:14px;color:var(--ink);font-size:15px;font-family:inherit;
+  resize:vertical;margin-top:18px;
+}
+textarea:focus{outline:none;border-color:var(--muted)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  margin-top:16px;padding:15px 20px;border:none;border-radius:14px;font-size:16px;
+  font-weight:600;cursor:pointer;text-decoration:none;transition:filter .15s,transform .1s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{filter:brightness(1.06)}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:22px 0 4px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.google-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  margin-top:14px;padding:14px 20px;border:1px solid var(--line);border-radius:14px;
+  background:transparent;color:var(--ink);font-size:15px;font-weight:600;
+  text-decoration:none;cursor:pointer;transition:border-color .15s;
+}
+.google-link:hover{border-color:var(--muted)}
+.back{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;margin-top:20px}
+.emoji{font-size:44px;margin-bottom:10px}
+.google-logo{display:inline-block;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.g-b{color:#4285F4}.g-r{color:#EA4335}.g-y{color:#FBBC05}.g-g{color:#34A853}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Vista 1: valorar -->
+  <div id="rate" class="view active">
+    <div class="eyebrow">Tu opinión</div>
+    <h1 id="titulo">¿Qué tal tu experiencia?</h1>
+    <p class="sub">Toca las estrellas para valorarnos</p>
+    <div class="stars" id="stars"></div>
+    <div class="hint" id="hint">&nbsp;</div>
+  </div>
+
+  <!-- Vista 2: nota alta (3-5) — página intermedia a Google -->
+  <div id="high" class="view">
+    <div class="emoji">🎉</div>
+    <h1>¡Muchas gracias!</h1>
+    <p class="sub">¿Nos dejas la reseña en Google? Son 10 segundos y nos ayuda un montón.</p>
+    <a class="btn btn-primary" id="linkGoogleHigh" target="_blank" rel="noopener">
+      Reseñar en
+      <span class="google-logo"><span class="g-b">G</span><span class="g-r">o</span><span class="g-y">o</span><span class="g-b">g</span><span class="g-g">l</span><span class="g-r">e</span></span>
+    </a>
+    <button class="back" id="volverHigh">‹ Volver</button>
+  </div>
+
+  <!-- Vista 3: nota baja (1-2) — comentario + Google debajo -->
+  <div id="low" class="view">
+    <div class="emoji">🙏</div>
+    <h1>Sentimos no haber acertado</h1>
+    <p class="sub">Cuéntanos qué pasó. Tu comentario llega al responsable.</p>
+    <textarea id="comentario" placeholder="¿Qué podríamos mejorar?"></textarea>
+    <button class="btn btn-primary" id="enviar">Enviar al responsable</button>
+    <div class="divider">o si lo prefieres</div>
+    <a class="google-link" id="linkGoogleLow" target="_blank" rel="noopener">
+      Dejar reseña pública en
+      <span class="google-logo"><span class="g-b">G</span><span class="g-r">o</span><span class="g-y">o</span><span class="g-b">g</span><span class="g-g">l</span><span class="g-r">e</span></span>
+    </a>
+    <button class="back" id="volverLow">‹ Volver</button>
+  </div>
+
+  <!-- Vista 4: gracias feedback -->
+  <div id="thanks" class="view">
+    <div class="emoji">✅</div>
+    <h1>Recibido</h1>
+    <p class="sub">Gracias por decírnoslo. Lo tendremos en cuenta.</p>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   CONFIGURACIÓN GENÉRICA POR URL
+   Prioridad: parámetro de la URL → si no existe, valor de CONFIG.
+   ═══════════════════════════════════════════════════ */
+const params = new URLSearchParams(window.location.search);
+
+// Saneado del nombre del local: quita etiquetas/caracteres peligrosos
+// y limita la longitud. Como además lo pintamos con textContent, no hay
+// forma de inyectar HTML.
+function limpiarTexto(v){
+  if(v == null) return "";
+  return String(v)
+    .replace(/[<>]/g, "")   // fuera < y > (evita inyección de HTML)
+    .replace(/\s+/g, " ")   // colapsa espacios
+    .trim()
+    .slice(0, 80);          // longitud razonable para un nombre de local
+}
+
+// Saneado del enlace de Google: solo se aceptan http(s) o "#".
+// Bloquea esquemas peligrosos como javascript: o data:.
+function limpiarEnlace(v){
+  if(v == null) return "";
+  const s = String(v).trim();
+  if(s === "#" || /^https?:\/\//i.test(s)) return s;
+  return "";  // no válido → se tratará como sin enlace
+}
+
+// Saneado del email: patrón básico; si no cuela, vacío.
+function limpiarEmail(v){
+  if(v == null) return "";
+  const s = String(v).trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) ? s : "";
+}
+
+const nombreLocal  = limpiarTexto(params.get("local")) || CONFIG.nombreLocal;
+const enlaceGoogle = limpiarEnlace(params.get("g"))    || limpiarEnlace(CONFIG.enlaceGoogle) || "#";
+const emailFeedback= limpiarEmail(params.get("mail"))  || limpiarEmail(CONFIG.emailFeedback) || "";
+
+// Título (textContent = a prueba de inyección de HTML)
+document.getElementById('titulo').textContent = "¿Qué tal en " + nombreLocal + "?";
+
+// Enlaces a Google
+document.getElementById('linkGoogleHigh').href = enlaceGoogle;
+document.getElementById('linkGoogleLow').href = enlaceGoogle;
+
+const starWrap=document.getElementById('stars');
+const hint=document.getElementById('hint');
+const hints=["","Muy mal","Regular","Bien","Muy bien","¡Excelente!"];
+let rating=0;
+
+const starSVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01z"/></svg>';
+
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+for(let i=1;i<=5;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.innerHTML=starSVG;
+  s.addEventListener('click',()=>choose(i,s));
+  starWrap.appendChild(s);
+}
+
+function paint(n){
+  document.querySelectorAll('.star').forEach((el,idx)=>el.classList.toggle('on',idx<n));
+}
+
+function choose(n,el){
+  rating=n;
+  paint(n);
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  hint.textContent=hints[n];
+  setTimeout(()=>{
+    if(n>=3){ show('high'); }
+    else { show('low'); }
+  },450);
+}
+
+document.getElementById('enviar').addEventListener('click',()=>{
+  const txt=document.getElementById('comentario').value.trim();
+  const asunto=encodeURIComponent("Feedback "+rating+"★ — "+nombreLocal);
+  const cuerpo=encodeURIComponent(txt || "(sin comentario)");
+  window.location.href="mailto:"+emailFeedback+"?subject="+asunto+"&body="+cuerpo;
+  show('thanks');
+});
+
+document.getElementById('volverHigh').addEventListener('click',()=>{rating=0;paint(0);hint.innerHTML='&nbsp;';show('rate');});
+document.getElementById('volverLow').addEventListener('click',()=>{rating=0;paint(0);hint.innerHTML='&nbsp;';show('rate');});
+</script>
+</body>
+</html>
