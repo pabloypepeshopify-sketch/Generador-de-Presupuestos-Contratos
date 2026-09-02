@@ -1,0 +1,6 @@
+# Enlaces cortos por local (robustos para NFC y WhatsApp).
+# El móvil abre el enlace corto y Netlify redirige a la URL con parámetros.
+
+/visax       /?local=VISAX%20AI&g=https%3A%2F%2Fsearch.google.com%2Flocal%2Fwritereview%3Fplaceid%3DChIJl3UqUADhDQ0R7BD2_silKKU&mail=pabloypepeshopify%40gmail.com&key=3a8e0e9b-3b42-4608-a0c7-e730c355e92a  302
+
+/casaballen  /?local=Casa%20Ball%C3%A9n&g=https%3A%2F%2Fsearch.google.com%2Flocal%2Fwritereview%3Fplaceid%3DChIJo8OD8iXeDQ0RsR-_vGYougk&mail=pabloypepeshopify%40gmail.com&key=3a8e0e9b-3b42-4608-a0c7-e730c355e92a  302
