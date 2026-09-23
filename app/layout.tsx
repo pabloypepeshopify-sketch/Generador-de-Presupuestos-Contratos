@@ -8,6 +8,7 @@ import { Preloader } from '@/components/Preloader';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { CookieBanner } from '@/components/CookieBanner';
 import { FloatingCTA } from '@/components/FloatingCTA';
+import { introScript } from '@/lib/intro';
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -95,7 +96,13 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${display.variable} ${sans.variable}`}>
+    <html lang="es" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
+        <noscript>
+          <style>{'.preloader{display:none!important}'}</style>
+        </noscript>
+      </head>
       <body>
         <script
           type="application/ld+json"

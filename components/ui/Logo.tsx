@@ -1,60 +1,28 @@
+import { useId } from 'react';
 import { cn } from '@/lib/utils';
+import { logoSvg, type LogoVariant } from '@/lib/brand';
 
 type LogoProps = {
+  /** ALTURA del logo (p. ej. "h-20"); el ancho sale de la proporción. Por defecto, tamaño de header. */
   className?: string;
-  markClassName?: string;
-  showText?: boolean;
-  /** Muestra los paths con clase para animar el trazo (preloader) */
-  animatable?: boolean;
+  variant?: LogoVariant;
 };
 
 /**
- * Logotipo VISAX AI (monograma "V/K" + wordmark) reconstruido como SVG
- * para poder animar el trazo y mantener nitidez en cualquier tamaño.
+ * Logotipo VISAX AI. SVG en línea generado desde lib/brand.ts,
+ * nítido a cualquier tamaño y sin deformar (alto fijo, ancho automático).
  */
-export function Logo({
-  className,
-  markClassName,
-  showText = true,
-  animatable = false,
-}: LogoProps) {
+export function Logo({ className, variant = 'lockup' }: LogoProps) {
+  const id = `vx${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   return (
-    <span className={cn('inline-flex items-center gap-3', className)}>
-      <svg
-        viewBox="0 0 64 64"
-        className={cn('h-9 w-9 shrink-0', markClassName)}
-        fill="none"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="logoV" x1="14" y1="12" x2="52" y2="56" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#33C6F4" />
-            <stop offset="0.5" stopColor="#3F7DFB" />
-            <stop offset="1" stopColor="#8B5CF6" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M15 17 L32 51 L49 17"
-          stroke="url(#logoV)"
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={animatable ? 'logo-path' : undefined}
-        />
-        <path
-          d="M39 27 L30 45 L40 55"
-          stroke="#EAF0F8"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={animatable ? 'logo-path' : undefined}
-        />
-      </svg>
-      {showText && (
-        <span className="font-display text-xl font-semibold tracking-wide">
-          VISAX <span className="text-gradient">AI</span>
-        </span>
+    <span
+      role="img"
+      aria-label="VISAX AI"
+      className={cn(
+        'inline-block shrink-0 [&>svg]:block [&>svg]:h-full [&>svg]:w-auto',
+        className ?? 'h-6 md:h-[30px]',
       )}
-    </span>
+      dangerouslySetInnerHTML={{ __html: logoSvg(variant, id, 'aria-hidden="true" focusable="false"') }}
+    />
   );
 }

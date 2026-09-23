@@ -42,7 +42,7 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 
 ## ✨ Qué incluye (catálogo de animaciones)
 
-- **Preloader cinematográfico**: el logo dibuja su trazo, contador a 100 % y cortina que revela la web.
+- **Intro breve (≤ 1 s)**: fundido del isotipo; al retirarse, las partículas del hero se forman a su alrededor. Solo escritorio y primera visita de la sesión.
 - **Scroll suave (Lenis)** en toda la página, sincronizado con GSAP.
 - **Hero WebGL**: nube de partículas con degradado de marca + malla wireframe, parallax con el ratón,
   titular con revelado letra a letra. Se degrada con elegancia en móvil y respeta `prefers-reduced-motion`.
@@ -69,10 +69,10 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 Es el **único sitio** que necesitas editar para los datos de negocio:
 
 ```ts
-phone: '+34 622 293 436',
-phoneRaw: '+34622293436',
-email: 'pabloypepeshopify@gmail.com',
-whatsapp: '34622293436',            // vacío '' -> oculta el botón de WhatsApp
+phone: '656 999 241',
+phoneRaw: '+34656999241',
+email: 'contactovisaxai@gmail.com',
+whatsapp: '34656999241',            // vacío '' -> oculta el botón de WhatsApp
 makeWebhook: 'https://hook.eu1.make.com/i3sffiqtduc3jhr93kxvvi2j04oejptg',
 url: 'https://visax.ai',            // cambia por tu dominio real
 social: { instagram: '', linkedin: '', youtube: '', x: '', tiktok: '' },

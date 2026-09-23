@@ -16,11 +16,11 @@ export const site = {
   url: 'https://visax.ai',
 
   // ── CONTACTO ────────────────────────────────────────────────
-  phone: '+34 622 293 436',
-  phoneRaw: '+34622293436', // formato para enlaces tel:
-  email: 'pabloypepeshopify@gmail.com',
+  phone: '656 999 241',
+  phoneRaw: '+34656999241', // formato para enlaces tel:
+  email: 'contactovisaxai@gmail.com',
   // Número de WhatsApp en formato internacional sin signos (déjalo vacío para ocultar el botón)
-  whatsapp: '34622293436',
+  whatsapp: '34656999241',
 
   // Horario de atención
   schedule: {
@@ -55,7 +55,7 @@ export const site = {
     tiktok: '',
   },
 
-  // Ruta del logo (SVG generado a partir del logotipo aportado)
+  // Ruta del logo (SVG vectorizado del logotipo oficial; geometría en lib/brand.ts)
   logo: '/logo.svg',
 } as const;
 
