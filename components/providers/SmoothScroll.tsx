@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import { MotionConfig } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from '@/lib/utils';
@@ -61,5 +62,6 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <>{children}</>;
+  // reducedMotion="user": con prefers-reduced-motion, framer-motion no anima transformaciones.
+  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }

@@ -50,7 +50,8 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 - **Cursor personalizado** que crece y muestra etiquetas sobre elementos interactivos.
 - **Botones magnéticos** que siguen al cursor.
 - **Marquee infinito** de tecnologías (OpenAI, Make, Vapi, Twilio, Slack…).
-- **Tarjetas de servicio con tilt 3D** y brillo que sigue al cursor + modal animado de detalle.
+- **Tarjetas de servicio**: entrada escalonada (fade + 24 px, 60 ms), tilt 3D ≤ 6°, escala 1,02 y glow
+  violeta al hover/foco (sin tilt con teclado), parallax lateral en escritorio + modal de detalle.
 - **Sección "Cómo funciona"** con storytelling anclado (sticky/scrub) de 4 pasos.
 - **Contadores animados** en la sección de resultados.
 - **Comparativa Antes / Después** y bloque persuasivo de beneficios.

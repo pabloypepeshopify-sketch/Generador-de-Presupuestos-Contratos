@@ -1,12 +1,18 @@
 'use client';
 
-import { useRef, useState, type MouseEvent } from 'react';
-import { motion } from 'framer-motion';
+import { useRef, type PointerEvent } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { Service } from '@/lib/services';
-import { prefersReducedMotion } from '@/lib/utils';
 
-/** Tarjeta de servicio con tilt 3D y brillo que sigue al cursor. */
+const EASE = [0.22, 1, 0.36, 1] as const;
+const MAX_TILT = 6; // grados
+
+/**
+ * Tarjeta de servicio: tilt 3D (≤6°) que sigue al cursor, escala 1,02 y
+ * borde con glow violeta al hover/foco. El tilt se escribe en variables CSS
+ * (sin re-renderizar React) y nunca se aplica con teclado: el foco queda nítido.
+ */
 export function ServiceCard({
   service,
   index,
@@ -17,51 +23,52 @@ export function ServiceCard({
   onOpen: (s: Service) => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const [glow, setGlow] = useState({ x: 50, y: 50 });
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const reduce = useReducedMotion();
 
-  const onMove = (e: MouseEvent) => {
-    if (prefersReducedMotion() || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
+  const onMove = (e: PointerEvent) => {
+    const el = ref.current;
+    if (reduce || !el || e.pointerType !== 'mouse') return;
+    const rect = el.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width;
     const py = (e.clientY - rect.top) / rect.height;
-    setGlow({ x: px * 100, y: py * 100 });
-    setTilt({ ry: (px - 0.5) * 12, rx: -(py - 0.5) * 12 });
+    el.style.setProperty('--gx', `${px * 100}%`);
+    el.style.setProperty('--gy', `${py * 100}%`);
+    el.style.setProperty('--ry', `${(px - 0.5) * 2 * MAX_TILT}deg`);
+    el.style.setProperty('--rx', `${-(py - 0.5) * 2 * MAX_TILT}deg`);
   };
 
-  const onLeave = () => setTilt({ rx: 0, ry: 0 });
+  const onLeave = () => {
+    ref.current?.style.setProperty('--rx', '0deg');
+    ref.current?.style.setProperty('--ry', '0deg');
+  };
 
   const Icon = service.icon;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, delay: (index % 3) * 0.06, ease: EASE }}
+      className="h-full"
       style={{ perspective: 1000 }}
     >
       <button
         ref={ref}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
         onClick={() => onOpen(service)}
         data-cursor="Ver +"
-        className="group relative flex h-full w-full flex-col items-start gap-5 overflow-hidden rounded-[var(--radius)] border border-ink-line bg-bg-soft/60 p-7 text-left transition-transform duration-300 will-change-transform"
-        style={{
-          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
-          transformStyle: 'preserve-3d',
-        }}
+        className="card-fx card-tilt group relative flex h-full w-full flex-col items-start gap-5 overflow-hidden rounded-[var(--radius)] border border-ink-line bg-bg-soft/60 p-7 text-left"
       >
         {/* Brillo que sigue al cursor */}
         <span
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{
-            background: `radial-gradient(340px circle at ${glow.x}% ${glow.y}%, rgba(63,125,251,0.18), transparent 60%)`,
+            background:
+              'radial-gradient(340px circle at var(--gx, 50%) var(--gy, 50%), rgba(124,92,255,0.14), transparent 60%)',
           }}
         />
-        {/* Borde luminoso al hover */}
-        <span className="pointer-events-none absolute inset-0 rounded-[var(--radius)] opacity-0 ring-1 ring-inset ring-brand-blue/40 transition-opacity duration-300 group-hover:opacity-100" />
 
         <div className="flex w-full items-start justify-between" style={{ transform: 'translateZ(40px)' }}>
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ink-line bg-gradient-to-br from-white/[0.08] to-transparent text-brand-cyan transition-colors group-hover:text-white">

@@ -240,6 +240,36 @@ h4 {
   opacity: 0;
 }
 
+/* ── Cards de servicios: hover / foco (300–400 ms, easing de marca) ── */
+.card-fx {
+  transition:
+    transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--s, 1));
+  transform-style: preserve-3d;
+}
+.card-fx:hover,
+.card-fx:focus-visible {
+  --s: 1.02;
+  border-color: rgba(124, 92, 255, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(124, 92, 255, 0.4),
+    0 0 32px -8px rgba(124, 92, 255, 0.4);
+}
+.card-fx:not(.card-tilt):hover,
+.card-fx:not(.card-tilt):focus-visible {
+  transform: scale(1.02);
+}
+/* Con teclado nunca hay tilt: el anillo de foco queda recto y nítido */
+.card-fx:focus-visible {
+  --rx: 0deg !important;
+  --ry: 0deg !important;
+  border-radius: var(--radius);
+}
+
 /* ── Hero: viñeta radial sobre el canvas ── */
 .hero-vignette {
   background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 45%, rgba(6, 6, 11, 0.75) 100%);
@@ -291,6 +321,11 @@ html[data-intro='skip'] .preloader {
   }
   .reveal-hidden {
     opacity: 1 !important;
+  }
+  .card-fx:hover,
+  .card-fx:focus-visible {
+    --s: 1;
+    transform: none !important;
   }
 }
 

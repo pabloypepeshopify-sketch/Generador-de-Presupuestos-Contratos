@@ -1,15 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, Check, Sparkles } from 'lucide-react';
 import { services, customService, type Service } from '@/lib/services';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { ServiceCard } from '@/components/ServiceCard';
 
+const PARALLAX_RATIO = 0.08; // laterales un 8 % más lentos que la columna central
+const PARALLAX_MAX = 40; // px: tope para que las filas no se descuadren
+
 export function Services() {
   const [active, setActive] = useState<Service | null>(null);
+  const grid = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+
+  // Parallax solo con 3 columnas (≥1024 px) y sin movimiento reducido.
+  useEffect(() => {
+    if (!grid.current) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+      const sides = gsap.utils.toArray<HTMLElement>('[data-lateral]', grid.current);
+      const setY = sides.map((el) => gsap.quickSetter(el, 'y', 'px'));
+      gsap.set(sides, { willChange: 'transform' });
+      ScrollTrigger.create({
+        trigger: grid.current,
+        start: 'top bottom',
+        end: 'bottom top',
+        onUpdate: (self) => {
+          // 0 cuando el grid está centrado en pantalla; se retrasa al alejarse.
+          const mid = (self.start + self.end) / 2;
+          const y = gsap.utils.clamp(
+            -PARALLAX_MAX,
+            PARALLAX_MAX,
+            (self.scroll() - mid) * PARALLAX_RATIO,
+          );
+          setY.forEach((set) => set(y));
+        },
+      });
+      return () => gsap.set(sides, { clearProps: 'transform,willChange' });
+    });
+    return () => mm.revert();
+  }, []);
 
   return (
     <section id="servicios" className="section">
@@ -26,32 +62,40 @@ export function Services() {
           intro="Cada tarjeta es un proceso real que ya hemos puesto en piloto automático para negocios como el tuyo. Pásalos por encima y descúbrelos."
         />
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={grid} className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, i) => (
-            <ServiceCard key={service.slug} service={service} index={i} onOpen={setActive} />
+            <div key={service.slug} data-lateral={i % 3 !== 1 ? '' : undefined}>
+              <ServiceCard service={service} index={i} onOpen={setActive} />
+            </div>
           ))}
 
           {/* Tarjeta a medida */}
-          <motion.a
-            href="#contacto"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            data-cursor="Hablar"
-            className="group relative flex flex-col items-start justify-between gap-8 overflow-hidden rounded-[var(--radius)] border border-brand-violet/30 bg-brand-gradient-soft p-7"
-          >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-white">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="font-display text-2xl leading-tight">{customService.title}</h3>
-              <p className="mt-2 text-sm text-ink-soft">{customService.description}</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                {customService.short} →
-              </span>
-            </div>
-          </motion.a>
+          <div data-lateral={services.length % 3 !== 1 ? '' : undefined}>
+            <motion.a
+              href="#contacto"
+              initial={reduce ? false : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{
+                duration: 0.4,
+                delay: (services.length % 3) * 0.06,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              data-cursor="Hablar"
+              className="card-fx group relative flex h-full flex-col items-start justify-between gap-8 overflow-hidden rounded-[var(--radius)] border border-brand-violet/30 bg-brand-gradient-soft p-7"
+            >
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-white">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl leading-tight">{customService.title}</h3>
+                <p className="mt-2 text-sm text-ink-soft">{customService.description}</p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                  {customService.short} →
+                </span>
+              </div>
+            </motion.a>
+          </div>
         </div>
       </div>
 
