@@ -33,7 +33,7 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 | Scroll de lujo | **Lenis** (smooth scroll con inercia) |
 | Animaciones de scroll | **GSAP + ScrollTrigger** |
 | Transiciones / gestos | **Framer Motion** |
-| 3D / WebGL | **Three.js + React Three Fiber + drei** (con fallback en móvil) |
+| 3D / WebGL | **Three.js + React Three Fiber** (solo escritorio; fallback estático en móvil) |
 | Texto letra a letra | **SplitType** |
 | Iconos | **lucide-react** |
 | Fuentes | `next/font` — **Fraunces** (display serif) + **Inter** (sans) |
@@ -44,8 +44,9 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 
 - **Intro breve (≤ 1 s)**: fundido del isotipo; al retirarse, las partículas del hero se forman a su alrededor. Solo escritorio y primera visita de la sesión.
 - **Scroll suave (Lenis)** en toda la página, sincronizado con GSAP.
-- **Hero WebGL**: nube de partículas con degradado de marca + malla wireframe, parallax con el ratón,
-  titular con revelado letra a letra. Se degrada con elegancia en móvil y respeta `prefers-reduced-motion`.
+- **Hero WebGL**: nube de ~2800 partículas de 1–2 px (70 % blanco, 20 % violeta, 10 % cian, opacidad
+  ≤ 0,45), una vuelta cada 120 s, repulsión suave con el cursor y viñeta radial. Solo escritorio
+  (≥1024 px, ratón, ≥4 núcleos); en móvil y con `prefers-reduced-motion` no se descarga Three.js.
 - **Cursor personalizado** que crece y muestra etiquetas sobre elementos interactivos.
 - **Botones magnéticos** que siguen al cursor.
 - **Marquee infinito** de tecnologías (OpenAI, Make, Vapi, Twilio, Slack…).
@@ -188,7 +189,7 @@ components/
 lib/
   site.config.ts  # ← datos de negocio (teléfono, email, webhook, redes)
   services.ts     # ← servicios y tecnologías
-  utils.ts        # helpers (cn, reduced-motion, móvil)
+  utils.ts        # helpers (cn, reduced-motion, móvil, canUseWebGL)
 public/
   logo.svg · noise.svg
 ```
@@ -220,7 +221,7 @@ No se necesitan variables de entorno: el webhook y los datos viven en `lib/site.
 
 - Respeta `prefers-reduced-motion` (desactiva scroll con inercia, preloader, grano y animaciones agresivas).
 - Foco visible, `aria-label`s y contraste alto sobre fondo oscuro.
-- WebGL con menos partículas en móvil y `next/dynamic` (carga diferida) para no penalizar el primer render.
+- WebGL desactivado en móvil; en escritorio se carga con `next/dynamic` tras la intro, en un momento ocioso y con el hero visible. Tope de 60 fps, DPR ≤ 1,5 y pausa fuera de viewport o con la pestaña oculta.
 - Fuentes con `display: swap`, imágenes/OG optimizadas, code-splitting por ruta.
 
 ---

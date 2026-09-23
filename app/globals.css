@@ -240,6 +240,11 @@ h4 {
   opacity: 0;
 }
 
+/* ── Hero: viñeta radial sobre el canvas ── */
+.hero-vignette {
+  background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 45%, rgba(6, 6, 11, 0.75) 100%);
+}
+
 /* ── Intro (preloader) ── */
 html[data-intro='skip'] .preloader {
   display: none !important;

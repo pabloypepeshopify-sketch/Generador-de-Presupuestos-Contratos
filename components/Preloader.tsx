@@ -25,11 +25,14 @@ export function Preloader() {
     } catch {
       /* modo privado: la intro se repetirá, sin más */
     }
+    // Contado desde el inicio de la navegación: si la hidratación tarda,
+    // no se suma. Overlay total ≈ 1 s como máximo.
+    const hideIn = Math.max(0, 650 - performance.now());
     const hide = setTimeout(() => {
       setPhase('hide');
       markIntroDone();
-    }, 650);
-    const gone = setTimeout(() => setPhase('gone'), 1000);
+    }, hideIn);
+    const gone = setTimeout(() => setPhase('gone'), hideIn + 300);
     return () => {
       clearTimeout(hide);
       clearTimeout(gone);
