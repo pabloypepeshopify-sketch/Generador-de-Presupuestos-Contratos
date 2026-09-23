@@ -17,30 +17,28 @@ const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
 const TITLE_LINE_1 = 'Tu negocio,';
 const TITLE_LINE_2 = 'en piloto automático';
 
-const letter = {
-  hidden: { y: '110%', opacity: 0 },
-  show: (i: number) => ({
-    y: '0%',
-    opacity: 1,
-    transition: { duration: 0.8, delay: 0.15 + i * 0.03, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-};
+type Delay = React.CSSProperties & { '--delay'?: string };
+const delay = (sec: number): Delay => ({ '--delay': `${sec.toFixed(3)}s` });
+
+/*
+ * Entrada del hero en CSS (clases hero-in / hero-letter en globals.css):
+ * arranca con el primer pintado, sin esperar a que React hidrate, y solo usa
+ * transform/opacity → la mueve el compositor, no el hilo principal (LCP y TBT).
+ */
+const LETTER_STEP = 0.025;
+const LETTER_BASE = 0.1;
 
 function AnimatedLine({ text, base = 0 }: { text: string; base?: number }) {
   return (
     <span className="block overflow-hidden">
       {text.split('').map((char, i) => (
-        <motion.span
+        <span
           key={i}
-          custom={base + i}
-          variants={letter}
-          initial="hidden"
-          animate="show"
-          className="inline-block"
-          style={{ whiteSpace: char === ' ' ? 'pre' : 'normal' }}
+          className="hero-in hero-letter inline-block"
+          style={{ ...delay(LETTER_BASE + (base + i) * LETTER_STEP), whiteSpace: char === ' ' ? 'pre' : 'normal' }}
         >
           {char}
-        </motion.span>
+        </span>
       ))}
     </span>
   );
@@ -107,75 +105,55 @@ export function Hero() {
         className="container-x flex flex-col items-center text-center"
       >
         {/* Badge de confianza */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
-          className="glass mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-ink-soft"
+        <div
+          style={delay(0.05)}
+          className="hero-in glass mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-ink-soft"
         >
           <Sparkles className="h-3.5 w-3.5 text-brand-cyan" />
           Automatizaciones con IA a medida
-        </motion.div>
+        </div>
 
         <h1 className="font-display text-[clamp(2.6rem,8vw,6.5rem)] font-medium leading-[0.98] tracking-tightest">
           <AnimatedLine text={TITLE_LINE_1} base={0} />
           <span className="block overflow-hidden">
-            <motion.span
-              custom={TITLE_LINE_1.length}
-              variants={letter}
-              initial="hidden"
-              animate="show"
-              className="text-gradient-animate inline-block italic"
+            <span
+              style={delay(LETTER_BASE + TITLE_LINE_1.length * LETTER_STEP)}
+              className="hero-in hero-letter inline-block"
             >
-              {TITLE_LINE_2}
-            </motion.span>
+              <span className="text-gradient-animate inline-block italic">{TITLE_LINE_2}</span>
+            </span>
           </span>
           <AnimatedLine text="con IA" base={TITLE_LINE_1.length + TITLE_LINE_2.length} />
         </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, duration: 0.8 }}
-          className="mt-8 max-w-xl text-base text-ink-soft sm:text-lg"
-        >
+        {/* Visible desde el primer pintado (solo sube): es el LCP en móvil */}
+        <p className="hero-in hero-slide mt-8 max-w-xl text-base text-ink-soft sm:text-lg">
           Recepcionistas virtuales, agentes de voz, cobros, facturas y contratos. Convertimos tus
           tareas repetitivas en procesos inteligentes que trabajan por ti, 24/7.
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3, duration: 0.8 }}
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
-        >
+        <div style={delay(0.7)} className="hero-in mt-10 flex flex-col items-center gap-4 sm:flex-row">
           <MagneticButton href="#reservar" variant="primary" cursorLabel="Reservar">
             Reservar reunión
           </MagneticButton>
           <MagneticButton href="#servicios" variant="secondary" cursorLabel="Ver">
             Ver servicios
           </MagneticButton>
-        </motion.div>
+        </div>
       </motion.div>
 
       {/* Indicador de scroll */}
-      <motion.a
+      <a
         href="#tecnologias"
-        aria-label="Desplázate hacia abajo"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-ink-faint"
+        aria-label="Scroll: desplázate hacia abajo"
+        style={delay(1.2)}
+        className="hero-in hero-fade absolute bottom-8 left-1/2 -translate-x-1/2 text-ink-soft"
       >
-        <motion.span
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex flex-col items-center gap-2"
-        >
+        <span className="hero-bob flex flex-col items-center gap-2">
           <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
           <ArrowDown className="h-4 w-4" />
-        </motion.span>
-      </motion.a>
+        </span>
+      </a>
     </section>
   );
 }

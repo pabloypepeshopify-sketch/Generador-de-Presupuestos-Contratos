@@ -201,6 +201,14 @@ h4 {
   animation: grain 0.7s steps(6) infinite;
   mix-blend-mode: overlay;
 }
+/* Móvil / táctil: grano y degradado del titular estáticos. Animados obligan a
+   repintar / recomponer en cada frame en el hilo principal (Lighthouse móvil). */
+@media (max-width: 1023px), (pointer: coarse) {
+  .grain,
+  .text-gradient-animate {
+    animation: none;
+  }
+}
 @keyframes grain {
   0%,
   100% {
@@ -283,6 +291,58 @@ h4 {
     drop-shadow(calc(var(--chroma, 0) * 1px) 0 0 rgba(51, 198, 244, 0.6));
 }
 
+/* ── Hero: entrada en CSS. Arranca con el primer pintado (no espera a la hidratación)
+   y solo anima transform/opacity, así la mueve el compositor. Si hay intro,
+   empieza cuando el overlay se retira. ── */
+.hero-in {
+  animation: hero-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+.hero-letter {
+  animation-name: hero-letter;
+}
+.hero-fade {
+  animation-name: hero-fade;
+  animation-duration: 1s;
+}
+.hero-slide {
+  animation-name: hero-slide;
+  animation-duration: 1s;
+}
+html[data-intro='play'] .hero-in {
+  animation-delay: calc(var(--delay, 0s) + 0.65s);
+}
+.hero-bob {
+  animation: hero-bob 1.8s ease-in-out infinite;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes hero-letter {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+}
+@keyframes hero-slide {
+  from {
+    transform: translateY(16px);
+  }
+}
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes hero-bob {
+  50% {
+    transform: translateY(8px);
+  }
+}
+
 /* ── Hero: viñeta radial sobre el canvas ── */
 .hero-vignette {
   background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 45%, rgba(6, 6, 11, 0.75) 100%);
@@ -339,6 +399,9 @@ html[data-intro='skip'] .preloader {
   .card-fx:focus-visible {
     --s: 1;
     transform: none !important;
+  }
+  .hero-in {
+    animation-delay: 0s !important;
   }
 }
 
