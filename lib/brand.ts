@@ -75,21 +75,24 @@ function markBody(id: string) {
   );
 }
 
-function wordBody(id: string) {
+function wordBody(id: string, mono = false) {
+  const white = mono ? 'currentColor' : WHITE;
+  const ai = mono ? 'currentColor' : `url(#${id}a)`;
   return (
-    WORD.white.map((d) => `<path d="${d}" fill="${WHITE}"/>`).join('') +
-    `<path d="${WORD.s}" fill="none" stroke="${WHITE}" stroke-width="21"/>` +
-    WORD.ai.map((d) => `<path d="${d}" fill="url(#${id}a)"/>`).join('')
+    WORD.white.map((d) => `<path d="${d}" fill="${white}"/>`).join('') +
+    `<path d="${WORD.s}" fill="none" stroke="${white}" stroke-width="21"/>` +
+    WORD.ai.map((d) => `<path d="${d}" fill="${ai}"/>`).join('')
   );
 }
 
-export type LogoVariant = 'mark' | 'lockup' | 'stacked';
+export type LogoVariant = 'mark' | 'lockup' | 'stacked' | 'word';
 
 /** Proporciones de cada variante (ancho / alto) para reservar hueco sin saltos. */
 export const LOGO_VIEWBOX: Record<LogoVariant, [number, number]> = {
   mark: [MARK.w, MARK.h],
   lockup: [2110, MARK.h],
   stacked: [WORD.w, 523],
+  word: [WORD.w, WORD.h],
 };
 
 /**
@@ -97,6 +100,7 @@ export const LOGO_VIEWBOX: Record<LogoVariant, [number, number]> = {
  *  - mark:    solo isotipo (preloader, favicon)
  *  - lockup:  isotipo + wordmark en horizontal (header, footer)
  *  - stacked: isotipo sobre wordmark, como el original (imagen OG)
+ *  - word:    solo wordmark, monocromo (currentColor) — marca de agua del footer
  * `id` evita colisiones de degradados cuando hay varios logos en la página.
  */
 export function logoSvg(variant: LogoVariant, id = 'vx', attrs = ''): string {
@@ -104,7 +108,10 @@ export function logoSvg(variant: LogoVariant, id = 'vx', attrs = ''): string {
   let defs = markDefs(id);
   let body: string;
 
-  if (variant === 'mark') {
+  if (variant === 'word') {
+    defs = '';
+    body = wordBody(id, true);
+  } else if (variant === 'mark') {
     body = markBody(id);
   } else if (variant === 'lockup') {
     // Wordmark a 168 de altura de mayúscula (≈ 47 % del isotipo), centrado en vertical.

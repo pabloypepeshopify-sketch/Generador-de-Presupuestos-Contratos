@@ -104,17 +104,17 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Gran logotipo revelado */}
-        <div className="overflow-hidden py-6">
-          <motion.p
+        {/* Gran logotipo revelado (wordmark oficial, en fantasma) */}
+        <div className="overflow-hidden py-6" aria-hidden="true">
+          <motion.div
             initial={{ y: '110%' }}
             whileInView={{ y: '0%' }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="select-none bg-gradient-to-b from-white/10 to-white/[0.02] bg-clip-text text-center font-display text-[18vw] font-semibold leading-none text-transparent"
+            className="select-none text-white opacity-[0.06] [mask-image:linear-gradient(to_bottom,#000,rgba(0,0,0,0.3))]"
           >
-            VISAX AI
-          </motion.p>
+            <Logo variant="word" className="mx-auto w-[88%]" />
+          </motion.div>
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-ink-line py-8 text-xs text-ink-faint sm:flex-row">

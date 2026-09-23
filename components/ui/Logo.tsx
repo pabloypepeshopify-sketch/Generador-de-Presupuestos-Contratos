@@ -19,7 +19,10 @@ export function Logo({ className, variant = 'lockup' }: LogoProps) {
       role="img"
       aria-label="VISAX AI"
       className={cn(
-        'inline-block shrink-0 [&>svg]:block [&>svg]:h-full [&>svg]:w-auto',
+        // El wordmark de marca de agua se dimensiona por ancho; el resto, por alto.
+        variant === 'word'
+          ? 'block [&>svg]:block [&>svg]:h-auto [&>svg]:w-full'
+          : 'inline-block shrink-0 [&>svg]:block [&>svg]:h-full [&>svg]:w-auto',
         className ?? 'h-6 md:h-[30px]',
       )}
       dangerouslySetInnerHTML={{ __html: logoSvg(variant, id, 'aria-hidden="true" focusable="false"') }}
