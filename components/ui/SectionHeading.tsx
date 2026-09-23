@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { RevealText } from './RevealText';
 import { cn } from '@/lib/utils';
+import { registerChroma } from '@/lib/chroma';
 import type { ReactNode } from 'react';
 
 /** Cabecera de sección: eyebrow con línea + titular con revelado por líneas. */
@@ -19,8 +21,12 @@ export function SectionHeading({
   align?: 'left' | 'center';
   className?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => (ref.current ? registerChroma(ref.current) : undefined), []);
+
   return (
     <div
+      ref={ref}
       className={cn(
         'flex flex-col gap-5',
         align === 'center' && 'items-center text-center',

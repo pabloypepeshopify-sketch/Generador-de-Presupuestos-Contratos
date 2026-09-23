@@ -6,6 +6,7 @@ import { MotionConfig } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from '@/lib/utils';
+import { chromaOnScroll, startChroma } from '@/lib/chroma';
 
 /**
  * Scroll suave de lujo (Lenis) sincronizado con GSAP ScrollTrigger.
@@ -34,6 +35,12 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
     lenis.on('scroll', ScrollTrigger.update);
 
+    // Efecto 3 (aberración cromática en titulares): solo escritorio con ratón.
+    const stopChroma = window.matchMedia('(min-width: 1024px) and (pointer: fine)').matches
+      ? startChroma()
+      : () => {};
+    lenis.on('scroll', (l: Lenis) => chromaOnScroll(l.velocity, l.direction));
+
     const raf = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -55,6 +62,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     document.addEventListener('click', onClick);
 
     return () => {
+      stopChroma();
       document.removeEventListener('click', onClick);
       gsap.ticker.remove(raf);
       lenis.destroy();

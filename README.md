@@ -44,6 +44,9 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 
 - **Intro breve (≤ 1 s)**: fundido del isotipo; al retirarse, las partículas del hero se forman a su alrededor. Solo escritorio y primera visita de la sesión.
 - **Scroll suave (Lenis)** en toda la página, sincronizado con GSAP.
+- **Aberración cromática de marca** (solo escritorio): al hacer scroll, el titular de la sección que
+  entra se separa en violeta/cian según la velocidad (máx. 3 px, 0 en reposo, vuelve a 0 en ~200 ms).
+  Es el efecto más prescindible: se quita eliminando `startChroma()` en `SmoothScroll`.
 - **Hero WebGL**: nube de ~2800 partículas de 1–2 px (70 % blanco, 20 % violeta, 10 % cian, opacidad
   ≤ 0,45), una vuelta cada 120 s, repulsión suave con el cursor y viñeta radial. Solo escritorio
   (≥1024 px, ratón, ≥4 núcleos); en móvil y con `prefers-reduced-motion` no se descarga Three.js.
