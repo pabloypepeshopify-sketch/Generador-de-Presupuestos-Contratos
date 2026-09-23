@@ -33,7 +33,7 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 | Scroll de lujo | **Lenis** (smooth scroll con inercia) |
 | Animaciones de scroll | **GSAP + ScrollTrigger** |
 | Transiciones / gestos | **Framer Motion** |
-| 3D / WebGL | **Three.js + React Three Fiber** (solo escritorio; fallback estático en móvil) |
+| 3D / WebGL | **Three.js + React Three Fiber + postprocessing (bloom)** — completo en escritorio, ligero en móvil, HTML sin GPU |
 | Texto letra a letra | **SplitType** |
 | Iconos | **lucide-react** |
 | Fuentes | `next/font` — **Fraunces** (display serif) + **Inter** (sans) |
@@ -42,18 +42,24 @@ Requisitos: **Node 18.17+** (probado con Node 22).
 
 ## ✨ Qué incluye (catálogo de animaciones)
 
-- **Intro breve (≤ 1 s)**: fundido del isotipo; al retirarse, las partículas del hero se forman a su alrededor. Solo escritorio y primera visita de la sesión.
+- **Intro 3D**: el isotipo VISAX en metal 3D aparece rodeado de un remolino de partículas que **explota** en un destello; después entra el titular. En escritorio, la primera visita de la sesión la precede un fundido del logo mientras carga la escena.
 - **Scroll suave (Lenis)** en toda la página, sincronizado con GSAP.
 - **Aberración cromática de marca** (solo escritorio): al hacer scroll, el titular de la sección que
   entra se separa en violeta/cian según la velocidad (máx. 3 px, 0 en reposo, vuelve a 0 en ~200 ms).
   Es el efecto más prescindible: se quita eliminando `startChroma()` en `SmoothScroll`.
-- **Hero WebGL**: nube de ~2800 partículas de 1–2 px (70 % blanco, 20 % violeta, 10 % cian, opacidad
-  ≤ 0,45), una vuelta cada 120 s, repulsión suave con el cursor y viñeta radial. Solo escritorio
-  (≥1024 px, ratón, ≥4 núcleos); en móvil y con `prefers-reduced-motion` no se descarga Three.js.
+- **Experiencia 3D (hero + servicios)** — `components/Experience.tsx` + `components/three/`:
+  un canvas fijo detrás del contenido. Tras la explosión, las partículas forman una nube detrás
+  del titular con el logo 3D girando; al hacer scroll se transforman en "corales" violeta/cian y la
+  cámara vuela por un pasillo con los **9 servicios como tarjetas de cristal**, con un índice a la
+  izquierda (píldoras en móvil), "Ver detalle" y clic sobre la tarjeta. Al salir de servicios el
+  canvas se desvanece y deja de renderizar. Solo colores de la paleta.
+  - Escritorio: ~42 000 partículas + bloom. Móvil: ~12 000, sin bloom.
+  - Sin 3D (HTML de siempre): `prefers-reduced-motion`, equipos modestos (<4 núcleos / <2 GB) o
+    WebGL por software sin GPU. `?xp3d` en la URL lo fuerza para pruebas.
 - **Cursor personalizado** que crece y muestra etiquetas sobre elementos interactivos.
 - **Botones magnéticos** que siguen al cursor.
 - **Marquee infinito** de tecnologías (OpenAI, Make, Vapi, Twilio, Slack…).
-- **Tarjetas de servicio**: entrada escalonada (fade + 24 px, 60 ms), tilt 3D ≤ 6°, escala 1,02 y glow
+- **Tarjetas de servicio (versión HTML)**: entrada escalonada, tilt 3D ≤ 6°, escala 1,02 y glow
   violeta al hover/foco (sin tilt con teclado), parallax lateral en escritorio + modal de detalle.
 - **Sección "Cómo funciona"** con storytelling anclado (sticky/scrub) de 4 pasos.
 - **Contadores animados** en la sección de resultados.
@@ -188,7 +194,7 @@ components/
   Stats, Testimonials, Schedule, BookingForm, Contact, FAQ, Footer,
   Header, Preloader, ScrollProgress, CookieBanner, FloatingCTA
   providers/  SmoothScroll (Lenis) · CustomCursor
-  three/      HeroCanvas (React Three Fiber)
+  three/      Experience (escena), particles, logo, cards, Effects (bloom)
   ui/         Logo · MagneticButton · Reveal · RevealText · SectionHeading · Counter
 lib/
   site.config.ts  # ← datos de negocio (teléfono, email, webhook, redes)
@@ -225,7 +231,7 @@ No se necesitan variables de entorno: el webhook y los datos viven en `lib/site.
 
 - Respeta `prefers-reduced-motion` (desactiva scroll con inercia, preloader, grano y animaciones agresivas).
 - Foco visible, `aria-label`s y contraste alto sobre fondo oscuro.
-- WebGL desactivado en móvil; en escritorio se carga con `next/dynamic` tras la intro, en un momento ocioso y con el hero visible. Tope de 60 fps, DPR ≤ 1,5 y pausa fuera de viewport o con la pestaña oculta.
+- 3D cargado con `next/dynamic` (en móvil, en un momento ocioso); el bloom solo se descarga en escritorio. Tope de 60 fps, DPR ≤ 1,5 (1,25 en móvil), pausa con la pestaña oculta o al salir de servicios. Partículas animadas en GPU (cero trabajo por partícula en CPU).
 - Fuentes con `display: swap`, imágenes/OG optimizadas, code-splitting por ruta.
 
 ---

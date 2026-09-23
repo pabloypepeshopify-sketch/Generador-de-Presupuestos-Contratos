@@ -309,8 +309,36 @@ h4 {
   animation-name: hero-slide;
   animation-duration: 1s;
 }
-html[data-intro='play'] .hero-in {
+html[data-intro='play'][data-3d='off'] .hero-in {
   animation-delay: calc(var(--delay, 0s) + 0.65s);
+}
+/* Con 3D, el titular espera a la explosión de la intro (data-hero="in").
+   El párrafo (LCP) no espera: solo sube. */
+html[data-3d='full']:not([data-hero='in']) .hero-in:not(.hero-slide),
+html[data-3d='lite']:not([data-hero='in']) .hero-in:not(.hero-slide) {
+  animation-play-state: paused;
+}
+
+/* Sobre la escena 3D, sombra suave en el titular del hero para que siempre se lea */
+html[data-3d='full'] #inicio h1,
+html[data-3d='lite'] #inicio h1,
+html[data-3d='full'] #inicio p,
+html[data-3d='lite'] #inicio p {
+  text-shadow: 0 2px 28px rgba(6, 6, 11, 0.9);
+}
+html[data-3d='full'] #inicio .text-gradient-animate,
+html[data-3d='lite'] #inicio .text-gradient-animate {
+  text-shadow: none;
+  filter: drop-shadow(0 2px 22px rgba(6, 6, 11, 0.9));
+}
+
+/* ── Servicios: recorrido 3D o rejilla HTML según data-3d (decidido antes de pintar) ── */
+html[data-3d='full'] .services-grid,
+html[data-3d='lite'] .services-grid {
+  display: none;
+}
+html:not([data-3d='full']):not([data-3d='lite']) .services-3d {
+  display: none;
 }
 .hero-bob {
   animation: hero-bob 1.8s ease-in-out infinite;

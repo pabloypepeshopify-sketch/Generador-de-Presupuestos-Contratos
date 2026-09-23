@@ -9,6 +9,8 @@ import { services, customService, type Service } from '@/lib/services';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { ServiceCard } from '@/components/ServiceCard';
+import { ServicesTrack } from '@/components/ServicesTrack';
+import { XP_EVENTS, xpMode } from '@/lib/experience';
 
 const PARALLAX_RATIO = 0.08; // laterales un 8 % más lentos que la columna central
 const PARALLAX_MAX = 40; // px: tope para que las filas no se descuadren
@@ -18,9 +20,19 @@ export function Services() {
   const grid = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
-  // Parallax solo con 3 columnas (≥1024 px) y sin movimiento reducido.
+  // Abrir el detalle desde las tarjetas 3D
   useEffect(() => {
-    if (!grid.current) return;
+    const on = (e: Event) => {
+      const found = services.find((x) => x.slug === (e as CustomEvent<string>).detail);
+      if (found) setActive(found);
+    };
+    window.addEventListener(XP_EVENTS.OPEN_SERVICE, on);
+    return () => window.removeEventListener(XP_EVENTS.OPEN_SERVICE, on);
+  }, []);
+
+  // Parallax de la rejilla (solo sin 3D, con 3 columnas y sin movimiento reducido).
+  useEffect(() => {
+    if (!grid.current || xpMode() !== 'off') return;
     gsap.registerPlugin(ScrollTrigger);
     const mm = gsap.matchMedia();
     mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
@@ -62,7 +74,8 @@ export function Services() {
           intro="Cada tarjeta es un proceso real que ya hemos puesto en piloto automático para negocios como el tuyo. Pásalos por encima y descúbrelos."
         />
 
-        <div ref={grid} className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Sin 3D (movimiento reducido, equipos modestos, sin JS): rejilla HTML */}
+        <div ref={grid} className="services-grid mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, i) => (
             <div key={service.slug} data-lateral={i % 3 !== 1 ? '' : undefined}>
               <ServiceCard service={service} index={i} onOpen={setActive} />
@@ -99,6 +112,9 @@ export function Services() {
         </div>
       </div>
 
+      {/* Con 3D: recorrido por las tarjetas de cristal */}
+      <ServicesTrack onOpen={setActive} />
+
       {/* Modal de detalle */}
       <AnimatePresence>
         {active && (
@@ -107,6 +123,9 @@ export function Services() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setActive(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={active.title}
             className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
           >
             <motion.div

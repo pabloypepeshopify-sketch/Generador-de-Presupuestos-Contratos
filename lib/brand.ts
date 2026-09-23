@@ -85,6 +85,14 @@ function wordBody(id: string, mono = false) {
   );
 }
 
+/** Trazados del isotipo (caja 526 × 358) para extruirlo en 3D. */
+export const MARK_SHAPES = {
+  w: MARK.w,
+  h: MARK.h,
+  silver: [MARK.whiteArm, MARK.kLeg],
+  colored: [MARK.vArm, MARK.topBar],
+};
+
 export type LogoVariant = 'mark' | 'lockup' | 'stacked' | 'word';
 
 /** Proporciones de cada variante (ancho / alto) para reservar hueco sin saltos. */

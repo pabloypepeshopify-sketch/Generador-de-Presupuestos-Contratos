@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { markIntroDone } from '@/lib/intro';
+import { XP_EVENTS } from '@/lib/experience';
 import { cn } from '@/lib/utils';
 
 /**
@@ -25,17 +26,26 @@ export function Preloader() {
     } catch {
       /* modo privado: la intro se repetirá, sin más */
     }
-    // Contado desde el inicio de la navegación: si la hidratación tarda,
-    // no se suma. Overlay total ≈ 1 s como máximo.
-    const hideIn = Math.max(0, 650 - performance.now());
-    const hide = setTimeout(() => {
+    // Sin 3D: overlay ≈ 1 s contado desde la navegación. Con 3D: espera a que la
+    // escena pinte (tope 2,4 s) y le pasa el testigo: el logo 3D aparece en el
+    // mismo sitio y arranca la intro (remolino → explosión).
+    let gone = 0;
+    let hide = 0;
+    const retire = () => {
+      if (hide) return;
+      hide = 1;
       setPhase('hide');
       markIntroDone();
-    }, hideIn);
-    const gone = setTimeout(() => setPhase('gone'), hideIn + 300);
+      gone = window.setTimeout(() => setPhase('gone'), 300);
+    };
+    const with3d = document.documentElement.getAttribute('data-3d') === 'full';
+    const deadline = window.setTimeout(retire, Math.max(0, (with3d ? 2400 : 650) - performance.now()));
+    const onReady = () => window.setTimeout(retire, 120);
+    if (with3d) window.addEventListener(XP_EVENTS.READY, onReady, { once: true });
     return () => {
-      clearTimeout(hide);
+      clearTimeout(deadline);
       clearTimeout(gone);
+      window.removeEventListener(XP_EVENTS.READY, onReady);
     };
   }, []);
 

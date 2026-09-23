@@ -10,12 +10,14 @@ import { Schedule } from '@/components/Schedule';
 import { Contact } from '@/components/Contact';
 import { FAQ } from '@/components/FAQ';
 import { Footer } from '@/components/Footer';
+import { Experience } from '@/components/Experience';
 
 export default function HomePage() {
   return (
     <>
       <Header />
       <main>
+        <Experience />
         <Hero />
         <Marquee />
         <Services />

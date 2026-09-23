@@ -1,18 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown, Sparkles } from 'lucide-react';
 import { MagneticButton } from '@/components/ui/MagneticButton';
-import { canUseWebGL } from '@/lib/utils';
-import { onIntroDone } from '@/lib/intro';
-
-// Three.js solo se descarga en escritorio, tras la intro, en un momento ocioso
-// y con el hero en pantalla. En móvil no se llega a pedir nunca.
-const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
-  ssr: false,
-});
 
 const TITLE_LINE_1 = 'Tu negocio,';
 const TITLE_LINE_2 = 'en piloto automático';
@@ -45,52 +35,18 @@ function AnimatedLine({ text, base = 0 }: { text: string; base?: number }) {
 }
 
 export function Hero() {
-  const section = useRef<HTMLElement>(null);
-  const [webgl, setWebgl] = useState(false);
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 0.25], [0, 120]);
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
-  useEffect(() => {
-    if (!canUseWebGL() || !section.current) return;
-    let idle = 0;
-    let introDone = false;
-    let inView = false;
-    const tryLoad = () => {
-      if (!introDone || !inView || idle) return;
-      const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
-      idle = ric(() => setWebgl(true), { timeout: 1500 });
-      io.disconnect();
-    };
-    const io = new IntersectionObserver(([e]) => {
-      inView = e.isIntersecting;
-      tryLoad();
-    });
-    io.observe(section.current);
-    const offIntro = onIntroDone(() => {
-      introDone = true;
-      tryLoad();
-    });
-    return () => {
-      io.disconnect();
-      offIntro();
-    };
-  }, []);
-
   return (
     <section
-      ref={section}
       id="inicio"
       className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden"
     >
-      {/* Fondo: degradado estático siempre; partículas WebGL encima solo en escritorio */}
+      {/* Fondo estático (sin 3D o mientras carga). Con 3D, la escena de <Experience /> lo cubre. */}
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 bg-radial-glow" />
-        {webgl && (
-          <div className="absolute inset-0">
-            <HeroCanvas />
-          </div>
-        )}
         {/* Glows de marca */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[70vh] w-[70vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-blue/20 blur-[120px]" />
         <div className="pointer-events-none absolute bottom-0 left-1/4 h-[40vh] w-[40vh] rounded-full bg-brand-violet/20 blur-[120px]" />
