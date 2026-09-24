@@ -1,0 +1,494 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────────────────────────────────────────
+   SISTEMA DE COLOR — derivado del logotipo VISAX AI
+   Cambia estas variables para reajustar toda la identidad.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  --brand-cyan: #33c6f4;
+  --brand-blue: #3f7dfb;
+  --brand-indigo: #5a5cf5;
+  --brand-violet: #7c5cff;
+  --brand-purple: #8b5cf6;
+  --brand-deep: #6d28d9;
+  --brand-silver: #eaf0f8;
+
+  --brand-primary: var(--brand-blue);
+  --brand-secondary: var(--brand-violet);
+  --brand-accent: var(--brand-cyan);
+
+  --bg: #06060b;
+  --bg-soft: #0a0a12;
+  --bg-raise: #101019;
+
+  --ink: #f5f7fb;
+  --ink-soft: #aeb4c6;
+  --ink-faint: #6b7086;
+  --line: rgba(255, 255, 255, 0.08);
+
+  --brand-gradient: linear-gradient(
+    120deg,
+    var(--brand-cyan) 0%,
+    var(--brand-blue) 42%,
+    var(--brand-violet) 72%,
+    var(--brand-purple) 100%
+  );
+
+  --radius: 18px;
+}
+
+/* Tema claro opcional (data-theme="light") */
+:root[data-theme='light'] {
+  --bg: #f6f7fb;
+  --bg-soft: #ffffff;
+  --bg-raise: #ffffff;
+  --ink: #0b0c14;
+  --ink-soft: #3d4257;
+  --ink-faint: #6b7086;
+  --line: rgba(10, 12, 20, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: auto; /* Lenis se encarga del smooth scroll */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Cuando Lenis está activo */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Tipografía base ── */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+
+::selection {
+  background: rgba(124, 92, 255, 0.35);
+  color: #fff;
+}
+
+/* ── Scrollbar de lujo ── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--brand-blue), var(--brand-violet));
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+/* ───────────────────────────────────────────────────────────
+   UTILIDADES DE MARCA
+   ─────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    background: var(--brand-gradient);
+    background-size: 180% 180%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .text-gradient-animate {
+    background: var(--brand-gradient);
+    background-size: 220% 220%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradient-pan 8s ease infinite;
+  }
+  .bg-brand {
+    background: var(--brand-gradient);
+  }
+  .border-gradient {
+    position: relative;
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    margin: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      130deg,
+      rgba(51, 198, 244, 0.6),
+      rgba(124, 92, 255, 0.15) 45%,
+      rgba(124, 92, 255, 0.6)
+    );
+  }
+  .glass {
+    background: rgba(16, 16, 25, 0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--line);
+  }
+  .glow-blue {
+    box-shadow: 0 0 60px -12px rgba(63, 125, 251, 0.45);
+  }
+  .glow-violet {
+    box-shadow: 0 0 70px -14px rgba(124, 92, 255, 0.5);
+  }
+  .section {
+    position: relative;
+    padding-block: clamp(5rem, 12vh, 10rem);
+  }
+  .container-x {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 3rem);
+  }
+  .eyebrow {
+    font-family: var(--font-sans), sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+}
+
+/* ── Grano / ruido animado sutil ── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url('/noise.svg');
+  background-repeat: repeat;
+  animation: grain 0.7s steps(6) infinite;
+  mix-blend-mode: overlay;
+}
+/* Móvil / táctil: grano y degradado del titular estáticos. Animados obligan a
+   repintar / recomponer en cada frame en el hilo principal (Lighthouse móvil). */
+@media (max-width: 1023px), (pointer: coarse) {
+  .grain,
+  .text-gradient-animate {
+    animation: none;
+  }
+}
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-4%, -4%);
+  }
+  30% {
+    transform: translate(3%, -2%);
+  }
+  50% {
+    transform: translate(-2%, 3%);
+  }
+  70% {
+    transform: translate(4%, 2%);
+  }
+  90% {
+    transform: translate(-3%, 4%);
+  }
+}
+
+/* ── Cursor personalizado ── */
+@media (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor [data-cursor] {
+    cursor: none;
+  }
+}
+
+/* ── Reveal helpers (fallback CSS antes de que entre JS) ── */
+.reveal-hidden {
+  opacity: 0;
+}
+
+/* ── Cards de servicios: hover / foco (300–400 ms, easing de marca) ── */
+.card-fx {
+  transition:
+    transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--s, 1));
+  transform-style: preserve-3d;
+}
+.card-fx:hover,
+.card-fx:focus-visible {
+  --s: 1.02;
+  border-color: rgba(124, 92, 255, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(124, 92, 255, 0.4),
+    0 0 32px -8px rgba(124, 92, 255, 0.4);
+}
+.card-fx:not(.card-tilt):hover,
+.card-fx:not(.card-tilt):focus-visible {
+  transform: scale(1.02);
+}
+/* Con teclado nunca hay tilt: el anillo de foco queda recto y nítido */
+.card-fx:focus-visible {
+  --rx: 0deg !important;
+  --ry: 0deg !important;
+  border-radius: var(--radius);
+}
+
+/* ── Efecto 3: aberración cromática de marca en el titular que entra (solo durante el scroll).
+   --chroma (0–3) lo escribe lib/chroma.ts según la velocidad de Lenis. ── */
+[data-chroma] h2 {
+  text-shadow:
+    calc(var(--chroma, 0) * -1px) 0 rgba(124, 92, 255, 0.6),
+    calc(var(--chroma, 0) * 1px) 0 rgba(51, 198, 244, 0.6);
+}
+[data-chroma] h2 .text-gradient {
+  text-shadow: none;
+  filter: drop-shadow(calc(var(--chroma, 0) * -1px) 0 0 rgba(124, 92, 255, 0.6))
+    drop-shadow(calc(var(--chroma, 0) * 1px) 0 0 rgba(51, 198, 244, 0.6));
+}
+
+/* ── Hero: entrada en CSS. Arranca con el primer pintado (no espera a la hidratación)
+   y solo anima transform/opacity, así la mueve el compositor. Si hay intro,
+   empieza cuando el overlay se retira. ── */
+.hero-in {
+  animation: hero-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+.hero-letter {
+  animation-name: hero-letter;
+}
+.hero-fade {
+  animation-name: hero-fade;
+  animation-duration: 1s;
+}
+.hero-slide {
+  animation-name: hero-slide;
+  animation-duration: 1s;
+}
+html[data-intro='play'][data-3d='off'] .hero-in {
+  animation-delay: calc(var(--delay, 0s) + 0.65s);
+}
+/* Con 3D, el titular espera a la explosión de la intro (data-hero="in").
+   El párrafo (LCP) no espera: solo sube. */
+html[data-3d='full']:not([data-hero='in']) .hero-in:not(.hero-slide),
+html[data-3d='lite']:not([data-hero='in']) .hero-in:not(.hero-slide) {
+  animation-play-state: paused;
+}
+
+/* Sobre la escena 3D, sombra suave en el titular del hero para que siempre se lea */
+html[data-3d='full'] #inicio h1,
+html[data-3d='lite'] #inicio h1,
+html[data-3d='full'] #inicio p,
+html[data-3d='lite'] #inicio p {
+  text-shadow: 0 2px 28px rgba(6, 6, 11, 0.9);
+}
+html[data-3d='full'] #inicio .text-gradient-animate,
+html[data-3d='lite'] #inicio .text-gradient-animate {
+  text-shadow: none;
+  filter: drop-shadow(0 2px 22px rgba(6, 6, 11, 0.9));
+}
+
+/* ── Servicios: recorrido 3D o rejilla HTML según data-3d (decidido antes de pintar) ── */
+html[data-3d='full'] .services-grid,
+html[data-3d='lite'] .services-grid {
+  display: none;
+}
+html:not([data-3d='full']):not([data-3d='lite']) .services-3d {
+  display: none;
+}
+.hero-bob {
+  animation: hero-bob 1.8s ease-in-out infinite;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes hero-letter {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+}
+@keyframes hero-slide {
+  from {
+    transform: translateY(16px);
+  }
+}
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes hero-bob {
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* ── Hero: viñeta radial sobre el canvas ── */
+.hero-vignette {
+  background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 45%, rgba(6, 6, 11, 0.75) 100%);
+}
+
+/* ── Intro (preloader) ── */
+html[data-intro='skip'] .preloader {
+  display: none !important;
+}
+.preloader-logo {
+  animation: vx-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+@keyframes vx-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Marquee wrapper ── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+.marquee-paused:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ───────────────────────────────────────────────────────────
+   ACCESIBILIDAD: prefers-reduced-motion
+   ─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain,
+  .marquee-track {
+    animation: none !important;
+  }
+  .reveal-hidden {
+    opacity: 1 !important;
+  }
+  .card-fx:hover,
+  .card-fx:focus-visible {
+    --s: 1;
+    transform: none !important;
+  }
+  .hero-in {
+    animation-delay: 0s !important;
+  }
+}
+
+/* Foco visible accesible */
+:focus-visible {
+  outline: 2px solid var(--brand-cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   VISAX NFC
+   ─────────────────────────────────────────────────────────── */
+/* Fotos del hero flotando (versión sin 3D) */
+.hero-float {
+  animation: nfc-float 6s ease-in-out infinite;
+}
+.hero-float-slow {
+  animation: nfc-float 8s ease-in-out -2s infinite;
+}
+@keyframes nfc-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -12px;
+  }
+}
+
+/* Deslizadores de la calculadora */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-cyan), var(--brand-violet)) 0 / var(--pct, 50%) 100% no-repeat,
+    rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f6f7fb;
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.35);
+}
+.range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  background: #f6f7fb;
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-float,
+  .hero-float-slow {
+    animation: none;
+  }
+}
