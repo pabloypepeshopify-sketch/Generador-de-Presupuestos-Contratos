@@ -37,7 +37,7 @@ export const site = {
     freeFrom: 5000,
     zone: 'Península y Baleares',
     eta: '24–72 h',
-    prep: '1–2 días laborables', // preparación y programación antes de enviar
+    prep: '3–5 días laborables', // preparación y programación antes de enviar
   },
 
   // Opiniones de clientes: la sección aparece sola en cuanto haya alguna.
