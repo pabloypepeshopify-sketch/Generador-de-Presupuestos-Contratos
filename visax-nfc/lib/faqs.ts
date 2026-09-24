@@ -35,6 +35,10 @@ export const faqs = [
     a: 'Sí. Al pagar puedes añadir el NIF/CIF de tu empresa y te enviamos la factura.',
   },
   {
+    q: '¿Puedo devolverlo?',
+    a: 'Sí. Tienes 14 días desde que lo recibes para devolverlo sin usar. Avísanos y te devolvemos el importe, envío original incluido; el envío de la devolución corre de tu cuenta.',
+  },
+  {
     q: '¿Y si llega mal o no funciona?',
     a: 'Lo probamos antes de enviarlo. Si aun así llega dañado o no funciona, escríbenos y lo solucionamos; además tienes la garantía legal de conformidad.',
   },

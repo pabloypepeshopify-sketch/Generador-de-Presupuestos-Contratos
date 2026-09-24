@@ -45,11 +45,38 @@ export default function Condiciones() {
 
       <h2>Desistimiento y devoluciones</h2>
       <p>
-        Si compras como consumidor, dispones de 14 días naturales desde la recepción para desistir de la compra, salvo en
-        los productos confeccionados conforme a tus especificaciones o claramente personalizados (art. 103 c del Real
-        Decreto Legislativo 1/2007). Escríbenos a <a href={`mailto:${site.email}`}>{site.email}</a> y te indicamos cómo
-        devolverlo. El reembolso se hace por el mismo medio de pago en un máximo de 14 días desde que recibimos el producto.
+        Tienes <strong>14 días naturales</strong> desde que recibes el pedido para devolverlo sin dar explicaciones, seas
+        particular o negocio.
       </p>
+      <ul>
+        <li>
+          Avísanos dentro de ese plazo por email a <a href={`mailto:${site.email}`}>{site.email}</a>, por WhatsApp o con
+          el formulario de abajo, y te indicamos dónde enviarlo.
+        </li>
+        <li>
+          Envíanoslo en los 14 días siguientes a tu aviso, <strong>sin usar</strong>, en buen estado y a ser posible en su
+          embalaje. Si el producto se ha usado o dañado más allá de lo necesario para comprobarlo, podremos descontar esa
+          pérdida de valor.
+        </li>
+        <li>Los gastos de envío de la devolución corren de tu cuenta.</li>
+        <li>
+          Te devolvemos el importe pagado, incluido el envío original, por el mismo medio de pago y en un máximo de 14 días
+          desde tu aviso. Podemos esperar a recibir el producto, o a que nos mandes el justificante de envío, antes de
+          hacer el reembolso.
+        </li>
+      </ul>
+
+      <h2>Formulario de desistimiento</h2>
+      <p>Si quieres, copia este texto y envíanoslo a {site.email}:</p>
+      <blockquote className="rounded-2xl border border-white/10 p-5 text-sm">
+        A la atención de {holder}, {address}, {site.email}:
+        <br />
+        Por la presente le comunico que desisto de mi contrato de venta del siguiente bien: [producto y cantidad].
+        <br />
+        Pedido el / recibido el: [fechas]. Nombre: [tu nombre]. Dirección: [tu dirección].
+        <br />
+        Fecha y firma (solo si lo envías en papel).
+      </blockquote>
 
       <h2>Garantía</h2>
       <p>
