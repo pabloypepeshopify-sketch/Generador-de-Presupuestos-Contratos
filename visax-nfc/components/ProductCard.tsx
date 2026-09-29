@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef, type PointerEvent } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Check, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import { TIERS, eur, unitPrice } from '@/lib/pricing';
 import { useCart } from '@/components/cart/CartProvider';
+import { ProductArt } from '@/components/ProductArt';
 
 const MAX_TILT = 5;
 
@@ -51,12 +51,10 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
           aria-label={`Ver ${product.name}`}
         >
           <div className="relative h-[82%] w-[60%]" style={{ transform: 'translateZ(40px)' }}>
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
+            <ProductArt
+              product={product}
               sizes="(min-width: 1024px) 320px, 60vw"
-              className="object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.6)]"
+              className="drop-shadow-[0_24px_40px_rgba(0,0,0,0.6)]"
             />
           </div>
         </Link>

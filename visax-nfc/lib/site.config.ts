@@ -12,7 +12,7 @@ export const site = {
   name: 'VISAX NFC',
   tagline: 'Más reseñas y menos papel, con un solo toque',
   description:
-    'Expositores NFC de reseñas de Google y tarjetas NFC para ver la carta con un toque. Te los enviamos programados con tu enlace, listos para usar.',
+    'NFC de reseñas de Google, carta digital, pedido en mesa, llamar al camarero, redes sociales y WiFi con un toque. Te los enviamos programados, listos para usar.',
 
   url: 'https://visax-nfc.vercel.app',
   // Web de automatizaciones con IA (enlace del menú "Automatizaciones IA")

@@ -1,4 +1,4 @@
-import { productBySlug } from './products';
+import { LINK_FIELDS, productBySlug, setupLaterNames } from './products';
 import { discountFor, eur, lineTotal, shippingFor, unitPrice } from './pricing';
 import { site } from './site.config';
 
@@ -26,8 +26,8 @@ export function cartTotals(items: CartItem[]) {
 /** Pedido por WhatsApp (mientras el pago con tarjeta no esté activo). */
 export function whatsappOrderUrl(items: CartItem[]) {
   const { lines, subtotal, shipping, total } = cartTotals(items);
-  const needsReview = lines.some((l) => l.product.linkKind === 'review');
-  const needsMenu = lines.some((l) => l.product.linkKind === 'menu');
+  const kinds = new Set(lines.map((l) => l.product.linkKind));
+  const later = setupLaterNames(lines.map((l) => l.product));
   const text = [
     'Hola, quiero hacer este pedido en VISAX NFC:',
     ...lines.map(
@@ -39,8 +39,8 @@ export function whatsappOrderUrl(items: CartItem[]) {
     `Total: ${eur(total)}`,
     '',
     'Nombre del negocio: ',
-    ...(needsReview ? ['Enlace de reseñas de Google (si no lo tengo, buscadlo vosotros): '] : []),
-    ...(needsMenu ? ['Enlace de mi carta: '] : []),
+    ...[...kinds].flatMap((k) => (LINK_FIELDS[k] ? [`${LINK_FIELDS[k]!.ask}: `] : [])),
+    ...(later ? [`${later}: os paso los datos para configurarlo`] : []),
     'Dirección de envío: ',
   ].join('\n');
   return `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(text)}`;

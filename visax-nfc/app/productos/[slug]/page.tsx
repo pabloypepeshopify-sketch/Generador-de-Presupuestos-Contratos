@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, PackageCheck, Truck } from 'lucide-react';
+import { ArrowLeft, Check, Info, MessageCircle, PackageCheck, Truck } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductGallery } from '@/components/ProductGallery';
@@ -19,9 +19,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   if (!p) return {};
   return {
     title: p.name,
-    description: `${p.tagline} ${eur(p.price)} IVA incluido. Te llega programado con tu enlace.`,
+    description: `${p.tagline} ${eur(p.price)} IVA incluido. Te llega programado y listo para usar.`,
     alternates: { canonical: `${site.url}/productos/${p.slug}` },
-    openGraph: { images: [{ url: p.image }] },
+    ...(p.image && { openGraph: { images: [{ url: p.image }] } }),
   };
 }
 
@@ -34,7 +34,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     '@type': 'Product',
     name: p.name,
     description: p.description,
-    image: `${site.url}${p.image}`,
+    ...(p.image && { image: `${site.url}${p.image}` }),
     brand: { '@type': 'Brand', name: site.name },
     offers: {
       '@type': 'Offer',
@@ -61,6 +61,24 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             <div className="mt-8">
               <ProductBuy product={p} />
             </div>
+            {p.notice && (
+              <div className="mt-8 rounded-2xl border border-brand-violet/40 bg-brand-gradient-soft p-5 text-sm">
+                <p className="flex items-center gap-2 font-semibold text-white">
+                  <Info className="h-4 w-4 shrink-0 text-brand-cyan" /> {p.notice.title}
+                </p>
+                <p className="mt-2 leading-relaxed text-ink-soft">{p.notice.text}</p>
+                {p.notice.quote && (
+                  <a
+                    href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(p.notice.quote)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand-violet/40 px-5 py-2.5 font-semibold text-white transition hover:border-brand-violet"
+                  >
+                    <MessageCircle className="h-4 w-4" /> Pedir presupuesto
+                  </a>
+                )}
+              </div>
+            )}
             <ul className="mt-8 space-y-2.5">
               {p.bullets.map((b) => (
                 <li key={b} className="flex gap-3 text-sm">

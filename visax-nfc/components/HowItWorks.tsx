@@ -17,7 +17,7 @@ const steps = [
   {
     icon: Smartphone,
     title: 'Tus clientes tocan',
-    text: 'Acercan el móvil y se abre tu página de reseñas o tu carta. Sin apps, sin buscarte en Google, sin enfocar un QR.',
+    text: 'Acercan el móvil y al momento dejan su reseña, ven la carta, piden, te siguen, llaman al camarero o se conectan al WiFi. Sin apps y sin enfocar un QR.',
   },
 ];
 

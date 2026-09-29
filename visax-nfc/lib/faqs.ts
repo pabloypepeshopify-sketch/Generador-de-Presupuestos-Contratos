@@ -5,7 +5,7 @@ import { site } from './site.config';
 export const faqs = [
   {
     q: '¿Funciona con iPhone?',
-    a: 'Sí. Los iPhone a partir del XS leen NFC sin abrir ninguna app: basta con acercar la parte de arriba del móvil. En Android funciona con el NFC activado, que en la mayoría viene activado de serie.',
+    a: 'Sí. Los iPhone a partir del XS leen NFC sin abrir ninguna app: basta con acercar la parte de arriba del móvil. En Android funciona con el NFC activado, que en la mayoría viene activado de serie. Solo el NFC de WiFi cambia en iPhone: Apple no deja conectarse a un WiFi desde un NFC, así que se abre una página con tu red y un botón para copiar la contraseña.',
   },
   {
     q: '¿Necesita batería, wifi o alguna app?',
@@ -13,7 +13,7 @@ export const faqs = [
   },
   {
     q: '¿Qué enlace grabáis en el NFC?',
-    a: 'El que nos digas al pagar: tu página de reseñas de Google en el expositor y la dirección de tu carta digital en la tarjeta. Si no lo tienes a mano, déjalo en blanco: lo buscamos nosotros y te lo confirmamos antes de enviar.',
+    a: 'El que nos digas al pagar: tu página de reseñas de Google en el expositor, la dirección de tu carta digital en la tarjeta y tus redes sociales en el NFC de redes. Si no lo tienes a mano, déjalo en blanco: lo buscamos nosotros y te lo confirmamos antes de enviar. Para pedido en mesa, llamar al camarero y WiFi te escribimos después del pago para configurarlo contigo.',
   },
   {
     q: 'Si cambio mi carta, ¿tengo que comprar otra tarjeta?',

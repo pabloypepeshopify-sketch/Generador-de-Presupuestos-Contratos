@@ -20,7 +20,7 @@ export function Products() {
           }
           intro={`Precios con IVA incluido. Descuento automático por cantidad: ${tiers}. Envío ${eur(site.shipping.cost)}, gratis desde ${eur(site.shipping.freeFrom)}.`}
         />
-        <div className="mx-auto mt-14 grid max-w-5xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-14 grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
           {products.map((p, i) => (
             <ProductCard key={p.slug} product={p} index={i} />
           ))}

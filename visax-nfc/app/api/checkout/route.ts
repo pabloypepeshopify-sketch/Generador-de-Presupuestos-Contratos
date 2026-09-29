@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { productBySlug } from '@/lib/products';
+import { LINK_FIELDS, productBySlug, setupLaterNames } from '@/lib/products';
 import { MAX_QTY, discountFor, shippingFor, unitPrice } from '@/lib/pricing';
 import { site } from '@/lib/site.config';
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         product_data: {
           name: product!.name,
           description: off ? `Descuento por cantidad −${Math.round(off * 100)} % aplicado` : 'Programado con tu enlace',
-          images: [`${origin}${product!.image}`],
+          ...(product!.image && { images: [`${origin}${product!.image}`] }),
         },
       },
     };
@@ -54,22 +54,18 @@ export async function POST(req: Request) {
   const customFields: Stripe.Checkout.SessionCreateParams.CustomField[] = [
     { key: 'negocio', type: 'text', label: { type: 'custom', custom: 'Nombre de tu negocio' }, text: { maximum_length: 120 } },
   ];
-  if (kinds.has('review'))
+  // Stripe admite 3 campos: si hacen falta más enlaces, se piden todos en uno.
+  const links = [...kinds].flatMap((k) => LINK_FIELDS[k] ?? []);
+  const linkFields = links.length > 2 ? [{ key: 'enlaces', label: 'Enlaces a grabar: reseñas, carta, redes (opcional)' }] : links;
+  for (const f of linkFields)
     customFields.push({
-      key: 'enlace_resenas',
+      key: f.key,
       type: 'text',
       optional: true,
-      label: { type: 'custom', custom: 'Enlace de reseñas de Google (opcional)' },
+      label: { type: 'custom', custom: f.label },
       text: { maximum_length: 255 },
     });
-  if (kinds.has('menu'))
-    customFields.push({
-      key: 'enlace_carta',
-      type: 'text',
-      optional: true,
-      label: { type: 'custom', custom: 'Enlace de tu carta digital (opcional)' },
-      text: { maximum_length: 255 },
-    });
+  const later = setupLaterNames(items.map((i) => i.product!));
 
   try {
     const stripe = new Stripe(key);
@@ -98,8 +94,12 @@ export async function POST(req: Request) {
       custom_fields: customFields,
       custom_text: {
         submit: {
-          message:
-            '¿No sabes tu enlace de reseñas o de la carta? Déjalo en blanco: lo buscamos nosotros y te escribimos antes de enviar.',
+          message: [
+            links.length && '¿No tienes algún enlace a mano? Déjalo en blanco: lo buscamos nosotros y te escribimos antes de enviar.',
+            later && `Para ${later} te escribimos después del pago para configurarlo contigo.`,
+          ]
+            .filter(Boolean)
+            .join(' '),
         },
       },
       metadata: { pedido: items.map((i) => `${i.qty}x ${i.product!.slug}`).join(', ') },

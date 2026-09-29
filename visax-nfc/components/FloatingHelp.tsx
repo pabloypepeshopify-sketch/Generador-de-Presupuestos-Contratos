@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { site } from '@/lib/site.config';
@@ -8,6 +9,7 @@ import { site } from '@/lib/site.config';
 /** Botón flotante de WhatsApp + aviso "¿dudas? te ayudamos a elegir" (una vez por sesión). */
 export function FloatingHelp() {
   const [hint, setHint] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     let seen = false;
@@ -29,6 +31,9 @@ export function FloatingHelp() {
       /* ignorar */
     }
   };
+
+  // En /wifi la ven los clientes del local, no los de VISAX.
+  if (pathname === '/wifi') return null;
 
   const href = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent('Hola, tengo una duda sobre los productos NFC de VISAX.')}`;
 

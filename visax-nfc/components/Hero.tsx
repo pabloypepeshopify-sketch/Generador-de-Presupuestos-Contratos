@@ -29,8 +29,8 @@ export function Hero() {
             </span>
           </h1>
           <p className="hero-in hero-slide mt-7 max-w-lg text-base text-ink-soft sm:text-lg">
-            Expositores NFC de reseñas de Google y tarjetas para ver la carta. Los pones en la mesa y funcionan: sin app,
-            sin batería y sin QR que enfocar.
+            NFC para reseñas de Google, carta, pedido en mesa, llamar al camarero, redes sociales y WiFi. Los pones en la
+            mesa y funcionan: sin app, sin batería y sin QR que enfocar.
           </p>
           <div style={delay(0.45)} className="hero-in mt-9 flex flex-col gap-3 sm:flex-row">
             <MagneticButton href="#productos" variant="primary" cursorLabel="Ver">

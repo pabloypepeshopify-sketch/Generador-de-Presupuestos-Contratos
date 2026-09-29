@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Lock, MessageCircle, Minus, Plus, ShoppingBag, Trash2, Truck, X } from 'lucide-react';
+import { ProductArt } from '@/components/ProductArt';
 import { useCart } from './CartProvider';
 import { cartTotals, whatsappOrderUrl } from '@/lib/order';
 import { TIERS, eur, unitPrice } from '@/lib/pricing';
@@ -113,7 +113,7 @@ export function CartDrawer() {
                       <li key={l.product.slug} className="rounded-2xl border border-ink-line bg-bg/60 p-4">
                         <div className="flex gap-4">
                           <div className="relative h-20 w-16 shrink-0">
-                            <Image src={l.product.image} alt="" fill sizes="64px" className="object-contain" />
+                            <ProductArt product={l.product} sizes="64px" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium leading-snug">{l.product.name}</p>
