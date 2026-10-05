@@ -119,7 +119,7 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-ink-line py-8 text-xs text-ink-faint sm:flex-row">
           <p>
-            © {year} {site.legalName}. Todos los derechos reservados.
+            © <span suppressHydrationWarning>{year}</span> {site.legalName}. Todos los derechos reservados.
           </p>
           <div className="flex gap-6">
             <Link href="/aviso-legal" className="transition hover:text-white">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check,
@@ -88,6 +88,12 @@ const inputClass =
 /* ───────────────────────────── Componente ───────────────────────────── */
 
 export function BookingForm() {
+  // El HTML se genera al compilar: el calendario (mes, días pasados) depende de
+  // la fecha de hoy y solo se pinta en el navegador. Si no, al cambiar de mes
+  // React no casa el HTML, repinta toda la página y se pierde la experiencia 3D.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -298,18 +304,19 @@ export function BookingForm() {
           <button
             type="button"
             onClick={() => canGoPrev && setView(new Date(year, month - 1, 1))}
-            disabled={!canGoPrev}
+            disabled={!mounted || !canGoPrev}
             aria-label="Mes anterior"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-soft transition enabled:hover:text-white disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <span className="font-display text-lg capitalize">
-            {MONTHS[month]} {year}
+            {mounted ? `${MONTHS[month]} ${year}` : '\u00A0'}
           </span>
           <button
             type="button"
             onClick={() => setView(new Date(year, month + 1, 1))}
+            disabled={!mounted}
             aria-label="Mes siguiente"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-soft transition hover:text-white"
           >
@@ -326,7 +333,9 @@ export function BookingForm() {
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {cells.map((cell, i) => {
+          {!mounted &&
+            Array.from({ length: 35 }, (_, i) => <span key={i} className="aspect-square rounded-lg bg-white/[0.03]" />)}
+          {mounted && cells.map((cell, i) => {
             if (!cell) return <span key={`e${i}`} />;
             const isSelected = cell.fecha === selectedDate;
             return (
