@@ -12,8 +12,8 @@ export const site = {
   description:
     'VISAX AI diseña automatizaciones a medida con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, cobros, facturas y contratos. Menos tareas manuales, más negocio.',
 
-  // URL pública (cámbiala por tu dominio real al desplegar en Vercel)
-  url: 'https://visax.ai',
+  // URL pública (dominio propio conectado en Vercel)
+  url: 'https://visaxai.es',
 
   // ── CONTACTO ────────────────────────────────────────────────
   phone: '656 999 241',

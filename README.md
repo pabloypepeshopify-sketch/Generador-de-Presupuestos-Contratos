@@ -85,7 +85,7 @@ phoneRaw: '+34656999241',
 email: 'contactovisaxai@gmail.com',
 whatsapp: '34656999241',            // vacío '' -> oculta el botón de WhatsApp
 makeWebhook: 'https://hook.eu1.make.com/i3sffiqtduc3jhr93kxvvi2j04oejptg',
-url: 'https://visax.ai',            // cambia por tu dominio real
+url: 'https://visaxai.es',          // dominio propio
 social: { instagram: '', linkedin: '', youtube: '', x: '', tiktok: '' },
 ```
 

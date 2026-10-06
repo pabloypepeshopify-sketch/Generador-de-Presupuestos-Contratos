@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["cdg1"]
+  "regions": ["cdg1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.visaxai.es" }],
+      "destination": "https://visaxai.es/:path*",
+      "permanent": true
+    }
+  ]
 }
