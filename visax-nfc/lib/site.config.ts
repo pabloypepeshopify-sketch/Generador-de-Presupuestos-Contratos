@@ -16,7 +16,7 @@ export const site = {
 
   url: 'https://visax-nfc.vercel.app',
   // Web de automatizaciones con IA (enlace del menú "Automatizaciones IA")
-  aiUrl: 'https://visax-ai-v2.vercel.app',
+  aiUrl: 'https://visaxai.es',
 
   // ── CONTACTO ────────────────────────────────────────────────
   phone: '656 999 241',
