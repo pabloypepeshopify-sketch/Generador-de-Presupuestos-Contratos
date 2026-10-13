@@ -1,0 +1,14 @@
+{
+  "name": "carta-nfc-tests",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas locales: Postgres + servidor que imita la API RPC de Supabase + Playwright",
+  "scripts": {
+    "db": "bash ./db-local.sh",
+    "dev": "node ./servidor-local.mjs",
+    "e2e": "node ./e2e.mjs"
+  },
+  "devDependencies": {
+    "pg": "8.13.1"
+  }
+}

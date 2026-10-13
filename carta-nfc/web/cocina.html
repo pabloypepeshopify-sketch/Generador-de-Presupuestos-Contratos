@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1f1a14">
+  <title>Comandas</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/cocina.css">
+</head>
+<body>
+  <div id="login" class="center-page" hidden>
+    <form class="card" id="login-form">
+      <div class="big" aria-hidden="true">👨‍🍳</div>
+      <h1>Panel de comandas</h1>
+      <p class="muted small">Introduce el identificador del restaurante y la clave de cocina.</p>
+      <label class="field" style="text-align:left"><span>Restaurante</span><input type="text" id="login-slug" autocomplete="username" autocapitalize="none" required placeholder="bar-pepe"></label>
+      <label class="field" style="text-align:left"><span>Clave de cocina</span><input type="password" id="login-clave" autocomplete="current-password" required></label>
+      <button class="btn primary block" type="submit">Entrar</button>
+      <p id="login-error" class="small" style="color:var(--danger)" role="alert"></p>
+    </form>
+  </div>
+
+  <div id="panel" hidden>
+    <header class="k-top">
+      <div class="k-brand">
+        <span id="k-conn" class="dot" title="Conexión"></span>
+        <strong id="k-nombre"></strong>
+        <span id="k-reloj" class="muted num"></span>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-vista="comandas" aria-selected="true">Comandas <span id="n-comandas" class="badge"></span></button>
+        <button class="tab" role="tab" data-vista="mesas" aria-selected="false">Mesas <span id="n-mesas" class="badge"></span></button>
+      </div>
+      <div class="k-actions">
+        <button id="k-sonido" class="btn sm" type="button">🔕 Activar sonido</button>
+        <button id="k-pausa" class="btn sm" type="button"></button>
+        <a id="k-admin" class="btn sm" href="/admin.html" hidden>⚙️ Carta</a>
+        <button id="k-salir" class="btn sm ghost" type="button">Salir</button>
+      </div>
+    </header>
+
+    <section id="k-avisos" class="avisos" aria-live="assertive"></section>
+
+    <main id="v-comandas" class="kanban">
+      <section class="col"><h2>Nuevos <span class="count" id="c-nuevo"></span></h2><div class="list" id="l-nuevo"></div></section>
+      <section class="col"><h2>En preparación <span class="count" id="c-preparando"></span></h2><div class="list" id="l-preparando"></div></section>
+      <section class="col"><h2>Listos para servir <span class="count" id="c-listo"></span></h2><div class="list" id="l-listo"></div></section>
+    </main>
+
+    <main id="v-mesas" class="mesas" hidden></main>
+  </div>
+
+  <iframe id="print-frame" title="Impresión" aria-hidden="true" tabindex="-1"></iframe>
+
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/cocina.js"></script>
+</body>
+</html>

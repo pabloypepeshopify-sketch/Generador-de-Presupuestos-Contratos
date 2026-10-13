@@ -1,5 +1,9 @@
 # Generador Automático de Presupuestos / Contratos (Make.com + OpenAI)
 
+> 🆕 **Nuevo producto en este repo: [`carta-nfc/`](carta-nfc/README.md)** — carta digital por NFC
+> con **pedidos desde la mesa** directos al panel de cocina (Supabase + Netlify, desplegado en
+> https://carta-nfc-pedidos.netlify.app).
+
 Producto de automatización para **empresas de reformas, constructoras y despachos de abogados en
 España**. Convierte los datos de una visita/consulta (formulario o WhatsApp) en un
 **presupuesto o contrato en PDF**, redactado por IA a partir de una plantilla, con **aprobación

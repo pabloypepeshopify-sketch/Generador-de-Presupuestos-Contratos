@@ -1,0 +1,15 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+/admin.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+/cocina.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+/alta.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+/assets/*
+  Cache-Control: public, max-age=300

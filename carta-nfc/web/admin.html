@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Gestión de la carta</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body>
+  <div id="login" class="center-page" hidden>
+    <form class="card" id="login-form">
+      <div style="font-size:44px" aria-hidden="true">⚙️</div>
+      <h1>Gestión de la carta</h1>
+      <p class="muted small">Identificador del restaurante y clave de administración.</p>
+      <label class="field" style="text-align:left"><span>Restaurante</span><input type="text" id="login-slug" autocapitalize="none" autocomplete="username" required></label>
+      <label class="field" style="text-align:left"><span>Clave de admin</span><input type="password" id="login-clave" autocomplete="current-password" required></label>
+      <button class="btn primary block" type="submit">Entrar</button>
+      <p id="login-error" class="small" style="color:var(--danger)" role="alert"></p>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+    <header class="a-top">
+      <div class="a-wrap a-head">
+        <div><h1 id="a-nombre"></h1><a id="a-ver" class="small" target="_blank" rel="noopener">Ver carta pública ↗</a></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a class="btn sm" href="/cocina.html" id="a-cocina">👨‍🍳 Comandas</a>
+          <button class="btn sm ghost" id="a-salir" type="button">Salir</button>
+        </div>
+      </div>
+      <div class="a-wrap"><div class="tabs" role="tablist">
+        <button class="tab" role="tab" type="button" data-tab="carta" aria-selected="true">Carta</button>
+        <button class="tab" role="tab" type="button" data-tab="mesas" aria-selected="false">Mesas y NFC</button>
+        <button class="tab" role="tab" type="button" data-tab="ajustes" aria-selected="false">Ajustes y claves</button>
+        <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">Hoy</button>
+      </div></div>
+    </header>
+
+    <main class="a-wrap">
+      <!-- CARTA -->
+      <section id="t-carta">
+        <div class="toolbar">
+          <button class="btn primary" id="nuevo-producto" type="button">＋ Producto</button>
+          <button class="btn" id="nueva-categoria" type="button">＋ Categoría</button>
+        </div>
+        <div id="carta-lista"></div>
+      </section>
+
+      <!-- MESAS -->
+      <section id="t-mesas" hidden>
+        <div class="card pad">
+          <h2>Crear mesas</h2>
+          <p class="muted small">Cada mesa tiene su enlace propio. Grábalo en su NFC: el pedido llega a cocina con el nombre de la mesa.</p>
+          <form id="form-mesas" class="fila">
+            <label class="field"><span>Nombre</span><input type="text" id="m-prefijo" value="Mesa" maxlength="30"></label>
+            <label class="field"><span>Desde</span><input type="number" id="m-desde" value="1" min="0" max="999"></label>
+            <label class="field"><span>Hasta</span><input type="number" id="m-hasta" value="10" min="0" max="999"></label>
+            <button class="btn primary" type="submit">Crear</button>
+          </form>
+        </div>
+        <div class="card pad">
+          <h2>NFC general del local</h2>
+          <p class="muted small">Para la barra, la entrada o el escaparate: abre la carta y el cliente elige su mesa (si lo permites en Ajustes).</p>
+          <div class="mesa-row" id="row-general"></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="imprimir-qrs" type="button">🖨 Imprimir QRs de las mesas</button>
+          <button class="btn" id="mesa-suelta" type="button">＋ Mesa suelta</button>
+          <span class="muted small" id="nfc-soporte"></span>
+        </div>
+        <div id="mesas-lista" class="card"></div>
+      </section>
+
+      <!-- AJUSTES -->
+      <section id="t-ajustes" hidden>
+        <form id="form-ajustes" class="card pad">
+          <h2>Restaurante</h2>
+          <label class="field"><span>Nombre</span><input type="text" id="aj-nombre" maxlength="80" required></label>
+          <label class="field"><span>Mensaje de bienvenida</span><textarea id="aj-mensaje" maxlength="280"></textarea></label>
+          <label class="field"><span>Color de la carta</span><input type="color" id="aj-color"></label>
+          <label class="check"><input type="checkbox" id="aj-abiertos"> Aceptar pedidos por el móvil</label>
+          <label class="check"><input type="checkbox" id="aj-libre"> Sin NFC de mesa, el cliente puede elegir su mesa de una lista</label>
+          <button class="btn primary" type="submit" style="margin-top:12px">Guardar</button>
+        </form>
+        <div class="card pad">
+          <h2>Panel de comandas (cocina / barra)</h2>
+          <p class="muted small">Genera una clave para la tablet de cocina. Al generar una nueva, la anterior deja de funcionar.</p>
+          <button class="btn" id="clave-cocina" type="button">🔑 Generar enlace de cocina</button>
+          <div id="clave-cocina-out"></div>
+        </div>
+        <div class="card pad">
+          <h2>Clave de administración</h2>
+          <p class="muted small">Cámbiala si crees que alguien más la conoce.</p>
+          <button class="btn danger" id="clave-admin" type="button">Cambiar clave de admin</button>
+          <div id="clave-admin-out"></div>
+        </div>
+      </section>
+
+      <!-- HOY -->
+      <section id="t-hoy" hidden>
+        <div class="kpis">
+          <div class="card pad"><div class="muted small">Pedidos hoy</div><div class="kpi num" id="hoy-pedidos"></div></div>
+          <div class="card pad"><div class="muted small">Pedido por móvil hoy</div><div class="kpi num" id="hoy-total"></div></div>
+        </div>
+        <div class="card pad"><h2>Lo más pedido hoy</h2><div id="hoy-top"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="dlg-producto" aria-labelledby="prod-titulo">
+    <form id="form-producto" method="dialog">
+      <div class="dlg-head"><h2 id="prod-titulo">Producto</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+      <div class="dlg-body">
+        <input type="hidden" id="p-id">
+        <label class="field"><span>Nombre</span><input type="text" id="p-nombre" maxlength="80" required></label>
+        <div class="fila">
+          <label class="field"><span>Precio (€)</span><input type="text" inputmode="decimal" id="p-precio" required placeholder="3,50"></label>
+          <label class="field"><span>Categoría</span><select id="p-categoria"></select></label>
+        </div>
+        <label class="field"><span>Descripción</span><textarea id="p-descripcion" maxlength="300"></textarea></label>
+        <fieldset class="alerg-set"><legend>Alérgenos</legend><div id="p-alergenos" class="alerg-grid"></div></fieldset>
+        <label class="field"><span>Foto (URL https, opcional)</span><input type="url" id="p-imagen" placeholder="https://…"></label>
+        <label class="check"><input type="checkbox" id="p-disponible" checked> Disponible (desmarcar = agotado)</label>
+      </div>
+      <div class="dlg-foot"><button class="btn primary" type="submit" id="p-guardar">Guardar</button><button class="btn" type="button" data-cerrar>Cancelar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-qr" aria-labelledby="qr-titulo">
+    <div class="dlg-head"><h2 id="qr-titulo"></h2><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="dlg-body" style="text-align:center">
+      <div id="qr-img" class="qr-box"></div>
+      <p class="small muted" id="qr-url" style="word-break:break-all"></p>
+    </div>
+    <div class="dlg-foot"><a class="btn" id="qr-descargar" download>⬇ Descargar QR</a><button class="btn" type="button" data-cerrar>Cerrar</button></div>
+  </dialog>
+
+  <dialog id="dlg-nfc" aria-labelledby="nfc-titulo">
+    <div class="dlg-head"><h2 id="nfc-titulo">Grabar NFC</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="dlg-body" id="nfc-body"></div>
+    <div class="dlg-foot"><button class="btn" type="button" data-cerrar>Cerrar</button></div>
+  </dialog>
+
+  <script src="/assets/vendor/qrcode.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+body { background: var(--bg); }
+.big { font-size: 44px; }
+.k-top {
+  position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.k-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+.k-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.dot.ok { background: var(--ok); }
+.dot.err { background: var(--danger); animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.badge { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-size: 12px; text-align: center; }
+.badge:empty { display: none; }
+#k-pausa.abiertos { color: var(--ok); }
+#k-pausa.pausados { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+.avisos { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 16px; }
+.avisos:not(:empty) { padding-top: 12px; }
+.aviso {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; font-weight: 700; font-size: 17px;
+  background: color-mix(in srgb, var(--warn) 18%, var(--surface)); border: 2px solid var(--warn); animation: pulse 1.6s ease-in-out infinite;
+}
+.aviso.cuenta { background: color-mix(in srgb, var(--info) 14%, var(--surface)); border-color: var(--info); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--warn) 25%, transparent); } }
+
+.kanban { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 14px 16px 40px; align-items: start; }
+@media (max-width: 900px) { .kanban { grid-template-columns: 1fr; } }
+.col { background: var(--surface-2); border-radius: 16px; padding: 10px; min-height: 200px; }
+.col > h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 4px 6px 10px; display: flex; gap: 8px; align-items: center; }
+.count { font-variant-numeric: tabular-nums; }
+.list { display: grid; gap: 10px; }
+.vacio { color: var(--muted); text-align: center; padding: 24px 8px; font-size: 14px; }
+
+.ticket { background: var(--surface); border-radius: 14px; border: 1px solid var(--line); border-left: 6px solid var(--muted); padding: 12px 14px; box-shadow: var(--shadow); }
+.ticket.nuevo { border-left-color: var(--warn); }
+.ticket.preparando { border-left-color: var(--info); }
+.ticket.listo { border-left-color: var(--ok); }
+.ticket.recien { animation: llega 1.2s ease-out 3; }
+@keyframes llega { 0% { background: color-mix(in srgb, var(--warn) 30%, var(--surface)); } 100% { background: var(--surface); } }
+.t-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.t-mesa { font-size: 22px; font-weight: 800; }
+.t-num { font-weight: 700; color: var(--muted); }
+.t-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.t-meta .tarde { color: var(--warn); font-weight: 700; }
+.t-meta .muy-tarde { color: var(--danger); font-weight: 700; }
+.t-lineas { list-style: none; padding: 0; margin: 10px 0 0; font-size: 17px; }
+.t-lineas li { padding: 4px 0; border-top: 1px dashed var(--line); }
+.t-lineas li:first-child { border-top: 0; }
+.t-lineas b { display: inline-block; min-width: 34px; }
+.t-lineas em { display: block; margin-left: 34px; font-size: 14px; color: var(--danger); font-style: normal; font-weight: 600; }
+.t-nota { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--warn) 12%, var(--surface)); font-weight: 600; font-size: 14px; }
+.t-foot { display: flex; gap: 6px; margin-top: 12px; align-items: center; }
+.t-foot .btn.primary { flex: 1; min-height: 48px; font-size: 16px; }
+
+.mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 14px 16px 40px; align-items: start; }
+.mesa-card { padding: 14px; }
+.mesa-card h3 { font-size: 20px; display: flex; justify-content: space-between; align-items: baseline; }
+.mesa-card ul { list-style: none; padding: 0; margin: 10px 0; font-size: 15px; }
+.mesa-card li { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
+.mesa-card .estados { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.mesa-card.pide-cuenta { border: 2px solid var(--info); }
+
+#print-frame { position: absolute; width: 0; height: 0; border: 0; visibility: hidden; }
+
+.nl-badge .kanban, .nl-badge .mesas { padding-bottom: 100px; }
