@@ -34,7 +34,7 @@
         <button class="tab" role="tab" type="button" data-tab="carta" aria-selected="true">Carta</button>
         <button class="tab" role="tab" type="button" data-tab="mesas" aria-selected="false">Mesas y NFC</button>
         <button class="tab" role="tab" type="button" data-tab="ajustes" aria-selected="false">Ajustes y claves</button>
-        <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">Hoy</button>
+        <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">📊 Informes</button>
         <button class="tab" role="tab" type="button" data-tab="facturacion" aria-selected="false">Facturación</button>
       </div></div>
     </header>
@@ -152,11 +152,7 @@
       </section>
 
       <section id="t-hoy" hidden>
-        <div class="kpis">
-          <div class="card pad"><div class="muted small">Pedidos hoy</div><div class="kpi num" id="hoy-pedidos"></div></div>
-          <div class="card pad"><div class="muted small">Pedido por móvil hoy</div><div class="kpi num" id="hoy-total"></div></div>
-        </div>
-        <div class="card pad"><h2>Lo más pedido hoy</h2><div id="hoy-top"></div></div>
+        <div id="informes"></div>
       </section>
     </main>
   </div>
@@ -199,6 +195,7 @@
   <script src="/assets/config.js"></script>
   <script src="/assets/api.js"></script>
   <script src="/assets/tickets.js"></script>
+  <script src="/assets/informes.js"></script>
   <script src="/assets/admin.js"></script>
 </body>
 </html>

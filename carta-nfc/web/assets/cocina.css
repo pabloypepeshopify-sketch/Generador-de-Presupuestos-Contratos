@@ -97,6 +97,7 @@ body { background: var(--bg); }
   #k-reloj { display: none; }
   .k-actions { grid-column: 2; grid-row: 1; flex-wrap: nowrap; }
   .k-top .tabs { grid-column: 1 / -1; grid-row: 2; }
+  .k-top .tab { padding: 7px 11px; font-size: 14px; }
   .k-actions .lbl { display: none; }
   .kanban, .mesas, .tickets-v { padding: 10px 10px 40px; }
   .tickets-v .card.pad { padding: 12px; }

@@ -193,6 +193,30 @@ Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase
 - NIF del productor del SIF para la declaración responsable (`fiscal.sistema`);
 - el límite de 3.000 € de la simplificada es configurable.
 
+## Informes de ventas (tipo TPV)
+
+Pestaña **📊 Informes** en Gestión. También sale en la tablet en los bares con facturación, o si se entra con la clave del dueño. Datos: `supabase/005_informes.sql` + `web/assets/informes.js`.
+
+- **Periodos:** Hoy, Ayer, 7 días, 30 días, Este mes, Mes pasado, Este año o fechas a mano.
+  - Todo se compara con el periodo anterior de la misma duración (▲/▼ %).
+- **Cifras clave:** ventas (IVA incluido), pedidos, ticket medio, productos vendidos y mesas con consumo.
+  - Si el bar factura: lo cobrado, el nº de tickets y el ticket medio por cuenta.
+- **Gráficas** (pasa el dedo o el ratón por una barra para ver su valor):
+  - ventas por hora, con la hora punta;
+  - por día, o por mes si el periodo es largo;
+  - por día de la semana.
+- **Lo más vendido:** ranking por importe o por unidades, con buscador ("¿cuántas croquetas he vendido este mes?") y % sobre ventas.
+- **Por categoría**, **mesas que más generan** y **platos sin ventas**: candidatos a cambiar o quitar de la carta.
+- **Cobros e IVA** (si factura): por forma de pago, propinas, primer y último ticket, y la base y el IVA por tipo (lo del 303).
+- **Servicio:**
+  - tiempo medio de cocina (hasta "¡Listo!"), hasta servir y de respuesta a avisos;
+  - llamadas al camarero, cuentas pedidas y cancelaciones.
+  - Los tiempos salen de `carta.pedido_eventos`: un trigger apunta cada cambio de estado. Si fallara, nunca bloquea el pedido.
+- **🖨 Cierre Z / informe** en papel de 80 mm. En el móvil se abre en su propia página para imprimir o guardar en PDF.
+- **⬇ Excel:** resumen, productos, categorías, días, horas y mesas.
+
+Las ventas salen de los pedidos que entran por el sistema; lo que se cobra en barra sin pasar por él no aparece.
+
 ## Estructura
 
 ```
@@ -201,9 +225,10 @@ carta-nfc/
   supabase/002_demo.sql      restaurante demo "Bar La Demo" (re-ejecutable)
   supabase/003_fiscal.sql    facturación Fase 1: schema fiscal + funciones fiscal_*
   supabase/004_fiscal_tickets.sql  listado completo de tickets (fiscal_documentos)
+  supabase/005_informes.sql  informes de ventas (carta_informe) + registro de eventos de pedidos
   web/                       sitio estático publicado en Netlify (sin build)
     index.html cocina.html admin.html alta.html ticket.html
-    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js vendor/qrcode.js (MIT)
+    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
@@ -219,6 +244,8 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    sql-tests-informes.sql   informes: ventas, comparación, tiempos, productos, cobros, aislamiento
+    e2e-informes.mjs         informes en gestión, tablet y móvil; cierre Z y Excel
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
   docs/brief-facturacion.md  plan del módulo de tickets, facturación, contabilidad e impuestos
@@ -229,7 +256,7 @@ carta-nfc/
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
   ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
-  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql` (y
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -250,12 +277,14 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test (001 + 003 + 004)
+bash db-local.sh                      # crea la BD carta_test (001 + 003 + 004 + 005)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-informes.sql
+node e2e-informes.mjs                 # → E2E INFORMES OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
 # widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):

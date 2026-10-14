@@ -19,6 +19,7 @@
   let fiscal = { activo: false };   // facturación del restaurante (fiscal_config)
   let cobro = null;                 // estado de la ventana Cobrar
   let lista = null;                 // pestaña Tickets (CartaTickets)
+  let informes = null;              // pestaña Informes (CartaInformes)
   let visto = null;                 // ticket abierto en la ventana Ver
   const recien = new Set();
 
@@ -71,7 +72,10 @@
     }
     // Con datos fiscales (aunque la facturación esté desactivada) se pueden consultar los tickets ya emitidos.
     $('tab-tickets').hidden = !fiscal.modo_sif;
-    if (!fiscal.modo_sif && vista === 'tickets') cambiarVista('comandas');
+    // Informes de ventas: bares con facturación (modo TPV) o entrando con la clave del dueño.
+    const verInformes = !!fiscal.modo_sif || !!(datos && datos.es_admin);
+    $('tab-informes').hidden = !verInformes;
+    if ((!fiscal.modo_sif && vista === 'tickets') || (!verInformes && vista === 'informes')) cambiarVista('comandas');
     if (datos) pintar();
   }
 
@@ -419,9 +423,17 @@
   function cambiarVista(v) {
     vista = v;
     document.querySelectorAll('[data-vista]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.vista === vista)));
+    const sel = document.querySelector(`[data-vista="${vista}"]`);
+    if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     $('v-comandas').hidden = vista !== 'comandas';
     $('v-mesas').hidden = vista !== 'mesas';
     $('v-tickets').hidden = vista !== 'tickets';
+    $('v-informes').hidden = vista !== 'informes';
+    if (vista === 'informes') {
+      if (informes) informes.recargar();
+      else informes = window.CartaInformes.montar($('informes-panel'), { sesion: () => sesion, moneda: () => (datos ? datos.restaurante.moneda : 'EUR') });
+      return;
+    }
     if (vista !== 'tickets') return;
     if (lista) lista.recargar();
     else lista = window.CartaTickets.montar($('tickets-lista'), {
@@ -554,7 +566,8 @@
     } else if (b.id === 'k-salir') {
       if (confirm('¿Salir del panel? Tendrás que volver a introducir la clave.')) {
         store.del(K_SESION); clearTimeout(timer); sesion = null; vistos = null;
-        lista = null; $('tickets-lista').innerHTML = ''; cambiarVista('comandas');
+        lista = null; $('tickets-lista').innerHTML = '';
+        informes = null; $('informes-panel').innerHTML = ''; cambiarVista('comandas');
         mostrarLogin();
       }
     }

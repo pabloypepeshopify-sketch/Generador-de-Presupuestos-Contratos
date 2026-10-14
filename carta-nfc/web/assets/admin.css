@@ -38,10 +38,6 @@ main.a-wrap { padding-top: 16px; padding-bottom: 60px; }
 .secreto { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--surface-2); word-break: break-all; font-size: 14px; }
 .secreto .acc { margin-top: 8px; flex-wrap: wrap; }
 
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-.kpi { font-size: 32px; font-weight: 800; }
-.top-row { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--line); }
-.top-row:first-child { border-top: 0; }
 
 .nl-badge main.a-wrap { padding-bottom: 110px; }
 

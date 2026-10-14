@@ -64,7 +64,6 @@
     pintarCarta();
     pintarMesas();
     pintarAjustes();
-    pintarHoy();
   }
 
   function pintarCarta() {
@@ -137,15 +136,6 @@
     $('aj-web').value = r.web_carta || '';
     $('aj-abiertos').checked = r.pedidos_abiertos;
     $('aj-libre').checked = r.mesa_libre;
-  }
-
-  function pintarHoy() {
-    const m = d.restaurante.moneda;
-    $('hoy-pedidos').textContent = d.hoy.pedidos;
-    $('hoy-total').textContent = dinero(d.hoy.total, m);
-    $('hoy-top').innerHTML = d.top.length ? d.top.map((t) =>
-      `<div class="top-row"><span>${esc(t.cantidad)}× ${esc(t.nombre)}</span><span class="num">${dinero(t.importe, m)}</span></div>`).join('')
-      : '<p class="muted">Todavía no hay pedidos hoy.</p>';
   }
 
   // ------------------------------------------------------------ productos ----
@@ -283,6 +273,7 @@
   // ----------------------------------------------------------- facturación ----
   let fzDatos = null;
   let fzLista = null;   // lista completa de tickets (CartaTickets)
+  let informes = null;  // pestaña Informes (CartaInformes)
 
   async function fz(accion, datos, okMsg) {
     try {
@@ -394,7 +385,10 @@
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
       ['carta', 'mesas', 'ajustes', 'hoy', 'facturacion'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
-      if (ds.tab === 'hoy') op('datos');
+      if (ds.tab === 'hoy') {
+        if (informes) informes.recargar();
+        else informes = window.CartaInformes.montar($('informes'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });
+      }
       if (ds.tab === 'facturacion') { fz('datos'); if (fzLista) fzLista.recargar(); }
     } else if (ds.cerrar !== undefined) {
       if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; }
