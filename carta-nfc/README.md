@@ -86,14 +86,20 @@ mesa, carrito, estado del pedido, llamar camarero / pedir cuenta, en el idioma d
 
 ### Martínez Bar (prueba real)
 
+Martínez tiene una **página de pedidos propia**, nueva y separada de su web (que no se toca):
+`clientes/martinez-bar/index.html`, con su estilo (negro/amarillo, Instrument Serif + Montserrat,
+sus fotos), los 80 platos con tamaños (Tapa/Media/Ración…) y conectada a la misma base de datos y
+panel de cocina.
+
 | Qué | Enlace |
 |---|---|
-| Su web con pedidos (copia de pruebas) | https://martinez-bar-pedidos.netlify.app/carta.html |
-| NFC de la Mesa 2 (redirige a su web con la mesa) | https://carta-nfc-pedidos.netlify.app/m/692370d79e |
+| Página de pedidos de Martínez | https://martinez-bar-pedidos.netlify.app/ |
+| NFC de la Mesa 2 (abre la página con la mesa) | https://carta-nfc-pedidos.netlify.app/m/692370d79e |
 | Panel de comandas | `cocina.html?r=martinez-bar&k=<clave cocina>` (clave entregada aparte) |
 
-Para dejarlo en su web real (Vercel): pegar la línea `<script …>` antes de `</body>` en `carta.html`
-y cambiar *Web propia de la carta* a `https://martinez-bar.vercel.app/carta.html`.
+*Web propia de la carta* = `https://martinez-bar-pedidos.netlify.app/`. Si algún día prefieren pedir
+desde su web de Vercel, basta con pegar la línea de `pedidos.js` en su `carta.html` y cambiar ese
+ajuste; los NFC no se regraban.
 
 ## Flujo para vender a un bar nuevo
 
@@ -129,6 +135,7 @@ carta-nfc/
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
+  clientes/martinez-bar/      página de pedidos propia de Martínez Bar (HTML único, publicada en Netlify)
   herramientas/
     importar-carta.mjs       carga la carta de la web de un bar (platos + tamaños)
     espejo-web.py            copia una web y le añade pedidos.js (para pruebas)

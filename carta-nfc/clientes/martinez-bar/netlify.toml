@@ -1,0 +1,4 @@
+# Página de pedidos de Martínez Bar: estática, sin build.
+[build]
+  publish = "."
+  command = ""

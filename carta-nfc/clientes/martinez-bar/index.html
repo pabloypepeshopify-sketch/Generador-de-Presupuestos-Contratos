@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0B">
+<meta name="robots" content="noindex">
+<title>Martínez · Pide desde tu mesa</title>
+<link rel="icon" href="https://martinez-bar.vercel.app/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--negro:#0B0B0B;--negro2:#141414;--marmol:#F3F0EA;--tinta:#131313;--amarillo:#FCA80C;--amarillo2:#FFBA3A;--laton:#C9A15E;
+    --mut:#615C54;--mut-osc:#B3AEA6;--linea:rgba(19,19,19,.14);--linea-osc:rgba(243,240,234,.14);
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;--sans:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{margin:0;background:var(--marmol);color:var(--tinta);font:15px/1.5 var(--sans)}
+  button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px}
+  .label{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+
+  /* cabecera */
+  .hdr{background:var(--negro);color:var(--marmol);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--linea-osc)}
+  .hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .marca{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+  .marca img{width:30px;height:30px}
+  .marca span{font-family:var(--serif);font-size:24px;line-height:1}
+  .pill-mesa{border:1px solid var(--linea-osc);background:transparent;color:var(--marmol);border-radius:999px;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+  .pill-mesa b{color:var(--amarillo);font-weight:700}
+
+  .hero{background:var(--negro);color:var(--marmol);padding:34px 0 30px}
+  .hero .label{color:var(--laton)}
+  .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,12vw,84px);line-height:.95;margin:12px 0 14px;letter-spacing:-.01em}
+  .hero h1 em{color:var(--amarillo)}
+  .hero p{margin:0;color:var(--mut-osc);max-width:46ch}
+  .pasos{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+  .pasos span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-osc)}
+  .pasos b{color:var(--amarillo);margin-right:6px}
+
+  /* pestañas */
+  .switch{position:sticky;top:60px;z-index:15;background:var(--negro2)}
+  .tabs{display:grid;grid-template-columns:1fr 1fr}
+  .tab{border:0;background:transparent;color:var(--mut-osc);font-family:var(--serif);font-size:30px;padding:12px 0 10px;border-bottom:3px solid transparent}
+  .tab small{font-family:var(--sans);font-size:11px;letter-spacing:.1em;margin-left:6px;font-weight:600}
+  .tab[aria-selected="true"]{color:var(--marmol);border-bottom-color:var(--amarillo)}
+  .cats{background:var(--marmol);border-bottom:1px solid var(--linea);overflow-x:auto;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cats .in{display:flex;gap:6px;padding:10px 18px;width:max-content;margin:0 auto}
+  .cat{border:1px solid transparent;background:transparent;padding:9px 14px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);white-space:nowrap}
+  .cat.on{border-color:var(--tinta);color:var(--tinta)}
+
+  /* secciones */
+  .sec{padding:34px 0 8px;scroll-margin-top:170px}
+  .sec-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:14px}
+  .sec-num{color:var(--laton)}
+  .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(40px,9vw,56px);line-height:1;margin:8px 0 0}
+  .sec .fmt{margin:10px 0 0;color:var(--mut);font-size:14px}
+  .flat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);text-align:right}
+  .flat b{display:block;font-family:var(--serif);font-size:30px;letter-spacing:0;color:var(--tinta);font-weight:400}
+  .foto{margin:18px 0 6px;border-radius:4px;overflow:hidden;aspect-ratio:16/8;background:#ddd6ca}
+  .foto img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .plato{padding:18px 0;border-bottom:1px solid var(--linea)}
+  .plato-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+  .plato h3{margin:0;font-size:16px;font-weight:600;line-height:1.35}
+  .plato p{margin:5px 0 0;color:var(--mut);font-size:14px;max-width:52ch}
+  .precio{font-family:var(--serif);font-size:26px;line-height:1;white-space:nowrap;text-align:right}
+  .precio small{font-size:.6em}
+  .agotado .precio,.agotado h3{opacity:.45}
+  .tag-agot{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a3221b}
+  .add{position:relative;width:42px;height:42px;border-radius:50%;border:0;background:var(--amarillo);color:var(--tinta);font-size:22px;font-weight:600;
+    display:grid;place-items:center;margin:10px 0 0 auto;transition:transform .12s ease,background .2s ease}
+  .add:active{transform:scale(.92)}
+  .add:hover{background:var(--amarillo2)}
+  .n{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--tinta);color:var(--amarillo);
+    font:700 11px/20px var(--sans);text-align:center}
+  .tams{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .tam{position:relative;display:flex;align-items:center;gap:10px;border:1px solid var(--tinta);background:transparent;border-radius:999px;padding:6px 6px 6px 14px;min-height:44px}
+  .tam .tl{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+  .tam .tp{font-family:var(--serif);font-size:21px;line-height:1}
+  .tam .tm{width:32px;height:32px;border-radius:50%;background:var(--amarillo);display:grid;place-items:center;font-size:18px;font-weight:600}
+  .tam.con{background:var(--tinta);color:var(--marmol)}
+  .tam.con .tl{color:var(--mut-osc)}
+  .tam:disabled{opacity:.4;cursor:default}
+  .notas{padding:28px 0 150px;color:var(--mut);font-size:13px}
+  .notas p{margin:4px 0}
+
+  /* barra inferior */
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--negro);color:var(--marmol);border-top:1px solid var(--linea-osc);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;box-shadow:0 -8px 24px rgba(0,0,0,.25)}
+  .nl-badge .bar{bottom:64px}
+  .bar-mesa{all:unset;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column}
+  .bar-mesa b{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.05;white-space:nowrap}
+  .bar-mesa small{font-size:11px;letter-spacing:.08em;color:var(--mut-osc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ghost{border:1px solid rgba(243,240,234,.3);background:transparent;color:var(--marmol);border-radius:999px;min-height:42px;padding:0 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .prim{border:0;background:var(--amarillo);color:var(--tinta);border-radius:999px;min-height:48px;padding:0 18px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap}
+  .prim .cn{background:var(--tinta);color:var(--amarillo);border-radius:999px;min-width:24px;height:24px;line-height:24px;padding:0 6px;letter-spacing:0}
+  .prim:disabled{opacity:.55;cursor:default}
+
+  /* diálogos */
+  dialog{border:0;padding:0;background:var(--marmol);color:var(--tinta);width:min(560px,calc(100% - 16px));max-height:calc(100% - 16px);border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+  dialog::backdrop{background:rgba(11,11,11,.62)}
+  .dh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:20px 20px 12px;border-bottom:1px solid var(--linea)}
+  .dh h2{margin:0;font-family:var(--serif);font-weight:400;font-size:36px;line-height:1}
+  .dh .label{color:var(--mut);margin-top:6px}
+  .x{border:0;background:transparent;font-size:28px;line-height:1;color:var(--mut);padding:2px 6px}
+  .db{padding:6px 20px 14px;overflow:auto;max-height:58vh}
+  .df{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--linea)}
+  .tot .label{color:var(--mut)}
+  .tot b{display:block;font-family:var(--serif);font-weight:400;font-size:34px;line-height:1}
+  .li{padding:14px 0;border-bottom:1px solid var(--linea)}
+  .li-top{display:flex;align-items:center;gap:10px}
+  .li-top .nom{flex:1;font-weight:600;line-height:1.3}
+  .li-top .nom small{display:block;font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+  .st{display:inline-flex;align-items:center;border-radius:999px;background:rgba(19,19,19,.07)}
+  .st button{border:0;background:transparent;width:38px;height:38px;font-size:20px;font-weight:600}
+  .st span{min-width:20px;text-align:center;font-weight:700}
+  .pr{min-width:68px;text-align:right;font-variant-numeric:tabular-nums}
+  input,textarea{width:100%;font:inherit;font-size:14px;color:var(--tinta);background:#fff;border:1px solid var(--linea);border-radius:12px;padding:10px 12px;margin-top:8px;outline:none}
+  input:focus,textarea:focus{border-color:var(--tinta)}
+  textarea{min-height:64px;resize:vertical}
+  .lab{display:block;margin-top:14px;color:var(--mut)}
+  .mis{margin-top:16px;padding:12px 14px;border-radius:14px;background:rgba(19,19,19,.05)}
+  .mis .label{color:var(--mut);margin-bottom:6px}
+  .mis-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px}
+  .es{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(19,19,19,.08);white-space:nowrap}
+  .es.preparando{background:#dbe7ff;color:#1d3d8f}.es.listo{background:#d7f5df;color:#14632e}.es.cancelado{color:#a3221b}
+  .ayuda{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .linea{border:1px solid var(--tinta);background:transparent;border-radius:999px;min-height:44px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;padding:8px 0 12px}
+  .grid button{min-height:54px;border-radius:14px;border:1px solid var(--linea);background:#fff;font-weight:600}
+  .ok{text-align:center;padding:30px 22px 24px}
+  .ok .tick{width:72px;height:72px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:var(--amarillo);font-size:34px}
+  .ok h2{margin:0;font-family:var(--serif);font-weight:400;font-size:40px}
+  .ok p{color:var(--mut);margin:10px 0 20px}
+  .ok .prim{width:100%}
+  .aviso{margin:12px 0 0;padding:12px 14px;border-radius:12px;background:#fff3d6;font-weight:600;font-size:14px}
+  .toast{position:fixed;left:50%;bottom:104px;transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:40;background:var(--marmol);color:var(--tinta);
+    padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:all .2s ease}
+  .nl-badge .toast{bottom:170px}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.err{background:#a3221b;color:#fff}
+  .cargando{min-height:60vh;display:grid;place-items:center;color:var(--mut)}
+  @media (max-width:380px){.ghost{padding:0 10px;letter-spacing:.08em}.prim{padding:0 14px;letter-spacing:.08em}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="wrap">
+  <a class="marca" href="https://martinez-bar.vercel.app/" aria-label="Martínez Bar"><img src="https://martinez-bar.vercel.app/favicon.svg" alt=""><span>Martínez</span></a>
+  <button class="pill-mesa" id="pill-mesa" type="button" hidden></button>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <p class="label">Martínez · Plaza del Cabildo</p>
+  <h1>Pide desde<br><em>tu mesa.</em></h1>
+  <p>Elige en la carta, envía el pedido y te lo llevamos. Sin esperar a que pase el camarero.</p>
+  <div class="pasos"><span><b>01</b>Toca +</span><span><b>02</b>Revisa tu pedido</span><span><b>03</b>Enviar a cocina</span></div>
+</div></section>
+
+<div class="switch">
+  <div class="wrap tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="cocina" aria-selected="true">Cocina<small id="n-cocina"></small></button>
+    <button class="tab" role="tab" data-tab="barra" aria-selected="false">Coctelería<small id="n-barra"></small></button>
+  </div>
+  <nav class="cats" aria-label="Categorías"><div class="in" id="cats"></div></nav>
+</div>
+
+<main class="wrap" id="carta"><div class="cargando">Cargando la carta…</div></main>
+
+<div class="bar" id="bar" hidden></div>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="d-carrito"></dialog>
+<dialog id="d-mesa"></dialog>
+<dialog id="d-ok"></dialog>
+
+<script>
+(function () {
+  'use strict';
+  // ------------------------------------------------------------ conexión ----
+  const API = 'https://giazlntdbfhnnfizmfao.supabase.co/rest/v1/rpc/';
+  const KEY = 'sb_publishable_sdLnLlIQvJBPTcmNx9FFpw_UEIAwbDP'; // clave pública: la seguridad está en el servidor
+  const SLUG = 'martinez-bar';
+  const IMG = 'https://martinez-bar.vercel.app/assets/img/';
+  const BARRA = ['Sherry Cocktails', 'Spritz', 'Cócteles'];           // pestaña Coctelería
+  const FOTOS = { 'Burgers': 'pro-burger-marmol', '¿Unos nachos?': 'pro-nachos', 'Tacos, baos y más': 'pro-baos',
+    'Entre panes': 'pro-tosta-anchoas', 'Abacería': 'pro-tabla-iberico', 'Sherry Cocktails': 'pro-sherry-px',
+    'Spritz': 'pro-spritz-barra', 'Cócteles': 'pro-cocteles-marmol' };
+  const FORMATOS = { 'Burgers': 'Smash en pan brioche artesanal · ¿carne extra (+2,5 €)? pídelo en la nota del plato' };
+  const ESTADOS = { nuevo: 'Recibido', preparando: 'En preparación', listo: '¡Listo! Te lo llevamos', servido: 'Servido', cancelado: 'Cancelado' };
+  const ERRORES = { mesa_no_valida: 'Este NFC de mesa ya no es válido. Pide ayuda al camarero.', pedidos_cerrados: 'Ahora no se aceptan pedidos por el móvil. Llama al camarero.',
+    demasiados_pedidos: 'Demasiados pedidos seguidos. Espera un minuto.', producto_agotado: 'Algún plato se ha agotado. Quítalo del pedido.',
+    producto_no_valido: 'Algún plato ya no está en la carta. Recarga la página.', red: 'Sin conexión. Revisa el WiFi/datos.' };
+
+  async function rpc(fn, args) {
+    let res;
+    try { res = await fetch(API + fn, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify(args), cache: 'no-store' }); }
+    catch { const e = new Error('red'); e.code = 'red'; throw e; }
+    const data = await res.json().catch(() => null);
+    if (!res.ok) { const e = new Error((data && data.message) || 'error'); e.code = e.message.split(':')[0]; throw e; }
+    return data;
+  }
+  const humano = (e) => ERRORES[e && e.code] || 'Algo ha fallado. Inténtalo de nuevo.';
+
+  // ---------------------------------------------------------- utilidades ----
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+  const dinero = (n) => eur.format(Number(n || 0));
+  const corto = (n) => { const v = Number(n); return (Number.isInteger(v) ? String(v) : String(v).replace('.', ',')) + '<small>€</small>'; };
+  const ses = { get(k, d) { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+  const loc = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+  const K = { mesa: 'mz:mesa', carrito: 'mz:carrito', nota: 'mz:nota', pedidos: 'mz:pedidos' };
+
+  // ------------------------------------------------------------- estado ----
+  let menu = null, mesa = null, carrito = {}, enviando = false, poll = null, pestana = 'cocina';
+  const prod = {};   // id -> { id, plato, tam, precio, disponible, nombreBD }
+  let secciones = []; // [{ nombre, barra, platos:[{ nombre, desc, variantes:[prod] }] }]
+
+  // ---------------------------------------------------------- arranque ----
+  async function iniciar() {
+    const qs = new URLSearchParams(location.search);
+    const mesaUrl = qs.get('mesa') || qs.get('m');
+    const guardada = ses.get(K.mesa, null);
+    try {
+      menu = await rpc('carta_menu', { p_slug: SLUG, p_mesa: mesaUrl || (guardada && guardada.codigo) || null });
+    } catch (e) {
+      $('carta').innerHTML = `<div class="cargando">No se pudo cargar la carta. ${esc(humano(e))}</div>`;
+      return;
+    }
+    mesa = menu.mesa || null;
+    ses.set(K.mesa, mesa);
+    if (mesaUrl && !mesa) toast(ERRORES.mesa_no_valida, true);
+    construir();
+    carrito = ses.get(K.carrito, {});
+    Object.keys(carrito).forEach((id) => { if (!prod[id] || !prod[id].disponible) delete carrito[id]; });
+    pintarCarta();
+    pintarBarra();
+    refrescarPedidos();
+    const badge = () => document.documentElement.classList.toggle('nl-badge', !!document.getElementById('nl-badge-frame'));
+    badge();
+    new MutationObserver(badge).observe(document.body, { childList: true });
+  }
+
+  // Agrupa los productos de la BD por plato: "Cecina de León · Media" (ref mn.abaceria.0#1) -> plato con tamaños.
+  function construir() {
+    secciones = menu.categorias.map((c) => {
+      const platos = [], porBase = {};
+      c.productos.forEach((p) => {
+        const base = p.ref ? p.ref.split('#')[0] : p.id;
+        const varios = !!(p.ref && p.ref.includes('#'));
+        const i = p.nombre.lastIndexOf(' · ');
+        const nombre = varios && i > 0 ? p.nombre.slice(0, i) : p.nombre;
+        const tam = varios && i > 0 ? p.nombre.slice(i + 3) : null;
+        let pl = porBase[base];
+        if (!pl) { pl = porBase[base] = { nombre, desc: p.descripcion, variantes: [] }; platos.push(pl); }
+        const v = { id: p.id, plato: nombre, tam, precio: Number(p.precio), disponible: p.disponible };
+        pl.variantes.push(v);
+        prod[p.id] = v;
+      });
+      return { nombre: c.nombre, barra: BARRA.includes(c.nombre), platos };
+    });
+  }
+
+  // ------------------------------------------------------------ pintado ----
+  function pintarCarta() {
+    const visibles = secciones.filter((s) => s.barra === (pestana === 'barra'));
+    $('n-cocina').textContent = secciones.filter((s) => !s.barra).reduce((n, s) => n + s.platos.length, 0);
+    $('n-barra').textContent = secciones.filter((s) => s.barra).reduce((n, s) => n + s.platos.length, 0);
+    $('cats').innerHTML = visibles.map((s, i) => `<button class="cat${i === 0 ? ' on' : ''}" data-ir="${i}">${esc(s.nombre)}</button>`).join('');
+    const abiertos = menu.restaurante.pedidos_abiertos;
+    $('carta').innerHTML = visibles.map((s, i) => {
+      const precios = new Set(s.platos.flatMap((p) => p.variantes.map((v) => v.precio)));
+      const flat = s.platos.length > 3 && precios.size === 1 && s.platos.every((p) => p.variantes.length === 1);
+      return `<section class="sec" id="sec-${i}">
+        <div class="sec-head">
+          <div><div class="label sec-num">${String(i + 1).padStart(2, '0')} / ${String(visibles.length).padStart(2, '0')}</div><h2>${esc(s.nombre)}</h2></div>
+          ${flat ? `<div class="flat">Todos a<b>${dinero([...precios][0])}</b></div>` : ''}
+        </div>
+        ${FORMATOS[s.nombre] ? `<p class="fmt">${esc(FORMATOS[s.nombre])}</p>` : ''}
+        ${FOTOS[s.nombre] ? `<figure class="foto" style="margin-left:0;margin-right:0"><img src="${IMG}${FOTOS[s.nombre]}-760.webp" alt="${esc(s.nombre)}" loading="lazy"></figure>` : ''}
+        ${s.platos.map((p) => plato(p, flat, abiertos)).join('')}
+      </section>`;
+    }).join('') + `<div class="notas">${pestana === 'cocina'
+      ? '<p>Disponemos de opciones sin gluten.</p><p>Comunica al personal cualquier alergia o intolerancia antes de pedir.</p>'
+      : '<p>Pregunta por nuestros cócteles sin alcohol.</p><p>Cervezas nacionales e importadas, Estrella Galicia 1906 de barril, vinos del Marco de Jerez y manzanilla.</p>'}<p>Precios en euros, IVA incluido.</p></div>`;
+  }
+
+  function plato(p, flat, abiertos) {
+    const todosAgotados = p.variantes.every((v) => !v.disponible);
+    if (p.variantes.length === 1) {
+      const v = p.variantes[0];
+      return `<article class="plato${v.disponible ? '' : ' agotado'}"><div class="plato-top">
+        <div><h3>${esc(p.nombre)}</h3>${p.desc ? `<p>${esc(p.desc)}</p>` : ''}</div>
+        <div>${flat ? '' : `<div class="precio">${corto(v.precio)}</div>`}
+          ${!v.disponible ? '<div class="tag-agot" style="margin-top:10px">Agotado</div>' : abiertos ? botonAdd(v) : ''}</div>
+      </div></article>`;
+    }
+    return `<article class="plato${todosAgotados ? ' agotado' : ''}">
+      <h3>${esc(p.nombre)}</h3>${p.desc ? `<p>${esc(p.desc)}</p>` : ''}
+      <div class="tams">${p.variantes.map((v) => {
+        const n = carrito[v.id] ? carrito[v.id].cantidad : 0;
+        return `<button class="tam${n ? ' con' : ''}" data-add="${v.id}" ${!v.disponible || !abiertos ? 'disabled' : ''}
+          aria-label="Añadir ${esc(p.nombre)} · ${esc(v.tam)}${n ? ` (${n})` : ''}">
+          <span class="tl">${esc(v.tam)}</span><span class="tp">${corto(v.precio)}</span>
+          ${v.disponible ? `<span class="tm">+</span>` : '<span class="tag-agot">Agotado</span>'}
+          ${n ? `<span class="n">${n}</span>` : ''}</button>`;
+      }).join('')}</div></article>`;
+  }
+
+  function botonAdd(v) {
+    const n = carrito[v.id] ? carrito[v.id].cantidad : 0;
+    return `<button class="add" data-add="${v.id}" aria-label="Añadir ${esc(v.plato)}${n ? ` (${n})` : ''}">+${n ? `<span class="n">${n}</span>` : ''}</button>`;
+  }
+
+  function totales() {
+    let n = 0, t = 0;
+    Object.entries(carrito).forEach(([id, l]) => { n += l.cantidad; t += l.cantidad * prod[id].precio; });
+    return { n, t };
+  }
+
+  function pintarBarra() {
+    const { n, t } = totales(), activo = activos()[0], abiertos = menu.restaurante.pedidos_abiertos;
+    const sub = !abiertos ? 'Pedidos por móvil en pausa · llama al camarero'
+      : activo ? `Pedido nº ${activo.numero} · ${ESTADOS[activo.estado] || activo.estado}`
+      : mesa ? 'Toca + en un plato para pedir' : 'Elige tu mesa para pedir';
+    $('bar').hidden = false;
+    $('bar').innerHTML = `
+      <button class="bar-mesa" data-a="mesa" ${menu.mesa ? 'disabled' : ''}><b>${mesa ? esc(mesa.nombre) : 'Mesa ?'}</b><small>${esc(sub)}</small></button>
+      ${n && abiertos
+        ? `<button class="prim" data-a="abrir"><span class="cn">${n}</span>Ver pedido · ${dinero(t)}</button>`
+        : `<button class="ghost" data-a="camarero" aria-label="Llamar al camarero">Camarero</button>
+           <button class="ghost" data-a="cuenta" aria-label="Pedir la cuenta">Cuenta</button>
+           ${recientes().length ? '<button class="ghost" data-a="abrir" aria-label="Tus pedidos">☰</button>' : ''}`}`;
+    const pill = $('pill-mesa');
+    pill.hidden = false;
+    pill.innerHTML = mesa ? `<b>●</b> ${esc(mesa.nombre)}` : 'Elegir mesa';
+    pill.disabled = !!menu.mesa;
+  }
+
+  function pintarCarrito() {
+    const lineas = Object.entries(carrito), mios = recientes(), abiertos = menu.restaurante.pedidos_abiertos;
+    $('d-carrito').innerHTML = `
+      <div class="dh"><div><h2>Tu pedido</h2><div class="label">${mesa ? esc(mesa.nombre) : 'Elige tu mesa al enviar'}</div></div><button class="x" data-a="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="db">
+        ${!abiertos ? '<div class="aviso">Ahora mismo no se aceptan pedidos por el móvil. Llama al camarero.</div>' : ''}
+        ${lineas.length ? lineas.map(([id, l]) => { const v = prod[id]; return `
+          <div class="li"><div class="li-top">
+            <span class="nom">${esc(v.plato)}${v.tam ? `<small>${esc(v.tam)}</small>` : ''}</span>
+            <span class="st"><button data-a="menos" data-id="${id}" aria-label="Quitar uno">−</button><span>${l.cantidad}</span><button data-a="mas" data-id="${id}" aria-label="Añadir otro">+</button></span>
+            <span class="pr">${dinero(l.cantidad * v.precio)}</span></div>
+            <input type="text" maxlength="140" data-nota="${id}" value="${esc(l.nota || '')}" placeholder="Nota: sin cebolla, poco hecha, carne extra…" aria-label="Nota para ${esc(v.plato)}">
+          </div>`; }).join('') : '<p style="color:var(--mut)">Tu pedido está vacío.</p>'}
+        ${lineas.length ? `<label class="lab label">Nota para cocina (opcional)<textarea id="nota" maxlength="300" placeholder="Ej.: traed primero las bebidas">${esc(ses.get(K.nota, ''))}</textarea></label>` : ''}
+        ${mios.length ? `<div class="mis"><div class="label">Tus pedidos</div>${mios.map((p) => `<div class="mis-row"><span>Pedido nº ${esc(p.numero)} · ${dinero(p.total)}</span><span class="es ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span></div>`).join('')}</div>` : ''}
+        <div class="ayuda"><button class="linea" data-a="camarero">Llamar camarero</button><button class="linea" data-a="cuenta">Pedir la cuenta</button></div>
+      </div>
+      ${lineas.length ? `<div class="df"><div class="tot"><div class="label">Total</div><b>${dinero(totales().t)}</b></div>
+        <button class="prim" data-a="enviar" ${enviando || !abiertos ? 'disabled' : ''}>${enviando ? 'Enviando…' : 'Enviar pedido'}</button></div>` : ''}`;
+  }
+
+  function abrirMesas(tras) {
+    $('d-mesa').dataset.tras = tras ? '1' : '';
+    $('d-mesa').innerHTML = `<div class="dh"><h2>¿En qué mesa estás?</h2><button class="x" data-a="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="db"><div class="grid">${menu.mesas.map((m) => `<button data-a="elegir" data-codigo="${esc(m.codigo)}">${esc(m.nombre)}</button>`).join('')}</div></div>`;
+    if ($('d-carrito').open) $('d-carrito').close();
+    $('d-mesa').showModal();
+  }
+
+  let tt;
+  function toast(msg, err) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (err ? ' err' : '');
+    clearTimeout(tt);
+    tt = setTimeout(() => { el.className = 'toast' + (err ? ' err' : ''); }, 2600);
+  }
+
+  // ------------------------------------------------------------ acciones ----
+  function cambiar(id, d) {
+    const v = prod[id];
+    if (!v || !v.disponible || !menu.restaurante.pedidos_abiertos) return;
+    const n = Math.max(0, Math.min(20, (carrito[id] ? carrito[id].cantidad : 0) + d));
+    if (!n) delete carrito[id]; else carrito[id] = { cantidad: n, nota: carrito[id] ? carrito[id].nota : '' };
+    ses.set(K.carrito, carrito);
+    refrescarBotones(id);
+    pintarBarra();
+    if ($('d-carrito').open) pintarCarrito();
+  }
+
+  function refrescarBotones(id) {
+    document.querySelectorAll(`[data-add="${id}"]`).forEach((b) => {
+      const v = prod[id], n = carrito[id] ? carrito[id].cantidad : 0;
+      if (b.classList.contains('tam')) {
+        b.classList.toggle('con', !!n);
+        const old = b.querySelector('.n'); if (old) old.remove();
+        if (n) b.insertAdjacentHTML('beforeend', `<span class="n">${n}</span>`);
+      } else b.outerHTML = botonAdd(v);
+    });
+  }
+
+  async function enviar() {
+    if (enviando) return;
+    if (!mesa) { abrirMesas(true); return; }
+    const lineas = Object.entries(carrito).map(([id, l]) => ({ producto_id: id, cantidad: l.cantidad, nota: (l.nota || '').trim() || null }));
+    if (!lineas.length) return;
+    enviando = true; pintarCarrito();
+    try {
+      const nota = ($('nota') && $('nota').value.trim()) || null;
+      const r = await rpc('carta_pedir', { p_mesa: mesa.codigo, p_lineas: lineas, p_nota: nota });
+      const lista = loc.get(K.pedidos, []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
+      lista.unshift({ token: r.token, numero: r.numero, creado: r.creado, total: r.total, estado: r.estado });
+      loc.set(K.pedidos, lista.slice(0, 20));
+      const ids = Object.keys(carrito);
+      carrito = {}; ses.set(K.carrito, carrito); ses.set(K.nota, '');
+      ids.forEach(refrescarBotones);
+      $('d-carrito').close();
+      $('d-ok').innerHTML = `<div class="ok"><div class="tick" aria-hidden="true">✓</div><h2>¡Pedido enviado!</h2>
+        <p>Pedido nº ${esc(r.numero)} · ${esc(r.mesa)} · ${dinero(r.total)}. Ya está en cocina; abajo verás cuándo está listo.</p>
+        <button class="prim" data-a="cerrar">Seguir viendo la carta</button></div>`;
+      $('d-ok').showModal();
+      refrescarPedidos();
+    } catch (e) {
+      toast(humano(e), true);
+      if (e.code === 'pedidos_cerrados') menu.restaurante.pedidos_abiertos = false;
+      if (e.code === 'mesa_no_valida') { mesa = null; ses.set(K.mesa, null); }
+    } finally { enviando = false; pintarBarra(); if ($('d-carrito').open) pintarCarrito(); }
+  }
+
+  async function avisar(tipo) {
+    if (!mesa) { abrirMesas(false); return; }
+    try {
+      await rpc('carta_avisar', { p_mesa: mesa.codigo, p_tipo: tipo });
+      toast(tipo === 'cuenta' ? 'Hemos avisado: te traen la cuenta enseguida.' : 'Hemos avisado al camarero. Viene enseguida.');
+    } catch (e) { toast(humano(e), true); }
+  }
+
+  const recientes = () => loc.get(K.pedidos, []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3)
+    .filter((p) => p.estado !== 'servido' || Date.now() - new Date(p.creado).getTime() < 3600e3).slice(0, 5);
+  const activos = () => recientes().filter((p) => !['servido', 'cancelado'].includes(p.estado));
+
+  async function refrescarPedidos() {
+    clearTimeout(poll);
+    const lista = loc.get(K.pedidos, []), act = activos();
+    if (!act.length) return;
+    if (document.visibilityState === 'visible') {
+      try {
+        const est = await rpc('carta_estado', { p_tokens: act.map((p) => p.token) });
+        let listo = false;
+        est.forEach((e) => { const p = lista.find((x) => x.token === e.token); if (!p) return; if (p.estado !== 'listo' && e.estado === 'listo') listo = true; p.estado = e.estado; });
+        loc.set(K.pedidos, lista);
+        pintarBarra();
+        if ($('d-carrito').open) pintarCarrito();
+        if (listo) { toast('¡Tu pedido está listo! Te lo llevan ahora.'); if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
+      } catch {}
+    }
+    poll = setTimeout(refrescarPedidos, 8000);
+  }
+
+  // ------------------------------------------------------------- eventos ----
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button');
+    if (!b) return;
+    const a = b.dataset.a;
+    if (b.dataset.add) { cambiar(b.dataset.add, +1); const v = prod[b.dataset.add]; toast(`Añadido: ${v.plato}${v.tam ? ' · ' + v.tam : ''}`); }
+    else if (b.dataset.tab) {
+      pestana = b.dataset.tab;
+      document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
+      pintarCarta();
+      window.scrollTo({ top: document.querySelector('.switch').offsetTop - 60, behavior: 'smooth' });
+    } else if (b.dataset.ir !== undefined) {
+      document.querySelectorAll('.cat').forEach((c) => c.classList.toggle('on', c === b));
+      $('sec-' + b.dataset.ir).scrollIntoView({ behavior: 'smooth' });
+    } else if (b.id === 'pill-mesa' || a === 'mesa') abrirMesas(false);
+    else if (a === 'abrir') { pintarCarrito(); $('d-carrito').showModal(); }
+    else if (a === 'cerrar') b.closest('dialog').close();
+    else if (a === 'mas') cambiar(b.dataset.id, +1);
+    else if (a === 'menos') cambiar(b.dataset.id, -1);
+    else if (a === 'enviar') enviar();
+    else if (a === 'camarero') avisar('camarero');
+    else if (a === 'cuenta') avisar('cuenta');
+    else if (a === 'elegir') {
+      const m = menu.mesas.find((x) => x.codigo === b.dataset.codigo);
+      if (!m) return;
+      mesa = { codigo: m.codigo, nombre: m.nombre }; ses.set(K.mesa, mesa);
+      const tras = $('d-mesa').dataset.tras; $('d-mesa').close(); pintarBarra();
+      if (tras) { pintarCarrito(); $('d-carrito').showModal(); }
+    }
+  });
+  document.addEventListener('input', (ev) => {
+    const id = ev.target.dataset && ev.target.dataset.nota;
+    if (id && carrito[id]) { carrito[id].nota = ev.target.value; ses.set(K.carrito, carrito); }
+    if (ev.target.id === 'nota') ses.set(K.nota, ev.target.value);
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && menu) refrescarPedidos(); });
+  iniciar();
+})();
+</script>
+</body>
+</html>
