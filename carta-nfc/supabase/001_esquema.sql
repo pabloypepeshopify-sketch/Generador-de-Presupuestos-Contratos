@@ -42,6 +42,10 @@ create table if not exists carta.restaurantes (
   creado           timestamptz not null default now()
 );
 
+-- web_carta: si el bar tiene su propia web de carta (con pedidos.js), los NFC /m/<codigo>
+-- redirigen allí con ?mesa=<codigo>.
+alter table carta.restaurantes add column if not exists web_carta text check (web_carta ~ '^https://[^\s]+$');
+
 create table if not exists carta.mesas (
   id              uuid primary key default gen_random_uuid(),
   restaurante_id  uuid not null references carta.restaurantes(id) on delete cascade,
@@ -77,6 +81,9 @@ create table if not exists carta.productos (
   disponible      boolean not null default true,
   orden           int not null default 0
 );
+-- ref: clave del plato en una web externa (ej. 'mn.abaceria.0#1') para el script pedidos.js
+alter table carta.productos add column if not exists ref text check (length(ref) <= 80);
+create unique index if not exists productos_ref_idx on carta.productos (restaurante_id, ref) where ref is not null;
 create index if not exists productos_restaurante_idx on carta.productos (restaurante_id);
 create index if not exists productos_categoria_idx on carta.productos (categoria_id);
 
@@ -266,7 +273,8 @@ begin
   return jsonb_build_object(
     'restaurante', jsonb_build_object(
       'slug', r.slug, 'nombre', r.nombre, 'mensaje', r.mensaje, 'color', r.color,
-      'moneda', r.moneda, 'pedidos_abiertos', r.pedidos_abiertos, 'mesa_libre', r.mesa_libre),
+      'moneda', r.moneda, 'pedidos_abiertos', r.pedidos_abiertos, 'mesa_libre', r.mesa_libre,
+      'web_carta', r.web_carta),
     'mesa', case when m.id is not null
                  then jsonb_build_object('codigo', m.codigo, 'nombre', m.nombre) end,
     'mesas', case when r.mesa_libre then coalesce((
@@ -281,7 +289,7 @@ begin
           from carta.categorias c
           cross join lateral (
             select jsonb_agg(jsonb_build_object(
-                     'id', x.id, 'nombre', x.nombre, 'descripcion', x.descripcion,
+                     'id', x.id, 'ref', x.ref, 'nombre', x.nombre, 'descripcion', x.descripcion,
                      'precio', x.precio, 'alergenos', to_jsonb(x.alergenos),
                      'imagen_url', x.imagen_url, 'disponible', x.disponible)
                    order by x.orden, x.nombre) as lista
@@ -291,7 +299,7 @@ begin
       coalesce((
         select jsonb_build_array(jsonb_build_object('id', null, 'nombre', 'Otros', 'productos',
                  jsonb_agg(jsonb_build_object(
-                   'id', x.id, 'nombre', x.nombre, 'descripcion', x.descripcion,
+                   'id', x.id, 'ref', x.ref, 'nombre', x.nombre, 'descripcion', x.descripcion,
                    'precio', x.precio, 'alergenos', to_jsonb(x.alergenos),
                    'imagen_url', x.imagen_url, 'disponible', x.disponible)
                  order by x.orden, x.nombre)))
@@ -457,6 +465,8 @@ declare
   v_desde int;
   v_hasta int;
   v_cat   uuid;
+  it      jsonb;
+  v_n     int := 0;
 begin
   r := carta._auth(p_slug, p_clave, 'admin');
   v_id := carta._uuid(nullif(d->>'id', ''));
@@ -469,7 +479,11 @@ begin
       if d ? 'color' and coalesce(d->>'color', '') !~ '^#[0-9a-fA-F]{6}$' then
         raise exception 'color_no_valido';
       end if;
+      if nullif(trim(coalesce(d->>'web_carta', '')), '') !~ '^https://[^\s]+$' then
+        raise exception 'web_no_valida';
+      end if;
       update carta.restaurantes set
+        web_carta        = case when d ? 'web_carta' then nullif(trim(d->>'web_carta'), '') else web_carta end,
         nombre           = coalesce(nullif(trim(d->>'nombre'), ''), nombre),
         mensaje          = case when d ? 'mensaje' then nullif(trim(d->>'mensaje'), '') else mensaje end,
         color            = coalesce(d->>'color', color),
@@ -532,6 +546,42 @@ begin
         if not found then raise exception 'no_encontrado'; end if;
       end if;
       v_extra := jsonb_build_object('id', v_id);
+
+    when 'importar' then  -- alta/actualización masiva por ref (carta de una web externa)
+      if coalesce(jsonb_typeof(d->'productos'), '') <> 'array' then raise exception 'datos_no_validos'; end if;
+      if jsonb_array_length(d->'productos') > 500 then raise exception 'demasiados_productos'; end if;
+      for it in select value from jsonb_array_elements(d->'productos') loop
+        if length(trim(coalesce(it->>'ref', ''))) = 0 or length(trim(coalesce(it->>'nombre', ''))) = 0 then
+          raise exception 'datos_no_validos';
+        end if;
+        if coalesce(it->>'precio', '') !~ '^[0-9]{1,5}([.][0-9]{1,2})?$' then
+          raise exception 'precio_no_valido:%', it->>'ref';
+        end if;
+        v_cat := null;
+        if length(trim(coalesce(it->>'categoria', ''))) > 0 then
+          select id into v_cat from carta.categorias
+           where restaurante_id = r.id and nombre = trim(it->>'categoria');
+          if not found then
+            insert into carta.categorias (restaurante_id, nombre, orden)
+            values (r.id, trim(it->>'categoria'),
+                    coalesce((it->>'categoria_orden')::int,
+                             (select coalesce(max(orden), 0) + 1 from carta.categorias where restaurante_id = r.id)))
+            returning id into v_cat;
+          end if;
+        end if;
+        insert into carta.productos (restaurante_id, ref, categoria_id, nombre, descripcion, precio, alergenos, orden)
+        values (r.id, trim(it->>'ref'), v_cat, trim(it->>'nombre'), nullif(trim(it->>'descripcion'), ''),
+                (it->>'precio')::numeric, carta._alergenos(it->'alergenos'), coalesce((it->>'orden')::int, 0))
+        on conflict (restaurante_id, ref) where ref is not null do update set
+          categoria_id = excluded.categoria_id,
+          nombre       = excluded.nombre,
+          descripcion  = excluded.descripcion,
+          precio       = excluded.precio,
+          orden        = excluded.orden,
+          alergenos    = case when it ? 'alergenos' then excluded.alergenos else carta.productos.alergenos end;
+        v_n := v_n + 1;
+      end loop;
+      v_extra := jsonb_build_object('importados', v_n);
 
     when 'disponible' then  -- marcar agotado / disponible rápido
       update carta.productos set disponible = coalesce((d->>'disponible')::boolean, true)
@@ -597,14 +647,15 @@ begin
   return jsonb_build_object(
     'restaurante', jsonb_build_object(
       'slug', r.slug, 'nombre', r.nombre, 'mensaje', r.mensaje, 'color', r.color,
-      'moneda', r.moneda, 'pedidos_abiertos', r.pedidos_abiertos, 'mesa_libre', r.mesa_libre),
+      'moneda', r.moneda, 'pedidos_abiertos', r.pedidos_abiertos, 'mesa_libre', r.mesa_libre,
+      'web_carta', r.web_carta),
     'categorias', coalesce((
       select jsonb_agg(jsonb_build_object('id', c.id, 'nombre', c.nombre, 'orden', c.orden, 'activa', c.activa)
                        order by c.orden, c.nombre)
         from carta.categorias c where c.restaurante_id = r.id), '[]'::jsonb),
     'productos', coalesce((
       select jsonb_agg(jsonb_build_object(
-               'id', x.id, 'categoria_id', x.categoria_id, 'nombre', x.nombre, 'descripcion', x.descripcion,
+               'id', x.id, 'ref', x.ref, 'categoria_id', x.categoria_id, 'nombre', x.nombre, 'descripcion', x.descripcion,
                'precio', x.precio, 'alergenos', to_jsonb(x.alergenos), 'imagen_url', x.imagen_url,
                'disponible', x.disponible, 'orden', x.orden) order by x.orden, x.nombre)
         from carta.productos x where x.restaurante_id = r.id), '[]'::jsonb),

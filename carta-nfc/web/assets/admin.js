@@ -134,6 +134,7 @@
     $('aj-nombre').value = r.nombre;
     $('aj-mensaje').value = r.mensaje || '';
     $('aj-color').value = r.color;
+    $('aj-web').value = r.web_carta || '';
     $('aj-abiertos').checked = r.pedidos_abiertos;
     $('aj-libre').checked = r.mesa_libre;
   }
@@ -298,6 +299,7 @@
     document.activeElement.blur();
     await op('ajustes', {
       nombre: $('aj-nombre').value.trim(), mensaje: $('aj-mensaje').value.trim(), color: $('aj-color').value,
+      web_carta: $('aj-web').value.trim(),
       pedidos_abiertos: $('aj-abiertos').checked, mesa_libre: $('aj-libre').checked,
     }, 'Ajustes guardados');
   });

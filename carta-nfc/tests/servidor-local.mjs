@@ -8,14 +8,20 @@ import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const WEB = path.resolve(DIR, '../web');
+const WEB_PLATAFORMA = path.resolve(DIR, '../web');
+// WEB_ROOT permite servir otra web (p. ej. la copia de la web de un bar con pedidos.js);
+// /w/* (el script) se sirve siempre desde la plataforma.
+const WEB = process.env.WEB_ROOT ? path.resolve(process.env.WEB_ROOT) : WEB_PLATAFORMA;
 const PORT = Number(process.env.PORT || 8787);
 const pool = new pg.Pool({
   host: process.env.PGHOST || '/tmp', port: Number(process.env.PGPORT || 54329),
   user: 'postgres', database: process.env.PGDATABASE || 'carta_test',
 });
 pool.on('error', () => {}); // la BD se recrea entre pruebas: el pool reconecta solo
-const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+const TIPOS = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2',
+};
 const firmas = new Map();
 
 async function firma(fn) {
@@ -70,8 +76,9 @@ http.createServer(async (req, res) => {
     return res.end(`window.CARTA_CONFIG = { supabaseUrl: location.origin, supabaseKey: 'sb_publishable_local' };`);
   }
   let rel = /^\/(m|r)\/[^/]+\/?$/.test(url.pathname) || url.pathname === '/' ? '/index.html' : url.pathname;
-  const file = path.join(WEB, path.normalize(rel).replace(/^(\.\.[/\\])+/, ''));
-  if (!file.startsWith(WEB) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+  const raiz = url.pathname.startsWith('/w/') ? WEB_PLATAFORMA : WEB;
+  const file = path.join(raiz, path.normalize(decodeURIComponent(rel)).replace(/^(\.\.[/\\])+/, ''));
+  if (!file.startsWith(raiz) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     res.writeHead(404); return res.end('404');
   }
   res.writeHead(200, { 'Content-Type': TIPOS[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });

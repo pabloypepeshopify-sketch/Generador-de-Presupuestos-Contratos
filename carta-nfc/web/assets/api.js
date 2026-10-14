@@ -21,6 +21,7 @@
     mesa_repetida: 'Ya existe una mesa con ese nombre.',
     color_no_valido: 'Color no válido.',
     rango_no_valido: 'Rango de mesas no válido (máx. 200).',
+    web_no_valida: 'La web de la carta debe empezar por https://',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };
 

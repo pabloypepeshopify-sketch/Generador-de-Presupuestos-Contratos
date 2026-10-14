@@ -58,6 +58,43 @@ aparte. Si se pierden, ver "Claves" más abajo.
   enlaces para entregar. Listado con actividad de 7 días, activar/desactivar (impago), resetear
   clave de admin.
 
+## Bares que ya tienen su web de carta: `pedidos.js`
+
+Si el bar ya tiene su carta en una web propia, no hace falta cambiarla: se le añade **una línea**
+y esa misma web pasa a admitir pedidos desde la mesa (botón **+** en cada precio, barra con la
+mesa, carrito, estado del pedido, llamar camarero / pedir cuenta, en el idioma de la web).
+
+```html
+<script src="https://carta-nfc-pedidos.netlify.app/w/pedidos.js" data-restaurante="martinez-bar" defer></script>
+```
+
+- **Visita normal** (Google, Instagram…): la web se ve exactamente igual. El script solo se activa
+  si se llega desde el NFC/QR de una mesa (`?mesa=<codigo>`) o con `?pedir=1`.
+- **NFC**: se siguen grabando los enlaces cortos `/m/<codigo>`. En gestión → *Ajustes* → **Web propia
+  de la carta** se pone la URL de la carta del bar y el NFC redirige allí con la mesa. Si el bar
+  cambia de web, se cambia esa URL y **no hay que regrabar** los NFC.
+- **Carta**: `herramientas/importar-carta.mjs` lee la web y crea un producto por plato **y por
+  tamaño** (Tapa / Media / Ración…) con su precio. Volver a ejecutarlo actualiza precios sin duplicar.
+  ```bash
+  node herramientas/importar-carta.mjs --url https://martinez-bar.vercel.app/carta.html --slug martinez-bar --clave <clave admin>
+  ```
+- **Probar sin tocar su hosting**: `herramientas/espejo-web.py` copia la web y le añade la línea;
+  se publica la copia en Netlify (sin indexar en Google).
+- El script reconoce por defecto la plantilla de Martínez (`.dish`, `.dish__p`, claves i18n `mn.*`).
+  Para otra web: atributos `data-carta-plato`, `data-carta-ref`, `data-carta-precio` en el HTML, o
+  selectores propios con `data-sel-plato`, `data-sel-precio`… y colores con `data-acento`, `data-fondo`.
+
+### Martínez Bar (prueba real)
+
+| Qué | Enlace |
+|---|---|
+| Su web con pedidos (copia de pruebas) | https://martinez-bar-pedidos.netlify.app/carta.html |
+| NFC de la Mesa 2 (redirige a su web con la mesa) | https://carta-nfc-pedidos.netlify.app/m/692370d79e |
+| Panel de comandas | `cocina.html?r=martinez-bar&k=<clave cocina>` (clave entregada aparte) |
+
+Para dejarlo en su web real (Vercel): pegar la línea `<script …>` antes de `</body>` en `carta.html`
+y cambiar *Web propia de la carta* a `https://martinez-bar.vercel.app/carta.html`.
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
@@ -89,12 +126,17 @@ carta-nfc/
   web/                       sitio estático publicado en Netlify (sin build)
     index.html cocina.html admin.html alta.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* vendor/qrcode.js (MIT)
+    w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
+  herramientas/
+    importar-carta.mjs       carga la carta de la web de un bar (platos + tamaños)
+    espejo-web.py            copia una web y le añade pedidos.js (para pruebas)
   tests/
-    sql-tests.sql            ~45 comprobaciones de la API SQL como rol anon
+    sql-tests.sql            ~55 comprobaciones de la API SQL como rol anon
     servidor-local.mjs       imita Supabase (RPC) + Netlify (rewrites) en local
     e2e.mjs                  navegador real: admin → cliente → cocina → cuenta → cobro
+    e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
 ```
@@ -128,6 +170,8 @@ bash db-local.sh                      # crea la BD carta_test
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
+# widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):
+MIRROR=/ruta/copia-martinez node e2e-widget.mjs   # → E2E WIDGET OK
 # contra producción (usa la mesa de la demo):
 MESA=080f59f08e node humo-produccion.mjs
 ```
@@ -138,6 +182,10 @@ MESA=080f59f08e node humo-produccion.mjs
 - Panel de cocina por sondeo cada 3 s (robusto con WiFi de bar); no usa WebSockets.
 - Impresión vía diálogo del navegador; impresoras térmicas que funcionen como impresora del
   sistema valen. Impresión automática sin diálogo requeriría un agente local.
-- Carta en un idioma (español).
+- Carta propia de la plataforma en un idioma (español); con `pedidos.js` se usan los idiomas de la web del bar.
+- Suplementos tipo "carne extra +2,5 €" no son opciones con precio: el cliente lo pide en la nota
+  del plato y se cobra en mesa.
+- Si el bar cambia precios en su web, hay que volver a ejecutar `importar-carta.mjs` (el precio
+  que vale siempre es el de la base de datos).
 - Netlify muestra un badge "Powered by Netlify" (se cierra con su ✕); el diseño deja hueco para
   que nunca tape el botón del pedido.

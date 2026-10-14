@@ -51,6 +51,14 @@
       }
       return;
     }
+    // El bar tiene su propia web de carta (con pedidos.js): el NFC lleva allí con la mesa.
+    if (menu.restaurante.web_carta) {
+      const destino = new URL(menu.restaurante.web_carta);
+      if (menu.mesa) destino.searchParams.set('mesa', menu.mesa.codigo);
+      else destino.searchParams.set('pedir', '1');
+      location.replace(destino.toString());
+      return;
+    }
     productos = {};
     menu.categorias.forEach((c) => c.productos.forEach((p) => { productos[p.id] = p; }));
     mesa = menu.mesa || null;

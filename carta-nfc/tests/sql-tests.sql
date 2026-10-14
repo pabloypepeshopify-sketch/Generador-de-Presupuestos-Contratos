@@ -189,12 +189,45 @@ begin
   begin perform public.carta_menu('casa-pepe'); ok := false;
   exception when others then ok := sqlerrm = 'restaurante_no_encontrado'; end;
   assert ok, 'restaurante desactivado';
-  assert jsonb_array_length(v->'restaurantes') = 4, 'listar 4 restaurantes';
+  assert (select count(*) from jsonb_array_elements(v->'restaurantes') x where x->>'slug' in ('bar-test','otro-bar','casa-pepe')) = 3, 'listar restaurantes';
 
   -- 13. Funciones internas no accesibles
   begin perform carta._alta('X','hack-bar',1); ok := false;
   exception when insufficient_privilege then ok := true; end;
   assert ok, 'carta._alta no accesible a anon';
+
+  -- 14. Importar carta de una web externa por ref (pedidos.js)
+  v := public.carta_admin('otro-bar','otro-admin','importar', jsonb_build_object('productos', jsonb_build_array(
+         jsonb_build_object('ref','mn.abaceria.0#0','nombre','Cecina de León · Tapa','precio','3.9','categoria','Abacería','categoria_orden',6,'orden',1),
+         jsonb_build_object('ref','mn.abaceria.0#1','nombre','Cecina de León · Media','precio','9','categoria','Abacería','orden',2),
+         jsonb_build_object('ref','mn.cocteles.0','nombre','Paloma','precio','8','categoria','Cócteles','descripcion','Tequila'))));
+  assert (v->>'importados')::int = 3, 'importados 3';
+  v := public.carta_admin('otro-bar','otro-admin','importar', jsonb_build_object('productos', jsonb_build_array(
+         jsonb_build_object('ref','mn.abaceria.0#1','nombre','Cecina de León · Media','precio','9.5','categoria','Abacería','orden',2))));
+  assert (select count(*) from jsonb_array_elements(v->'productos') p where p->>'ref' like 'mn.%') = 3, 'reimportar no duplica';
+  assert (select (p->>'precio')::numeric from jsonb_array_elements(v->'productos') p where p->>'ref' = 'mn.abaceria.0#1') = 9.5, 'precio actualizado';
+  assert (select count(*) from jsonb_array_elements(v->'categorias') c where c->>'nombre' = 'Abacería') = 1, 'categoría no duplicada';
+  v := public.carta_menu('otro-bar');
+  assert (select count(*) from jsonb_array_elements(v->'categorias') c, jsonb_array_elements(c->'productos') p
+           where p->>'ref' = 'mn.cocteles.0') = 1, 'ref visible en carta_menu';
+  begin
+    perform public.carta_admin('otro-bar','otro-admin','importar', '{"productos":[{"ref":"a","nombre":"X","precio":"abc"}]}'); ok := false;
+  exception when others then ok := sqlerrm = 'precio_no_valido:a'; end;
+  assert ok, 'importar precio no válido';
+  begin
+    perform public.carta_admin('otro-bar','otro-cocina','importar', '{"productos":[]}'); ok := false;
+  exception when others then ok := sqlerrm = 'clave_incorrecta'; end;
+  assert ok, 'importar requiere admin';
+
+  -- 15. Web de carta propia
+  v := public.carta_admin('otro-bar','otro-admin','ajustes','{"web_carta":"https://otro.example/carta.html"}');
+  assert v->'restaurante'->>'web_carta' = 'https://otro.example/carta.html', 'web_carta guardada';
+  assert public.carta_menu('otro-bar')->'restaurante'->>'web_carta' = 'https://otro.example/carta.html', 'web_carta en carta_menu';
+  begin perform public.carta_admin('otro-bar','otro-admin','ajustes','{"web_carta":"javascript:alert(1)"}'); ok := false;
+  exception when others then ok := sqlerrm = 'web_no_valida'; end;
+  assert ok, 'web_carta solo https';
+  v := public.carta_admin('otro-bar','otro-admin','ajustes','{"web_carta":""}');
+  assert v->'restaurante'->'web_carta' = 'null'::jsonb, 'web_carta se puede quitar';
 
   raise notice 'TODAS LAS PRUEBAS SQL OK';
 end $$;
