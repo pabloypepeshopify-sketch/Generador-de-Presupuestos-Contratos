@@ -169,6 +169,7 @@ button.pill:hover{border-color:var(--laton)}
 .ord{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--linea)}
 .ord b{font-weight:700;font-size:14px}
 .ord small{display:block;color:var(--suave);font-size:12px;font-weight:500}
+.ord .tk{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta);text-decoration:underline;text-decoration-color:var(--laton);text-underline-offset:3px}
 .st{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:rgba(19,19,19,.07);white-space:nowrap}
 .st.preparando{background:#efe1c3}
 .st.listo{background:var(--amarillo)}
@@ -289,6 +290,8 @@ var SLUG = 'martinez-bar';
 var IMG = 'https://martinez-bar.vercel.app/assets/img/';
 var POLL_MS = 8000;
 var TTL = 12 * 60 * 60 * 1000;
+var TICKET = 'https://carta-nfc-pedidos.netlify.app/ticket.html?t=';
+var TICKET_MS = 20000, TICKET_TTL = 6 * 60 * 60 * 1000;
 var K_MESA = 'mtz_mesa', K_CART = 'mtz_cart', K_NOTA = 'mtz_nota', K_ORD = 'mtz_pedidos';
 
 var COCINA = ['burgers','unos nachos','tacos baos y mas','con patatas','entre panes','abaceria'];
@@ -702,7 +705,8 @@ function renderOrders(){
     S.orders.forEach(function(o){
       var hora = '';
       try { hora = new Date(o.creado || o.t).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }); } catch(e){}
-      h += '<div class="ord"><div><b>Pedido nº ' + esc(o.numero) + '</b><small>' + esc([o.mesaNombre, hora, money(o.total)].filter(Boolean).join(' · ')) + '</small></div>' +
+      h += '<div class="ord"><div><b>Pedido nº ' + esc(o.numero) + '</b><small>' + esc([o.mesaNombre, hora, money(o.total)].filter(Boolean).join(' · ')) + '</small>' +
+           (o.ticket ? '<a class="tk" href="' + esc(TICKET + encodeURIComponent(o.ticket)) + '" target="_blank" rel="noopener">Ver tu ticket</a>' : '') + '</div>' +
            '<span class="st ' + esc(o.estado) + '">' + esc(ESTADOS[o.estado] || o.estado) + '</span></div>';
     });
     h += '</div>';
@@ -766,7 +770,7 @@ function send(){
     closeM('mCart');
     $('okMeta').textContent = 'Pedido nº ' + o.numero + ' · ' + mesa.nombre + ' · ' + money(o.total);
     openM('mOk');
-    updateBadges(); updateBar(); startPoll();
+    updateBadges(); updateBar(); startPoll(); buscarTickets();
     if (navigator.vibrate) try { navigator.vibrate(60); } catch(e){}
   }).catch(function(e){
     S.sending = false;
@@ -878,7 +882,25 @@ function poll(){
     if (!activeOrders().length) stopPoll();
   }).catch(function(){}).then(function(){ polling = false; });
 }
-document.addEventListener('visibilitychange', function(){ if (!document.hidden) poll(); });
+/* Cuando la mesa se cobra con facturación activa, el pedido queda enlazado a su ticket: "Ver tu ticket". */
+var ticketT = null;
+function buscarTickets(){
+  clearTimeout(ticketT);
+  var now = Date.now();
+  var sin = S.orders.filter(function(o){ return !o.ticket && o.estado !== 'cancelado' && now - (o.t || 0) < TICKET_TTL; });
+  if (!sin.length) return;
+  ticketT = setTimeout(buscarTickets, TICKET_MS);
+  if (document.hidden) return;
+  rpc('fiscal_tickets', { p_tokens: sin.map(function(o){ return o.token; }) }).then(function(r){
+    var hay = false;
+    (Array.isArray(r) ? r : []).forEach(function(x){
+      var o = S.orders.find(function(z){ return z.token === x.pedido_token; });
+      if (o && x.ticket_token){ o.ticket = x.ticket_token; hay = true; }
+    });
+    if (hay){ saveOrders(); if (!$('mCart').hidden) renderOrders(); }
+  }).catch(function(){ /* sin facturación activa: no pasa nada */ });
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden){ poll(); buscarTickets(); } });
 
 /* ====== Inicio ====== */
 var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
@@ -886,7 +908,7 @@ function boot(){
   loadOrders();
   updateBar();
   load().then(function(){
-    startPoll(); poll();
+    startPoll(); poll(); buscarTickets();
   }).catch(function(e){
     $('main').innerHTML = '<div class="state"><h2>Ups.</h2><p>' + esc((e && e.code === 'red') ? errMsg('red') : 'No hemos podido cargar la carta.') +
       '</p>' + (inFrame && e && e.code === 'red' ? '<p style="margin-top:10px;font-size:13px">Si lo estás viendo en una vista previa, ábrelo directamente en el navegador.</p>' : '') + '<button class="btn-big dark" type="button" id="retry" style="margin-top:20px;max-width:260px">Reintentar</button></div>';

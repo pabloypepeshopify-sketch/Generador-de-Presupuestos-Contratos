@@ -97,6 +97,14 @@ panel de cocina.
 | NFC de cada mesa (abre la página con la mesa) | `https://carta-nfc-pedidos.netlify.app/m/<codigo de mesa>` (códigos en gestión → Mesas y NFC) |
 | Panel de comandas | `cocina.html?r=martinez-bar&k=<clave cocina>` (clave entregada aparte) |
 
+**Publicar esta página = sobrescribir la de producción del bar.** Hazlo solo desde este archivo y con
+el OK de Pablo. Antes, pasa `node tests/e2e-martinez.mjs`, que la prueba contra la BD local sin tocar
+producción.
+
+La versión del repo añade **Ver tu ticket** (facturación Fase 1) sobre la publicada el 14/10/2026:
+- no cambia nada mientras Martínez no tenga activada la facturación;
+- está pendiente de publicar.
+
 *Web propia de la carta* = `https://martinez-bar-pedidos.netlify.app/`. Si algún día prefieren pedir
 desde su web de Vercel, basta con pegar la línea de `pedidos.js` en su `carta.html` y cambiar ese
 ajuste; los NFC no se regraban.
@@ -150,7 +158,8 @@ Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase
   - **QR tributario** con la leyenda VERI\*FACTU;
   - el aviso "ENTORNO DE PRUEBAS · SIN VALIDEZ FISCAL" mientras no haya envío real.
 - **Ticket digital**: el camarero enseña un QR que abre `ticket.html?t=…`. El cliente además ve
-  **Ver tu ticket** en "Tus pedidos". Funciona en la carta de la plataforma y en la página de Martínez.
+  **Ver tu ticket** en "Tus pedidos". Funciona en la carta de la plataforma y en la página de Martínez
+  (en el repo; pendiente de publicar).
 - **Gestión → Facturación**:
   - datos fiscales del titular;
   - modo SIF;
@@ -199,6 +208,7 @@ carta-nfc/
     e2e.mjs                  navegador real: admin → cliente → cocina → cuenta → cobro
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket"
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
+    e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
   docs/brief-facturacion.md  plan del módulo de tickets, facturación, contabilidad e impuestos
@@ -235,6 +245,7 @@ psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS L
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
+node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
 # widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):
