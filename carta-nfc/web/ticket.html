@@ -31,13 +31,16 @@
   <script>
     (async function () {
       document.getElementById('tk-css').textContent = window.CartaTicket.css;
-      const token = new URLSearchParams(location.search).get('t') || '';
+      const qs = new URLSearchParams(location.search);
+      const token = qs.get('t') || '';
       const hoja = document.getElementById('hoja');
       try {
         const d = await window.Carta.rpc('fiscal_documento', { p_token: token });
         document.title = d.num_serie + ' · ' + ((d.emisor && (d.emisor.nombre_comercial || d.emisor.razon_social)) || 'Ticket');
         hoja.innerHTML = window.CartaTicket.html(d);
         document.getElementById('acciones').hidden = false;
+        // ?imprimir=1: viene del panel en un móvil; se abre directamente el diálogo de imprimir/guardar PDF.
+        if (qs.get('imprimir') === '1') setTimeout(() => print(), 400);
       } catch (e) {
         hoja.innerHTML = '<p style="text-align:center">No encontramos este ticket.</p>';
       }

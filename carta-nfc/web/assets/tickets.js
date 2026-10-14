@@ -11,21 +11,25 @@
 
   const CSS = `
 .tkl-filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
-.tkl-rangos{display:flex;flex-wrap:wrap;gap:4px;width:100%}
-.tkl-rangos button{min-height:38px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
+.tkl-rangos{display:flex;gap:4px;width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tkl-rangos::-webkit-scrollbar{display:none}
+.tkl-rangos button{flex:0 0 auto;min-height:38px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
 .tkl-rangos button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
-.tkl-filtros label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
-.tkl-filtros input,.tkl-filtros select{min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);width:auto}
-.tkl-filtros .tkl-q{flex:1 1 200px}
-.tkl-filtros .tkl-q input{width:100%}
+.tkl-filtros label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;flex:1 1 130px;min-width:0}
+.tkl-filtros label.tkl-tipo{flex:0 1 120px}
+.tkl-filtros label.tkl-q{flex:1 1 160px}
+.tkl-filtros input,.tkl-filtros select{min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);width:100%;min-width:0}
+.tkl-filtros [data-tkl-csv]{min-height:42px}
 .tkl-resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:12px 0}
 .tkl-resumen div{background:var(--surface-2);border-radius:12px;padding:10px 12px}
 .tkl-resumen b{display:block;font-size:20px}
 .tkl-resumen span{font-size:12px;color:var(--muted)}
-.tkl-fila{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.tkl-fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .tkl-fila:first-child{border-top:0}
-.tkl-fila .n{flex:1 1 200px;min-width:0}
-.tkl-fila .t{font-weight:700;white-space:nowrap}
+.tkl-fila .n{grid-row:1 / span 2;min-width:0;overflow-wrap:anywhere}
+.tkl-fila .t{font-weight:700;white-space:nowrap;text-align:right}
+.tkl-fila button{justify-self:end;white-space:nowrap}
+@media (max-width:600px){.tkl-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.tkl-resumen b{font-size:18px}.tkl-filtros [data-tkl-csv]{width:100%}}
 .tkl-mas{display:block;margin:12px auto 0}
 .tkl-vacio{padding:24px 0;text-align:center;color:var(--muted)}`;
 
@@ -67,7 +71,7 @@
         </div>
         <label>Desde<input type="date" data-tkl-f="desde" value="${est.desde}"></label>
         <label>Hasta<input type="date" data-tkl-f="hasta" value="${est.hasta}"></label>
-        <label>Tipo<select data-tkl-f="tipo"><option value="">Todos</option><option value="ticket">Tickets</option><option value="factura">Facturas</option></select></label>
+        <label class="tkl-tipo">Tipo<select data-tkl-f="tipo"><option value="">Todos</option><option value="ticket">Tickets</option><option value="factura">Facturas</option></select></label>
         <label class="tkl-q">Buscar<input type="search" data-tkl-f="q" placeholder="Nº de ticket, mesa o cliente" maxlength="60"></label>
         <button class="btn sm" type="button" data-tkl-csv>⬇ Descargar Excel</button>
       </div>

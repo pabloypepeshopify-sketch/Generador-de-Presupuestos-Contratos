@@ -20,7 +20,7 @@ const ANIO = new Date().toLocaleString('es-ES', { year: 'numeric', timeZone: 'Eu
 execSync('bash ./db-local.sh', { cwd: DIR, stdio: 'ignore' });
 const srv = spawn('node', ['servidor-local.mjs'], { cwd: DIR, env: { ...process.env, PORT: '8787' }, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 1500));
-psql("select carta._alta('Bar Fiscal', 'bar-fiscal', 4, 'admin-f', 'cocina-f')");
+psql("select carta._alta('Bar Fiscal de Pruebas', 'bar-fiscal', 4, 'admin-f', 'cocina-f')");
 psql("select carta._alta('Bar Sin Fiscal', 'sin-fiscal', 2, 'admin-s', 'cocina-s')");
 const rpcAdmin = (slug, clave, accion, datos) => psql(`set role anon; select public.carta_admin('${slug}','${clave}','${accion}','${JSON.stringify(datos).replace(/"/g, '\\"')}'::jsonb)`);
 for (const slug of [['bar-fiscal', 'admin-f'], ['sin-fiscal', 'admin-s']]) {
@@ -212,6 +212,47 @@ try {
   await filas.nth(54).waitFor();
   ok(await filas.count() === 55 && await k.locator('#tickets-lista [data-tkl-mas]').isHidden(), 'Cargar más → los 55');
   ok((await filas.last().innerText()).includes(`T${ANIO}-000001`), 'el más antiguo al final');
+
+  console.log('MÓVIL · cobrar, imprimir y Tickets desde el teléfono');
+  await pedir(movilCtx, mesa('bar-fiscal', 2), [['McTínez', 1]]);
+  const tctx = await browser.newContext({ ...devices['iPhone 13'] });
+  const t = await tctx.newPage();
+  vigilar(t, 'cocina-movil');
+  const sinScroll = () => t.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  await t.goto(`${BASE}/cocina.html?r=bar-fiscal&k=cocina-f`);
+  await t.locator('#tab-tickets:not([hidden])').waitFor();
+  const [bb, ba] = [await t.locator('.k-brand').boundingBox(), await t.locator('.k-actions').boundingBox()];
+  ok((await t.locator('.k-top').boundingBox()).height < 140 && Math.abs(bb.y + bb.height / 2 - (ba.y + ba.height / 2)) < 12,
+    'móvil: cabecera compacta (nombre + iconos en una fila, pestañas debajo)');
+  await t.getByRole('tab', { name: /Mesas/ }).click();
+  const cm = t.locator('.mesa-card', { hasText: 'Mesa 2' });
+  await cm.getByRole('button', { name: /Cobrar/ }).click();
+  const dm = t.locator('#dlg-cobrar');
+  await dm.locator('[data-forma="efectivo"]').click();
+  await dm.locator('#cb-entregado').fill('20');
+  ok((await dm.locator('#cb-cambio').innerText()).includes('10,00'), 'móvil: cobro en efectivo con cambio');
+  await shot(t, 'f07-movil-cobrar');
+  await dm.locator('#cb-emitir').click();
+  await dm.locator('.tk').waitFor();
+  const [imp] = await Promise.all([tctx.waitForEvent('page'), dm.locator('[data-cobro="imprimir"]').click()]);
+  await imp.waitForURL(/ticket\.html\?t=[0-9a-f]+&imprimir=1/);
+  await imp.locator('.tk').waitFor();
+  ok((await imp.locator('.tk').innerText()).includes(`T${ANIO}-000055`), 'móvil: Imprimir abre la página del ticket y lanza la impresión');
+  await imp.close();
+  await dm.locator('.dlg-foot [data-cobro="cerrar"]').click();
+  await t.getByRole('tab', { name: /Tickets/ }).click();
+  await t.locator('#tickets-lista .tkl-fila').first().waitFor();
+  ok(await sinScroll(), 'móvil: Tickets sin scroll lateral');
+  await shot(t, 'f08-movil-tickets');
+  await t.locator('#tickets-lista .tkl-fila').first().getByRole('button', { name: /Ver/ }).click();
+  await t.locator('#dlg-ticket .tk').waitFor();
+  await shot(t, 'f09-movil-ver');
+  const [imp2] = await Promise.all([tctx.waitForEvent('page'), t.locator('#dlg-ticket [data-visto="imprimir"]').click()]);
+  await imp2.waitForURL(/imprimir=1/);
+  ok(true, 'móvil: reimprimir un ticket antiguo');
+  await imp2.close();
+  await t.locator('#dlg-ticket .dlg-foot [data-visto="cerrar"]').click();
+  ok(await sinScroll(), 'móvil: sin scroll lateral');
 
   console.log('BAR SIN DATOS FISCALES (como Martínez hoy)');
   await pedir(movilCtx, mesa('sin-fiscal', 1), [['McTínez', 1]]);

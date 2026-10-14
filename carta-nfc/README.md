@@ -166,6 +166,9 @@ Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase
   - totales del periodo: ventas, IVA, cobrado por forma de pago y propinas (sirve de cierre de caja);
   - **Ver · Imprimir** cualquier ticket antiguo, con su QR de ticket digital;
   - **Descargar Excel**: libro de facturas emitidas (CSV con `;` y coma decimal, una fila por tipo de IVA) para la gestoría.
+  - **Funciona en el móvil**: en pantallas pequeñas la cabecera se compacta (nombre + iconos, pestañas debajo).
+    Al imprimir se abre el ticket en su propia página (`ticket.html?t=…&imprimir=1`), que lanza imprimir / guardar PDF.
+    Imprimir desde un iframe oculto no es fiable en iPhone ni en Android.
 - **Gestión → Facturación**:
   - datos fiscales del titular;
   - modo SIF;

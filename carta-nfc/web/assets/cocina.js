@@ -126,7 +126,8 @@
     const r = d.restaurante;
     $('k-reloj').textContent = hora(d.ahora);
     const pausa = $('k-pausa');
-    pausa.textContent = r.pedidos_abiertos ? '📲 Pedidos móvil: abiertos' : '⏸ Pedidos móvil: PAUSADOS';
+    pausa.innerHTML = r.pedidos_abiertos ? '📲 <span class="lbl">Pedidos móvil: </span>abiertos' : '⏸ <span class="lbl">Pedidos móvil: </span>PAUSADOS';
+    pausa.setAttribute('aria-label', pausa.textContent);
     pausa.className = 'btn sm ' + (r.pedidos_abiertos ? 'abiertos' : 'pausados');
 
     const avisos = d.pedidos.filter((p) => p.tipo !== 'pedido' && p.estado === 'nuevo');
@@ -396,10 +397,18 @@
 
   function urlTicket(d) { return `${location.origin}/ticket.html?t=${encodeURIComponent(d.token)}`; }
 
+  // En el móvil, imprimir desde un iframe oculto no es fiable (iPhone/Android imprimen la página entera o nada):
+  // se abre el ticket en su propia página, que lanza la impresión (o "Guardar como PDF").
+  const esMovil = () => window.matchMedia('(max-width: 760px)').matches;
+  function imprimirTicket(d) {
+    if (esMovil()) window.open(urlTicket(d) + '&imprimir=1', '_blank');
+    else imprimir(window.CartaTicket.html(d), window.CartaTicket.css);
+  }
+
   function accionCobro(a) {
     if (a === 'cerrar') { $('dlg-cobrar').close(); cobro = null; }
     else if (a === 'emitir') emitirCobro();
-    else if (a === 'imprimir') imprimir(window.CartaTicket.html(cobro.doc), window.CartaTicket.css);
+    else if (a === 'imprimir') imprimirTicket(cobro.doc);
     else if (a === 'qr') {
       const url = urlTicket(cobro.doc);
       $('qr-digital').innerHTML = `${window.CartaTicket.qrSvg(url, 4)}<p class="small muted">El cliente lo escanea y se lleva su ticket en el móvil.</p>`;
@@ -441,7 +450,7 @@
 
   function accionVisto(a) {
     if (a === 'cerrar') { $('dlg-ticket').close(); visto = null; }
-    else if (a === 'imprimir' && visto) imprimir(window.CartaTicket.html(visto), window.CartaTicket.css);
+    else if (a === 'imprimir' && visto) imprimirTicket(visto);
     else if (a === 'qr' && visto) {
       $('qr-visto').innerHTML = `${window.CartaTicket.qrSvg(urlTicket(visto), 4)}<p class="small muted">El cliente lo escanea y se lleva su ticket en el móvil.</p>`;
     }
@@ -449,7 +458,9 @@
 
   // --------------------------------------------------------- sonido y aviso ----
   function pintarSonido() {
-    $('k-sonido').textContent = sonidoOn && audio && audio.state === 'running' ? '🔔 Sonido activado' : '🔕 Activar sonido';
+    const on = sonidoOn && audio && audio.state === 'running';
+    $('k-sonido').innerHTML = on ? '🔔 <span class="lbl">Sonido activado</span>' : '🔕 <span class="lbl">Activar sonido</span>';
+    $('k-sonido').setAttribute('aria-label', $('k-sonido').textContent);
   }
 
   function activarAudio() {
