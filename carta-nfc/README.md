@@ -160,6 +160,12 @@ Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase
 - **Ticket digital**: el camarero enseña un QR que abre `ticket.html?t=…`. El cliente además ve
   **Ver tu ticket** en "Tus pedidos". Funciona en la carta de la plataforma y en la página de Martínez
   (en el repo; pendiente de publicar).
+- **Pestaña 🧾 Tickets en el panel de comandas** (sale cuando el bar tiene datos fiscales):
+  - todos los tickets y facturas emitidos, sin límite (50 por página, "Cargar más");
+  - filtros Hoy / Ayer / 7 días / Este mes / Todo o fechas a mano, tipo y búsqueda por número, mesa o cliente;
+  - totales del periodo: ventas, IVA, cobrado por forma de pago y propinas (sirve de cierre de caja);
+  - **Ver · Imprimir** cualquier ticket antiguo, con su QR de ticket digital;
+  - **Descargar Excel**: libro de facturas emitidas (CSV con `;` y coma decimal, una fila por tipo de IVA) para la gestoría.
 - **Gestión → Facturación**:
   - datos fiscales del titular;
   - modo SIF;
@@ -167,7 +173,7 @@ Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase
   - series;
   - límite de factura simplificada;
   - pie del ticket;
-  - últimos documentos y estado de la cadena.
+  - la misma lista completa de tickets con descarga Excel, y el estado de la cadena.
 
 **Cómo se activa**: gestión → *Facturación* → rellenar los datos fiscales → Guardar.
 - Un restaurante **sin datos fiscales sigue exactamente igual que antes**: botones "🖨 Ticket" y
@@ -191,9 +197,10 @@ carta-nfc/
   supabase/001_esquema.sql   tablas (schema carta) + API SQL (funciones carta_*)
   supabase/002_demo.sql      restaurante demo "Bar La Demo" (re-ejecutable)
   supabase/003_fiscal.sql    facturación Fase 1: schema fiscal + funciones fiscal_*
+  supabase/004_fiscal_tickets.sql  listado completo de tickets (fiscal_documentos)
   web/                       sitio estático publicado en Netlify (sin build)
     index.html cocina.html admin.html alta.html ticket.html
-    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js vendor/qrcode.js (MIT)
+    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
@@ -203,10 +210,10 @@ carta-nfc/
     espejo-web.py            copia una web y le añade pedidos.js (para pruebas)
   tests/
     sql-tests.sql            ~55 comprobaciones de la API SQL como rol anon
-    sql-tests-fiscal.sql     facturación: vector oficial AEAT, NIF, redondeos, series, cadena, inalterabilidad
+    sql-tests-fiscal.sql     facturación: vector oficial AEAT, NIF, redondeos, series, listado, cadena, inalterabilidad
     servidor-local.mjs       imita Supabase (RPC) + Netlify (rewrites) en local
     e2e.mjs                  navegador real: admin → cliente → cocina → cuenta → cobro
-    e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket"
+    e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
@@ -219,7 +226,7 @@ carta-nfc/
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
   ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
-  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql` (y
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -240,7 +247,7 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test (001 + 003)
+bash db-local.sh                      # crea la BD carta_test (001 + 003 + 004)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK

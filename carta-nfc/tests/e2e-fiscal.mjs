@@ -4,6 +4,7 @@
 //   Un bar SIN datos fiscales mantiene el panel de siempre ("Cobrada · liberar mesa").
 import { chromium, devices } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { execSync, spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,6 +12,7 @@ const DIR = path.dirname(fileURLToPath(import.meta.url));
 const BASE = 'http://localhost:8787';
 const SHOTS = process.env.SHOTS || '';
 const psql = (sql) => execSync(`psql -h /tmp -p 54329 -U postgres -d carta_test -tAq -c "${sql}"`).toString().trim();
+const psqlIn = (sql) => execSync('psql -h /tmp -p 54329 -U postgres -d carta_test -tAq -v ON_ERROR_STOP=1 -f -', { input: sql }).toString().trim();
 const ok = (c, m) => { if (!c) throw new Error('FALLO: ' + m); console.log('  ✓ ' + m); };
 const shot = async (p, n) => { if (SHOTS) await p.screenshot({ path: `${SHOTS}/${n}.png` }); };
 const ANIO = new Date().toLocaleString('es-ES', { year: 'numeric', timeZone: 'Europe/Madrid' });
@@ -143,12 +145,73 @@ try {
     'ticket digital en el móvil (con QR)');
   await shot(movil, 'f04-ticket-movil');
 
-  console.log('ADMIN · listado');
+  console.log('COCINA · pestaña Tickets');
+  await k.getByRole('tab', { name: /Tickets/ }).click();
+  const filas = k.locator('#tickets-lista .tkl-fila');
+  await filas.nth(2).waitFor();
+  ok(await filas.count() === 3, 'Tickets de hoy: 3 documentos');
+  const resumen = await k.locator('#tickets-lista [data-tkl-resumen]').innerText();
+  ok(resumen.includes('47,00') && resumen.includes('37,00') && resumen.includes('11,00'),
+    'resumen: ventas 47,00 · tarjeta 37,00 · efectivo 11,00 (con propina)');
+  await k.locator('#tickets-lista [data-tkl-f="q"]').fill('empresa');
+  await k.waitForFunction(() => document.querySelectorAll('#tickets-lista .tkl-fila').length === 1);
+  ok((await filas.first().innerText()).includes(`F${ANIO}-000001`), 'búsqueda por cliente → la factura');
+  await filas.first().getByRole('button', { name: /Ver/ }).click();
+  const dv = k.locator('#dlg-ticket');
+  await dv.locator('.tk').waitFor();
+  ok((await dv.locator('.tk').innerText()).includes('Empresa Demo SL'), 'ver un ticket antiguo desde el panel');
+  await dv.locator('[data-visto="qr"]').click();
+  ok(await dv.locator('#qr-visto svg').count() === 1, 'QR del ticket digital desde la lista');
+  ok(await dv.locator('[data-visto="imprimir"]').isVisible(), 'botón Imprimir');
+  await shot(k, 'f05-tickets-ver');
+  await dv.locator('.dlg-foot [data-visto="cerrar"]').click();
+  await k.locator('#tickets-lista [data-tkl-f="q"]').fill('');
+  await k.waitForFunction(() => document.querySelectorAll('#tickets-lista .tkl-fila').length === 3);
+  await k.locator('#tickets-lista [data-tkl-rango="ayer"]').click();
+  await k.locator('#tickets-lista .tkl-vacio', { hasText: 'No hay tickets' }).waitFor();
+  ok(true, 'filtro "Ayer": sin tickets');
+  await k.locator('#tickets-lista [data-tkl-rango="hoy"]').click();
+  await filas.nth(2).waitFor();
+  await shot(k, 'f06-tickets');
+
+  console.log('ADMIN · listado y Excel');
   await admin.reload();
   await admin.getByRole('tab', { name: 'Facturación' }).click();
-  await admin.locator('.fz-doc').first().waitFor();
-  ok(await admin.locator('.fz-doc').count() === 3, '3 documentos en Facturación');
+  await admin.locator('#fz-docs .tkl-fila').nth(2).waitFor();
+  ok(await admin.locator('#fz-docs .tkl-fila').count() === 3, '3 documentos en Facturación');
   ok((await admin.locator('#fz-estado').innerText()).includes('pendientes de envío: 3'), '3 registros pendientes de envío (Fase 2)');
+  const [descarga] = await Promise.all([admin.waitForEvent('download'), admin.locator('#fz-docs [data-tkl-csv]').click()]);
+  const csv = readFileSync(await descarga.path(), 'utf8');
+  const lineas = csv.trim().split('\r\n');
+  ok(csv.charCodeAt(0) === 0xfeff && lineas[0].includes('"Base imponible"') && lineas.length === 4, `CSV: cabecera + 3 filas (${descarga.suggestedFilename()})`);
+  ok(lineas[1].includes(`"T${ANIO}-000001"`) && lineas[1].includes(';25,45;2,55;28,00;28,00;'), 'CSV: T…-000001 base 25,45 · cuota 2,55 · total 28,00');
+  ok(lineas[3].includes('"B12345674"') && lineas[3].includes('"Empresa Demo SL"'), 'CSV: la factura con NIF y nombre del cliente');
+  const [pop] = await Promise.all([admin.waitForEvent('popup'), admin.locator('#fz-docs [data-tkl-ver]').first().click()]);
+  await pop.locator('.tk').waitFor();
+  ok(await pop.locator('.tk-qr svg').count() === 1, 'gestión: "Ver · Imprimir" abre el ticket');
+  await pop.close();
+
+  console.log('COCINA · muchos tickets (paginación)');
+  psqlIn(`do $$
+    declare r carta.restaurantes; m carta.mesas; pid uuid;
+    begin
+      select * into r from carta.restaurantes where slug = 'bar-fiscal';
+      select * into m from carta.mesas where restaurante_id = r.id and nombre = 'Mesa 1';
+      for i in 1..52 loop
+        insert into carta.pedidos (restaurante_id, mesa_id, mesa_nombre, numero, total) values (r.id, m.id, m.nombre, 100 + i, 2.5) returning id into pid;
+        insert into carta.pedido_lineas (pedido_id, nombre, precio, cantidad) values (pid, 'Café', 2.5, 1);
+        perform public.fiscal_cobrar('bar-fiscal', 'cocina-f', jsonb_build_object('pedido_ids', jsonb_build_array(pid),
+          'pagos', jsonb_build_array(jsonb_build_object('forma', 'bizum', 'importe', '2.50'))));
+      end loop;
+    end $$;`);
+  await k.getByRole('tab', { name: /Mesas/ }).click();
+  await k.getByRole('tab', { name: /Tickets/ }).click();
+  await k.locator('#tickets-lista [data-tkl-mas]', { hasText: '50 de 55' }).waitFor();
+  ok(await filas.count() === 50, '55 tickets: se ven 50 y "Cargar más (50 de 55)"');
+  await k.locator('#tickets-lista [data-tkl-mas]').click();
+  await filas.nth(54).waitFor();
+  ok(await filas.count() === 55 && await k.locator('#tickets-lista [data-tkl-mas]').isHidden(), 'Cargar más → los 55');
+  ok((await filas.last().innerText()).includes(`T${ANIO}-000001`), 'el más antiguo al final');
 
   console.log('BAR SIN DATOS FISCALES (como Martínez hoy)');
   await pedir(movilCtx, mesa('sin-fiscal', 1), [['McTínez', 1]]);
@@ -159,6 +222,7 @@ try {
   const c2 = k2.locator('.mesa-card', { hasText: 'Mesa 1' });
   await c2.getByRole('button', { name: /Cobrada · liberar mesa/ }).waitFor();
   ok(await c2.getByRole('button', { name: /Cobrar/ }).count() === 0, 'sin datos fiscales: el panel sigue igual que antes');
+  ok(await k2.locator('#tab-tickets').isHidden(), 'sin datos fiscales: no aparece la pestaña Tickets');
 
   ok(errores.length === 0, 'sin errores JS' + (errores.length ? ': ' + errores.join(' | ') : ''));
   console.log('\nE2E FISCAL OK');

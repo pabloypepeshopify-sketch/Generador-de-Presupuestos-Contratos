@@ -37,6 +37,7 @@
     nif_no_valido: 'El NIF no es válido.',
     titular_incompleto: 'Faltan datos fiscales obligatorios (razón social, domicilio, tipo de persona).',
     produccion_no_disponible: 'El entorno de producción de la AEAT llega en la Fase 2. De momento, pruebas.',
+    filtro_no_valido: 'Revisa las fechas del filtro.',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };
 

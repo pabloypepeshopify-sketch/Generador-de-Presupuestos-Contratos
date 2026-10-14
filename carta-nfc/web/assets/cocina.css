@@ -80,3 +80,11 @@ body { background: var(--bg); }
 .tk-prev{background:#fff;color:#000;padding:14px;border-radius:8px;border:1px solid var(--line);max-width:330px;margin:0 auto}
 #qr-digital{text-align:center;margin-top:14px}
 #qr-digital svg{width:190px;height:190px;background:#fff;padding:8px;border-radius:10px}
+
+/* Tickets emitidos */
+.tickets-v{padding:14px 16px 40px;max-width:1100px;margin:0 auto}
+.tickets-v .card.pad{padding:16px}
+#dlg-ticket{width:min(460px,calc(100% - 24px))}
+#dlg-ticket .qr-digital{text-align:center;margin-top:14px}
+#dlg-ticket .qr-digital svg{width:190px;height:190px;background:#fff;padding:8px;border-radius:10px}
+.nl-badge .tickets-v{padding-bottom:100px}

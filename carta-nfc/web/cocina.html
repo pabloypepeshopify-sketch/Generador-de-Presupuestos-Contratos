@@ -32,6 +32,7 @@
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" data-vista="comandas" aria-selected="true">Comandas <span id="n-comandas" class="badge"></span></button>
         <button class="tab" role="tab" data-vista="mesas" aria-selected="false">Mesas <span id="n-mesas" class="badge"></span></button>
+        <button class="tab" role="tab" data-vista="tickets" aria-selected="false" id="tab-tickets" hidden>🧾 Tickets</button>
       </div>
       <div class="k-actions">
         <button id="k-sonido" class="btn sm" type="button">🔕 Activar sonido</button>
@@ -50,9 +51,12 @@
     </main>
 
     <main id="v-mesas" class="mesas" hidden></main>
+
+    <main id="v-tickets" class="tickets-v" hidden><div class="card pad" id="tickets-lista"></div></main>
   </div>
 
   <dialog id="dlg-cobrar" aria-label="Cobrar mesa"></dialog>
+  <dialog id="dlg-ticket" aria-label="Ticket"></dialog>
 
   <iframe id="print-frame" title="Impresión" aria-hidden="true" tabindex="-1"></iframe>
 
@@ -60,6 +64,7 @@
   <script src="/assets/api.js"></script>
   <script src="/assets/vendor/qrcode.js"></script>
   <script src="/assets/ticket.js"></script>
+  <script src="/assets/tickets.js"></script>
   <script src="/assets/cocina.js"></script>
 </body>
 </html>

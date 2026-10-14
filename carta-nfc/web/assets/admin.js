@@ -282,8 +282,7 @@
 
   // ----------------------------------------------------------- facturación ----
   let fzDatos = null;
-  const ENVIO = { pendiente: 'Pendiente de envío (Fase 2)', no_aplica: 'No se envía', correcto: 'Enviado ✓',
-    aceptado_con_errores: 'Aceptado con errores', incorrecto: 'Rechazado', enviado: 'Enviado' };
+  let fzLista = null;   // lista completa de tickets (CartaTickets)
 
   async function fz(accion, datos, okMsg) {
     try {
@@ -335,12 +334,12 @@
           <option value="" ${c.iva == null ? 'selected' : ''}>Por defecto (${def} %)</option>
           ${[10, 21, 4].map((x) => `<option value="${x}" ${Number(c.iva) === x && c.iva != null ? 'selected' : ''}>${x} %</option>`).join('')}
         </select></div>`).join('') : '<p class="muted">Sin categorías.</p>';
-    $('fz-docs').innerHTML = f.documentos.length ? f.documentos.map((x) => `
-      <div class="fz-doc"><div class="n"><strong>${esc(x.num_serie)}</strong> · ${esc(x.tipo === 'F1' ? 'Factura' : 'Ticket')}
-        <div class="muted small">${new Date(x.expedido).toLocaleString('es-ES')} · ${esc(x.mesa || '')} · ${esc(ENVIO[x.envio] || x.envio || '')}</div></div>
-        <span class="num" style="font-weight:700">${dinero(x.total, m)}</span>
-        <a class="btn sm" href="/ticket.html?t=${encodeURIComponent(x.token)}" target="_blank" rel="noopener">Ver</a></div>`).join('')
-      : '<p class="muted">Todavía no hay tickets.</p>';
+    if (!fzLista) {
+      fzLista = window.CartaTickets.montar($('fz-docs'), {
+        sesion: () => sesion, moneda: () => m,
+        ver: (token) => window.open('/ticket.html?t=' + encodeURIComponent(token), '_blank', 'noopener'),
+      });
+    }
   }
 
   $('form-fiscal').addEventListener('submit', (ev) => {
@@ -396,7 +395,7 @@
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
       ['carta', 'mesas', 'ajustes', 'hoy', 'facturacion'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
       if (ds.tab === 'hoy') op('datos');
-      if (ds.tab === 'facturacion') fz('datos');
+      if (ds.tab === 'facturacion') { fz('datos'); if (fzLista) fzLista.recargar(); }
     } else if (ds.cerrar !== undefined) {
       if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; }
       b.closest('dialog').close();

@@ -18,6 +18,8 @@
   let wakeLock = null;
   let fiscal = { activo: false };   // facturación del restaurante (fiscal_config)
   let cobro = null;                 // estado de la ventana Cobrar
+  let lista = null;                 // pestaña Tickets (CartaTickets)
+  let visto = null;                 // ticket abierto en la ventana Ver
   const recien = new Set();
 
   // ---------------------------------------------------------------- sesión ----
@@ -67,6 +69,9 @@
     } catch {
       fiscal = { activo: false };  // sin módulo de facturación: el panel funciona como siempre
     }
+    // Con datos fiscales (aunque la facturación esté desactivada) se pueden consultar los tickets ya emitidos.
+    $('tab-tickets').hidden = !fiscal.modo_sif;
+    if (!fiscal.modo_sif && vista === 'tickets') cambiarVista('comandas');
     if (datos) pintar();
   }
 
@@ -401,6 +406,47 @@
     }
   }
 
+  // ------------------------------------------------------- tickets emitidos ----
+  function cambiarVista(v) {
+    vista = v;
+    document.querySelectorAll('[data-vista]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.vista === vista)));
+    $('v-comandas').hidden = vista !== 'comandas';
+    $('v-mesas').hidden = vista !== 'mesas';
+    $('v-tickets').hidden = vista !== 'tickets';
+    if (vista !== 'tickets') return;
+    if (lista) lista.recargar();
+    else lista = window.CartaTickets.montar($('tickets-lista'), {
+      sesion: () => sesion, moneda: () => (datos ? datos.restaurante.moneda : 'EUR'), ver: verTicket,
+    });
+  }
+
+  async function verTicket(token) {
+    try {
+      visto = await rpc('fiscal_documento', { p_token: token });
+    } catch (e) {
+      toast(e.humano, 'error');
+      return;
+    }
+    $('dlg-ticket').innerHTML = `
+      <div class="dlg-head"><h2>${visto.tipo === 'F1' ? 'Factura' : 'Ticket'} ${esc(visto.num_serie)}</h2>
+        <button class="x" data-visto="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="dlg-body"><div class="tk-prev">${window.CartaTicket.html(visto)}</div><div class="qr-digital" id="qr-visto"></div></div>
+      <div class="dlg-foot" style="flex-wrap:wrap">
+        <button class="btn primary" type="button" data-visto="imprimir">🖨 Imprimir</button>
+        <button class="btn" type="button" data-visto="qr">📱 Ticket digital (QR)</button>
+        <button class="btn ghost" type="button" data-visto="cerrar">Cerrar</button>
+      </div>`;
+    if (!$('dlg-ticket').open) $('dlg-ticket').showModal();
+  }
+
+  function accionVisto(a) {
+    if (a === 'cerrar') { $('dlg-ticket').close(); visto = null; }
+    else if (a === 'imprimir' && visto) imprimir(window.CartaTicket.html(visto), window.CartaTicket.css);
+    else if (a === 'qr' && visto) {
+      $('qr-visto').innerHTML = `${window.CartaTicket.qrSvg(urlTicket(visto), 4)}<p class="small muted">El cliente lo escanea y se lleva su ticket en el móvil.</p>`;
+    }
+  }
+
   // --------------------------------------------------------- sonido y aviso ----
   function pintarSonido() {
     $('k-sonido').textContent = sonidoOn && audio && audio.state === 'running' ? '🔔 Sonido activado' : '🔕 Activar sonido';
@@ -457,10 +503,9 @@
     const b = ev.target.closest('button');
     if (!b) return;
     if (b.dataset.vista) {
-      vista = b.dataset.vista;
-      document.querySelectorAll('[data-vista]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.vista === vista)));
-      $('v-comandas').hidden = vista !== 'comandas';
-      $('v-mesas').hidden = vista !== 'mesas';
+      cambiarVista(b.dataset.vista);
+    } else if (b.dataset.visto) {
+      accionVisto(b.dataset.visto);
     } else if (b.dataset.estado && b.dataset.id) {
       b.disabled = true;
       await accion('estado', { id: b.dataset.id, estado: b.dataset.estado });
@@ -497,7 +542,9 @@
       pintarSonido();
     } else if (b.id === 'k-salir') {
       if (confirm('¿Salir del panel? Tendrás que volver a introducir la clave.')) {
-        store.del(K_SESION); clearTimeout(timer); sesion = null; vistos = null; mostrarLogin();
+        store.del(K_SESION); clearTimeout(timer); sesion = null; vistos = null;
+        lista = null; $('tickets-lista').innerHTML = ''; cambiarVista('comandas');
+        mostrarLogin();
       }
     }
   });
@@ -508,6 +555,7 @@
   document.addEventListener('input', (ev) => { if (cobro && ev.target.closest('#dlg-cobrar')) actualizarCobro(); });
   document.addEventListener('change', (ev) => { if (cobro && ev.target.id === 'cb-factura') actualizarCobro(); });
   $('dlg-cobrar').addEventListener('close', () => { cobro = null; });
+  $('dlg-ticket').addEventListener('close', () => { visto = null; });
   { const st = document.createElement('style'); st.textContent = window.CartaTicket ? window.CartaTicket.css : ''; document.head.appendChild(st); }
 
   iniciar();

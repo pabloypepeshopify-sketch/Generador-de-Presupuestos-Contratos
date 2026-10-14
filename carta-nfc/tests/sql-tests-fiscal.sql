@@ -190,6 +190,38 @@ begin
   v := public.fiscal_admin('bar-fiscal','admin-f','datos');
   assert jsonb_array_length(v->'documentos') = 3 and (v->'sif'->>'registros')::int = 3 and (v->'sif'->>'pendientes')::int = 3,
          'admin: 3 documentos y 3 registros pendientes de envío';
+
+  -- 8. Listado completo de tickets (fiscal_documentos, 004)
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{}');
+  assert (v->>'cuantos')::int = 3 and jsonb_array_length(v->'documentos') = 3 and not (v->>'hay_mas')::boolean, 'listado: 3 documentos';
+  assert v->'documentos'->0->>'num_serie' = 'F' || anio || '-000001', 'el más reciente primero';
+  assert (v->'resumen'->>'total')::numeric = 44.60 and (v->'resumen'->>'propinas')::numeric = 1, 'resumen: 44,60 + 1 de propina';
+  assert (v->'por_forma'->>'tarjeta')::numeric = 35.20 and (v->'por_forma'->>'efectivo')::numeric = 10.40, 'cobrado por forma de pago';
+  v := public.fiscal_documentos('bar-fiscal', 'admin-f', '{"limite":"2"}');
+  assert jsonb_array_length(v->'documentos') = 2 and (v->>'hay_mas')::boolean, 'paginación: 2 y hay más (clave admin vale)';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"limite":"2","saltar":"2"}');
+  assert jsonb_array_length(v->'documentos') = 1 and v->'documentos'->0->>'num_serie' = 'T' || anio || '-000001', 'página 2';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"tipo":"factura"}');
+  assert (v->>'cuantos')::int = 1 and v->'documentos'->0->'cliente'->>'nif' = 'B12345674', 'filtro facturas';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"q":"empresa demo"}');
+  assert (v->>'cuantos')::int = 1, 'búsqueda por cliente';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', jsonb_build_object('q', 't' || anio || '-000002'));
+  assert (v->>'cuantos')::int = 1 and (v->'documentos'->0->>'propina')::numeric = 1, 'búsqueda por número';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"q":"%"}');
+  assert (v->>'cuantos')::int = 0, 'el % no es comodín';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', jsonb_build_object('desde', v->>'hoy', 'hasta', v->>'hoy'));
+  assert (v->>'cuantos')::int = 3, 'filtro de hoy';
+  v := public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"hasta":"2000-01-01"}');
+  assert (v->>'cuantos')::int = 0 and (v->'resumen'->>'total')::numeric = 0, 'periodo vacío';
+  begin perform public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"desde":"2026-13-45"}'); ok := false;
+  exception when others then ok := sqlerrm = 'filtro_no_valido'; end;
+  assert ok, 'fecha no válida';
+  begin perform public.fiscal_documentos('bar-fiscal', 'cocina-f', '{"limite":"9999"}'); ok := false;
+  exception when others then ok := sqlerrm = 'filtro_no_valido'; end;
+  assert ok, 'límite no válido';
+  begin perform public.fiscal_documentos('sin-fiscal', 'cocina-f', '{}'); ok := false;
+  exception when others then ok := sqlerrm = 'clave_incorrecta'; end;
+  assert ok, 'no ve tickets de otro bar';
   raise notice 'API fiscal OK';
 end $$;
 
