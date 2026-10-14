@@ -63,7 +63,7 @@ async function rpc(fn, body) {
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
-  const m = url.pathname.match(/^\/rest\/v1\/rpc\/(carta_[a-z_]+)$/);
+  const m = url.pathname.match(/^\/rest\/v1\/rpc\/((?:carta|fiscal)_[a-z_]+)$/);
   if (m && req.method === 'POST') {
     let raw = '';
     for await (const ch of req) raw += ch;

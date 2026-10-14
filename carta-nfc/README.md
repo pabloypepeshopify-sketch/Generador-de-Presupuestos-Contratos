@@ -94,7 +94,7 @@ panel de cocina.
 | Qué | Enlace |
 |---|---|
 | Página de pedidos de Martínez | https://martinez-bar-pedidos.netlify.app/ |
-| NFC de la Mesa 2 (abre la página con la mesa) | https://carta-nfc-pedidos.netlify.app/m/692370d79e |
+| NFC de cada mesa (abre la página con la mesa) | `https://carta-nfc-pedidos.netlify.app/m/<codigo de mesa>` (códigos en gestión → Mesas y NFC) |
 | Panel de comandas | `cocina.html?r=martinez-bar&k=<clave cocina>` (clave entregada aparte) |
 
 *Web propia de la carta* = `https://martinez-bar-pedidos.netlify.app/`. Si algún día prefieren pedir
@@ -123,15 +123,68 @@ ajuste; los NFC no se regraban.
 - Claves de cocina/admin guardadas como hash SHA-256; la de cocina no abre la gestión.
 - La clave "publishable" de Supabase en `assets/config.js` es pública por diseño.
 
+## Facturación — Fase 1: tickets locales
+
+Plan completo en [docs/brief-facturacion.md](docs/brief-facturacion.md). La Fase 1 ya está hecha:
+
+- **Esquema privado `fiscal`** (`supabase/003_fiscal.sql`, idempotente) con estas tablas:
+  - titular, series y documentos (con sus líneas);
+  - cobros;
+  - registros SIF y eventos.
+  - Documentos, líneas, cobros y registros son **inalterables**: un trigger impide editarlos o
+    borrarlos. Solo cambian el estado y los campos de envío.
+- **Cobrar en el panel de cocina** (pestaña Mesas): la tarjeta de la mesa muestra **💳 Cobrar X €**.
+  - Formas de pago: efectivo (con cálculo del cambio), tarjeta, Bizum o mixto.
+  - Propina opcional, que va aparte y no entra en la factura.
+  - Casilla **Factura con NIF**: emite una F1 con los datos del cliente.
+  - Todo ocurre en una sola transacción de `fiscal_cobrar`:
+    - el servidor recalcula los importes (el móvil no manda precios);
+    - numera sin huecos (`T2026-000001` / `F2026-000001`);
+    - desglosa el IVA por tipo y redondea la base por tipo;
+    - encadena la huella SHA-256 del registro de alta VERI\*FACTU;
+    - cierra la mesa.
+- **Ticket** de 80 mm imprimible (`web/assets/ticket.js`). Incluye:
+  - emisor, número y fecha;
+  - tabla de IVA;
+  - forma de pago;
+  - **QR tributario** con la leyenda VERI\*FACTU;
+  - el aviso "ENTORNO DE PRUEBAS · SIN VALIDEZ FISCAL" mientras no haya envío real.
+- **Ticket digital**: el camarero enseña un QR que abre `ticket.html?t=…`. El cliente además ve
+  **Ver tu ticket** en "Tus pedidos". Funciona en la carta de la plataforma y en la página de Martínez.
+- **Gestión → Facturación**:
+  - datos fiscales del titular;
+  - modo SIF;
+  - IVA por defecto y por categoría;
+  - series;
+  - límite de factura simplificada;
+  - pie del ticket;
+  - últimos documentos y estado de la cadena.
+
+**Cómo se activa**: gestión → *Facturación* → rellenar los datos fiscales → Guardar.
+- Un restaurante **sin datos fiscales sigue exactamente igual que antes**: botones "🖨 Ticket" y
+  "Cobrada · liberar mesa". Así está hoy Martínez Bar.
+- La demo está activada con un NIF ficticio (`00000000T`, "DEMO SIN VALIDEZ FISCAL").
+
+**Aún no hay envío a la AEAT** (Fase 2):
+- los registros quedan como `pendiente` en `fiscal.registros_sif`;
+- el entorno está forzado a `pruebas`, así que elegir *producción* devuelve error.
+
+**TODO para la gestoría** (marcado en el SQL):
+- IVA 0 % / exenciones no soportados;
+- tratamiento de las propinas;
+- NIF del productor del SIF para la declaración responsable (`fiscal.sistema`);
+- el límite de 3.000 € de la simplificada es configurable.
+
 ## Estructura
 
 ```
 carta-nfc/
   supabase/001_esquema.sql   tablas (schema carta) + API SQL (funciones carta_*)
   supabase/002_demo.sql      restaurante demo "Bar La Demo" (re-ejecutable)
+  supabase/003_fiscal.sql    facturación Fase 1: schema fiscal + funciones fiscal_*
   web/                       sitio estático publicado en Netlify (sin build)
-    index.html cocina.html admin.html alta.html
-    assets/ app.css api.js config.js cliente.* cocina.* admin.* vendor/qrcode.js (MIT)
+    index.html cocina.html admin.html alta.html ticket.html
+    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
@@ -141,18 +194,22 @@ carta-nfc/
     espejo-web.py            copia una web y le añade pedidos.js (para pruebas)
   tests/
     sql-tests.sql            ~55 comprobaciones de la API SQL como rol anon
+    sql-tests-fiscal.sql     facturación: vector oficial AEAT, NIF, redondeos, series, cadena, inalterabilidad
     servidor-local.mjs       imita Supabase (RPC) + Netlify (rewrites) en local
     e2e.mjs                  navegador real: admin → cliente → cocina → cuenta → cobro
+    e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket"
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
+  docs/brief-facturacion.md  plan del módulo de tickets, facturación, contabilidad e impuestos
 ```
 
 ## Infraestructura actual
 
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
-  ninguna tabla existente. Para moverlo a un proyecto propio: ejecutar `001_esquema.sql` (y
+  ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -173,8 +230,11 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test
+bash db-local.sh                      # crea la BD carta_test (001 + 003)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
+                                      # → TODAS LAS PRUEBAS FISCALES OK
+node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
 # widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):
@@ -185,6 +245,12 @@ MESA=080f59f08e node humo-produccion.mjs
 
 ## Límites conocidos / siguientes pasos
 
+- **Facturación**, siguientes fases del brief:
+  - Fase 2: envío VERI\*FACTU al entorno de pruebas de la AEAT, con estados y reintentos, más la
+    declaración responsable;
+  - Fase 3: contabilidad y cierre de caja;
+  - Fase 4: borradores 303/390;
+  - Fase 5: producción con Martínez, cuando haya datos fiscales y certificado.
 - **Pago online** no incluido (se cobra en mesa/barra como siempre). Siguiente paso natural: Stripe/Bizum.
 - Panel de cocina por sondeo cada 3 s (robusto con WiFi de bar); no usa WebSockets.
 - Impresión vía diálogo del navegador; impresoras térmicas que funcionen como impresora del

@@ -16,6 +16,8 @@
   let audio = null;
   let sonidoOn = store.get(K_SONIDO, false);
   let wakeLock = null;
+  let fiscal = { activo: false };   // facturación del restaurante (fiscal_config)
+  let cobro = null;                 // estado de la ventana Cobrar
   const recien = new Set();
 
   // ---------------------------------------------------------------- sesión ----
@@ -56,6 +58,16 @@
     procesar(datos);
     programar();
     pedirWakeLock();
+    cargarFiscal();
+  }
+
+  async function cargarFiscal() {
+    try {
+      fiscal = await rpc('fiscal_config', { p_slug: sesion.slug, p_clave: sesion.clave });
+    } catch {
+      fiscal = { activo: false };  // sin módulo de facturación: el panel funciona como siempre
+    }
+    if (datos) pintar();
   }
 
   // ------------------------------------------------------------------ datos ----
@@ -194,22 +206,26 @@
       </div>
       <ul>${Object.values(items).map((i) => `<li><span>${i.cantidad}× ${esc(i.nombre)}</span><span class="num">${dinero(i.importe, moneda)}</span></li>`).join('')}</ul>
       <div style="display:flex;gap:6px">
-        <button class="btn sm" data-print-mesa="${esc(g.ref.id)}">🖨 Ticket</button>
-        <button class="btn sm primary" style="flex:1" data-cerrar-mesa="${esc(g.ref.id)}">Cobrada · liberar mesa</button>
+        ${fiscal.activo && total > 0
+          ? `<button class="btn sm" data-print-mesa="${esc(g.ref.id)}">🖨 Pre-cuenta</button>
+             <button class="btn sm primary" style="flex:1" data-cobrar-mesa="${esc(g.ref.id)}">💳 Cobrar ${dinero(total, moneda)}</button>`
+          : `<button class="btn sm" data-print-mesa="${esc(g.ref.id)}">🖨 Ticket</button>
+             <button class="btn sm primary" style="flex:1" data-cerrar-mesa="${esc(g.ref.id)}">Cobrada · liberar mesa</button>`}
       </div>
     </article>`;
   }
 
   // ---------------------------------------------------------- impresión ----
-  function imprimir(html) {
+  function imprimir(html, cssExtra) {
     const f = $('print-frame');
     const doc = f.contentDocument;
     doc.open();
     doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>
+      @page{size:80mm auto;margin:0}
       body{font:14px/1.35 ui-monospace,Menlo,Consolas,monospace;width:72mm;margin:0;padding:4mm;color:#000}
       h1{font-size:22px;margin:0}h2{font-size:15px;margin:2px 0 8px}.r{display:flex;justify-content:space-between;gap:6px}
       hr{border:0;border-top:1px dashed #000;margin:6px 0}.n{font-style:italic;padding-left:12px}.t{font-size:18px;font-weight:700}
-      </style></head><body>${html}</body></html>`);
+      ${cssExtra || ''}</style></head><body>${html}</body></html>`);
     doc.close();
     setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); }, 50);
   }
@@ -232,6 +248,157 @@
     imprimir(`<h1>${esc(datos.restaurante.nombre)}</h1><h2>${esc(g.nombre)} · ${new Date().toLocaleString('es-ES')}</h2><hr>
       ${lineas.map((l) => `<div class="r"><span>${l.cantidad}× ${esc(l.nombre)}</span><span>${dinero(l.cantidad * l.precio, m)}</span></div>`).join('')}
       <hr><div class="r t"><span>TOTAL</span><span>${dinero(total, m)}</span></div><p style="font-size:11px">IVA incluido. Ticket no válido como factura.</p>`);
+  }
+
+  // ------------------------------------------------------------- cobrar ----
+  const r2 = (n) => Math.round(n * 100) / 100;
+  const importe = (v) => {
+    const t = String(v == null ? '' : v).trim().replace(',', '.');
+    return /^\d{1,6}(\.\d{1,2})?$/.test(t) ? Number(t) : (t === '' ? 0 : NaN);
+  };
+  const FORMAS = { efectivo: '💶 Efectivo', tarjeta: '💳 Tarjeta', bizum: '📲 Bizum', mixto: '➗ Mixto' };
+
+  function abrirCobro(refId) {
+    const ref = datos.pedidos.find((p) => p.id === refId);
+    const g = agruparMesas(datos.pedidos).find((x) => mismaMesa(x.ref, ref));
+    if (!g) return;
+    const validos = g.pedidos.filter((p) => p.estado !== 'cancelado');
+    cobro = {
+      mesa: g.nombre, ids: datos.pedidos.filter((p) => mismaMesa(p, ref)).map((p) => p.id),
+      total: r2(validos.reduce((s, p) => s + Number(p.total), 0)), pedidos: validos.length,
+      forma: 'tarjeta', enviando: false, doc: null,
+    };
+    const m = datos.restaurante.moneda;
+    $('dlg-cobrar').innerHTML = `
+      <div class="dlg-head"><div><h2>Cobrar · ${esc(cobro.mesa)}</h2><div class="muted small">${cobro.pedidos} pedido${cobro.pedidos === 1 ? '' : 's'}</div></div>
+        <button class="x" data-cobro="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="dlg-body">
+        <div class="cb-total"><span class="muted">Total consumo (IVA incluido)</span><b class="num">${dinero(cobro.total, m)}</b></div>
+        <div class="cb-formas" role="group" aria-label="Forma de pago">
+          ${Object.entries(FORMAS).map(([k, v]) => `<button type="button" data-forma="${k}" aria-pressed="${k === cobro.forma}">${v}</button>`).join('')}
+        </div>
+        <div id="cb-efectivo" hidden>
+          <label class="field"><span>Entregado por el cliente</span><input type="text" inputmode="decimal" id="cb-entregado" placeholder="Ej.: 50"></label>
+          <p class="cb-info" id="cb-cambio"></p>
+        </div>
+        <div id="cb-mixto" hidden>
+          <div class="cb-fila">
+            ${['efectivo', 'tarjeta', 'bizum'].map((f) => `<label class="field"><span>${FORMAS[f]}</span><input type="text" inputmode="decimal" data-mixto="${f}" placeholder="0,00"></label>`).join('')}
+          </div>
+          <p class="cb-info" id="cb-resto"></p>
+        </div>
+        <label class="field"><span>Propina (opcional, no entra en la factura)</span><input type="text" inputmode="decimal" id="cb-propina" placeholder="0,00"></label>
+        <hr class="cb-sep">
+        <label class="check"><input type="checkbox" id="cb-factura"> Factura con NIF (empresa o autónomo)</label>
+        <div id="cb-cliente" hidden>
+          <label class="field"><span>NIF / CIF</span><input type="text" id="cb-nif" autocapitalize="characters" maxlength="12"></label>
+          <label class="field"><span>Nombre o razón social</span><input type="text" id="cb-nombre" maxlength="120"></label>
+          <label class="field"><span>Domicilio fiscal</span><input type="text" id="cb-domicilio" maxlength="200"></label>
+        </div>
+        <p class="cb-info mal" id="cb-aviso" hidden></p>
+      </div>
+      <div class="dlg-foot"><button class="btn primary block" type="button" data-cobro="emitir" id="cb-emitir"></button></div>`;
+    $('dlg-cobrar').showModal();
+    actualizarCobro();
+  }
+
+  function actualizarCobro() {
+    if (!cobro || cobro.doc) return;
+    const m = datos.restaurante.moneda;
+    const propina = importe($('cb-propina').value);
+    const aPagar = r2(cobro.total + (propina || 0));
+    const factura = $('cb-factura').checked;
+    document.querySelectorAll('#dlg-cobrar [data-forma]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.forma === cobro.forma)));
+    $('cb-efectivo').hidden = cobro.forma !== 'efectivo';
+    $('cb-mixto').hidden = cobro.forma !== 'mixto';
+    $('cb-cliente').hidden = !factura;
+    let aviso = '';
+    if (Number.isNaN(propina)) aviso = 'Propina no válida.';
+    if (cobro.forma === 'efectivo') {
+      const ent = importe($('cb-entregado').value);
+      $('cb-cambio').textContent = ent ? (ent >= aPagar ? `Cambio: ${dinero(r2(ent - aPagar), m)}` : `Faltan ${dinero(r2(aPagar - ent), m)}`) : '';
+      $('cb-cambio').classList.toggle('mal', !!ent && ent < aPagar);
+    }
+    if (cobro.forma === 'mixto') {
+      const suma = r2([...document.querySelectorAll('#dlg-cobrar [data-mixto]')].reduce((s, i) => s + (importe(i.value) || 0), 0));
+      const resto = r2(aPagar - suma);
+      $('cb-resto').textContent = resto === 0 ? '✓ Cuadra' : resto > 0 ? `Faltan ${dinero(resto, m)}` : `Sobran ${dinero(-resto, m)}`;
+      $('cb-resto').classList.toggle('mal', resto !== 0);
+    }
+    if (!factura && fiscal.limite_simplificada && cobro.total > Number(fiscal.limite_simplificada)) {
+      aviso = `Más de ${dinero(fiscal.limite_simplificada, m)}: marca "Factura con NIF".`;
+    }
+    $('cb-aviso').textContent = aviso;
+    $('cb-aviso').hidden = !aviso;
+    const btn = $('cb-emitir');
+    btn.textContent = cobro.enviando ? 'Emitiendo…' : `${factura ? 'Emitir factura' : 'Emitir ticket'} · ${dinero(aPagar, m)}`;
+    btn.disabled = cobro.enviando || !!aviso;
+  }
+
+  async function emitirCobro() {
+    const c = cobro;
+    if (!c || c.enviando) return;
+    const propina = importe($('cb-propina').value) || 0;
+    const aPagar = r2(c.total + propina);
+    let pagos;
+    if (c.forma === 'mixto') {
+      pagos = [...document.querySelectorAll('#dlg-cobrar [data-mixto]')]
+        .map((i) => ({ forma: i.dataset.mixto, importe: importe(i.value) }))
+        .filter((p) => p.importe > 0);
+      if (pagos.some((p) => Number.isNaN(p.importe)) || r2(pagos.reduce((s, p) => s + p.importe, 0)) !== aPagar) {
+        toast('El pago mixto no cuadra con el total.', 'error'); return;
+      }
+      pagos = pagos.map((p) => ({ forma: p.forma, importe: p.importe.toFixed(2) }));
+    } else if (c.forma === 'efectivo') {
+      const ent = importe($('cb-entregado').value);
+      if (Number.isNaN(ent) || (ent && ent < aPagar)) { toast('El importe entregado no llega al total.', 'error'); return; }
+      pagos = [{ forma: 'efectivo', importe: aPagar.toFixed(2), entregado: ent ? ent.toFixed(2) : null }];
+    } else {
+      pagos = [{ forma: c.forma, importe: aPagar.toFixed(2) }];
+    }
+    const cliente = $('cb-factura').checked
+      ? { nif: $('cb-nif').value.trim(), nombre: $('cb-nombre').value.trim(), domicilio: $('cb-domicilio').value.trim() }
+      : null;
+    c.enviando = true;
+    actualizarCobro();
+    try {
+      c.doc = await rpc('fiscal_cobrar', { p_slug: sesion.slug, p_clave: sesion.clave, p_datos: {
+        pedido_ids: c.ids, pagos, propina: propina.toFixed(2), cliente, dispositivo: 'Panel de comandas' } });
+      pintarTicketEmitido();
+      toast(`${c.mesa} cobrada · ${c.doc.num_serie}`);
+      sondear();
+    } catch (e) {
+      toast(e.humano, 'error');
+      if (e.code === 'pedidos_ya_cobrados') { $('dlg-cobrar').close(); sondear(); }
+    } finally {
+      c.enviando = false;
+      if (!c.doc) actualizarCobro();
+    }
+  }
+
+  function pintarTicketEmitido() {
+    const d = cobro.doc;
+    $('dlg-cobrar').innerHTML = `
+      <div class="dlg-head"><h2>✓ ${d.tipo === 'F1' ? 'Factura' : 'Ticket'} ${esc(d.num_serie)}</h2>
+        <button class="x" data-cobro="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="dlg-body"><div class="tk-prev">${window.CartaTicket.html(d)}</div><div id="qr-digital"></div></div>
+      <div class="dlg-foot" style="flex-wrap:wrap">
+        <button class="btn primary" type="button" data-cobro="imprimir">🖨 Imprimir ticket</button>
+        <button class="btn" type="button" data-cobro="qr">📱 Ticket digital (QR)</button>
+        <button class="btn ghost" type="button" data-cobro="cerrar">Cerrar</button>
+      </div>`;
+  }
+
+  function urlTicket(d) { return `${location.origin}/ticket.html?t=${encodeURIComponent(d.token)}`; }
+
+  function accionCobro(a) {
+    if (a === 'cerrar') { $('dlg-cobrar').close(); cobro = null; }
+    else if (a === 'emitir') emitirCobro();
+    else if (a === 'imprimir') imprimir(window.CartaTicket.html(cobro.doc), window.CartaTicket.css);
+    else if (a === 'qr') {
+      const url = urlTicket(cobro.doc);
+      $('qr-digital').innerHTML = `${window.CartaTicket.qrSvg(url, 4)}<p class="small muted">El cliente lo escanea y se lleva su ticket en el móvil.</p>`;
+    }
   }
 
   // --------------------------------------------------------- sonido y aviso ----
@@ -306,6 +473,13 @@
       imprimirPedido(datos.pedidos.find((p) => p.id === b.dataset.print));
     } else if (b.dataset.printMesa) {
       imprimirMesa(b.dataset.printMesa);
+    } else if (b.dataset.cobrarMesa) {
+      abrirCobro(b.dataset.cobrarMesa);
+    } else if (b.dataset.cobro) {
+      accionCobro(b.dataset.cobro);
+    } else if (b.dataset.forma && cobro) {
+      cobro.forma = b.dataset.forma;
+      actualizarCobro();
     } else if (b.dataset.cerrarMesa) {
       const ref = datos.pedidos.find((p) => p.id === b.dataset.cerrarMesa);
       const ids = datos.pedidos.filter((p) => mismaMesa(p, ref)).map((p) => p.id);
@@ -329,8 +503,12 @@
   });
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && sesion && datos) { pedirWakeLock(); sondear(); }
+    if (document.visibilityState === 'visible' && sesion && datos) { pedirWakeLock(); sondear(); cargarFiscal(); }
   });
+  document.addEventListener('input', (ev) => { if (cobro && ev.target.closest('#dlg-cobrar')) actualizarCobro(); });
+  document.addEventListener('change', (ev) => { if (cobro && ev.target.id === 'cb-factura') actualizarCobro(); });
+  $('dlg-cobrar').addEventListener('close', () => { cobro = null; });
+  { const st = document.createElement('style'); st.textContent = window.CartaTicket ? window.CartaTicket.css : ''; document.head.appendChild(st); }
 
   iniciar();
 })();

@@ -80,6 +80,7 @@
     $('app').hidden = false;
     observarCategorias();
     refrescarPedidos();
+    buscarTickets();
   }
 
   function puedePedir() {
@@ -234,6 +235,7 @@
       $('dlg-ok').showModal();
       renderEstadoPedidos();
       refrescarPedidos();
+      buscarTickets();
     } catch (e) {
       toast(e.humano || 'No se pudo enviar el pedido.', 'error');
       if (e.code === 'pedidos_cerrados') { menu.restaurante.pedidos_abiertos = false; actualizarCabecera(); $('dlg-carrito').close(); }
@@ -273,7 +275,28 @@
     $('mis-pedidos').hidden = visibles.length === 0;
     $('mis-pedidos').innerHTML = '<h2>Tus pedidos</h2>' + visibles.map((p) => `
       <div class="mp-row"><span>Pedido nº ${esc(p.numero)} · <span class="num">${dinero(p.total, menu.restaurante.moneda)}</span></span>
-      <span class="estado ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span></div>`).join('');
+      ${p.ticket ? `<a class="estado listo" href="/ticket.html?t=${encodeURIComponent(p.ticket)}">🧾 Ver tu ticket</a>`
+                 : `<span class="estado ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span>`}</div>`).join('');
+  }
+
+  // Cuando la mesa se cobra, el pedido queda enlazado a su ticket: "Ver tu ticket".
+  let ticketsTimer = null;
+  async function buscarTickets() {
+    clearTimeout(ticketsTimer);
+    const lista = store.get(kPedidos(), []);
+    const sin = lista.filter((p) => !p.ticket && p.estado !== 'cancelado' && Date.now() - new Date(p.creado).getTime() < 6 * 3600e3);
+    if (!sin.length) return;
+    if (document.visibilityState === 'visible') {
+      try {
+        const res = await rpc('fiscal_tickets', { p_tokens: sin.map((p) => p.token) });
+        if (res.length) {
+          res.forEach((r) => { const p = lista.find((x) => x.token === r.pedido_token); if (p) p.ticket = r.ticket_token; });
+          store.set(kPedidos(), lista);
+          renderEstadoPedidos();
+        }
+      } catch { /* sin módulo de facturación: no pasa nada */ }
+    }
+    ticketsTimer = setTimeout(buscarTickets, 20000);
   }
 
   async function refrescarPedidos() {
@@ -333,7 +356,7 @@
     const id = ev.target.dataset && ev.target.dataset.nota;
     if (id && carrito[id]) { carrito[id].nota = ev.target.value; ses.set(kCarrito(), carrito); }
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && menu) refrescarPedidos(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && menu) { refrescarPedidos(); buscarTickets(); } });
 
   cargar();
 })();

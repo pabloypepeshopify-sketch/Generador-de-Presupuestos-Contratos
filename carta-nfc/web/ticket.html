@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Ticket</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <style id="tk-css"></style>
+  <style>
+    body{background:var(--surface-2)}
+    .hoja{max-width:340px;margin:24px auto 16px;padding:18px 16px;background:#fff;border-radius:6px;box-shadow:var(--shadow)}
+    .acciones{max-width:340px;margin:0 auto 40px;padding:0 16px;display:grid;gap:8px}
+    @media print{
+      @page{size:80mm auto;margin:0}
+      body{background:#fff}
+      .hoja{max-width:none;width:72mm;margin:0;padding:4mm;box-shadow:none;border-radius:0}
+      .acciones{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="hoja" id="hoja"><p class="muted" style="text-align:center">Cargando ticket…</p></div>
+  <div class="acciones" id="acciones" hidden>
+    <button class="btn primary block" type="button" onclick="print()">🖨 Imprimir o guardar en PDF</button>
+  </div>
+  <script src="/assets/vendor/qrcode.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/ticket.js"></script>
+  <script>
+    (async function () {
+      document.getElementById('tk-css').textContent = window.CartaTicket.css;
+      const token = new URLSearchParams(location.search).get('t') || '';
+      const hoja = document.getElementById('hoja');
+      try {
+        const d = await window.Carta.rpc('fiscal_documento', { p_token: token });
+        document.title = d.num_serie + ' · ' + ((d.emisor && (d.emisor.nombre_comercial || d.emisor.razon_social)) || 'Ticket');
+        hoja.innerHTML = window.CartaTicket.html(d);
+        document.getElementById('acciones').hidden = false;
+      } catch (e) {
+        hoja.innerHTML = '<p style="text-align:center">No encontramos este ticket.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

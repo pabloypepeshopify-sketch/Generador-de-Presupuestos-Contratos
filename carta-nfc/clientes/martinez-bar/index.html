@@ -184,6 +184,7 @@
   const KEY = 'sb_publishable_sdLnLlIQvJBPTcmNx9FFpw_UEIAwbDP'; // clave pública: la seguridad está en el servidor
   const SLUG = 'martinez-bar';
   const IMG = 'https://martinez-bar.vercel.app/assets/img/';
+  const TICKET = 'https://carta-nfc-pedidos.netlify.app/ticket.html?t=';  // ticket digital tras cobrar la mesa
   const BARRA = ['Sherry Cocktails', 'Spritz', 'Cócteles'];           // pestaña Coctelería
   const FOTOS = { 'Burgers': 'pro-burger-marmol', '¿Unos nachos?': 'pro-nachos', 'Tacos, baos y más': 'pro-baos',
     'Entre panes': 'pro-tosta-anchoas', 'Abacería': 'pro-tabla-iberico', 'Sherry Cocktails': 'pro-sherry-px',
@@ -239,6 +240,7 @@
     pintarCarta();
     pintarBarra();
     refrescarPedidos();
+    buscarTickets();
     const badge = () => document.documentElement.classList.toggle('nl-badge', !!document.getElementById('nl-badge-frame'));
     badge();
     new MutationObserver(badge).observe(document.body, { childList: true });
@@ -354,7 +356,9 @@
             <input type="text" maxlength="140" data-nota="${id}" value="${esc(l.nota || '')}" placeholder="Nota: sin cebolla, poco hecha, carne extra…" aria-label="Nota para ${esc(v.plato)}">
           </div>`; }).join('') : '<p style="color:var(--mut)">Tu pedido está vacío.</p>'}
         ${lineas.length ? `<label class="lab label">Nota para cocina (opcional)<textarea id="nota" maxlength="300" placeholder="Ej.: traed primero las bebidas">${esc(ses.get(K.nota, ''))}</textarea></label>` : ''}
-        ${mios.length ? `<div class="mis"><div class="label">Tus pedidos</div>${mios.map((p) => `<div class="mis-row"><span>Pedido nº ${esc(p.numero)} · ${dinero(p.total)}</span><span class="es ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span></div>`).join('')}</div>` : ''}
+        ${mios.length ? `<div class="mis"><div class="label">Tus pedidos</div>${mios.map((p) => `<div class="mis-row"><span>Pedido nº ${esc(p.numero)} · ${dinero(p.total)}</span>${p.ticket
+            ? `<a class="es listo" href="${TICKET}${encodeURIComponent(p.ticket)}" target="_blank" rel="noopener">🧾 Ver tu ticket</a>`
+            : `<span class="es ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span>`}</div>`).join('')}</div>` : ''}
         <div class="ayuda"><button class="linea" data-a="camarero">Llamar camarero</button><button class="linea" data-a="cuenta">Pedir la cuenta</button></div>
       </div>
       ${lineas.length ? `<div class="df"><div class="tot"><div class="label">Total</div><b>${dinero(totales().t)}</b></div>
@@ -422,6 +426,7 @@
         <button class="prim" data-a="cerrar">Seguir viendo la carta</button></div>`;
       $('d-ok').showModal();
       refrescarPedidos();
+      buscarTickets();
     } catch (e) {
       toast(humano(e), true);
       if (e.code === 'pedidos_cerrados') menu.restaurante.pedidos_abiertos = false;
@@ -438,7 +443,28 @@
   }
 
   const recientes = () => loc.get(K.pedidos, []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3)
-    .filter((p) => p.estado !== 'servido' || Date.now() - new Date(p.creado).getTime() < 3600e3).slice(0, 5);
+    .filter((p) => p.ticket || p.estado !== 'servido' || Date.now() - new Date(p.creado).getTime() < 3600e3).slice(0, 5);
+
+  // Cuando la mesa se cobra, el pedido queda enlazado a su ticket ("Ver tu ticket").
+  let tTickets = null;
+  async function buscarTickets() {
+    clearTimeout(tTickets);
+    const lista = loc.get(K.pedidos, []);
+    const sin = lista.filter((p) => !p.ticket && p.estado !== 'cancelado' && Date.now() - new Date(p.creado).getTime() < 6 * 3600e3);
+    if (!sin.length) return;
+    if (document.visibilityState === 'visible') {
+      try {
+        const res = await rpc('fiscal_tickets', { p_tokens: sin.map((p) => p.token) });
+        if (res.length) {
+          res.forEach((r) => { const p = lista.find((x) => x.token === r.pedido_token); if (p) p.ticket = r.ticket_token; });
+          loc.set(K.pedidos, lista);
+          pintarBarra();
+          if ($('d-carrito').open) pintarCarrito();
+        }
+      } catch {}
+    }
+    tTickets = setTimeout(buscarTickets, 20000);
+  }
   const activos = () => recientes().filter((p) => !['servido', 'cancelado'].includes(p.estado));
 
   async function refrescarPedidos() {
@@ -494,7 +520,7 @@
     if (id && carrito[id]) { carrito[id].nota = ev.target.value; ses.set(K.carrito, carrito); }
     if (ev.target.id === 'nota') ses.set(K.nota, ev.target.value);
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && menu) refrescarPedidos(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && menu) { refrescarPedidos(); buscarTickets(); } });
   iniciar();
 })();
 </script>

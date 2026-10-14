@@ -280,6 +280,87 @@
       <p class="small muted">Guárdalo ahora: por seguridad no se vuelve a mostrar.</p></div>`;
   }
 
+  // ----------------------------------------------------------- facturación ----
+  let fzDatos = null;
+  const ENVIO = { pendiente: 'Pendiente de envío (Fase 2)', no_aplica: 'No se envía', correcto: 'Enviado ✓',
+    aceptado_con_errores: 'Aceptado con errores', incorrecto: 'Rechazado', enviado: 'Enviado' };
+
+  async function fz(accion, datos, okMsg) {
+    try {
+      fzDatos = await rpc('fiscal_admin', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: accion, p_datos: datos || {} });
+      pintarFacturacion();
+      if (okMsg) toast(okMsg);
+      return fzDatos;
+    } catch (e) {
+      if (e.code === 'sin_config' || /function|schema/i.test(e.message)) $('fz-estado').innerHTML = '<p>El módulo de facturación aún no está instalado.</p>';
+      else toast(e.humano, 'error');
+      return null;
+    }
+  }
+
+  function pintarFacturacion() {
+    const f = fzDatos, t = f.titular, m = d ? d.restaurante.moneda : 'EUR';
+    const activo = t && t.modo_sif !== 'desactivado';
+    $('fz-estado').innerHTML = `
+      <h2>Estado ${activo ? '<span class="chip" style="background:#d7f5df;color:#14632e">Activa</span>' : '<span class="chip">Desactivada</span>'}</h2>
+      <p class="muted small" style="margin:6px 0 0">${activo
+        ? `Al cobrar una mesa en el panel de comandas se emite el ticket (${esc(t.modo_sif === 'verifactu' ? 'VERI*FACTU' : 'No VERI*FACTU')}, entorno de <b>${esc(t.entorno_aeat)}</b>). Los registros se guardan encadenados; el envío a la AEAT llega en la Fase 2.`
+        : 'Rellena los datos fiscales para que el panel de comandas emita tickets al cobrar. Mientras tanto, el panel funciona como siempre.'}</p>
+      ${f.sif && Number(f.sif.registros) ? `<p class="small" style="margin:10px 0 0">Registros VERI*FACTU: <b>${f.sif.registros}</b> · pendientes de envío: <b>${f.sif.pendientes}</b></p>
+        <p class="fz-huella">Última huella: ${esc(f.sif.ultima_huella)}</p>` : ''}`;
+    if (!(document.activeElement && $('form-fiscal').contains(document.activeElement))) {
+      const v = t || {};
+      $('fz-nif').value = v.nif || '';
+      $('fz-tipo').value = v.tipo_persona || 'fisica';
+      $('fz-razon').value = v.razon_social || '';
+      $('fz-comercial').value = v.nombre_comercial || (t ? '' : (d && d.restaurante.nombre) || '');
+      $('fz-domicilio').value = v.domicilio || '';
+      $('fz-cp').value = v.codigo_postal || '';
+      $('fz-municipio').value = v.municipio || '';
+      $('fz-provincia').value = v.provincia || '';
+      $('fz-regiva').value = v.regimen_iva || 'general';
+      $('fz-renta').value = v.regimen_renta || '';
+      $('fz-modo').value = v.modo_sif || 'verifactu';
+      $('fz-entorno').value = 'pruebas';
+      $('fz-iva').value = String(Number(v.iva_defecto || 10));
+      $('fz-limite').value = String(Number(v.limite_simplificada || 3000)).replace('.', ',');
+      $('fz-serie-t').value = v.serie_tickets || 'T';
+      $('fz-serie-f').value = v.serie_facturas || 'F';
+      $('fz-pie').value = v.pie_ticket || '';
+    }
+    const def = t ? Number(t.iva_defecto) : 10;
+    $('fz-iva-cats').innerHTML = f.categorias.length ? f.categorias.map((c) => `
+      <div class="fz-cat"><span>${esc(c.nombre)}</span>
+        <select data-iva-cat="${c.id}" aria-label="IVA de ${esc(c.nombre)}">
+          <option value="" ${c.iva == null ? 'selected' : ''}>Por defecto (${def} %)</option>
+          ${[10, 21, 4].map((x) => `<option value="${x}" ${Number(c.iva) === x && c.iva != null ? 'selected' : ''}>${x} %</option>`).join('')}
+        </select></div>`).join('') : '<p class="muted">Sin categorías.</p>';
+    $('fz-docs').innerHTML = f.documentos.length ? f.documentos.map((x) => `
+      <div class="fz-doc"><div class="n"><strong>${esc(x.num_serie)}</strong> · ${esc(x.tipo === 'F1' ? 'Factura' : 'Ticket')}
+        <div class="muted small">${new Date(x.expedido).toLocaleString('es-ES')} · ${esc(x.mesa || '')} · ${esc(ENVIO[x.envio] || x.envio || '')}</div></div>
+        <span class="num" style="font-weight:700">${dinero(x.total, m)}</span>
+        <a class="btn sm" href="/ticket.html?t=${encodeURIComponent(x.token)}" target="_blank" rel="noopener">Ver</a></div>`).join('')
+      : '<p class="muted">Todavía no hay tickets.</p>';
+  }
+
+  $('form-fiscal').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    document.activeElement.blur();
+    const limite = $('fz-limite').value.trim().replace(',', '.');
+    fz('titular', {
+      nif: $('fz-nif').value.trim(), tipo_persona: $('fz-tipo').value, razon_social: $('fz-razon').value.trim(),
+      nombre_comercial: $('fz-comercial').value.trim(), domicilio: $('fz-domicilio').value.trim(),
+      codigo_postal: $('fz-cp').value.trim(), municipio: $('fz-municipio').value.trim(), provincia: $('fz-provincia').value.trim(),
+      regimen_iva: $('fz-regiva').value, regimen_renta: $('fz-renta').value, modo_sif: $('fz-modo').value,
+      entorno_aeat: 'pruebas', iva_defecto: $('fz-iva').value, limite_simplificada: limite || '3000',
+      serie_tickets: $('fz-serie-t').value.trim(), serie_facturas: $('fz-serie-f').value.trim(), pie_ticket: $('fz-pie').value.trim(),
+    }, 'Datos fiscales guardados');
+  });
+  document.addEventListener('change', (ev) => {
+    const id = ev.target.dataset && ev.target.dataset.ivaCat;
+    if (id) fz('iva_categoria', { id, iva: ev.target.value || null }, 'IVA actualizado');
+  });
+
   // --------------------------------------------------------------- eventos ----
   $('login-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
@@ -313,8 +394,9 @@
 
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
-      ['carta', 'mesas', 'ajustes', 'hoy'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      ['carta', 'mesas', 'ajustes', 'hoy', 'facturacion'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
       if (ds.tab === 'hoy') op('datos');
+      if (ds.tab === 'facturacion') fz('datos');
     } else if (ds.cerrar !== undefined) {
       if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; }
       b.closest('dialog').close();
