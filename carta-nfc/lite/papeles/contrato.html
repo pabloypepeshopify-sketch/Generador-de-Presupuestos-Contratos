@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Contrato de servicio · Carta NFC (plantilla)</title>
+<link rel="stylesheet" href="papeles.css">
+<style>
+  .legal h2 { font-size: 10.5pt; margin: 9px 0 3px; }
+  .legal ol { padding-left: 15px; }
+  .borrador { position: absolute; top: 6mm; right: 16mm; font-size: 8.5pt; font-weight: 700; color: #a3361b; border: 1px solid #a3361b; padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<!--
+  TODO(gestoría): PLANTILLA SIN REVISAR. Antes de usarla, que la revise una gestoría o un abogado:
+  - capacidad para contratar y facturar de Pablo (menor de edad): quién firma (representantes legales,
+    autónomo o sociedad) y con qué datos fiscales;
+  - IVA de los precios y forma de facturar;
+  - contrato de encargado del tratamiento (RGPD art. 28) por los pedidos que se guardan del bar;
+  - plazos de preaviso, impago y corte del servicio;
+  - limitación de responsabilidad y jurisdicción.
+-->
+<div class="antes">
+  <b>⚠ Plantilla sin revisar — TODO(gestoría)</b>
+  Antes de usarla, que la revise una gestoría o un abogado: quién firma por VISAX AI (eres menor: representantes legales, autónomo o sociedad), IVA de los precios, encargo del tratamiento de datos (RGPD), plazos de impago y corte del servicio. Los campos en amarillo se rellenan aquí mismo; este aviso no se imprime.
+</div>
+<div class="ops"><button id="imprimir" type="button">🖨 Imprimir / PDF</button></div>
+
+<div class="hoja legal">
+  <span class="borrador">BORRADOR · pendiente de revisión</span>
+  <div class="marca"><b>VISAX AI</b><span>Contrato de servicio · Carta NFC, pack "Solo pedidos"</span></div>
+  <h1 style="font-size:18pt">Contrato de prestación de servicios</h1>
+  <p class="sub" style="font-size:10pt">En <span data-campo="c-lugar" contenteditable data-placeholder="lugar">Sanlúcar de Barrameda</span>, a <span data-campo="c-fecha" contenteditable data-placeholder="fecha"></span>.</p>
+
+  <h2>Partes</h2>
+  <p><b>El prestador:</b> <span data-campo="c-prestador" contenteditable data-placeholder="nombre, NIF y domicilio de quien presta el servicio (TODO gestoría)"></span>, que actúa con el nombre comercial VISAX AI (en adelante, "VISAX").</p>
+  <p><b>El cliente:</b> <span data-campo="c-cliente" contenteditable data-placeholder="razón social o nombre del titular del bar, NIF y domicilio"></span>, titular del establecimiento <span data-campo="c-bar" contenteditable data-placeholder="nombre del bar"></span> (en adelante, "el Bar").</p>
+
+  <h2>1. Objeto</h2>
+  <p>VISAX presta al Bar un sistema para que sus clientes vean la carta y hagan pedidos desde la mesa con el móvil (NFC o QR), que llegan a un panel en un móvil o tableta del Bar. Incluye, según lo contratado:</p>
+  <ol>
+    <li>Web del Bar (diseño y publicación).</li>
+    <li>Carta digital con pedidos, configurada con la carta y los precios que facilite el Bar.</li>
+    <li>Pegatinas o tarjetas NFC por mesa, grabadas e instaladas, y QR impresos de respaldo si se contratan.</li>
+    <li>Alojamiento, mantenimiento y soporte, por la cuota mensual.</li>
+  </ol>
+  <p><b>No incluye:</b> cobros, tickets ni facturas a los clientes del Bar (el Bar cobra con su propio TPV), el móvil o tableta ni la conexión a internet del Bar.</p>
+
+  <h2>2. Precio y pago</h2>
+  <table style="margin:4px 0">
+    <tr><td>Web premium</td><td class="n"><span data-campo="c-p-web" contenteditable>400 €</span></td></tr>
+    <tr><td>Carta digital con pedidos</td><td class="n"><span data-campo="c-p-menu" contenteditable>300 €</span></td></tr>
+    <tr><td>NFC por mesa: <span data-campo="c-mesas" contenteditable data-placeholder="nº"></span> mesas × 15 €</td><td class="n"><span data-campo="c-p-nfc" contenteditable data-placeholder="importe"></span></td></tr>
+    <tr><td>QR impresos de respaldo</td><td class="n"><span data-campo="c-p-qr" contenteditable data-placeholder="importe o no"></span></td></tr>
+    <tr><td><b>Cuota mensual</b> de alojamiento y soporte</td><td class="n"><b><span data-campo="c-cuota" contenteditable>29 €</span>/mes</b></td></tr>
+  </table>
+  <p>Precios <span data-campo="c-iva" contenteditable data-placeholder="IVA incluido / + IVA (TODO gestoría)"></span>. Los importes únicos se pagan <span data-campo="c-pago-unico" contenteditable data-placeholder="p. ej.: 50 % al firmar y 50 % al instalar"></span>. La cuota se paga por adelantado cada mes, el día <span data-campo="c-dia" contenteditable data-placeholder="día"></span>, por <span data-campo="c-forma" contenteditable data-placeholder="Bizum / transferencia"></span>. El primer mes se paga al firmar.</p>
+
+  <h2>3. Duración y baja</h2>
+  <p>La cuota es mensual y se renueva sola cada mes. Cualquiera de las partes puede darla de baja avisando con <span data-campo="c-preaviso" contenteditable>15 días</span> de antelación por escrito (WhatsApp o correo). Los pagos ya hechos no se devuelven.</p>
+
+  <h2>4. Soporte y cambios</h2>
+  <p>Dentro de la cuota, VISAX atiende incidencias y hace cambios sencillos (precios, platos, horario, fotos, textos) en sus días laborables y en su horario: <span data-campo="horario" contenteditable data-placeholder="horario de soporte">lunes a viernes, de 10:00 a 14:00</span>, por <span data-campo="c-canal" contenteditable data-placeholder="WhatsApp / teléfono / correo">WhatsApp</span>. Fuera de ese horario se atiende el siguiente día laborable. El Bar puede cambiar él mismo la carta, los precios y lo "Agotado" desde su gestión en cualquier momento. Rediseños o funciones nuevas se presupuestan aparte.</p>
+</div>
+
+<div class="hoja legal">
+  <div class="marca"><b>VISAX AI</b><span>Contrato de servicio · página 2</span></div>
+  <h2>5. Impago y corte del servicio</h2>
+  <p>Si una cuota no se paga, VISAX lo avisará al Bar. Si a los <span data-campo="c-dias-corte" contenteditable>15 días</span> del vencimiento sigue sin pagarse, VISAX podrá <b>desactivar el servicio</b> (la carta, los NFC y los pedidos dejan de funcionar) hasta que se pague lo pendiente. Al pagar, se reactiva en el mismo día laborable, sin coste. Tras <span data-campo="c-dias-baja" contenteditable>60 días</span> sin pagar, VISAX podrá dar el contrato por terminado.</p>
+
+  <h2>6. Obligaciones del Bar</h2>
+  <ol>
+    <li>Facilitar la carta, los precios, los <b>alérgenos</b> y las fotos, y avisar de los cambios. El Bar es responsable de que la información de su carta (precios y alérgenos) sea correcta.</li>
+    <li>Tener conexión a internet y el móvil o tableta del panel encendido, cargando y con sonido.</li>
+    <li>Tener derecho a usar el logo, las fotos y los textos que entrega.</li>
+  </ol>
+
+  <h2>7. Disponibilidad y responsabilidad</h2>
+  <p>VISAX hará lo razonable para que el servicio funcione siempre, pero no garantiza que no haya cortes (proveedores de alojamiento, internet del Bar, móviles de los clientes). Si el sistema falla, el Bar puede seguir tomando nota como siempre. La responsabilidad de VISAX se limita, como máximo, a lo pagado por el Bar en los <span data-campo="c-meses-resp" contenteditable>3</span> meses anteriores. <!-- TODO(gestoría): revisar límite de responsabilidad. --></p>
+
+  <h2>8. Datos personales</h2>
+  <p>El sistema <b>no pide datos personales</b> a los clientes del Bar (ni nombre, ni teléfono, ni correo): un pedido solo lleva la mesa, los platos y las notas. Los pedidos se guardan en servidores en la Unión Europea por cuenta del Bar, para el servicio. Si en el futuro se añadiera algún dato personal, se firmará antes el acuerdo de encargo del tratamiento que corresponda. <!-- TODO(gestoría): contrato de encargado del tratamiento (art. 28 RGPD). --></p>
+
+  <h2>9. Propiedad</h2>
+  <p>Los textos, fotos, logo y carta son del Bar. Las pegatinas NFC y los QR pagados son del Bar. El programa (web, carta con pedidos y paneles) es de VISAX, que lo presta mientras el contrato esté en vigor. Si el contrato termina, VISAX entregará al Bar, si lo pide, sus textos y fotos, y los NFC dejarán de abrir la carta.</p>
+
+  <h2>10. Ley y tribunales</h2>
+  <p>Se aplica la ley española. Para cualquier conflicto, las partes se someten a los juzgados de <span data-campo="c-juzgados" contenteditable>Sanlúcar de Barrameda</span>, salvo que la ley diga otra cosa. <!-- TODO(gestoría): revisar fuero. --></p>
+
+  <div class="firma">
+    <div>Por VISAX<br><br><span data-copia="c-prestador"></span></div>
+    <div>Por el Bar<br><br><span data-copia="c-cliente"></span></div>
+  </div>
+  <div class="pie"><span>VISAX AI · Carta NFC · plantilla pendiente de revisión por gestoría</span><span>Página 2 de 2</span></div>
+</div>
+<script src="papeles.js"></script>
+</body>
+</html>

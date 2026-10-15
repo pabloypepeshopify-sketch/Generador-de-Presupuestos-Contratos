@@ -21,7 +21,10 @@ y las mismas funciones, **sin migraciones nuevas**: un bar sin datos fiscales ya
 | `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. Carrito con nota por plato, **Enviar pedido**, estado (Recibido → ✓ Apuntado), **Llamar al camarero** y **Pedir la cuenta**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
 | `cocina.html` | Móvil del bar | Pedidos **nuevos** en letra grande, **timbre fuerte** (se repite cada 20 s mientras haya algo sin atender) y pantalla siempre encendida. Un toque: **✓ Apuntado** (con ↩ para deshacer). Avisos de camarero y cuenta. Pestaña **Mesas**: lo que lleva cada mesa, **🖨 Imprimir ticket** y **Cobrada · liberar mesa**. Botón **📱 QR carta** para enseñar el QR de la carta general. Pausar pedidos. |
 | `admin.html` | Dueño | Carta (productos, precios, fotos, alérgenos, **Agotado** en un toque), Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa), claves e **Informes**. |
+| `kit.html` | Tú (desde Gestión → Mesas y NFC) | **Kit de instalación**: un adhesivo por mesa (nombre, QR, zona del NFC, logo) en A4 o para imprenta, y el QR de la carta general en PNG para la galería del camarero. |
 | `alta.html` | Tú | Alta de bares (te da los 3 enlaces) y activar/desactivar (impagos). |
+| `clientes.html` | Tú | **Mis clientes y cobros**: cuota de cada bar (29 €/mes por defecto), quién debe, marcar "Pagado" y desactivar por impago (`supabase/008_cuotas.sql`). |
+| `papeles/` | Tú | Hoja de venta (con QR a la demo), guía del camarero, checklist de instalación y contrato (TODO gestoría). |
 
 **Informes** (Gestión → 📊 Informes): ventas por día y por hora, lo más pedido (con buscador), mesas,
 comparación con el periodo anterior y **Excel** del periodo. Salen de los pedidos que entran por el sistema
@@ -55,15 +58,18 @@ TODO(gestoría): si un día se cobra con este ticket porque falla el TPV, el bar
    - si el bar tiene web con la plantilla de Martínez:
      `node ../herramientas/importar-carta.mjs --url <su carta.html> --slug <slug> --clave <clave admin>`;
    - si no, a mano en Gestión → Carta. Fotos: Editar → "Foto (URL https)".
-3. **NFC y QR** (5 min): en un **Android con Chrome**, Gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa
-   (iPhone: app NFC Tools, ver `../docs/guia-nfc.md`). *🖨 Imprimir QRs de las mesas* → pega cada QR junto a su NFC.
+3. **NFC y QR** (5 min): Gestión → *Mesas y NFC* → **🧾 Kit de instalación**: imprime los adhesivos (QR + zona del NFC).
+   En un **Android con Chrome**, **📶 Grabar NFC** en cada mesa (iPhone: app NFC Tools, ver `../docs/guia-nfc.md`)
+   y pega cada adhesivo en su mesa.
 4. **Móvil del bar** (2 min): abre el enlace del **panel** en el móvil junto al TPV (con soporte de carga),
-   toca **"toca aquí para activarlo"** (sonido) y deja la pantalla a la vista. El panel la mantiene encendida.
+   **añádelo a la pantalla de inicio** (icono "Pedidos"), toca **"toca aquí para activarlo"** (sonido) y deja la
+   pantalla a la vista. El panel la mantiene encendida.
    En Ajustes del móvil: no molestar desactivado y volumen alto.
 5. **Camarero** (1 min): que guarde el QR de la carta general (Gestión → Mesas y NFC → Carta general → QR →
    Descargar) o que use **📱 QR carta** en el panel, para el cliente al que no le funcione el NFC.
 6. **Prueba** (2 min): acerca un móvil al NFC de una mesa, pide algo, comprueba que suena, toca ✓ Apuntado,
-   imprime el ticket desde *Mesas* y libera la mesa.
+   imprime el ticket desde *Mesas* y libera la mesa. Deja al camarero la guía (`papeles/manual-camarero.html`).
+7. **Cuota**: apúntala en `clientes.html`. Si no paga, "Desactivar por impago".
 
 ## Estilo propio de un bar
 
@@ -79,9 +85,13 @@ Los enlaces con claves y los códigos de mesa no están en el repo: se entregan 
 
 ## Publicar
 
-Netlify, proyecto `pedidos-nfc-lite` (https://pedidos-nfc-lite.netlify.app). Se publica esta carpeta tal cual
-(sin build): herramienta de Netlify `deploy-site` con el site id del proyecto y el comando que devuelve,
-ejecutado **dentro de `carta-nfc/lite/`**.
+Es una carpeta estática: se publica tal cual, sin build.
+
+- **Netlify**, proyecto `pedidos-nfc-lite` (https://pedidos-nfc-lite.netlify.app): herramienta de Netlify
+  `deploy-site` con el site id del proyecto y el comando que devuelve, ejecutado **dentro de `carta-nfc/lite/`**.
+  (El 15/10/2026 la cuenta se quedó sin créditos y Netlify rechaza los despliegues.)
+- **Otro hosting estático** que entienda `_redirects` y `_headers` (p. ej. Cloudflare Pages): subir esta carpeta.
+  Lo imprescindible es que `/m/*` y `/r/*` sirvan `index.html`.
 
 Los NFC llevan grabado el dominio: decide el dominio definitivo **antes** de grabar en serie.
 
@@ -90,6 +100,9 @@ Los NFC llevan grabado el dominio: decide el dominio definitivo **antes** de gra
 ```bash
 cd carta-nfc/tests
 node e2e-lite.mjs     # levanta su BD y su servidor (puerto 8788) → E2E LITE OK
+WEB_ROOT=../lite PORT=8789 node e2e-kit.mjs        # kit contra lite → E2E KIT OK
+WEB_ROOT=../lite PORT=8789 node e2e-clientes.mjs   # cuotas contra lite → E2E CLIENTES OK
+WEB_ROOT=../lite PORT=8789 node e2e-papeles.mjs    # papeles contra lite → E2E PAPELES OK
 ```
 
 Cubre: pedir desde el NFC → llega al panel con sonido → ✓ Apuntado (y deshacer) → el cliente lo ve →

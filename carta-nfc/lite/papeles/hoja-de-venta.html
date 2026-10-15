@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoja de venta · Pedidos desde la mesa</title>
+<link rel="stylesheet" href="papeles.css">
+<style>
+  .hoja { padding-top: 13mm; }
+  .hoja h1 { font-size: 21pt; }
+  .hoja h2 { margin: 9px 0 4px; }
+  .hoja td { padding: 3px 0; }
+  .pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-top: 8px; counter-reset: p; list-style: none; padding: 0; }
+  .pasos li { border-top: 3px solid var(--verde); padding-top: 6px; counter-increment: p; }
+  .pasos li::before { content: counter(p); display: block; font-size: 18pt; font-weight: 800; color: var(--verde); line-height: 1; margin-bottom: 4px; }
+  .pasos li + li { margin-top: 0; }
+  .cuenta { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6mm; align-items: center; }
+  .qrs { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .qrs .qr { width: 27mm; margin: 0 auto 4px; }
+  .qrs p { text-align: center; font-size: 9pt; }
+</style>
+</head>
+<body>
+<!-- TODO(gestoría): confirmar si los precios llevan IVA (y si hay que indicarlo) antes de repartir esta hoja. -->
+<div class="ops">
+  <b>Ajusta las cuentas para este bar:</b>
+  <label>Mesas <input id="i-mesas" type="number" min="1" max="200" value="10"></label>
+  <label>Caña (€) <input id="i-cana" type="number" min="0.5" step="0.1" value="2.20"></label>
+  <label>Días abiertos al mes <input id="i-dias" type="number" min="1" max="31" value="26"></label>
+  <label>IVA <select id="i-iva"><option value="">(no indicar)</option><option value="IVA incluido">IVA incluido</option><option value="+ IVA">+ IVA</option></select></label>
+  <button id="imprimir" type="button">🖨 Imprimir / PDF</button>
+</div>
+<div class="hoja">
+  <div class="marca"><b>VISAX AI</b><span>Carta NFC · pedidos desde la mesa</span></div>
+  <h1>Tus clientes piden desde la mesa.<br>Tu camarero deja de ir y venir.</h1>
+  <p class="sub">Acercan el móvil a la pegatina de su mesa (o escanean el QR), eligen y el pedido suena en un móvil junto a tu TPV. Cobras como siempre.</p>
+
+  <ol class="pasos">
+    <li><b>Acercan el móvil</b><br>A la pegatina NFC de la mesa o al QR. Sin app y sin registrarse.</li>
+    <li><b>Piden desde la carta</b><br>Con fotos, alérgenos y notas ("sin cebolla"). Lo agotado no se puede pedir.</li>
+    <li><b>Suena junto al TPV</b><br>El camarero lo apunta en tu TPV sin ir mesa por mesa. El cliente ve cuándo está listo.</li>
+  </ol>
+
+  <h2>Las cuentas: una caña más por mesa al día</h2>
+  <div class="cuenta">
+    <div class="destaca">
+      <p>Si cada mesa pide <b>una caña más al día</b> porque pedir es más fácil:</p>
+      <p style="margin-top:6px"><span id="o-mesas">10</span> mesas × <span id="o-cana">2,20 €</span> × <span id="o-dias">26</span> días =</p>
+      <p class="grande" id="o-extra">572 €</p>
+      <p>más al mes. La cuota es de <b>29 €/mes</b>: se paga con <b id="o-canas">14</b> cañas al mes en todo el bar.</p>
+    </div>
+    <div>
+      <p><b>Además:</b></p>
+      <ul>
+        <li>Menos errores al tomar nota: el pedido llega escrito.</li>
+        <li>La terraza y el fondo del local piden sin esperar a que pases.</li>
+        <li>Llamar al camarero y pedir la cuenta con un toque.</li>
+        <li>No cambias de TPV ni de forma de cobrar. No hace tickets ni facturas.</li>
+        <li>Una web bonita del bar para Google, Instagram y WhatsApp.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Qué incluye y cuánto cuesta</h2>
+  <table>
+    <tr><td><b>Web premium del bar</b><br><span class="sub" style="font-size:9pt">Portada, fotos, horario, mapa, reseñas, contacto. Preparada para Google.</span></td><td class="n">400 €</td></tr>
+    <tr><td><b>Menú digital con pedidos</b>, a tu gusto<br><span class="sub" style="font-size:9pt">Tu carta con precios, alérgenos y tamaños. La cambias tú cuando quieras.</span></td><td class="n">300 €</td></tr>
+    <tr><td><b>Pegatina o tarjeta NFC por mesa</b> (<span id="o-mesas2">10</span> mesas × 15 €)</td><td class="n" id="o-nfc">150 €</td></tr>
+    <tr><td><b>QR impreso de respaldo</b>, material resistente</td><td class="n">aparte</td></tr>
+    <tr><td><b>Total para empezar</b></td><td class="n"><b id="o-total">850 €</b></td></tr>
+    <tr><td><b>Cuota de alojamiento y soporte</b><br><span class="sub" style="font-size:9pt">Web y carta siempre funcionando, y cambios en mis días laborables y en mi horario.</span></td><td class="n"><b>29 €/mes</b></td></tr>
+  </table>
+  <p class="sub" style="font-size:9pt;margin-top:4px" id="o-iva"></p>
+
+  <h2>Pruébalo ahora con tu móvil</h2>
+  <div class="dos" style="align-items:center">
+    <div class="qrs">
+      <div><div class="qr" data-qr="/m/080f59f08e"></div><p><b>Pide como cliente</b><br>(Mesa 2 de la demo)</p></div>
+      <div><div class="qr" data-qr="/cocina.html?r=demo&amp;k=demo-cocina"></div><p><b>Mira cómo llega al bar</b><br>(móvil junto al TPV)</p></div>
+    </div>
+    <div class="caja">
+      <p><b><span data-campo="vendedor" contenteditable data-placeholder="Pablo">Pablo</span> · VISAX AI</b></p>
+      <p>📞 <span data-campo="telefono" contenteditable data-placeholder="teléfono">656 999 241</span></p>
+      <p>✉️ <span data-campo="email" contenteditable data-placeholder="correo">contactovisaxai@gmail.com</span></p>
+      <p style="margin-top:6px">Te lo dejo montado y funcionando: carta, pegatinas en cada mesa, el móvil junto al TPV y una prueba con tu camarero.</p>
+    </div>
+  </div>
+  <div class="pie"><span>VISAX AI · Sanlúcar de Barrameda</span><span>Carta NFC · Pack "Solo pedidos"</span></div>
+</div>
+<script src="/assets/vendor/qrcode.js"></script>
+<script src="papeles.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const eur = (n) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: n % 1 ? 2 : 0 }).format(n);
+  function calcular() {
+    const mesas = Math.max(1, parseInt($('i-mesas').value, 10) || 1);
+    const cana = Math.max(0.1, parseFloat($('i-cana').value) || 2.2);
+    const dias = Math.max(1, parseInt($('i-dias').value, 10) || 26);
+    $('o-mesas').textContent = mesas; $('o-mesas2').textContent = mesas;
+    $('o-cana').textContent = eur(cana); $('o-dias').textContent = dias;
+    $('o-extra').textContent = eur(Math.round(mesas * cana * dias));
+    $('o-canas').textContent = Math.ceil(29 / cana);
+    $('o-nfc').textContent = eur(mesas * 15);
+    $('o-total').textContent = eur(700 + mesas * 15);
+    $('o-iva').textContent = $('i-iva').value ? 'Precios ' + $('i-iva').value + '.' : '';
+  }
+  ['i-mesas', 'i-cana', 'i-dias', 'i-iva'].forEach((id) => $(id).addEventListener('input', calcular));
+  calcular();
+})();
+</script>
+</body>
+</html>

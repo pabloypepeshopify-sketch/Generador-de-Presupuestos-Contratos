@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist de instalación · Carta NFC</title>
+<link rel="stylesheet" href="papeles.css">
+<style>
+  .hoja { font-size: 9.6pt; padding-top: 13mm; }
+  .hoja h1 { font-size: 20pt; }
+  .tres { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 9mm; }
+  .check li + li { margin-top: 2px; }
+  code { font-size: 9pt; background: #f1f3f3; padding: 0 3px; border-radius: 2px; }
+  .datos td { padding: 4px 0; }
+  .datos td:last-child { width: 62%; }
+</style>
+</head>
+<body>
+<div class="ops"><button id="imprimir" type="button">🖨 Imprimir / PDF</button></div>
+<div class="hoja">
+  <div class="marca"><b>VISAX AI</b><span>Checklist de instalación · Pack "Solo pedidos"</span></div>
+  <h1>Montar un bar</h1>
+  <table class="datos" style="margin-top:4mm">
+    <tr><td>Bar</td><td><span class="hueco" style="width:100%"></span></td></tr>
+    <tr><td>Identificador (slug)</td><td><span class="hueco" style="width:100%"></span></td></tr>
+    <tr><td>Nº de mesas y nombres</td><td><span class="hueco" style="width:100%"></span></td></tr>
+    <tr><td>Fecha de instalación</td><td><span class="hueco" style="width:100%"></span></td></tr>
+  </table>
+
+  <div class="tres" style="margin-top:2mm">
+    <div>
+      <h2>1. Antes de ir</h2>
+      <ul class="check">
+        <li>Contrato firmado y primer pago acordado.</li>
+        <li>Recibido: logo, fotos, carta con precios, nº de mesas y sus nombres, horario, dirección.</li>
+        <li><code>alta.html</code> → nuevo restaurante. Las 3 claves guardadas <b>fuera del repo</b>.</li>
+        <li>Carta cargada (importar de su web o a mano) con alérgenos y tamaños.</li>
+        <li>Mesas creadas con sus nombres reales (Gestión → Mesas y NFC).</li>
+        <li>Web: <code>web-bar.mjs --nuevo</code>, config, fotos, <code>legal.local.mjs</code>, generar y publicar en su Netlify.</li>
+        <li>Gestión → Ajustes → "Web propia de la carta" = <code>…/carta.html</code>.</li>
+        <li>Gestión → Ajustes → "permitir elegir mesa" activado (para la carta general).</li>
+        <li>Kit de instalación impreso (adhesivos por mesa) y pegatinas NFC en la mochila (+2 de repuesto).</li>
+        <li>Móvil para el TPV: soporte con cargador y cable largo.</li>
+        <li>Prueba en casa: un pedido en la carta y que suene en <code>cocina.html</code>.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>2. En el bar</h2>
+      <ul class="check">
+        <li>WiFi del bar apuntado y con buena señal junto al TPV.</li>
+        <li>Grabar el NFC de cada mesa (Chrome en Android → Gestión → Mesas y NFC → 📶 Grabar NFC).</li>
+        <li>Pegar cada adhesivo en <b>su</b> mesa, con el chip debajo del círculo "Acerca aquí".</li>
+        <li>Probar <b>cada mesa</b> con un Android (NFC) y un iPhone (NFC y QR): abre la carta con el nombre correcto.</li>
+        <li>Adhesivo de la carta general en la barra o la entrada (opcional).</li>
+        <li>Móvil junto al TPV: abrir el panel (<code>cocina.html</code>) y añadirlo a la pantalla de inicio.</li>
+        <li>Volumen al máximo, sin "no molestar", bloqueo de pantalla en "Nunca", cargando.</li>
+        <li>Tocar "Activar sonido" y ⋯ → "Probar sonido".</li>
+        <li>QR de la carta general guardado en la galería del móvil del camarero.</li>
+        <li>Pedido de prueba real con el camarero: llega, suena, "Apuntado", lo ve el cliente.</li>
+        <li>"Llamar al camarero" y "Pedir la cuenta" desde una mesa.</li>
+        <li>Enseñar "Pausar / Reanudar" y "Agotado". Dejar la guía del camarero junto al TPV.</li>
+        <li>Pedidos de prueba: "Apuntado" y, en Mesas, "liberar mesa".</li>
+      </ul>
+    </div>
+    <div>
+      <h2>3. Después</h2>
+      <ul class="check">
+        <li><code>clientes.html</code>: cuota, fecha del primer cobro y notas (cómo paga).</li>
+        <li>Enlace de la web en su ficha de Google, Instagram y WhatsApp.</li>
+        <li>Al día siguiente: mirar en <code>alta.html</code> que entran pedidos.</li>
+        <li>A la semana: llamar al dueño y preguntar qué cambiaría.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Notas</h2>
+      <p style="min-height:12mm;border:1px dashed var(--linea);border-radius:2mm"></p>
+    </div>
+  </div>
+  <div class="pie"><span>VISAX AI · Carta NFC</span><span>Firma del dueño: ______________________</span></div>
+</div>
+<script src="papeles.js"></script>
+</body>
+</html>
