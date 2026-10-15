@@ -203,6 +203,23 @@ de plataforma (la misma de `alta.html`, que enlaza aquí). Datos: `supabase/008_
 - Filtros: Todos, Deben, Al día, Desactivados.
 - Pruebas: `sql-tests-cuotas.sql` y `node tests/e2e-clientes.mjs`.
 
+## Papeles de venta — `web/papeles/`
+
+Páginas A4 para imprimir o guardar en PDF (Imprimir → Guardar como PDF, márgenes "Ninguno").
+Publicadas en `https://carta-nfc-pedidos.netlify.app/papeles/` (sin indexar). Los campos en amarillo se
+rellenan en la propia página y se recuerdan en ese navegador.
+- `hoja-de-venta.html` — 1 página: cómo funciona, la cuenta de **"una caña más por mesa al día"**
+  (mesas, precio de la caña y días se ajustan arriba antes de imprimir), precios del pack y 2 QR de la demo
+  (pedir como cliente y verlo en el móvil del TPV).
+- `manual-camarero.html` — 1 página para pegar junto al TPV: llega un pedido, avisos, cliente sin NFC,
+  pausar, agotado, si algo falla y contacto de soporte.
+- `checklist-instalacion.html` — antes de ir, en el bar y después.
+- `contrato.html` — plantilla (2 páginas) con la cuota, el horario de soporte, el corte del servicio por
+  impago, datos personales y propiedad. **TODO(gestoría): revisar antes de usarla** (capacidad para
+  contratar siendo menor, IVA, encargo del tratamiento RGPD, plazos). El aviso de revisión no se imprime.
+- TODO(gestoría): si los precios de la hoja de venta llevan IVA (selector "IVA" en la hoja).
+- Prueba: `node tests/e2e-papeles.mjs` (comprueba que cada uno cabe en sus páginas; `PDF=/carpeta` guarda los PDF).
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
@@ -387,6 +404,7 @@ carta-nfc/
     index.html cocina.html admin.html alta.html ticket.html kit.html movil.html clientes.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
+    papeles/                 hoja de venta, guía del camarero, checklist de instalación y plantilla de contrato
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
   clientes/martinez-bar/      página de pedidos propia de Martínez Bar (HTML único, publicada en Netlify)
@@ -406,6 +424,7 @@ carta-nfc/
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
     sql-tests-cuotas.sql     cuotas: pendientes, pagar/deshacer, fijar, sin cuota, meses cortos, permisos
     e2e-clientes.mjs         mis clientes y cobros: deuda, pagar, deshacer, editar, desactivar por impago
+    e2e-papeles.mjs          papeles de venta: cuentas de la hoja de venta y que cada papel cabe en A4
     e2e-movil.mjs            móvil junto al TPV: llegada, sonido y repetición, Apuntado/Deshacer, avisos, pausa, reinicio, sin conexión
     e2e-kit.mjs              kit de instalación: adhesivos A4/imprenta, PDF, carta general, imagen para la galería
     e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
@@ -454,6 +473,7 @@ node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCA
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-cuotas.sql
 node e2e-clientes.mjs                 # mis clientes y cobros → E2E CLIENTES OK
+node e2e-papeles.mjs                  # papeles de venta → E2E PAPELES OK
 node e2e-movil.mjs                    # móvil junto al TPV → E2E MÓVIL OK
 node e2e-kit.mjs                      # kit de instalación (adhesivos y PDF) → E2E KIT OK
 node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK

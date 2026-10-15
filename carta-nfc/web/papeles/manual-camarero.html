@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía del camarero · Pedidos desde la mesa</title>
+<link rel="stylesheet" href="papeles.css">
+<style>
+  .hoja { font-size: 11pt; }
+  .pasos { counter-reset: p; list-style: none; padding: 0; }
+  .pasos li { counter-increment: p; display: flex; gap: 8px; }
+  .pasos li::before { content: counter(p); flex: none; width: 7mm; height: 7mm; border-radius: 50%; background: var(--verde); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 10pt; }
+  .boton { display: inline-block; padding: 0 6px; border-radius: 4px; background: var(--ambar); font-weight: 700; white-space: nowrap; }
+  .aviso { display: inline-block; padding: 0 6px; border-radius: 4px; background: #ffe58a; font-weight: 700; }
+  .problemas td:first-child { width: 42%; font-weight: 600; padding-right: 8px; }
+</style>
+</head>
+<body>
+<div class="ops"><span>Rellena el nombre del bar y el contacto de soporte (se recuerdan en este navegador).</span><button id="imprimir" type="button">🖨 Imprimir / PDF</button></div>
+<div class="hoja">
+  <div class="marca"><b data-campo="bar" contenteditable data-placeholder="Nombre del bar"></b><span>Pedidos desde la mesa · guía del camarero</span></div>
+  <h1>Cuando suena el móvil del TPV</h1>
+  <p class="sub">Los clientes piden desde su mesa con el móvil. Tú solo lo pasas a tu TPV. Se cobra como siempre.</p>
+
+  <div class="dos" style="margin-top:6mm">
+    <div>
+      <h2>Llega un pedido</h2>
+      <ol class="pasos">
+        <li><span>Lee la tarjeta grande: <b>mesa</b>, platos y notas en amarillo ("sin cebolla").</span></li>
+        <li><span>Apúntalo en tu TPV como siempre.</span></li>
+        <li><span>Toca <span class="boton">✓ Apuntado en el TPV</span>. El cliente ve "En preparación".</span></li>
+      </ol>
+      <p style="margin-top:6px">¿Te has equivocado? Abajo, en "Últimos apuntados", toca <b>Deshacer</b>.</p>
+      <p>Si nadie lo apunta, <b>vuelve a sonar cada 20 segundos</b>.</p>
+
+      <h2>Avisos en amarillo</h2>
+      <p><span class="aviso">🙋 Llama al camarero</span> o <span class="aviso">🧾 Pide la cuenta</span> (con el total de la mesa).</p>
+      <p>Ve a la mesa y toca <span class="boton">✓ Atendido</span>.</p>
+
+      <h2>Cliente sin NFC</h2>
+      <p>Si al acercar el móvil no pasa nada, que <b>escanee el QR</b> de la pegatina. Si tampoco, enséñale desde tu móvil la imagen <b>"QR de la carta"</b> de tu galería: elige su mesa al pedir.</p>
+    </div>
+    <div>
+      <h2>El móvil junto al TPV</h2>
+      <ul>
+        <li>Siempre <b>cargando</b> y con la pantalla encendida.</li>
+        <li><b>Volumen al máximo</b> (y sin "no molestar").</li>
+        <li>Si ves <b>"Toca aquí para activar el sonido"</b>, tócalo. Pasa siempre que se abre o se reinicia.</li>
+        <li>Si se ha cerrado: ábrelo desde el icono <b>"Pedidos"</b>.</li>
+      </ul>
+
+      <h2>Mucho lío</h2>
+      <p><span class="boton">⏸ Pausar</span>: los clientes ven la carta pero no pueden pedir. Al terminar, <span class="boton">▶ Reanudar</span>.</p>
+
+      <h2>Se acaba un plato</h2>
+      <p>El encargado lo marca <b>"Agotado"</b> en Gestión → Carta (un toque) y ya no se puede pedir.</p>
+
+      <h2>Si algo falla</h2>
+      <table class="problemas">
+        <tr><td>Sale "Sin conexión" en rojo</td><td>Revisa el WiFi del bar o del móvil. Se quita solo al volver.</td></tr>
+        <tr><td>No suena</td><td>Sube el volumen, toca la pantalla y prueba en ⋯ → "Probar sonido".</td></tr>
+        <tr><td>Se apaga la pantalla</td><td>Ajustes del móvil → Pantalla → Bloqueo automático: Nunca.</td></tr>
+        <tr><td>Un NFC no abre la carta</td><td>Usa el QR de la pegatina y avisa a soporte.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="destaca" style="margin-top:7mm">
+    <b>Soporte:</b> <span data-campo="vendedor" contenteditable data-placeholder="Pablo">Pablo</span> ·
+    <span data-campo="telefono" contenteditable data-placeholder="teléfono">656 999 241</span> ·
+    <span data-campo="horario" contenteditable data-placeholder="horario de soporte">lunes a viernes, de 10:00 a 14:00</span>
+  </div>
+  <p class="sub" style="font-size:9pt;margin-top:4px">Esto no cobra, ni hace tickets ni facturas: se cobra con el TPV de siempre.</p>
+  <div class="pie"><span>VISAX AI · Carta NFC</span><span>Pega esta hoja junto al TPV</span></div>
+</div>
+<script src="papeles.js"></script>
+</body>
+</html>
