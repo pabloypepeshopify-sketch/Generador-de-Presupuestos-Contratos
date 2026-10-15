@@ -5,6 +5,8 @@
 --   filtro: { desde: 'YYYY-MM-DD', hasta: 'YYYY-MM-DD', q: texto, tipo: 'ticket'|'factura',
 --             limite: 1..500 (50), saltar: n (0) }
 --   q busca en número, mesa y NIF/nombre del cliente. Las fechas son la fecha de expedición (hora local).
+--   Los totales no suman las facturas F3 (repiten la venta del ticket al que sustituyen, que ya cuenta),
+--   salvo en el filtro de facturas, donde no salen los tickets.
 
 -- El estado de envío y el orden de emisión salen del registro SIF de cada documento.
 create index if not exists registros_sif_doc_idx on fiscal.registros_sif (documento_id, id);
@@ -46,7 +48,7 @@ begin
      where d.restaurante_id = r.id
        and (v_desde is null or d.fecha_expedicion >= v_desde)
        and (v_hasta is null or d.fecha_expedicion <= v_hasta)
-       and (v_tipo is null or (v_tipo = 'factura') = (d.tipo in ('F1', 'R1', 'R2', 'R3', 'R4')))
+       and (v_tipo is null or (v_tipo = 'factura') = (d.tipo in ('F1', 'F3', 'R1', 'R2', 'R3', 'R4')))
        and (v_q = '' or position(v_q in lower(d.num_serie)) > 0
                      or position(v_q in lower(coalesce(d.mesa_nombre, ''))) > 0
                      or position(v_q in lower(coalesce(d.cliente->>'nif', ''))) > 0
@@ -70,11 +72,11 @@ begin
     'resumen', (select jsonb_build_object(
         'total', coalesce(sum(s.total), 0), 'base', coalesce(sum(s.base_total), 0),
         'cuota', coalesce(sum(s.cuota_total), 0), 'propinas', coalesce(sum(s.propina), 0))
-      from sel s where s.estado <> 'anulado'),
+      from sel s where s.estado <> 'anulado' and (s.tipo <> 'F3' or v_tipo = 'factura')),
     'por_forma', (select coalesce(jsonb_object_agg(z.forma, z.importe), '{}'::jsonb)
                     from (select x->>'forma' as forma, sum((x->>'importe')::numeric) as importe
                             from sel s, jsonb_array_elements(s.pagos) x
-                           where s.estado <> 'anulado' group by 1) z)
+                           where s.estado <> 'anulado' and (s.tipo <> 'F3' or v_tipo = 'factura') group by 1) z)
   ) into v_res;
   return v_res;
 end $$;

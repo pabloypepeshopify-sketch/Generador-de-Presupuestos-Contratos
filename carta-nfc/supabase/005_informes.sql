@@ -161,14 +161,17 @@ begin
   if to_regclass('fiscal.titulares') is not null and exists (select 1 from fiscal.titulares t where t.restaurante_id = r.id) then
     with doc as (
       select d.* from fiscal.documentos d
-       where d.restaurante_id = r.id and d.estado <> 'anulado' and d.fecha_expedicion between v_desde and v_hasta
+       where d.restaurante_id = r.id and d.estado <> 'anulado' and d.tipo <> 'F3' and d.fecha_expedicion between v_desde and v_hasta
     )
     select jsonb_build_object(
       -- Las rectificativas (R…) restan: el original sigue contando y la devolución va en negativo.
+      -- Las facturas F3 no suman: repiten la venta del ticket al que sustituyen (que ya cuenta).
       'tickets',   (select count(*) from doc where tipo not like 'R%'),
       'devoluciones', (select count(*) from doc where tipo like 'R%'),
       'devuelto',  (select coalesce(sum(total), 0) from doc where tipo like 'R%'),
-      'facturas',  (select count(*) from doc where tipo = 'F1'),
+      'facturas',  (select count(*) from doc where tipo = 'F1')
+                 + (select count(*) from fiscal.documentos d where d.restaurante_id = r.id and d.estado <> 'anulado'
+                       and d.tipo = 'F3' and d.fecha_expedicion between v_desde and v_hasta),
       'facturado', (select coalesce(sum(total), 0) from doc),
       'base',      (select coalesce(sum(base_total), 0) from doc),
       'cuota',     (select coalesce(sum(cuota_total), 0) from doc),
@@ -183,7 +186,7 @@ begin
                                       sum((x->>'cuota')::numeric) as cuota, sum((x->>'total')::numeric) as total
                                  from doc, jsonb_array_elements(doc.desglose) x group by 1) z), '[]'::jsonb),
       'anterior_facturado', (select coalesce(sum(d.total), 0) from fiscal.documentos d
-                              where d.restaurante_id = r.id and d.estado <> 'anulado'
+                              where d.restaurante_id = r.id and d.estado <> 'anulado' and d.tipo <> 'F3'
                                 and d.fecha_expedicion between v_desde - v_dias and v_desde - 1)
     ) into v_cobro;
     v_res := v_res || jsonb_build_object('cobros', v_cobro);

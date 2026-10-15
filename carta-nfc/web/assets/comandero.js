@@ -2,6 +2,7 @@
 // Uso: CartaComandero.abrir({ sesion, moneda, mesaId, cobrar, alEnviar })
 //   mesaId: id de mesa, '' = Barra, undefined = la última usada. cobrar: muestra "Enviar y cobrar".
 //   alEnviar(pedido, { cobrar }) se llama tras crear el pedido.
+//   "Varios": concepto y precio libres (lo que no está en la carta), con su IVA.
 (function () {
   const { rpc, esc, dinero, toast } = window.Carta;
 
@@ -49,6 +50,13 @@
 .cm-botones .btn{flex:1;min-height:52px;font-size:16px}
 .cm-ver{display:none}
 .cm-ver[hidden]{display:none!important}
+.cm-filtros .btn{min-height:44px;white-space:nowrap}
+.cm-varios{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.cm-varios label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.cm-varios input,.cm-varios select{min-height:42px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;width:100%;min-width:0}
+.cm-varios .cm-v-nombre{grid-column:1/-1}
+.cm-varios .cm-v-botones{grid-column:1/-1;display:flex;gap:8px}
+.cm-varios .cm-v-botones .btn{flex:1}
 @media (max-width:800px){
   #dlg-comandero{width:100%;max-width:none;height:100%;max-height:none;margin:0;border-radius:0}
   .cm-cuerpo{grid-template-columns:1fr;position:relative}
@@ -77,13 +85,18 @@
     dlg.addEventListener('input', onInput);
     dlg.addEventListener('change', onInput);
     dlg.addEventListener('close', () => { est = null; });
+    dlg.addEventListener('submit', (ev) => {
+      if (!est || !ev.target.matches('[data-cm-varios]')) return;
+      ev.preventDefault();
+      anadirVarios(ev.target);
+    });
   }
 
   async function abrir(o) {
     crear();
     opts = o;
     est = { datos: null, mesaId: o.mesaId !== undefined ? (o.mesaId || '') : ultimaMesa, cat: '', q: '', lineas: [],
-      nota: '', servido: false, enviando: false, ver: false, notaAbierta: null };
+      nota: '', servido: false, enviando: false, ver: false, notaAbierta: null, varios: false, nVarios: 0 };
     est.servido = est.mesaId === '';
     dlg.innerHTML = `<div class="cm-head"><h2>Nuevo pedido</h2><button class="x" type="button" data-cm="cerrar" aria-label="Cerrar">×</button></div>
       <div class="cm-vacio">Cargando carta…</div>`;
@@ -116,7 +129,8 @@
       </div>
       <div class="cm-cuerpo">
         <div class="cm-carta">
-          <div class="cm-filtros"><input type="search" data-cm-q placeholder="Buscar producto" aria-label="Buscar producto" value="${esc(est.q)}"></div>
+          <div class="cm-filtros"><input type="search" data-cm-q placeholder="Buscar producto" aria-label="Buscar producto" value="${esc(est.q)}">
+            <button class="btn" type="button" data-cm="varios" title="Algo que no está en la carta">➕ Varios</button></div>
           <div class="cm-cats" role="group" aria-label="Categoría">
             <button type="button" data-cm-cat="" aria-pressed="${!est.cat}">Todo</button>
             ${d.categorias.map((c) => `<button type="button" data-cm-cat="${esc(c.id || 'otros')}" aria-pressed="${est.cat === (c.id || 'otros')}">${esc(c.nombre)}</button>`).join('')}
@@ -152,7 +166,13 @@
     const caja = dlg.querySelector('[data-cm-pedido]');
     caja.classList.toggle('ver', est.ver);
     const n = unidades();
-    caja.innerHTML = `
+    caja.innerHTML = `${est.varios ? `
+      <form class="cm-varios" data-cm-varios>
+        <label class="cm-v-nombre">Concepto<input type="text" name="nombre" maxlength="60" required placeholder="Ej.: Menú del día, tabaco, botella"></label>
+        <label>Precio (IVA incl.)<input type="text" name="precio" inputmode="decimal" required placeholder="0,00"></label>
+        <label>IVA<select name="iva"><option value="">Del bar</option><option value="10">10 %</option><option value="21">21 %</option><option value="4">4 %</option></select></label>
+        <div class="cm-v-botones"><button class="btn primary" type="submit">Añadir</button><button class="btn ghost" type="button" data-cm="varios">Cancelar</button></div>
+      </form>` : ''}
       <div class="cm-head" style="padding:8px 14px"><h2 style="font-size:16px">${esc(nombreMesa())} · ${n} ${n === 1 ? 'producto' : 'productos'}</h2>
         <button class="btn sm ghost" type="button" data-cm="ocultar" style="display:${est.ver ? '' : 'none'}">← Carta</button></div>
       <div class="cm-lineas">${est.lineas.length ? est.lineas.map((l) => `
@@ -187,7 +207,7 @@
     if (!p || !p.disponible) return;
     const l = linea(id);
     if (p.stock != null && (l ? l.cantidad : 0) >= p.stock) { toast(`No quedan más: ${p.nombre}`, 'error'); return; }
-    if (l) l.cantidad = Math.min(50, l.cantidad + 1);
+    if (l) l.cantidad = Math.min(20, l.cantidad + 1);
     else est.lineas.push({ id: p.id, nombre: p.nombre, precio: Number(p.precio), cantidad: 1, nota: '' });
     if (navigator.vibrate) try { navigator.vibrate(15); } catch { /* nada */ }
     pintarGrid(); pintarPedido();
@@ -201,7 +221,9 @@
       const s = opts.sesion();
       const r = await rpc('carta_tpv', { p_slug: s.slug, p_clave: s.clave, p_accion: 'comandar', p_datos: {
         mesa_id: est.mesaId || null, nota: est.nota.trim() || null, servido: est.servido,
-        lineas: est.lineas.map((l) => ({ producto_id: l.id, cantidad: l.cantidad, nota: (l.nota || '').trim() || null })) } });
+        lineas: est.lineas.map((l) => (l.varios
+          ? { nombre: l.nombre, precio: l.precio.toFixed(2), iva: l.iva, cantidad: l.cantidad, nota: (l.nota || '').trim() || null }
+          : { producto_id: l.id, cantidad: l.cantidad, nota: (l.nota || '').trim() || null })) } });
       ultimaMesa = est.mesaId;
       dlg.close();
       toast(`Pedido nº ${r.pedido.numero} · ${mesa}`);
@@ -236,7 +258,7 @@
       pintarGrid();
     } else if (ds.cmMas) { const l = linea(ds.cmMas); const p = productos().find((x) => x.id === ds.cmMas);
       if (p && p.stock != null && l.cantidad >= p.stock) toast(`No quedan más: ${p.nombre}`, 'error');
-      else { l.cantidad = Math.min(50, l.cantidad + 1); pintarGrid(); pintarPedido(); }
+      else { l.cantidad = Math.min(20, l.cantidad + 1); pintarGrid(); pintarPedido(); }
     } else if (ds.cmMenos) {
       const l = linea(ds.cmMenos);
       l.cantidad -= 1;
@@ -251,7 +273,13 @@
       if (!est.lineas.length || confirm('¿Descartar este pedido?')) dlg.close();
     } else if (ds.cm === 'enviar') enviar(false);
     else if (ds.cm === 'cobrar') enviar(true);
-    else if (ds.cm === 'ver') { est.ver = true; pintarPedido(); }
+    else if (ds.cm === 'varios') {
+      est.varios = !est.varios;
+      if (est.varios && window.matchMedia('(max-width: 800px)').matches) est.ver = true;
+      pintarPedido();
+      const i = dlg.querySelector('[data-cm-varios] [name="nombre"]');
+      if (i) i.focus();
+    } else if (ds.cm === 'ver') { est.ver = true; pintarPedido(); }
     else if (ds.cm === 'ocultar') { est.ver = false; pintarPedido(); }
   }
 
@@ -262,6 +290,17 @@
     else if (t.dataset.cmNotaTxt) { const l = linea(t.dataset.cmNotaTxt); if (l) l.nota = t.value.slice(0, 140); }
     else if (t.hasAttribute('data-cm-nota-general')) est.nota = t.value.slice(0, 300);
     else if (t.hasAttribute('data-cm-servido') && ev.type === 'change') { est.servido = t.checked; pintarPedido(); }
+  }
+
+  // "Varios": línea libre con concepto, precio (IVA incluido) y, si se elige, su tipo de IVA.
+  function anadirVarios(form) {
+    const nombre = form.nombre.value.trim().slice(0, 60);
+    const t = form.precio.value.trim().replace(',', '.');
+    if (!nombre || !/^\d{1,4}(\.\d{1,2})?$/.test(t) || Number(t) <= 0) { toast('Pon un concepto y un precio (ej.: 4,50).', 'error'); return; }
+    est.nVarios += 1;
+    est.lineas.push({ id: 'v' + est.nVarios, varios: true, nombre, precio: Number(t), iva: form.iva.value, cantidad: 1, nota: '' });
+    est.varios = false;
+    pintarPedido();
   }
 
   window.CartaComandero = { abrir };

@@ -248,6 +248,32 @@ Se activa solo en bares con facturación (o entrando al panel con la clave del d
 activa "abrir cajón al imprimir". **Datáfono:** el del banco funciona tal cual (se marca "Tarjeta").
 Para que el importe pase solo al datáfono, ver "Siguientes pasos".
 
+### TPV, segunda parte (`supabase/007_tpv2.sql`)
+
+Lo que le faltaba para sustituir el TPV de un bar sin echar nada de menos:
+
+- **💶 Caja** (pestaña del panel, `assets/caja.js`):
+  - abrir con fondo de cambio; apuntar salidas (proveedor, banco…) y entradas, que no se pueden borrar;
+  - "efectivo que debería haber en el cajón" en vivo: fondo + cobros en efectivo − devoluciones en efectivo + entradas − salidas;
+  - **cerrar con arqueo**: recuento por billetes y monedas, descuadre, nota, hoja de cierre impresa e historial para reimprimir;
+  - qué cobros entran en cada turno lo marca el registro SIF (correlativo): ninguno se pierde ni se repite entre turnos.
+- **✎ Corregir** (tarjeta de la mesa): quitar una unidad, quitar la línea o **🎁 invitar** (precio 0).
+  - Devuelve el stock, queda registrado en el informe de eventos y, sin líneas, el pedido se cancela.
+  - Si la mesa ya tiene una parte cobrada, se corrige con una devolución (no se toca lo cobrado).
+  - Mesa toda invitada: se cierra sin ticket (no hay venta).
+- **Descuento al cobrar:** 5/10/15/20 %, otro % o un importe. Va en el ticket como líneas negativas por tipo de IVA.
+  Un ticket con descuento solo se devuelve entero.
+- **➕ Varios** en el comandero: concepto y precio libres (menú del día, tabaco…) con su IVA.
+- **🧾 Hacer factura** de un ticket ya cobrado (Tickets → Ver): factura completa **F3** con los datos del cliente que
+  sustituye al ticket (queda "sustituido"); no se cobra otra vez ni mueve caja. Los totales no la cuentan doble.
+- **🖥 Puesto** (cada tablet): qué categorías ve en Comandas (cocina sin bebidas, barra solo bebidas) e
+  **impresión automática** de cada comanda nueva. Sin diálogo: Chrome con `--kiosk-printing` y la impresora de
+  tickets como predeterminada. El estado (preparando/listo) es del pedido entero.
+- **Aviso "Sin conexión"** en el panel si deja de llegar información del servidor (también en bares sin TPV).
+
+TODO(gestoría): confirmar F3 con "FacturasSustituidas" para la factura de un ticket, que comparta la serie `F`,
+y el descuento como líneas negativas por tipo de IVA.
+
 ## Estructura
 
 ```
@@ -258,9 +284,10 @@ carta-nfc/
   supabase/004_fiscal_tickets.sql  listado completo de tickets (fiscal_documentos)
   supabase/005_informes.sql  informes de ventas (carta_informe) + registro de eventos de pedidos
   supabase/006_tpv.sql       modo TPV: comandero, cuentas separadas, rectificativas, stock, mover mesas
+  supabase/007_tpv2.sql      caja (arqueo), corregir/invitar, descuentos, "Varios", factura de un ticket (F3)
   web/                       sitio estático publicado en Netlify (sin build)
     index.html cocina.html admin.html alta.html ticket.html
-    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js vendor/qrcode.js (MIT)
+    assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
@@ -280,6 +307,8 @@ carta-nfc/
     e2e-informes.mjs         informes en gestión, tablet y móvil; cierre Z y Excel
     sql-tests-tpv.sql        comandero, stock, mover, cuentas separadas, rectificativas, cadena con negativos
     e2e-tpv.mjs              comandero (mesa y Barra), stock, plano, mover, dividir cuenta, devoluciones, móvil
+    sql-tests-tpv2.sql       caja, corregir/invitar, Varios, descuentos, F3, mesa invitada, cadena
+    e2e-tpv2.mjs             caja y arqueo, Varios, puesto, corregir, descuento, factura de un ticket, móvil
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
   docs/brief-facturacion.md  plan del módulo de tickets, facturación, contabilidad e impuestos
@@ -290,7 +319,7 @@ carta-nfc/
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
   ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
-  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql` (y
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql`, `007_tpv2.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -311,7 +340,7 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test (001 + 003 + 004 + 005 + 006)
+bash db-local.sh                      # crea la BD carta_test (001 + 003 … 007)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK
@@ -321,6 +350,8 @@ bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_
 node e2e-informes.mjs                 # → E2E INFORMES OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-tpv.sql
 node e2e-tpv.mjs                      # → E2E TPV OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-tpv2.sql
+node e2e-tpv2.mjs                     # → E2E TPV2 OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
 # widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):
@@ -334,13 +365,15 @@ MESA=080f59f08e node humo-produccion.mjs
 - **Facturación**, siguientes fases del brief:
   - Fase 2: envío VERI\*FACTU al entorno de pruebas de la AEAT, con estados y reintentos, más la
     declaración responsable;
-  - Fase 3: contabilidad y cierre de caja;
+  - Fase 3: contabilidad (el cierre de caja ya está, ver "TPV, segunda parte");
   - Fase 4: borradores 303/390;
   - Fase 5: producción con Martínez, cuando haya datos fiscales y certificado.
 - **Datáfono integrado:** que el importe pase solo al datáfono y vuelva "pagado" (Stripe Terminal o SumUp).
 - **Impresora de cocina/barra automática** (Star CloudPRNT / Epson Server Direct Print) y apertura del cajón solo en efectivo.
 - **Pago online** no incluido (se cobra en mesa/barra como siempre). Siguiente paso natural: Stripe/Bizum.
 - Panel de cocina por sondeo cada 3 s (robusto con WiFi de bar); no usa WebSockets.
+- **Sin internet no se puede pedir ni cobrar** (todo está en la nube). Recomendado: router 4G de respaldo
+  (o el móvil compartiendo datos) para que la tablet no se quede nunca sin conexión.
 - Impresión vía diálogo del navegador; impresoras térmicas que funcionen como impresora del
   sistema valen. Impresión automática sin diálogo requeriría un agente local.
 - Carta propia de la plataforma en un idioma (español); con `pedidos.js` se usan los idiomas de la web del bar.

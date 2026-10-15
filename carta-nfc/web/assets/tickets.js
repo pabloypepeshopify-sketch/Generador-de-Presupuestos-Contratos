@@ -118,7 +118,7 @@
         ${Number(rs.propinas) ? `<div><span>Propinas (fuera de factura)</span><b class="num">${dinero(rs.propinas, m)}</b></div>` : ''}`;
       q('[data-tkl-lista]').innerHTML = est.docs.length ? est.docs.map((x) => {
         const fecha = new Date(x.expedido).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        const factura = x.tipo === 'F1';
+        const factura = x.tipo === 'F1' || x.tipo === 'F3';
         const devolucion = String(x.tipo).startsWith('R');
         const det = [fecha, x.mesa, (x.formas || []).map((f) => FORMAS[f] || f).join(' + '),
           factura && x.cliente ? `${x.cliente.nombre || ''} (${x.cliente.nif || ''})` : '', ENVIO[x.envio] || ''].filter(Boolean);
@@ -161,7 +161,8 @@
           'Base imponible', 'Cuota IVA', 'Total', 'Total documento', 'Propina (no facturada)', 'Forma de pago', 'Estado'];
         const filas = [cab.map((c) => celda(c, true)).join(';')];
         todos.forEach((x) => {
-          const tipo = x.tipo === 'F2' ? 'Factura simplificada (F2)' : x.tipo === 'F1' ? 'Factura (F1)' : x.tipo;
+          const tipo = x.tipo === 'F2' ? 'Factura simplificada (F2)' : x.tipo === 'F1' ? 'Factura (F1)'
+            : x.tipo === 'F3' ? 'Factura en sustitución de simplificada (F3)' : x.tipo;
           (x.desglose && x.desglose.length ? x.desglose : [{}]).forEach((dg, i) => {
             filas.push([
               celda(fechaCorta(x.fecha)), celda(x.num_serie, true), celda(tipo, true), celda(x.mesa || '', true),

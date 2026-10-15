@@ -34,9 +34,11 @@
         <button class="tab" role="tab" data-vista="mesas" aria-selected="false">Mesas <span id="n-mesas" class="badge"></span></button>
         <button class="tab" role="tab" data-vista="tickets" aria-selected="false" id="tab-tickets" hidden>🧾 Tickets</button>
         <button class="tab" role="tab" data-vista="informes" aria-selected="false" id="tab-informes" hidden>📊 Informes</button>
+        <button class="tab" role="tab" data-vista="caja" aria-selected="false" id="tab-caja" hidden>💶 Caja</button>
       </div>
       <div class="k-actions">
         <button id="k-pedido" class="btn sm primary" type="button" hidden>➕ <span class="lbl">Pedido</span></button>
+        <button id="k-puesto" class="btn sm" type="button" hidden>🖥 <span class="lbl">Puesto</span></button>
         <button id="k-sonido" class="btn sm" type="button">🔕 Activar sonido</button>
         <button id="k-pausa" class="btn sm" type="button"></button>
         <a id="k-admin" class="btn sm" href="/admin.html" hidden>⚙️ Carta</a>
@@ -44,6 +46,7 @@
       </div>
     </header>
 
+    <div id="k-offline" class="offline" role="alert" hidden>⚠ Sin conexión con el servidor: los pedidos nuevos no llegan. Revisa el WiFi o el router.</div>
     <section id="k-avisos" class="avisos" aria-live="assertive"></section>
     <section id="k-stock" class="avisos stock" aria-live="polite"></section>
 
@@ -58,11 +61,15 @@
     <main id="v-tickets" class="tickets-v" hidden><div class="card pad" id="tickets-lista"></div></main>
 
     <main id="v-informes" class="tickets-v" hidden><div id="informes-panel"></div></main>
+
+    <main id="v-caja" class="tickets-v" hidden><div id="caja-panel"></div></main>
   </div>
 
   <dialog id="dlg-cobrar" aria-label="Cobrar mesa"></dialog>
   <dialog id="dlg-ticket" aria-label="Ticket"></dialog>
   <dialog id="dlg-mover" aria-label="Mover de mesa"></dialog>
+  <dialog id="dlg-editar" aria-label="Corregir consumo"></dialog>
+  <dialog id="dlg-puesto" aria-label="Ajustes de esta pantalla"></dialog>
 
   <iframe id="print-frame" title="Impresión" aria-hidden="true" tabindex="-1"></iframe>
 
@@ -73,6 +80,7 @@
   <script src="/assets/tickets.js"></script>
   <script src="/assets/informes.js"></script>
   <script src="/assets/comandero.js"></script>
+  <script src="/assets/caja.js"></script>
   <script src="/assets/cocina.js"></script>
 </body>
 </html>

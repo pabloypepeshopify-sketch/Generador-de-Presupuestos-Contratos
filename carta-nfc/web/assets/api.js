@@ -49,6 +49,16 @@
     ids_no_validos: 'No hay pedidos que mover.',
     pedido_no_encontrado: 'Ese pedido ya no existe o ya se ha cobrado.',
     no_encontrado: 'No encontrado. Recarga la página.',
+    descuento_no_valido: 'Descuento no válido: tiene que ser menor que el total.',
+    descuento_solo_total: 'Este ticket lleva descuento: solo se puede devolver entero.',
+    varios_no_valido: 'Revisa el concepto y el precio de "Varios".',
+    mesa_con_cobros_parciales: 'Esta mesa ya tiene una parte cobrada: corrígelo con una devolución.',
+    ya_invitado: 'Esa línea ya está invitada.',
+    no_facturable: 'Solo se puede hacer factura de un ticket sin devoluciones ni factura previa.',
+    caja_abierta: 'La caja ya está abierta.',
+    caja_cerrada: 'Primero abre la caja.',
+    importe_no_valido: 'Importe no válido.',
+    concepto_no_valido: 'Escribe un concepto (máx. 120 caracteres).',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };
 

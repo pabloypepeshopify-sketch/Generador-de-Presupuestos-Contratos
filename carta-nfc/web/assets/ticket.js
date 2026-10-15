@@ -31,6 +31,8 @@
       <div class="tk-r"><span>Nº ${esc(d.num_serie)}</span><span>${esc(fecha)}</span></div>
       ${d.mesa ? `<div>${esc(d.mesa)}</div>` : ''}
       ${d.rectifica ? `<div>Rectifica a: ${esc(d.rectifica.num_serie)} (${esc(fechaCorta(d.rectifica.fecha_expedicion))})</div>` : ''}
+      ${(d.sustituye || []).map((x) => `<div>Sustituye a: ${esc(x.num_serie)} (${esc(fechaCorta(x.fecha_expedicion))})</div>`).join('')}
+      ${d.fecha_operacion ? `<div>Fecha de la operación: ${esc(fechaCorta(d.fecha_operacion))}</div>` : ''}
       ${d.motivo ? `<div>Motivo: ${esc(d.motivo)}</div>` : ''}
       ${d.parcial && !String(d.tipo).startsWith('R') ? '<div class="tk-s">Cuenta separada (pago por partes)</div>' : ''}
       ${d.cliente ? `<hr><div class="tk-b">Cliente</div><div>${esc(d.cliente.nombre)}</div>
@@ -52,7 +54,8 @@
         <div class="tk-qr">${qrSvg(d.sif.qr_url)}</div>
         ${d.sif.leyenda ? `<div class="tk-c tk-b">${esc(d.sif.leyenda)}</div>` : ''}` : ''}
       ${d.sif && d.sif.entorno === 'pruebas' ? '<div class="tk-c tk-aviso">ENTORNO DE PRUEBAS · SIN VALIDEZ FISCAL</div>' : ''}
-      ${d.estado && d.estado !== 'emitido' ? `<div class="tk-c tk-aviso">${esc(d.estado.toUpperCase())}</div>` : ''}
+      ${d.estado && d.estado !== 'emitido' ? `<div class="tk-c tk-aviso">${esc(d.estado.toUpperCase())}${d.sustituido_por
+        ? ` POR LA FACTURA ${esc(d.sustituido_por.num_serie)}` : ''}</div>` : ''}
       ${d.pie ? `<div class="tk-c" style="margin-top:8px">${esc(d.pie)}</div>` : ''}
     </div>`;
   }
