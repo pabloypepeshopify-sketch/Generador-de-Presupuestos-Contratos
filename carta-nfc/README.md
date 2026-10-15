@@ -153,15 +153,32 @@ Notas:
 - Ejemplo: `clientes/bar-la-demo/` (restaurante `demo`, fotos de relleno). Prueba: `node tests/e2e-web-bar.mjs`.
 - Martínez sigue con su página propia (`clientes/martinez-bar/`); la plantilla es para los bares nuevos.
 
+## Kit de instalación imprimible — `kit.html`
+
+Gestión → *Mesas y NFC* → **🧾 Kit de instalación** (usa la sesión de gestión; abre en otra pestaña).
+- **Adhesivo por mesa**: nombre del bar y logo, nombre de la mesa en grande, **zona del NFC** (círculo
+  "Acerca aquí": el chip NFC se pega detrás de ese círculo), el QR de la mesa y "Acerca tu móvil o escanea".
+  Tamaños: pequeño 60×60 mm (12 por A4), mediano 85×85 mm (6 por A4), grande 95×135 mm (4 por A4).
+  Color de marca, logo (se sube en el momento, se recuerda en ese navegador) y texto cambiables.
+- **A4 para recortar** (líneas de corte discontinuas) o **Imprenta**: 1 adhesivo por página con 2 mm de
+  sangrado y marcas de corte. Imprimir → "Guardar como PDF", márgenes "Ninguno", con gráficos de fondo.
+- Opcional: adhesivo de la **carta general** (barra, entrada). Avisa si "permitir elegir mesa" está apagado.
+- **QR de la carta general para la galería** del móvil del camarero: imagen PNG 1080×1350 para guardar
+  (Android: botón; iPhone: mantener el dedo → Guardar en Fotos). Se enseña al cliente al que no le va el NFC.
+- QR con corrección de errores alta (Q, aguanta arañazos) y en vectorial (nítido a cualquier tamaño).
+- Prueba: `node tests/e2e-kit.mjs` (genera los PDF; `PDF=/carpeta` para guardarlos).
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
 2. Copia los 3 enlaces (carta, gestión, cocina). Las claves solo se muestran esa vez.
 3. Abre el enlace de **gestión** y carga la carta (o que la cargue el dueño).
-4. En un **Android con Chrome**: gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa y
+4. Gestión → *Mesas y NFC* → **🧾 Kit de instalación**: imprime los adhesivos (o PDF para la imprenta)
+   y guarda en el móvil del camarero el QR de la carta general.
+5. En un **Android con Chrome**: gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa y
    acerca la pegatina. Ver [docs/guia-nfc.md](docs/guia-nfc.md) (iPhone: app NFC Tools).
-5. Abre el enlace de **cocina** en la tablet (se queda guardado) y toca **Activar sonido**.
-6. Prueba: acerca un móvil al NFC de una mesa y pide algo.
+6. Abre el enlace de **cocina** en la tablet (se queda guardado) y toca **Activar sonido**.
+7. Prueba: acerca un móvil al NFC de una mesa y pide algo.
 
 ## Seguridad (resumen)
 
@@ -330,7 +347,7 @@ carta-nfc/
   supabase/006_tpv.sql       modo TPV: comandero, cuentas separadas, rectificativas, stock, mover mesas
   supabase/007_tpv2.sql      caja (arqueo), corregir/invitar, descuentos, "Varios", factura de un ticket (F3)
   web/                       sitio estático publicado en Netlify (sin build)
-    index.html cocina.html admin.html alta.html ticket.html
+    index.html cocina.html admin.html alta.html ticket.html kit.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
@@ -350,6 +367,7 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    e2e-kit.mjs              kit de instalación: adhesivos A4/imprenta, PDF, carta general, imagen para la galería
     e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
     sql-tests-informes.sql   informes: ventas, comparación, tiempos, productos, cobros, aislamiento
     e2e-informes.mjs         informes en gestión, tablet y móvil; cierre Z y Excel
@@ -394,6 +412,7 @@ bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+node e2e-kit.mjs                      # kit de instalación (adhesivos y PDF) → E2E KIT OK
 node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-informes.sql
 node e2e-informes.mjs                 # → E2E INFORMES OK
