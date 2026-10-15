@@ -30,10 +30,16 @@ try {
   await ctx.addInitScript(() => localStorage.setItem('carta:admin', JSON.stringify({ slug: 'demo', clave: 'admin-demo-local' })));
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errores.push(e.message));
+  page.on('dialog', (dl) => dl.accept());
   page.on('console', (m) => { if (m.type() === 'error') errores.push(m.text()); });
   await page.goto(BASE + '/admin.html');
   await page.locator('[data-tab="mesas"]').click();
   ok(await page.locator('#kit-instalacion').getAttribute('href') === '/kit.html', 'botón "Kit de instalación" en Mesas y NFC');
+  await page.locator('[data-tab="ajustes"]').click();
+  await page.locator('#clave-cocina').click();
+  await page.locator('#clave-cocina-out code').nth(1).waitFor();
+  const enl = await page.locator('#clave-cocina-out code').allInnerTexts();
+  ok(/\/cocina\.html\?r=demo&k=/.test(enl[0]) && /\/movil\.html\?r=demo&k=/.test(enl[1]) && enl[0].split('k=')[1] === enl[1].split('k=')[1], 'al generar el enlace de cocina sale también el del móvil junto al TPV');
   await page.goto(BASE + '/kit.html');
   await page.locator('.ad').first().waitFor();
   const mesas = +psql("select count(*) from carta.mesas m join carta.restaurantes r on r.id = m.restaurante_id where r.slug = 'demo' and m.activa");

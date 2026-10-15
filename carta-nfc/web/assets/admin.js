@@ -444,7 +444,16 @@
     } else if (b.id === 'clave-cocina') {
       if (!confirm('Se generará una clave nueva y la anterior dejará de funcionar en las tablets. ¿Continuar?')) return;
       const res = await op('regenerar_clave', { tipo: 'cocina' });
-      if (res) mostrarSecreto('clave-cocina-out', 'Enlace del panel de cocina', `${location.origin}/cocina.html?r=${encodeURIComponent(sesion.slug)}&k=${encodeURIComponent(res.clave)}`);
+      if (res) {
+        const q = `?r=${encodeURIComponent(sesion.slug)}&k=${encodeURIComponent(res.clave)}`;
+        mostrarSecreto('clave-cocina-out', 'Enlace del panel de cocina', `${location.origin}/cocina.html${q}`);
+        // Pack "Solo pedidos": el mismo enlace en modo móvil junto al TPV (misma clave).
+        const movil = document.createElement('div');
+        $('clave-cocina-out').appendChild(movil);
+        movil.outerHTML = `<div class="secreto" style="margin-top:8px"><strong>Móvil junto al TPV</strong> (letra grande, solo lo nuevo)<br><code>${esc(location.origin + '/movil.html' + q)}</code>
+          <div class="acc"><button class="btn sm" data-copiar="${esc(location.origin + '/movil.html' + q)}">Copiar</button>
+          <button class="btn sm" data-qr="${esc(location.origin + '/movil.html' + q)}" data-nombre="Móvil junto al TPV">QR para abrirlo en el móvil</button></div></div>`;
+      }
     } else if (b.id === 'clave-admin') {
       if (!confirm('Se generará una clave de admin nueva. ¿Continuar?')) return;
       const res = await op('regenerar_clave', { tipo: 'admin' });

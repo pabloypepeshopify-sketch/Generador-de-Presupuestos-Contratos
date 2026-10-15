@@ -168,6 +168,27 @@ Gestión → *Mesas y NFC* → **🧾 Kit de instalación** (usa la sesión de g
 - QR con corrección de errores alta (Q, aguanta arañazos) y en vectorial (nítido a cualquier tamaño).
 - Prueba: `node tests/e2e-kit.mjs` (genera los PDF; `PDF=/carpeta` para guardarlos).
 
+## Modo "móvil junto al TPV" — `movil.html` (pack Solo pedidos)
+
+Para el móvil fijo con cargador al lado del TPV del bar. Misma clave que el panel de cocina
+(`movil.html?r=<slug>&k=<clave cocina>`; el enlace sale en `alta.html` y en Gestión → Ajustes → Generar enlace de cocina).
+- **Solo lo nuevo, en grande**: mesa, platos con sus notas, nota general y total. Los avisos de
+  "llama al camarero" y "pide la cuenta" (con el total de la mesa) salen arriba en amarillo.
+- El camarero lo mete en su TPV y toca **✓ Apuntado en el TPV** (el cliente ve "En preparación").
+  "Últimos apuntados" con **Deshacer**. Los avisos se cierran con **✓ Atendido**.
+- **Sonido fuerte** al llegar algo y, si nadie lo apunta, **se repite cada 20 s** (se puede quitar en ⋯).
+  Vibración. El título de la pestaña cuenta los pendientes.
+- **Pantalla encendida** (Wake Lock; si el móvil no lo permite, ⋯ explica cómo ponerlo en Ajustes).
+- **Aguanta reinicios**: la sesión se guarda. Al abrir o reiniciar, el navegador no deja sonar nada hasta
+  que alguien toque: sale una pantalla grande **"Toca aquí para activar el sonido"** y vuelve a salir si
+  llega un pedido con el sonido sin activar. Se puede añadir a la pantalla de inicio como app ("Pedidos").
+- **"Sin conexión"** en rojo (con pitido grave) si deja de llegar información; se quita solo al volver.
+- **Pausar / Reanudar** los pedidos por el móvil.
+- Usa las mismas RPC que el panel (`carta_cocina`): no cambia nada en la base de datos ni en `cocina.js`.
+- Pendiente (opcional): avisos push con el móvil bloqueado (Web Push; en iPhone requiere añadirlo a la
+  pantalla de inicio). Necesita una función en Supabase que envíe los avisos y claves VAPID.
+- Prueba: `node tests/e2e-movil.mjs`.
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
@@ -178,6 +199,7 @@ Gestión → *Mesas y NFC* → **🧾 Kit de instalación** (usa la sesión de g
 5. En un **Android con Chrome**: gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa y
    acerca la pegatina. Ver [docs/guia-nfc.md](docs/guia-nfc.md) (iPhone: app NFC Tools).
 6. Abre el enlace de **cocina** en la tablet (se queda guardado) y toca **Activar sonido**.
+   Pack Solo pedidos: en el móvil junto al TPV abre el enlace **movil.html** y toca "Toca aquí para activar el sonido".
 7. Prueba: acerca un móvil al NFC de una mesa y pide algo.
 
 ## Seguridad (resumen)
@@ -347,7 +369,7 @@ carta-nfc/
   supabase/006_tpv.sql       modo TPV: comandero, cuentas separadas, rectificativas, stock, mover mesas
   supabase/007_tpv2.sql      caja (arqueo), corregir/invitar, descuentos, "Varios", factura de un ticket (F3)
   web/                       sitio estático publicado en Netlify (sin build)
-    index.html cocina.html admin.html alta.html ticket.html kit.html
+    index.html cocina.html admin.html alta.html ticket.html kit.html movil.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
@@ -367,6 +389,7 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    e2e-movil.mjs            móvil junto al TPV: llegada, sonido y repetición, Apuntado/Deshacer, avisos, pausa, reinicio, sin conexión
     e2e-kit.mjs              kit de instalación: adhesivos A4/imprenta, PDF, carta general, imagen para la galería
     e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
     sql-tests-informes.sql   informes: ventas, comparación, tiempos, productos, cobros, aislamiento
@@ -412,6 +435,7 @@ bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+node e2e-movil.mjs                    # móvil junto al TPV → E2E MÓVIL OK
 node e2e-kit.mjs                      # kit de instalación (adhesivos y PDF) → E2E KIT OK
 node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-informes.sql

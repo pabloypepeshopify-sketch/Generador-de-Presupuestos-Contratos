@@ -87,6 +87,7 @@
         ['Carta pública (NFC general)', `${o}/r/${s}`],
         res.clave_admin ? ['Gestión (admin) — para el dueño', `${o}/admin.html?r=${s}&k=${encodeURIComponent(res.clave_admin)}`] : null,
         res.clave_cocina ? ['Panel de comandas — tablet de cocina/barra', `${o}/cocina.html?r=${s}&k=${encodeURIComponent(res.clave_cocina)}`] : null,
+        res.clave_cocina ? ['Móvil junto al TPV — pack "Solo pedidos" (misma clave de cocina)', `${o}/movil.html?r=${s}&k=${encodeURIComponent(res.clave_cocina)}`] : null,
       ].filter(Boolean);
       $('resultado').innerHTML = `<div class="secreto"><strong>✓ ${esc(res.slug)}</strong> — guarda estos enlaces ahora, las claves no se vuelven a mostrar:
         ${filas.map(([t, u]) => `<div><span class="small muted">${esc(t)}</span><br><code>${esc(u)}</code></div>`).join('')}
