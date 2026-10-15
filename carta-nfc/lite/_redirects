@@ -1,0 +1,5 @@
+# Enlaces cortos que se graban en los NFC:
+#   /m/<codigo-de-mesa>   carta de esa mesa (el pedido llega con su nombre)
+#   /r/<restaurante>      carta general del local
+/m/*   /index.html   200
+/r/*   /index.html   200

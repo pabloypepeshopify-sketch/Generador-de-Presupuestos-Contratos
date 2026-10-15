@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1f1a14">
+  <title>Pedidos</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/cocina.css">
+</head>
+<body class="panel">
+  <div id="login" class="center-page" hidden>
+    <form class="card" id="login-form">
+      <div class="big" aria-hidden="true">🛎️</div>
+      <h1>Panel del bar</h1>
+      <p class="muted small">Identificador del restaurante y clave del panel.</p>
+      <label class="field" style="text-align:left"><span>Restaurante</span><input type="text" id="login-slug" autocomplete="username" autocapitalize="none" required placeholder="bar-pepe"></label>
+      <label class="field" style="text-align:left"><span>Clave del panel</span><input type="password" id="login-clave" autocomplete="current-password" required></label>
+      <button class="btn primary block" type="submit">Entrar</button>
+      <p id="login-error" class="small" style="color:var(--danger)" role="alert"></p>
+    </form>
+  </div>
+
+  <div id="panel" hidden>
+    <header class="k-top">
+      <div class="k-brand">
+        <span id="k-conn" class="dot" title="Conexión"></span>
+        <strong id="k-nombre"></strong>
+        <span id="k-reloj" class="muted num"></span>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" type="button" data-vista="pedidos" aria-selected="true">Pedidos <span id="n-pedidos" class="badge"></span></button>
+        <button class="tab" role="tab" type="button" data-vista="mesas" aria-selected="false">Mesas <span id="n-mesas" class="badge"></span></button>
+      </div>
+      <div class="k-actions">
+        <button id="k-sonido" class="btn sm" type="button"></button>
+        <button id="k-pausa" class="btn sm" type="button"></button>
+        <button id="k-qr" class="btn sm" type="button">📱 <span class="lbl">QR carta</span></button>
+        <a id="k-admin" class="btn sm" href="/admin.html" hidden>⚙️ <span class="lbl">Gestión</span></a>
+        <button id="k-salir" class="btn sm ghost" type="button">Salir</button>
+      </div>
+    </header>
+
+    <div id="k-offline" class="offline" role="alert" hidden>⚠ Sin conexión con el servidor: los pedidos nuevos no llegan. Revisa el WiFi o los datos.</div>
+    <button id="k-activar" class="activar" type="button" hidden>🔕 El sonido está apagado · <b>toca aquí para activarlo</b></button>
+    <section id="k-avisos" class="avisos" aria-live="assertive"></section>
+
+    <main id="v-pedidos" class="pedidos">
+      <div id="l-nuevos"></div>
+      <section class="apuntados" id="apuntados" hidden>
+        <h2>Apuntados hace poco</h2>
+        <div id="l-apuntados"></div>
+      </section>
+    </main>
+
+    <main id="v-mesas" class="mesas" hidden></main>
+  </div>
+
+  <dialog id="dlg-qr" aria-labelledby="qr-titulo">
+    <div class="dlg-head"><h2 id="qr-titulo">Carta general</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="dlg-body qr-body">
+      <div id="qr-img"></div>
+      <p>Escanea para ver la carta y pedir.<br><span class="muted">Al enviar el pedido, elige tu mesa.</span></p>
+    </div>
+  </dialog>
+
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/vendor/qrcode.js"></script>
+  <script src="/assets/cocina.js"></script>
+</body>
+</html>

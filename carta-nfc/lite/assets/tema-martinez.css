@@ -1,0 +1,71 @@
+/* Tema "Martínez": negro y amarillo, Instrument Serif + Montserrat (como su web).
+   Se carga solo para los slugs que lo tengan en TEMAS (assets/api.js). */
+html:root[data-tema="martinez"] {
+  --brand: #FCA80C; --brand-ink: #131313;
+  --bg: #F3F0EA; --surface: #FBFAF7; --surface-2: #EAE5DB; --text: #131313; --muted: #615C54;
+  --line: rgba(19, 19, 19, .12); --warn: #B86E00; --ok: #2F7D32;
+  --laton: #C9A15E; --negro: #0B0B0B; --negro2: #141414;
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 18px;
+  color-scheme: light;
+}
+[data-tema="martinez"] body { font-family: var(--sans); font-size: 15px; -webkit-font-smoothing: antialiased; }
+[data-tema="martinez"] .tab { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+[data-tema="martinez"] .btn { border-radius: 999px; }
+[data-tema="martinez"] dialog { border-radius: 22px; }
+[data-tema="martinez"] dialog h2 { font-family: var(--serif); font-weight: 400; font-size: 32px; }
+
+/* ---- Carta del cliente ---- */
+[data-tema="martinez"] .hero { background: var(--negro2); color: #F3F0EA; padding: 34px 0 26px; position: relative; overflow: hidden; }
+[data-tema="martinez"] .hero::after {
+  content: ""; position: absolute; right: -20%; bottom: -60%; width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 161, 94, .18), transparent 70%); pointer-events: none;
+}
+[data-tema="martinez"] .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 12vw, 62px); line-height: .95; letter-spacing: -.01em; }
+[data-tema="martinez"] .hero-msg { color: rgba(243, 240, 234, .7); font-size: 14px; }
+[data-tema="martinez"] .mesa-chip {
+  border: 1px solid rgba(201, 161, 94, .6); background: transparent; color: #F3F0EA;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; padding: 9px 16px;
+}
+[data-tema="martinez"] .mesa-chip::first-letter { color: var(--brand); }
+[data-tema="martinez"] .cats-bar { background: rgba(243, 240, 234, .94); }
+[data-tema="martinez"] .cats-bar .tab { background: var(--surface); }
+[data-tema="martinez"] .cats-bar .tab[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+[data-tema="martinez"] .cat > h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 10vw, 48px); line-height: 1; margin: 18px 0 12px; }
+[data-tema="martinez"] .prod { border-radius: 20px; box-shadow: none; padding: 16px; }
+[data-tema="martinez"] .prod h3 { font-size: 15.5px; font-weight: 600; }
+[data-tema="martinez"] .prod .desc { font-size: 13px; }
+[data-tema="martinez"] .precio { font-family: var(--serif); font-weight: 400; font-size: 25px; line-height: 1; }
+[data-tema="martinez"] .tam .precio { font-size: 21px; }
+[data-tema="martinez"] .tam-n { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--text); }
+[data-tema="martinez"] .prod-img { width: 96px; height: 96px; border-radius: 16px; }
+[data-tema="martinez"] .add { font-weight: 500; }
+[data-tema="martinez"] .tag-agotado { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border: 1px dashed rgba(19, 19, 19, .3); border-radius: 999px; padding: 5px 10px; }
+[data-tema="martinez"] .banner { background: rgba(252, 168, 12, .12); border-color: rgba(252, 168, 12, .5); }
+[data-tema="martinez"] .mis-pedidos h2 { font-family: var(--serif); font-weight: 400; font-size: 26px; }
+[data-tema="martinez"] .ayuda .btn { min-height: 50px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; background: var(--surface); }
+[data-tema="martinez"] .cart-bar { background: none; }
+[data-tema="martinez"] .cart-btn {
+  background: var(--negro); border-color: var(--negro); color: #F3F0EA; min-height: 58px; border-radius: 999px;
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+}
+[data-tema="martinez"] .cart-btn #cart-total { font-family: var(--serif); font-size: 24px; letter-spacing: 0; text-transform: none; color: var(--brand); }
+[data-tema="martinez"] .cart-n { background: var(--brand); color: var(--brand-ink); }
+[data-tema="martinez"] .total { font-family: var(--serif); font-weight: 400; font-size: 34px; }
+[data-tema="martinez"] .tick { background: var(--brand); color: var(--brand-ink); }
+
+/* ---- Panel del bar: oscuro, como la barra de noche ---- */
+[data-tema="martinez"] body.panel {
+  --bg: #0B0B0B; --surface: #161616; --surface-2: #222; --text: #F3F0EA; --muted: #A8A196;
+  --line: rgba(243, 240, 234, .14); --warn: #FCA80C; --danger: #FF6B5E; --ok: #7BD389; --info: #8EC5FF;
+  color-scheme: dark;
+}
+[data-tema="martinez"] body.panel .k-brand strong { font-family: var(--serif); font-weight: 400; font-size: 28px; }
+[data-tema="martinez"] body.panel .p-mesa { font-family: var(--serif); font-weight: 400; font-size: 40px; }
+[data-tema="martinez"] body.panel .tab[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+[data-tema="martinez"] body.panel .mesa-card h3 { font-family: var(--serif); font-weight: 400; font-size: 30px; }
+[data-tema="martinez"] body.panel .aviso { color: var(--text); }
+
+/* ---- Gestión ---- */
+[data-tema="martinez"] .a-head h1 { font-family: var(--serif); font-weight: 400; font-size: 34px; }

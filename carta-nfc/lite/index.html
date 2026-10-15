@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#b45309">
+  <title>Carta</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/cliente.css">
+</head>
+<body>
+  <div id="cargando" class="center-page"><div class="spinner" aria-label="Cargando"></div></div>
+
+  <div id="error" class="center-page" hidden>
+    <div class="card">
+      <div class="big-emoji" aria-hidden="true">🍽️</div>
+      <h1 id="error-titulo">Carta no disponible</h1>
+      <p id="error-texto" class="muted"></p>
+    </div>
+  </div>
+
+  <div id="app" hidden>
+    <header class="hero">
+      <div class="wrap">
+        <h1 id="r-nombre"></h1>
+        <p id="r-mensaje" class="hero-msg"></p>
+        <button id="mesa-btn" class="mesa-chip" type="button"></button>
+      </div>
+    </header>
+
+    <nav class="cats-bar" aria-label="Categorías"><div class="wrap"><div id="cats" class="tabs"></div></div></nav>
+
+    <div class="wrap">
+      <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y llamar al camarero.</div>
+      <div id="banner-sin-mesa" class="banner" hidden>Escanea el NFC (o el QR) de tu mesa para poder pedir desde aquí.</div>
+      <section id="mis-pedidos" class="mis-pedidos card" hidden aria-live="polite"></section>
+      <main id="menu"></main>
+      <section class="ayuda" id="ayuda">
+        <button id="btn-camarero" class="btn" type="button">🙋 Llamar al camarero</button>
+        <button id="btn-cuenta" class="btn" type="button">🧾 Pedir la cuenta</button>
+      </section>
+      <p class="pie muted small">Si tienes alguna alergia o intolerancia, consulta al personal antes de pedir.</p>
+    </div>
+
+    <div class="cart-bar" id="cart-bar" hidden>
+      <button id="cart-open" class="btn primary block cart-btn" type="button">
+        <span class="cart-n" id="cart-n">0</span>
+        <span>Ver mi pedido</span>
+        <span id="cart-total" class="num"></span>
+      </button>
+    </div>
+  </div>
+
+  <dialog id="dlg-carrito" aria-labelledby="carrito-titulo">
+    <div class="dlg-head">
+      <div>
+        <h2 id="carrito-titulo">Tu pedido</h2>
+        <div class="muted small" id="carrito-mesa"></div>
+      </div>
+      <button class="x" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body">
+      <div id="carrito-lineas"></div>
+      <label class="field"><span>Nota para el bar (opcional)</span>
+        <textarea id="carrito-nota" maxlength="300" placeholder="Ej.: traed primero las bebidas"></textarea>
+      </label>
+    </div>
+    <div class="dlg-foot carrito-foot">
+      <div><div class="muted small">Total</div><div id="carrito-total" class="total num"></div></div>
+      <button id="btn-enviar" class="btn primary" type="button">Enviar pedido</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-mesa" aria-labelledby="mesa-titulo">
+    <div class="dlg-head">
+      <h2 id="mesa-titulo">¿En qué mesa estás?</h2>
+      <button class="x" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body"><div id="mesas-grid" class="mesas-grid"></div></div>
+  </dialog>
+
+  <dialog id="dlg-ok" aria-labelledby="ok-titulo">
+    <div class="dlg-body ok-body">
+      <div class="tick" aria-hidden="true">✓</div>
+      <h2 id="ok-titulo">¡Pedido enviado!</h2>
+      <p id="ok-texto" class="muted"></p>
+      <button class="btn primary block" data-cerrar type="button">Seguir viendo la carta</button>
+    </div>
+  </dialog>
+
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/cliente.js"></script>
+</body>
+</html>

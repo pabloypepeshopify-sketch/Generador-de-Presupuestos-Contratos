@@ -58,6 +58,12 @@ aparte. Si se pierden, ver "Claves" más abajo.
   enlaces para entregar. Listado con actividad de 7 días, activar/desactivar (impago), resetear
   clave de admin.
 
+## Versión "Solo pedidos" (`lite/`)
+
+Frontal aparte y más sencillo para bares que siguen cobrando con su TPV: el pedido llega a un móvil junto al
+TPV, el camarero lo apunta y toca **✓ Apuntado**. Sin cobros, caja ni facturación. Misma base de datos, sin
+migraciones nuevas. Netlify: `pedidos-nfc-lite`. Todo en [lite/README.md](lite/README.md).
+
 ## Bares que ya tienen su web de carta: `pedidos.js`
 
 Si el bar ya tiene su carta en una web propia, no hace falta cambiarla: se le añade **una línea**
@@ -291,6 +297,7 @@ carta-nfc/
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
+  lite/                      versión "Solo pedidos" (sitio estático aparte, Netlify pedidos-nfc-lite)
   clientes/martinez-bar/      página de pedidos propia de Martínez Bar (HTML único, publicada en Netlify)
   herramientas/
     importar-carta.mjs       carga la carta de la web de un bar (platos + tamaños)
@@ -309,6 +316,7 @@ carta-nfc/
     e2e-tpv.mjs              comandero (mesa y Barra), stock, plano, mover, dividir cuenta, devoluciones, móvil
     sql-tests-tpv2.sql       caja, corregir/invitar, Varios, descuentos, F3, mesa invitada, cadena
     e2e-tpv2.mjs             caja y arqueo, Varios, puesto, corregir, descuento, factura de un ticket, móvil
+    e2e-lite.mjs             versión Solo pedidos: pedir → panel → apuntado → ticket → liberar mesa, informe
     humo-produccion.mjs      prueba rápida contra el sitio publicado (limpia después)
   docs/guia-nfc.md
   docs/brief-facturacion.md  plan del módulo de tickets, facturación, contabilidad e impuestos
@@ -352,6 +360,7 @@ bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_
 node e2e-tpv.mjs                      # → E2E TPV OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-tpv2.sql
 node e2e-tpv2.mjs                     # → E2E TPV2 OK
+node e2e-lite.mjs                     # versión Solo pedidos → E2E LITE OK
 node servidor-local.mjs &             # http://localhost:8787
 node e2e.mjs                          # → E2E OK
 # widget sobre la web de un bar (copia hecha con herramientas/espejo-web.py):
