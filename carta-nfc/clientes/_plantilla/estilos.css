@@ -1,0 +1,127 @@
+/* Plantilla web de bar · estilos comunes (los colores y fuentes salen de bar.config.mjs) */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+body{background:var(--fondo);color:var(--texto);font-family:var(--f-txt);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default;opacity:.55}
+:focus-visible{outline:3px solid var(--acento);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--acento);color:var(--t-acento);padding:10px 16px;border-radius:999px;font-weight:600;text-decoration:none}
+.skip:focus{top:12px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--f-tit);font-weight:400;line-height:1.05;letter-spacing:-.01em}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 22px;border-radius:999px;font-weight:600;font-size:15.5px;text-decoration:none;white-space:nowrap;transition:background-color .15s,border-color .15s}
+.btn-acento{background:var(--acento);color:var(--t-acento)}
+.btn-acento:hover{background:var(--acento-h)}
+.btn-borde{border:1.5px solid currentColor}
+.btn-borde:hover{background:rgba(255,255,255,.08)}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* cabecera */
+.top{position:sticky;top:0;z-index:30;background:var(--oscuro);color:var(--sobre-oscuro)}
+.top .wrap{height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.marca{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none}
+.marca img{width:34px;height:34px;border-radius:8px;object-fit:contain}
+.marca span{font-family:var(--f-tit);font-size:22px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top nav{display:flex;gap:4px;align-items:center}
+.top nav a{text-decoration:none;font-size:14.5px;font-weight:500;padding:8px 12px;border-radius:999px;opacity:.85}
+.top nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.top nav .btn{min-height:40px;padding:0 16px;font-size:14px;opacity:1}
+.top nav .opt{display:none}
+@media (min-width:760px){.top nav .opt{display:inline-block}}
+
+/* portada */
+.hero{position:relative;color:#fff;background:var(--oscuro);min-height:min(88vh,760px);display:flex;align-items:flex-end;overflow:hidden}
+.hero picture,.hero>img{position:absolute;inset:0}
+.hero img.bg{width:100%;height:100%;object-fit:cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.72) 88%)}
+.hero .wrap{position:relative;z-index:1;width:100%;padding-top:120px;padding-bottom:44px}
+.hero h1{font-size:clamp(54px,15vw,132px);line-height:.92;max-width:11ch;text-wrap:balance;text-shadow:0 2px 30px rgba(0,0,0,.25)}
+.hero .lema{font-size:clamp(17px,4.4vw,21px);max-width:36ch;margin-top:16px;color:rgba(255,255,255,.9)}
+.estado{display:inline-flex;align-items:center;gap:9px;margin-top:22px;font-size:15px;font-weight:600;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:8px 14px 8px 12px;border-radius:999px}
+.estado i{width:10px;height:10px;border-radius:50%;background:#9aa39d;flex:none}
+.estado.abierto i{background:#3ccf6e;box-shadow:0 0 0 4px rgba(60,207,110,.25)}
+.estado[hidden]{display:none}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+
+/* secciones */
+.sec{padding:72px 0 0}
+.sec h2{font-size:clamp(36px,9vw,56px);margin-bottom:18px;max-width:18ch}
+.sobre{display:grid;gap:28px}
+.sobre p{font-size:18px;max-width:60ch}
+.sobre p+p{margin-top:12px}
+@media (min-width:860px){.sobre{grid-template-columns:1.1fr .9fr;align-items:end}}
+
+.galeria{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px 6px;margin:0 -20px;scrollbar-width:thin}
+.galeria figure{flex:none;width:min(78vw,420px);scroll-snap-align:start}
+.galeria img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;background:var(--panel)}
+.galeria figcaption{font-size:13.5px;color:var(--suave);margin-top:8px}
+@media (min-width:1080px){.galeria{margin:0;padding:0 0 6px}}
+
+.destacados{display:grid;gap:16px;list-style:none}
+.destacados li{display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:center}
+.destacados img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px;background:var(--panel)}
+.destacados h3{font-size:24px}
+.destacados p{color:var(--suave);margin-top:4px}
+@media (min-width:640px){.destacados{grid-template-columns:repeat(3,1fr);gap:22px}.destacados li{display:block}.destacados h3{font-size:26px;margin-top:12px}}
+.ver-carta{margin-top:26px}
+
+.dos{display:grid;gap:36px}
+@media (min-width:860px){.dos{grid-template-columns:1fr 1fr}}
+.horario{width:100%;border-collapse:collapse;font-size:16.5px;max-width:460px}
+.horario th{text-align:left;font-weight:500;padding:11px 12px 11px 0;white-space:nowrap}
+.horario td{text-align:right;padding:11px 0;font-variant-numeric:tabular-nums}
+.horario tr{border-bottom:1px solid var(--linea)}
+.horario tr.hoy{font-weight:700}
+.horario tr.hoy th::after{content:" (hoy)";font-weight:500;color:var(--suave)}
+.horario .cerrado{color:var(--suave)}
+.aviso-h{color:var(--suave);font-size:14.5px;margin-top:12px}
+
+.mapa{position:relative;border-radius:6px;overflow:hidden;background:var(--panel);aspect-ratio:4/3;display:grid;place-items:center;text-align:center;padding:24px}
+.mapa iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.mapa p{font-size:17px;margin-bottom:14px}
+.mapa small{display:block;margin-top:12px;color:var(--suave);font-size:12.5px;max-width:34ch}
+.dir{font-style:normal;font-size:17px;margin-bottom:14px}
+.acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.acciones .btn{color:var(--texto)}
+
+.nota-g{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.nota-g b{font-family:var(--f-tit);font-weight:400;font-size:64px;line-height:1}
+.estrellas{color:var(--acento-oscuro);font-size:22px;letter-spacing:2px}
+.nota-g span{color:var(--suave)}
+.resenas{display:grid;gap:14px;list-style:none}
+@media (min-width:760px){.resenas{grid-template-columns:repeat(3,1fr)}}
+.resenas li{border-left:3px solid var(--acento);padding:4px 0 4px 16px}
+.resenas blockquote{font-size:17px}
+.resenas cite{display:block;font-style:normal;color:var(--suave);font-size:14px;margin-top:8px}
+
+.contacto{list-style:none;display:grid;gap:10px;max-width:520px}
+.contacto a{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--linea);border-radius:14px;text-decoration:none;font-weight:500;background:var(--panel)}
+.contacto a:hover{border-color:var(--acento)}
+.contacto svg{width:22px;height:22px;flex:none}
+.contacto small{display:block;color:var(--suave);font-weight:400;font-size:13.5px}
+
+.pie{margin-top:88px;background:var(--oscuro);color:var(--sobre-oscuro);padding:40px 0 calc(110px + env(safe-area-inset-bottom,0px))}
+.pie .wrap{display:grid;gap:12px;font-size:14px}
+.pie b{font-family:var(--f-tit);font-weight:400;font-size:28px}
+.pie nav{display:flex;flex-wrap:wrap;gap:16px}
+.pie a{opacity:.85}
+.pie p{opacity:.75}
+
+/* botón fijo "Ver la carta" en móvil */
+.fijo{position:fixed;left:0;right:0;bottom:0;z-index:40;transition:transform .25s,opacity .25s;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,rgba(0,0,0,.18));pointer-events:none}
+.fijo .btn{pointer-events:auto;width:100%;max-width:480px;margin:0 auto;display:flex;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.fijo.oculto{transform:translateY(110%);opacity:0}
+@media (min-width:760px){.fijo{display:none}.pie{padding-bottom:40px}}
+html.nl-badge .fijo{padding-right:120px}
+
+.legal-txt{max-width:70ch;padding-top:40px}
+.legal-txt h1{font-size:44px;margin-bottom:20px}
+.legal-txt h2{font-size:26px;margin:28px 0 8px}
+.legal-txt p,.legal-txt li{margin-top:8px}
+.legal-txt ul{padding-left:20px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

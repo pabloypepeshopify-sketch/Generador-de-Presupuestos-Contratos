@@ -8,6 +8,17 @@
 /cocina.html
   X-Robots-Tag: noindex
   Cache-Control: no-store
+/movil.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+/clientes.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+/papeles/*
+  X-Robots-Tag: noindex
+/kit.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
 /alta.html
   X-Robots-Tag: noindex
   Cache-Control: no-store

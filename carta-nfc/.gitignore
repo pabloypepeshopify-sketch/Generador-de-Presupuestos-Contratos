@@ -1,2 +1,7 @@
 tests/node_modules/
 web/.netlify/
+herramientas/node_modules/
+# webs de bares: lo generado se recrea con herramientas/web-bar.mjs; los datos legales no se suben (repo público)
+clientes/*/publicar/
+clientes/*/legal.local.mjs
+clientes/*/.netlify/

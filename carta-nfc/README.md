@@ -24,6 +24,10 @@ tomando nota.
 | Panel de comandas demo | https://carta-nfc-pedidos.netlify.app/cocina.html?r=demo&k=demo-cocina |
 | Alta de restaurantes (tú) | https://carta-nfc-pedidos.netlify.app/alta.html |
 
+**Pendiente de publicar (15/10/2026):** `kit.html`, `movil.html`, `clientes.html` y `papeles/` están en la rama
+`claude/solo-pedidos-pack` y probados en local; Netlify rechazó el despliegue por falta de créditos de la cuenta.
+La migración `008_cuotas.sql` sí está aplicada en Supabase.
+
 Las claves de admin de la demo y la clave de plataforma **no están en el repo**: se entregaron
 aparte. Si se pierden, ver "Claves" más abajo.
 
@@ -115,15 +119,129 @@ La versión del repo añade **Ver tu ticket** (facturación Fase 1) sobre la pub
 desde su web de Vercel, basta con pegar la línea de `pedidos.js` en su `carta.html` y cambiar ese
 ajuste; los NFC no se regraban.
 
+## Webs de bares: plantilla "web premium + carta con pedidos"
+
+Cada bar tiene su carpeta `clientes/<slug>/` con **un solo archivo de configuración** (`bar.config.mjs`:
+colores, logo, fuentes, textos, horario, dirección, reseñas, contacto…) y sus fotos en `img/`.
+La herramienta genera una web estática (sin build en Netlify) que se sube a **un sitio de Netlify por bar**.
+
+```bash
+cd carta-nfc/herramientas && npm install          # una vez (sharp: reduce las fotos a WebP)
+cd ..
+node herramientas/web-bar.mjs --nuevo casa-pepe   # crea clientes/casa-pepe/ desde la plantilla
+#   rellenar clientes/casa-pepe/bar.config.mjs, legal.local.mjs (no se sube a git) y meter las fotos en img/
+node herramientas/web-bar.mjs clientes/casa-pepe  # genera clientes/casa-pepe/publicar/ y avisa de lo que falte
+```
+
+Lo que sale en `publicar/`:
+- `index.html` — la web: portada con foto, **"Abierto ahora / Cerrado ahora"** según el horario, la casa,
+  lo que más se pide, galería, horario (marca hoy), dónde estamos (el mapa de Google solo se carga si se
+  pulsa: más rápido y sin cookies de Google de entrada), reseñas, contacto (llamar, WhatsApp, Instagram) y
+  un botón fijo "Ver la carta y pedir" en el móvil.
+- `carta.html` — la carta con pedidos (mismo motor que la página de Martínez, generalizado): alérgenos,
+  tamaños (Tapa/Media/Ración), notas por plato, estado del pedido, llamar al camarero y pedir la cuenta.
+  - Sin mesa (visita desde Google o Instagram): solo se ve la carta.
+  - Desde el NFC/QR de la mesa (`?mesa=`): se pide. La URL se limpia para que, si la comparten, no lleve la mesa.
+  - Desde la carta general (`/r/<slug>` → `?pedir=1`) con "permitir elegir mesa": pide y elige mesa al enviar.
+- SEO local: título "Nombre · Bar en Ciudad", descripción, canonical, Open Graph, datos estructurados de
+  Google (dirección, coordenadas, horario, carta), `sitemap.xml` y `robots.txt`.
+- `aviso-legal.html` y `privacidad.html` — TODO(gestoría): revisar los textos. El titular y el NIF salen de
+  `legal.local.mjs`, que **no se sube** (repo público).
+- `_headers` con cabeceras de seguridad (CSP que solo deja hablar con la API de pedidos).
+
+Publicar:
+1. Netlify → crear un sitio por bar y subir `clientes/<slug>/publicar/` (con la herramienta de Netlify:
+   `deploy-site` y su comando, ejecutado dentro de `publicar/`).
+2. Gestión del bar → *Ajustes* → **Web propia de la carta** = `https://<sitio>/carta.html`.
+   Los NFC `/m/<codigo>` llevan a esa carta con la mesa puesta; no hay que regrabarlos si cambia la web.
+
+Notas:
+- La herramienta avisa si un color se lee mal sobre otro (contraste), si falta una foto o la descripción
+  de una foto, y si falta la dirección o las coordenadas.
+- Cambios del bar (horario, fotos, textos): editar `bar.config.mjs`, regenerar y volver a subir.
+- La carta y los precios salen siempre de la base de datos (gestión), no del archivo de configuración.
+- Ejemplo: `clientes/bar-la-demo/` (restaurante `demo`, fotos de relleno). Prueba: `node tests/e2e-web-bar.mjs`.
+- Martínez sigue con su página propia (`clientes/martinez-bar/`); la plantilla es para los bares nuevos.
+
+## Kit de instalación imprimible — `kit.html`
+
+Gestión → *Mesas y NFC* → **🧾 Kit de instalación** (usa la sesión de gestión; abre en otra pestaña).
+- **Adhesivo por mesa**: nombre del bar y logo, nombre de la mesa en grande, **zona del NFC** (círculo
+  "Acerca aquí": el chip NFC se pega detrás de ese círculo), el QR de la mesa y "Acerca tu móvil o escanea".
+  Tamaños: pequeño 60×60 mm (12 por A4), mediano 85×85 mm (6 por A4), grande 95×135 mm (4 por A4).
+  Color de marca, logo (se sube en el momento, se recuerda en ese navegador) y texto cambiables.
+- **A4 para recortar** (líneas de corte discontinuas) o **Imprenta**: 1 adhesivo por página con 2 mm de
+  sangrado y marcas de corte. Imprimir → "Guardar como PDF", márgenes "Ninguno", con gráficos de fondo.
+- Opcional: adhesivo de la **carta general** (barra, entrada). Avisa si "permitir elegir mesa" está apagado.
+- **QR de la carta general para la galería** del móvil del camarero: imagen PNG 1080×1350 para guardar
+  (Android: botón; iPhone: mantener el dedo → Guardar en Fotos). Se enseña al cliente al que no le va el NFC.
+- QR con corrección de errores alta (Q, aguanta arañazos) y en vectorial (nítido a cualquier tamaño).
+- Prueba: `node tests/e2e-kit.mjs` (genera los PDF; `PDF=/carpeta` para guardarlos).
+
+## Modo "móvil junto al TPV" — `movil.html` (pack Solo pedidos)
+
+Para el móvil fijo con cargador al lado del TPV del bar. Misma clave que el panel de cocina
+(`movil.html?r=<slug>&k=<clave cocina>`; el enlace sale en `alta.html` y en Gestión → Ajustes → Generar enlace de cocina).
+- **Solo lo nuevo, en grande**: mesa, platos con sus notas, nota general y total. Los avisos de
+  "llama al camarero" y "pide la cuenta" (con el total de la mesa) salen arriba en amarillo.
+- El camarero lo mete en su TPV y toca **✓ Apuntado en el TPV** (el cliente ve "En preparación").
+  "Últimos apuntados" con **Deshacer**. Los avisos se cierran con **✓ Atendido**.
+- **Sonido fuerte** al llegar algo y, si nadie lo apunta, **se repite cada 20 s** (se puede quitar en ⋯).
+  Vibración. El título de la pestaña cuenta los pendientes.
+- **Pantalla encendida** (Wake Lock; si el móvil no lo permite, ⋯ explica cómo ponerlo en Ajustes).
+- **Aguanta reinicios**: la sesión se guarda. Al abrir o reiniciar, el navegador no deja sonar nada hasta
+  que alguien toque: sale una pantalla grande **"Toca aquí para activar el sonido"** y vuelve a salir si
+  llega un pedido con el sonido sin activar. Se puede añadir a la pantalla de inicio como app ("Pedidos").
+- **"Sin conexión"** en rojo (con pitido grave) si deja de llegar información; se quita solo al volver.
+- **Pausar / Reanudar** los pedidos por el móvil.
+- Usa las mismas RPC que el panel (`carta_cocina`): no cambia nada en la base de datos ni en `cocina.js`.
+- Pendiente (opcional): avisos push con el móvil bloqueado (Web Push; en iPhone requiere añadirlo a la
+  pantalla de inicio). Necesita una función en Supabase que envíe los avisos y claves VAPID.
+- Prueba: `node tests/e2e-movil.mjs`.
+
+## Mis clientes y cobros — `clientes.html` (tú)
+
+Control de la cuota mensual (29 €) de cada bar. **Sin pasarela de pago**: solo control. Entra con la clave
+de plataforma (la misma de `alta.html`, que enlaza aquí). Datos: `supabase/008_cuotas.sql` (`carta_cuotas`).
+- Arriba: bares activos, total al mes, **pendiente de cobrar** y cobrado este mes.
+- Cada bar: fecha de alta, cuota, **próximo cobro**, último pago, pedidos en 30 días y estado
+  (**Al día** / **Debe X € · N meses · D días** / Sin cuota / Desactivado). Los que deben salen arriba.
+- **✓ Pagado** (Bizum, transferencia, efectivo…) apunta el mes más antiguo pendiente; **Deshacer último pago**.
+- **Editar cuota**: importe, fecha del primer cobro (por defecto el día del alta: el primer mes se cobra al firmar),
+  notas y "sin cuota" (demo, pruebas). Se cobra cada mes el mismo día (un 31 cobra el 28/29 en febrero).
+- **Desactivar por impago**: el mismo activar/desactivar de siempre (carta, NFC y pedidos dejan de funcionar).
+- Filtros: Todos, Deben, Al día, Desactivados.
+- Pruebas: `sql-tests-cuotas.sql` y `node tests/e2e-clientes.mjs`.
+
+## Papeles de venta — `web/papeles/`
+
+Páginas A4 para imprimir o guardar en PDF (Imprimir → Guardar como PDF, márgenes "Ninguno").
+Publicadas en `https://carta-nfc-pedidos.netlify.app/papeles/` (sin indexar). Los campos en amarillo se
+rellenan en la propia página y se recuerdan en ese navegador.
+- `hoja-de-venta.html` — 1 página: cómo funciona, la cuenta de **"una caña más por mesa al día"**
+  (mesas, precio de la caña y días se ajustan arriba antes de imprimir), precios del pack y 2 QR de la demo
+  (pedir como cliente y verlo en el móvil del TPV).
+- `manual-camarero.html` — 1 página para pegar junto al TPV: llega un pedido, avisos, cliente sin NFC,
+  pausar, agotado, si algo falla y contacto de soporte.
+- `checklist-instalacion.html` — antes de ir, en el bar y después.
+- `contrato.html` — plantilla (2 páginas) con la cuota, el horario de soporte, el corte del servicio por
+  impago, datos personales y propiedad. **TODO(gestoría): revisar antes de usarla** (capacidad para
+  contratar siendo menor, IVA, encargo del tratamiento RGPD, plazos). El aviso de revisión no se imprime.
+- TODO(gestoría): si los precios de la hoja de venta llevan IVA (selector "IVA" en la hoja).
+- Prueba: `node tests/e2e-papeles.mjs` (comprueba que cada uno cabe en sus páginas; `PDF=/carpeta` guarda los PDF).
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
 2. Copia los 3 enlaces (carta, gestión, cocina). Las claves solo se muestran esa vez.
 3. Abre el enlace de **gestión** y carga la carta (o que la cargue el dueño).
-4. En un **Android con Chrome**: gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa y
+4. Gestión → *Mesas y NFC* → **🧾 Kit de instalación**: imprime los adhesivos (o PDF para la imprenta)
+   y guarda en el móvil del camarero el QR de la carta general.
+5. En un **Android con Chrome**: gestión → *Mesas y NFC* → **📶 Grabar NFC** en cada mesa y
    acerca la pegatina. Ver [docs/guia-nfc.md](docs/guia-nfc.md) (iPhone: app NFC Tools).
-5. Abre el enlace de **cocina** en la tablet (se queda guardado) y toca **Activar sonido**.
-6. Prueba: acerca un móvil al NFC de una mesa y pide algo.
+6. Abre el enlace de **cocina** en la tablet (se queda guardado) y toca **Activar sonido**.
+   Pack Solo pedidos: en el móvil junto al TPV abre el enlace **movil.html** y toca "Toca aquí para activar el sonido".
+7. Prueba: acerca un móvil al NFC de una mesa y pide algo.
 
 ## Seguridad (resumen)
 
@@ -291,15 +409,20 @@ carta-nfc/
   supabase/005_informes.sql  informes de ventas (carta_informe) + registro de eventos de pedidos
   supabase/006_tpv.sql       modo TPV: comandero, cuentas separadas, rectificativas, stock, mover mesas
   supabase/007_tpv2.sql      caja (arqueo), corregir/invitar, descuentos, "Varios", factura de un ticket (F3)
+  supabase/008_cuotas.sql    mis clientes y cobros: cuota mensual de cada bar (carta_cuotas)
   web/                       sitio estático publicado en Netlify (sin build)
-    index.html cocina.html admin.html alta.html ticket.html
+    index.html cocina.html admin.html alta.html ticket.html kit.html movil.html clientes.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
+    papeles/                 hoja de venta, guía del camarero, checklist de instalación y plantilla de contrato
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
   lite/                      versión "Solo pedidos" (sitio estático aparte, Netlify pedidos-nfc-lite)
   clientes/martinez-bar/      página de pedidos propia de Martínez Bar (HTML único, publicada en Netlify)
+  clientes/_plantilla/        plantilla de webs de bares: bar.config.mjs (ejemplo), estilos, motor de la carta
+  clientes/bar-la-demo/       web de ejemplo con la plantilla (restaurante demo)
   herramientas/
+    web-bar.mjs              genera la web + carta de un bar desde su bar.config.mjs
     importar-carta.mjs       carga la carta de la web de un bar (platos + tamaños)
     espejo-web.py            copia una web y le añade pedidos.js (para pruebas)
   tests/
@@ -310,6 +433,12 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    sql-tests-cuotas.sql     cuotas: pendientes, pagar/deshacer, fijar, sin cuota, meses cortos, permisos
+    e2e-clientes.mjs         mis clientes y cobros: deuda, pagar, deshacer, editar, desactivar por impago
+    e2e-papeles.mjs          papeles de venta: cuentas de la hoja de venta y que cada papel cabe en A4
+    e2e-movil.mjs            móvil junto al TPV: llegada, sonido y repetición, Apuntado/Deshacer, avisos, pausa, reinicio, sin conexión
+    e2e-kit.mjs              kit de instalación: adhesivos A4/imprenta, PDF, carta general, imagen para la galería
+    e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
     sql-tests-informes.sql   informes: ventas, comparación, tiempos, productos, cobros, aislamiento
     e2e-informes.mjs         informes en gestión, tablet y móvil; cierre Z y Excel
     sql-tests-tpv.sql        comandero, stock, mover, cuentas separadas, rectificativas, cadena con negativos
@@ -327,7 +456,7 @@ carta-nfc/
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
   ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
-  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql`, `007_tpv2.sql` (y
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql`, `007_tpv2.sql`, `008_cuotas.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -348,12 +477,18 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test (001 + 003 … 007)
+bash db-local.sh                      # crea la BD carta_test (001 + 003 … 008)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-cuotas.sql
+node e2e-clientes.mjs                 # mis clientes y cobros → E2E CLIENTES OK
+node e2e-papeles.mjs                  # papeles de venta → E2E PAPELES OK
+node e2e-movil.mjs                    # móvil junto al TPV → E2E MÓVIL OK
+node e2e-kit.mjs                      # kit de instalación (adhesivos y PDF) → E2E KIT OK
+node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-informes.sql
 node e2e-informes.mjs                 # → E2E INFORMES OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-tpv.sql

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#111412">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pedidos">
+<link rel="manifest" href="/movil.webmanifest">
+<link rel="apple-touch-icon" href="/assets/movil-192.png">
+<title>Pedidos · móvil del TPV</title>
+<link rel="stylesheet" href="/assets/movil.css">
+</head>
+<body>
+<div id="login" class="login" hidden>
+  <form id="login-form">
+    <h1>Pedidos de las mesas</h1>
+    <p>Móvil junto al TPV. Entra con el identificador del bar y la clave de cocina.</p>
+    <label>Bar<input type="text" id="login-slug" autocomplete="username" autocapitalize="none" required placeholder="bar-pepe"></label>
+    <label>Clave de cocina<input type="password" id="login-clave" autocomplete="current-password" required></label>
+    <button class="b grande" type="submit">Entrar</button>
+    <p id="login-error" class="error" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="nom"><i id="conn" class="conn" title="Conexión"></i><strong id="m-nombre"></strong><span id="reloj"></span></div>
+    <div class="acc">
+      <button class="b" id="b-sonido" type="button">🔕 Sonido</button>
+      <button class="b" id="b-pausa" type="button"></button>
+      <button class="b" id="b-mas" type="button" aria-label="Más opciones" aria-expanded="false">⋯</button>
+    </div>
+  </header>
+  <div id="mas" class="mas" hidden>
+    <p><b>Pantalla siempre encendida:</b> <span id="wake-txt"></span></p>
+    <p>Si la pantalla se apaga: Ajustes del móvil → Pantalla → <b>Suspensión / Bloqueo automático: Nunca</b>, y déjalo cargando.</p>
+    <p>Para que se abra solo tras reiniciar: añade esta página a la pantalla de inicio (menú del navegador → "Añadir a pantalla de inicio") y ábrela desde ahí.</p>
+    <div class="fila">
+      <button class="b" id="b-probar" type="button">🔊 Probar sonido</button>
+      <label class="chk"><input type="checkbox" id="c-repetir" checked> Repetir el aviso cada 20 s hasta apuntarlo</label>
+      <a class="b" href="/cocina.html">Panel completo</a>
+      <button class="b" id="b-salir" type="button">Salir</button>
+    </div>
+  </div>
+  <div id="offline" class="offline" role="alert" hidden>⚠ Sin conexión: los pedidos nuevos no llegan. Revisa el WiFi.</div>
+  <div id="pausado" class="pausado" hidden>⏸ Pedidos por el móvil en pausa. Los clientes solo ven la carta.</div>
+  <main id="lista" aria-live="polite"></main>
+  <section id="hechos" class="hechos" hidden></section>
+</div>
+
+<div id="activar" class="activar" hidden role="dialog" aria-modal="true" aria-labelledby="act-t">
+  <button type="button" id="b-activar">
+    <span class="ico" aria-hidden="true">🔔</span>
+    <span id="act-t" class="t">Toca aquí para activar el sonido</span>
+    <span class="s">El móvil no deja sonar avisos hasta que alguien toca la pantalla. Hay que hacerlo cada vez que se abre o se reinicia.</span>
+  </button>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="/assets/config.js"></script>
+<script src="/assets/api.js"></script>
+<script src="/assets/movil.js"></script>
+</body>
+</html>
