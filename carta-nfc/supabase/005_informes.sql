@@ -161,17 +161,20 @@ begin
   if to_regclass('fiscal.titulares') is not null and exists (select 1 from fiscal.titulares t where t.restaurante_id = r.id) then
     with doc as (
       select d.* from fiscal.documentos d
-       where d.restaurante_id = r.id and d.estado = 'emitido' and d.fecha_expedicion between v_desde and v_hasta
+       where d.restaurante_id = r.id and d.estado <> 'anulado' and d.fecha_expedicion between v_desde and v_hasta
     )
     select jsonb_build_object(
-      'tickets',   (select count(*) from doc),
+      -- Las rectificativas (R…) restan: el original sigue contando y la devolución va en negativo.
+      'tickets',   (select count(*) from doc where tipo not like 'R%'),
+      'devoluciones', (select count(*) from doc where tipo like 'R%'),
+      'devuelto',  (select coalesce(sum(total), 0) from doc where tipo like 'R%'),
       'facturas',  (select count(*) from doc where tipo = 'F1'),
       'facturado', (select coalesce(sum(total), 0) from doc),
       'base',      (select coalesce(sum(base_total), 0) from doc),
       'cuota',     (select coalesce(sum(cuota_total), 0) from doc),
       'propinas',  (select coalesce(sum(propina), 0) from doc),
-      'primero',   (select num_serie from doc order by expedido, numero limit 1),
-      'ultimo',    (select num_serie from doc order by expedido desc, numero desc limit 1),
+      'primero',   (select num_serie from doc where tipo not like 'R%' order by expedido, numero limit 1),
+      'ultimo',    (select num_serie from doc where tipo not like 'R%' order by expedido desc, numero desc limit 1),
       'por_forma', (select coalesce(jsonb_object_agg(z.forma, z.importe), '{}'::jsonb)
                       from (select x->>'forma' as forma, sum((x->>'importe')::numeric) as importe
                               from doc, jsonb_array_elements(doc.pagos) x group by 1) z),
@@ -180,7 +183,7 @@ begin
                                       sum((x->>'cuota')::numeric) as cuota, sum((x->>'total')::numeric) as total
                                  from doc, jsonb_array_elements(doc.desglose) x group by 1) z), '[]'::jsonb),
       'anterior_facturado', (select coalesce(sum(d.total), 0) from fiscal.documentos d
-                              where d.restaurante_id = r.id and d.estado = 'emitido'
+                              where d.restaurante_id = r.id and d.estado <> 'anulado'
                                 and d.fecha_expedicion between v_desde - v_dias and v_desde - 1)
     ) into v_cobro;
     v_res := v_res || jsonb_build_object('cobros', v_cobro);

@@ -118,11 +118,12 @@
         ${Number(rs.propinas) ? `<div><span>Propinas (fuera de factura)</span><b class="num">${dinero(rs.propinas, m)}</b></div>` : ''}`;
       q('[data-tkl-lista]').innerHTML = est.docs.length ? est.docs.map((x) => {
         const fecha = new Date(x.expedido).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        const factura = x.tipo !== 'F2' && x.tipo !== 'R5';
+        const factura = x.tipo === 'F1';
+        const devolucion = String(x.tipo).startsWith('R');
         const det = [fecha, x.mesa, (x.formas || []).map((f) => FORMAS[f] || f).join(' + '),
           factura && x.cliente ? `${x.cliente.nombre || ''} (${x.cliente.nif || ''})` : '', ENVIO[x.envio] || ''].filter(Boolean);
         return `<div class="tkl-fila" data-tkl-doc="${esc(x.num_serie)}">
-          <div class="n"><strong>${esc(x.num_serie)}</strong> ${factura ? '<span class="chip">Factura</span>' : ''}
+          <div class="n"><strong>${esc(x.num_serie)}</strong> ${factura ? '<span class="chip">Factura</span>' : ''}${devolucion ? '<span class="chip">↩ Devolución</span>' : ''}
             ${x.estado !== 'emitido' ? `<span class="chip">${esc(x.estado)}</span>` : ''}
             <div class="muted small">${esc(det.join(' · '))}</div></div>
           <span class="t num">${dinero(x.total, m)}</span>

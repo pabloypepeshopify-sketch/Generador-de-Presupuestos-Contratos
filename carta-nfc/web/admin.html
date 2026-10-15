@@ -35,6 +35,7 @@
         <button class="tab" role="tab" type="button" data-tab="mesas" aria-selected="false">Mesas y NFC</button>
         <button class="tab" role="tab" type="button" data-tab="ajustes" aria-selected="false">Ajustes y claves</button>
         <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">📊 Informes</button>
+        <button class="tab" role="tab" type="button" data-tab="stock" aria-selected="false">📦 Stock</button>
         <button class="tab" role="tab" type="button" data-tab="facturacion" aria-selected="false">Facturación</button>
       </div></div>
     </header>
@@ -151,6 +152,10 @@
         </div>
       </section>
 
+      <section id="t-stock" hidden>
+        <div class="card pad" id="stock"></div>
+      </section>
+
       <section id="t-hoy" hidden>
         <div id="informes"></div>
       </section>
@@ -196,6 +201,7 @@
   <script src="/assets/api.js"></script>
   <script src="/assets/tickets.js"></script>
   <script src="/assets/informes.js"></script>
+  <script src="/assets/stock.js"></script>
   <script src="/assets/admin.js"></script>
 </body>
 </html>

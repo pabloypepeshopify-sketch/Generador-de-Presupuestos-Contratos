@@ -36,6 +36,7 @@
         <button class="tab" role="tab" data-vista="informes" aria-selected="false" id="tab-informes" hidden>📊 Informes</button>
       </div>
       <div class="k-actions">
+        <button id="k-pedido" class="btn sm primary" type="button" hidden>➕ <span class="lbl">Pedido</span></button>
         <button id="k-sonido" class="btn sm" type="button">🔕 Activar sonido</button>
         <button id="k-pausa" class="btn sm" type="button"></button>
         <a id="k-admin" class="btn sm" href="/admin.html" hidden>⚙️ Carta</a>
@@ -44,6 +45,7 @@
     </header>
 
     <section id="k-avisos" class="avisos" aria-live="assertive"></section>
+    <section id="k-stock" class="avisos stock" aria-live="polite"></section>
 
     <main id="v-comandas" class="kanban">
       <section class="col"><h2>Nuevos <span class="count" id="c-nuevo"></span></h2><div class="list" id="l-nuevo"></div></section>
@@ -60,6 +62,7 @@
 
   <dialog id="dlg-cobrar" aria-label="Cobrar mesa"></dialog>
   <dialog id="dlg-ticket" aria-label="Ticket"></dialog>
+  <dialog id="dlg-mover" aria-label="Mover de mesa"></dialog>
 
   <iframe id="print-frame" title="Impresión" aria-hidden="true" tabindex="-1"></iframe>
 
@@ -69,6 +72,7 @@
   <script src="/assets/ticket.js"></script>
   <script src="/assets/tickets.js"></script>
   <script src="/assets/informes.js"></script>
+  <script src="/assets/comandero.js"></script>
   <script src="/assets/cocina.js"></script>
 </body>
 </html>

@@ -307,7 +307,7 @@
 
         ${c ? `<section class="iv-card m6">
           <h3>Cobros</h3>
-          <p class="iv-sub">${plural(c.tickets, 'ticket', 'tickets')}${num(c.facturas) ? ` (${entero(c.facturas)} con factura)` : ''}${c.primero ? ` · del ${esc(c.primero)} al ${esc(c.ultimo)}` : ''}</p>
+          <p class="iv-sub">${plural(c.tickets, 'ticket', 'tickets')}${num(c.facturas) ? ` (${entero(c.facturas)} con factura)` : ''}${num(c.devoluciones) ? ` · ${plural(c.devoluciones, 'devolución', 'devoluciones')} (${dinero(c.devuelto, m)})` : ''}${c.primero ? ` · del ${esc(c.primero)} al ${esc(c.ultimo)}` : ''}</p>
           ${formas.length ? `<table class="iv-tabla"><tbody>${formas.map(([f, v]) => `
             <tr><td>${esc(FORMAS[f] || f)}<span class="iv-hbar" style="width:${(num(v) / maxForma) * 100}%"></span></td><td class="n">${dinero(v, m)}</td></tr>`).join('')}
             <tr><td>Propinas <small>no entran en la factura</small></td><td class="n">${dinero(c.propinas, m)}</td></tr></tbody></table>`
@@ -389,6 +389,7 @@
         ${r('Mesas', entero(k.mesas))}${r('Cancelados', `${entero(k.cancelados)} · ${dinero(k.cancelado_importe, m)}`)}
         ${c ? `<hr><b>COBROS</b>${r('Tickets', entero(c.tickets))}${c.primero ? r('Del', esc(c.primero)) + r('Al', esc(c.ultimo)) : ''}
           ${Object.entries(c.por_forma || {}).map(([f, v]) => r(esc(FORMAS[f] || f), dinero(v, m))).join('')}
+          ${num(c.devoluciones) ? r(`Devoluciones (${entero(c.devoluciones)})`, dinero(c.devuelto, m)) : ''}
           ${r('Propinas', dinero(c.propinas, m))}${r('<b>Total cobrado</b>', `<b>${dinero(num(c.facturado) + num(c.propinas), m)}</b>`)}
           <hr><b>IVA</b>${(c.iva || []).map((x) => r(`${num(x.iva)} % base ${dec(x.base)}`, `cuota ${dec(x.cuota)}`)).join('')}
           ${r('Base total', dinero(c.base, m))}${r('IVA total', dinero(c.cuota, m))}` : ''}

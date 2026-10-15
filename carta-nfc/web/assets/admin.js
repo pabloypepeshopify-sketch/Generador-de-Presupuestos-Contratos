@@ -274,6 +274,7 @@
   let fzDatos = null;
   let fzLista = null;   // lista completa de tickets (CartaTickets)
   let informes = null;  // pestaña Informes (CartaInformes)
+  let stock = null;     // pestaña Stock (CartaStock)
 
   async function fz(accion, datos, okMsg) {
     try {
@@ -384,7 +385,11 @@
 
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
-      ['carta', 'mesas', 'ajustes', 'hoy', 'facturacion'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      ['carta', 'mesas', 'ajustes', 'hoy', 'stock', 'facturacion'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      if (ds.tab === 'stock') {
+        if (stock) stock.recargar();
+        else stock = window.CartaStock.montar($('stock'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });
+      }
       if (ds.tab === 'hoy') {
         if (informes) informes.recargar();
         else informes = window.CartaInformes.montar($('informes'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });

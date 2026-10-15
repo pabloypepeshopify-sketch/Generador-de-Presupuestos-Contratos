@@ -38,6 +38,17 @@
     titular_incompleto: 'Faltan datos fiscales obligatorios (razón social, domicilio, tipo de persona).',
     produccion_no_disponible: 'El entorno de producción de la AEAT llega en la Fase 2. De momento, pruebas.',
     filtro_no_valido: 'Revisa las fechas del filtro.',
+    lineas_no_validas: 'Selección no válida. Vuelve a abrir el cobro.',
+    cantidad_supera_pendiente: 'Esa cantidad ya está cobrada o devuelta. Revisa la selección.',
+    mesa_sin_cerrar: 'Esa mesa aún tiene cuenta pendiente: termina de cobrarla antes de devolver.',
+    nada_que_rectificar: 'Este ticket ya está devuelto entero.',
+    no_rectificable: 'Este documento no se puede devolver.',
+    reabrir_solo_total: 'Solo se puede reabrir la mesa si se devuelve el ticket entero.',
+    serie_rectificativas_repetida: 'La serie de rectificativas coincide con otra serie de facturación.',
+    stock_no_valido: 'Stock no válido (un número entero, 0 o más).',
+    ids_no_validos: 'No hay pedidos que mover.',
+    pedido_no_encontrado: 'Ese pedido ya no existe o ya se ha cobrado.',
+    no_encontrado: 'No encontrado. Recarga la página.',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };
 

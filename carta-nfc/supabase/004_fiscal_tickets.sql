@@ -70,11 +70,11 @@ begin
     'resumen', (select jsonb_build_object(
         'total', coalesce(sum(s.total), 0), 'base', coalesce(sum(s.base_total), 0),
         'cuota', coalesce(sum(s.cuota_total), 0), 'propinas', coalesce(sum(s.propina), 0))
-      from sel s where s.estado = 'emitido'),
+      from sel s where s.estado <> 'anulado'),
     'por_forma', (select coalesce(jsonb_object_agg(z.forma, z.importe), '{}'::jsonb)
                     from (select x->>'forma' as forma, sum((x->>'importe')::numeric) as importe
                             from sel s, jsonb_array_elements(s.pagos) x
-                           where s.estado = 'emitido' group by 1) z)
+                           where s.estado <> 'anulado' group by 1) z)
   ) into v_res;
   return v_res;
 end $$;

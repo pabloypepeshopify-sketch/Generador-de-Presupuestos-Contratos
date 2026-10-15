@@ -5,7 +5,9 @@
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const num = (n) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
   const FORMAS = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', bizum: 'Bizum', otro: 'Otro' };
-  const TITULOS = { F1: 'FACTURA', F2: 'FACTURA SIMPLIFICADA', F3: 'FACTURA (sustituye a simplificadas)' };
+  const TITULOS = { F1: 'FACTURA', F2: 'FACTURA SIMPLIFICADA', F3: 'FACTURA (sustituye a simplificadas)',
+    R1: 'FACTURA RECTIFICATIVA', R4: 'FACTURA RECTIFICATIVA', R5: 'FACTURA SIMPLIFICADA RECTIFICATIVA' };
+  const fechaCorta = (iso) => (iso ? String(iso).slice(0, 10).split('-').reverse().join('/') : '');
 
   function qrSvg(texto, celda) {
     if (!window.qrcode) return '';
@@ -28,6 +30,9 @@
       <div class="tk-c tk-b">${esc(TITULOS[d.tipo] || d.tipo)}</div>
       <div class="tk-r"><span>Nº ${esc(d.num_serie)}</span><span>${esc(fecha)}</span></div>
       ${d.mesa ? `<div>${esc(d.mesa)}</div>` : ''}
+      ${d.rectifica ? `<div>Rectifica a: ${esc(d.rectifica.num_serie)} (${esc(fechaCorta(d.rectifica.fecha_expedicion))})</div>` : ''}
+      ${d.motivo ? `<div>Motivo: ${esc(d.motivo)}</div>` : ''}
+      ${d.parcial && !String(d.tipo).startsWith('R') ? '<div class="tk-s">Cuenta separada (pago por partes)</div>' : ''}
       ${d.cliente ? `<hr><div class="tk-b">Cliente</div><div>${esc(d.cliente.nombre)}</div>
         <div>NIF ${esc(d.cliente.nif)}</div><div>${esc(d.cliente.domicilio)}</div>` : ''}
       <hr>
@@ -40,7 +45,7 @@
         ${(d.desglose || []).map((x) => `<tr><td>${num(x.iva).replace(',00', '')} %</td><td>${num(x.base)}</td><td>${num(x.cuota)}</td><td>${num(x.total)}</td></tr>`).join('')}
       </table>
       <hr>
-      ${(d.pagos || []).map((p) => `<div class="tk-r"><span>${esc(FORMAS[p.forma] || p.forma)}</span><span>${num(p.importe)}</span></div>
+      ${(d.pagos || []).map((p) => `<div class="tk-r"><span>${Number(p.importe) < 0 ? 'Devolución · ' : ''}${esc(FORMAS[p.forma] || p.forma)}</span><span>${num(p.importe)}</span></div>
         ${p.entregado != null ? `<div class="tk-r tk-s"><span>&nbsp;&nbsp;Entregado ${num(p.entregado)}</span><span>Cambio ${num(p.cambio)}</span></div>` : ''}`).join('')}
       ${Number(d.propina) > 0 ? `<div class="tk-r tk-s"><span>Propina (no incluida en la factura)</span><span>${num(d.propina)}</span></div>` : ''}
       ${d.sif && d.sif.qr_url ? `<div class="tk-c tk-s" style="margin-top:8px">QR tributario:</div>
