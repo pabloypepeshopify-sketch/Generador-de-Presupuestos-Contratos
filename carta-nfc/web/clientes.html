@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Mis clientes y cobros</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <style>
+    .w { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+    .pad { padding: 18px; margin-bottom: 16px; }
+    .cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+    .cifras div { padding: 14px; }
+    .cifras b { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .cifras span { font-size: 13px; color: var(--muted); }
+    .filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .filtros .btn[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+    .cli { padding: 16px; margin-bottom: 10px; }
+    .cli.debe { border-left: 5px solid var(--danger); }
+    .cli.off { opacity: .7; }
+    .cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+    .cab h3 { font-size: 18px; }
+    .estado { font-weight: 700; font-size: 14px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .estado.ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+    .estado.ko { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+    .estado.neutro { background: var(--surface-2, #eee); color: var(--muted); }
+    .datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px 14px; margin: 10px 0; font-size: 14px; }
+    .datos span { display: block; color: var(--muted); font-size: 12px; }
+    .acc { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .acc select { min-height: 34px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); padding: 0 8px; }
+    details { margin-top: 10px; }
+    details summary { cursor: pointer; font-size: 14px; color: var(--muted); }
+    .editar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; }
+    .editar .field { flex: 1 1 140px; margin: 0; }
+    .pagos { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .nota { font-size: 14px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="w">
+    <h1 style="margin-bottom:6px">Mis clientes y cobros</h1>
+    <p class="muted">Cuota mensual de cada bar: quién está al día, quién debe y cuándo toca el próximo cobro. Sin pasarela de pago: marca "Pagado" cuando te paguen. <a href="/alta.html">Alta de restaurantes</a></p>
+    <form id="f-login" class="card pad" hidden>
+      <label class="field"><span>Clave de plataforma</span><input type="password" id="clave" autocomplete="current-password" required></label>
+      <button class="btn primary" type="submit">Entrar</button>
+    </form>
+    <div id="zona" hidden>
+      <div class="cifras">
+        <div class="card"><b id="n-activos"></b><span>bares activos</span></div>
+        <div class="card"><b id="n-mensual"></b><span>al mes (cuotas activas)</span></div>
+        <div class="card"><b id="n-debe"></b><span>pendiente de cobrar</span></div>
+        <div class="card"><b id="n-mes"></b><span>cobrado este mes</span></div>
+      </div>
+      <div class="filtros" role="group" aria-label="Filtrar">
+        <button class="btn sm" data-filtro="todos" aria-pressed="true">Todos</button>
+        <button class="btn sm" data-filtro="deben" aria-pressed="false">Deben</button>
+        <button class="btn sm" data-filtro="aldia" aria-pressed="false">Al día</button>
+        <button class="btn sm" data-filtro="off" aria-pressed="false">Desactivados</button>
+      </div>
+      <div id="lista"></div>
+    </div>
+  </div>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/clientes.js"></script>
+</body>
+</html>

@@ -11,6 +11,9 @@
 /movil.html
   X-Robots-Tag: noindex
   Cache-Control: no-store
+/clientes.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
 /kit.html
   X-Robots-Tag: noindex
   Cache-Control: no-store

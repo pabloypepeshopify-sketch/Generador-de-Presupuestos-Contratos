@@ -189,6 +189,20 @@ Para el móvil fijo con cargador al lado del TPV del bar. Misma clave que el pan
   pantalla de inicio). Necesita una función en Supabase que envíe los avisos y claves VAPID.
 - Prueba: `node tests/e2e-movil.mjs`.
 
+## Mis clientes y cobros — `clientes.html` (tú)
+
+Control de la cuota mensual (29 €) de cada bar. **Sin pasarela de pago**: solo control. Entra con la clave
+de plataforma (la misma de `alta.html`, que enlaza aquí). Datos: `supabase/008_cuotas.sql` (`carta_cuotas`).
+- Arriba: bares activos, total al mes, **pendiente de cobrar** y cobrado este mes.
+- Cada bar: fecha de alta, cuota, **próximo cobro**, último pago, pedidos en 30 días y estado
+  (**Al día** / **Debe X € · N meses · D días** / Sin cuota / Desactivado). Los que deben salen arriba.
+- **✓ Pagado** (Bizum, transferencia, efectivo…) apunta el mes más antiguo pendiente; **Deshacer último pago**.
+- **Editar cuota**: importe, fecha del primer cobro (por defecto el día del alta: el primer mes se cobra al firmar),
+  notas y "sin cuota" (demo, pruebas). Se cobra cada mes el mismo día (un 31 cobra el 28/29 en febrero).
+- **Desactivar por impago**: el mismo activar/desactivar de siempre (carta, NFC y pedidos dejan de funcionar).
+- Filtros: Todos, Deben, Al día, Desactivados.
+- Pruebas: `sql-tests-cuotas.sql` y `node tests/e2e-clientes.mjs`.
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
@@ -368,8 +382,9 @@ carta-nfc/
   supabase/005_informes.sql  informes de ventas (carta_informe) + registro de eventos de pedidos
   supabase/006_tpv.sql       modo TPV: comandero, cuentas separadas, rectificativas, stock, mover mesas
   supabase/007_tpv2.sql      caja (arqueo), corregir/invitar, descuentos, "Varios", factura de un ticket (F3)
+  supabase/008_cuotas.sql    mis clientes y cobros: cuota mensual de cada bar (carta_cuotas)
   web/                       sitio estático publicado en Netlify (sin build)
-    index.html cocina.html admin.html alta.html ticket.html kit.html movil.html
+    index.html cocina.html admin.html alta.html ticket.html kit.html movil.html clientes.html
     assets/ app.css api.js config.js cliente.* cocina.* admin.* ticket.js tickets.js informes.js comandero.js stock.js caja.js vendor/qrcode.js (MIT)
     w/pedidos.js             script para añadir pedidos a la web propia de un bar
     _redirects               /m/<codigo> y /r/<slug> → index.html
@@ -389,6 +404,8 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    sql-tests-cuotas.sql     cuotas: pendientes, pagar/deshacer, fijar, sin cuota, meses cortos, permisos
+    e2e-clientes.mjs         mis clientes y cobros: deuda, pagar, deshacer, editar, desactivar por impago
     e2e-movil.mjs            móvil junto al TPV: llegada, sonido y repetición, Apuntado/Deshacer, avisos, pausa, reinicio, sin conexión
     e2e-kit.mjs              kit de instalación: adhesivos A4/imprenta, PDF, carta general, imagen para la galería
     e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
@@ -408,7 +425,7 @@ carta-nfc/
 - **Base de datos**: proyecto Supabase `giazlntdbfhnnfizmfao` (eu-west-1). Comparte proyecto con
   la app de facturación pero **aislado** en el schema `carta` + funciones `carta_*`; no toca
   ninguna tabla existente. La facturación vive en el schema `fiscal` + funciones `fiscal_*`.
-  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql`, `007_tpv2.sql` (y
+  Para moverlo a un proyecto propio: ejecutar `001_esquema.sql`, `003_fiscal.sql`, `004_fiscal_tickets.sql`, `005_informes.sql`, `006_tpv.sql`, `007_tpv2.sql`, `008_cuotas.sql` (y
   opcionalmente `002_demo.sql`) en el nuevo proyecto y cambiar `web/assets/config.js`.
 - **Web**: Netlify, proyecto `carta-nfc-pedidos` → https://carta-nfc-pedidos.netlify.app.
   Para desplegar: publicar la carpeta `web/` (no hay build).
@@ -429,12 +446,14 @@ Requiere Postgres 14+ escuchando en `/tmp:54329` y Node 18+.
 ```bash
 cd carta-nfc/tests
 npm install
-bash db-local.sh                      # crea la BD carta_test (001 + 003 … 007)
+bash db-local.sh                      # crea la BD carta_test (001 + 003 … 008)
 psql -h /tmp -p 54329 -U postgres -d carta_test -f sql-tests.sql   # → TODAS LAS PRUEBAS SQL OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-fiscal.sql
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-cuotas.sql
+node e2e-clientes.mjs                 # mis clientes y cobros → E2E CLIENTES OK
 node e2e-movil.mjs                    # móvil junto al TPV → E2E MÓVIL OK
 node e2e-kit.mjs                      # kit de instalación (adhesivos y PDF) → E2E KIT OK
 node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK
