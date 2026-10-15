@@ -24,6 +24,10 @@ tomando nota.
 | Panel de comandas demo | https://carta-nfc-pedidos.netlify.app/cocina.html?r=demo&k=demo-cocina |
 | Alta de restaurantes (tú) | https://carta-nfc-pedidos.netlify.app/alta.html |
 
+**Pendiente de publicar (15/10/2026):** `kit.html`, `movil.html`, `clientes.html` y `papeles/` están en la rama
+`claude/solo-pedidos-pack` y probados en local; Netlify rechazó el despliegue por falta de créditos de la cuenta.
+La migración `008_cuotas.sql` sí está aplicada en Supabase.
+
 Las claves de admin de la demo y la clave de plataforma **no están en el repo**: se entregaron
 aparte. Si se pierden, ver "Claves" más abajo.
 
