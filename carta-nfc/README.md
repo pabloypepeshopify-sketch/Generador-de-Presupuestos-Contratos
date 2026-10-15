@@ -109,6 +109,50 @@ La versión del repo añade **Ver tu ticket** (facturación Fase 1) sobre la pub
 desde su web de Vercel, basta con pegar la línea de `pedidos.js` en su `carta.html` y cambiar ese
 ajuste; los NFC no se regraban.
 
+## Webs de bares: plantilla "web premium + carta con pedidos"
+
+Cada bar tiene su carpeta `clientes/<slug>/` con **un solo archivo de configuración** (`bar.config.mjs`:
+colores, logo, fuentes, textos, horario, dirección, reseñas, contacto…) y sus fotos en `img/`.
+La herramienta genera una web estática (sin build en Netlify) que se sube a **un sitio de Netlify por bar**.
+
+```bash
+cd carta-nfc/herramientas && npm install          # una vez (sharp: reduce las fotos a WebP)
+cd ..
+node herramientas/web-bar.mjs --nuevo casa-pepe   # crea clientes/casa-pepe/ desde la plantilla
+#   rellenar clientes/casa-pepe/bar.config.mjs, legal.local.mjs (no se sube a git) y meter las fotos en img/
+node herramientas/web-bar.mjs clientes/casa-pepe  # genera clientes/casa-pepe/publicar/ y avisa de lo que falte
+```
+
+Lo que sale en `publicar/`:
+- `index.html` — la web: portada con foto, **"Abierto ahora / Cerrado ahora"** según el horario, la casa,
+  lo que más se pide, galería, horario (marca hoy), dónde estamos (el mapa de Google solo se carga si se
+  pulsa: más rápido y sin cookies de Google de entrada), reseñas, contacto (llamar, WhatsApp, Instagram) y
+  un botón fijo "Ver la carta y pedir" en el móvil.
+- `carta.html` — la carta con pedidos (mismo motor que la página de Martínez, generalizado): alérgenos,
+  tamaños (Tapa/Media/Ración), notas por plato, estado del pedido, llamar al camarero y pedir la cuenta.
+  - Sin mesa (visita desde Google o Instagram): solo se ve la carta.
+  - Desde el NFC/QR de la mesa (`?mesa=`): se pide. La URL se limpia para que, si la comparten, no lleve la mesa.
+  - Desde la carta general (`/r/<slug>` → `?pedir=1`) con "permitir elegir mesa": pide y elige mesa al enviar.
+- SEO local: título "Nombre · Bar en Ciudad", descripción, canonical, Open Graph, datos estructurados de
+  Google (dirección, coordenadas, horario, carta), `sitemap.xml` y `robots.txt`.
+- `aviso-legal.html` y `privacidad.html` — TODO(gestoría): revisar los textos. El titular y el NIF salen de
+  `legal.local.mjs`, que **no se sube** (repo público).
+- `_headers` con cabeceras de seguridad (CSP que solo deja hablar con la API de pedidos).
+
+Publicar:
+1. Netlify → crear un sitio por bar y subir `clientes/<slug>/publicar/` (con la herramienta de Netlify:
+   `deploy-site` y su comando, ejecutado dentro de `publicar/`).
+2. Gestión del bar → *Ajustes* → **Web propia de la carta** = `https://<sitio>/carta.html`.
+   Los NFC `/m/<codigo>` llevan a esa carta con la mesa puesta; no hay que regrabarlos si cambia la web.
+
+Notas:
+- La herramienta avisa si un color se lee mal sobre otro (contraste), si falta una foto o la descripción
+  de una foto, y si falta la dirección o las coordenadas.
+- Cambios del bar (horario, fotos, textos): editar `bar.config.mjs`, regenerar y volver a subir.
+- La carta y los precios salen siempre de la base de datos (gestión), no del archivo de configuración.
+- Ejemplo: `clientes/bar-la-demo/` (restaurante `demo`, fotos de relleno). Prueba: `node tests/e2e-web-bar.mjs`.
+- Martínez sigue con su página propia (`clientes/martinez-bar/`); la plantilla es para los bares nuevos.
+
 ## Flujo para vender a un bar nuevo
 
 1. `alta.html` → clave de plataforma → **Nuevo restaurante** (ej. "Bar Casa Pepe", `casa-pepe`, 12 mesas).
@@ -292,7 +336,10 @@ carta-nfc/
     _redirects               /m/<codigo> y /r/<slug> → index.html
     _headers  netlify.toml
   clientes/martinez-bar/      página de pedidos propia de Martínez Bar (HTML único, publicada en Netlify)
+  clientes/_plantilla/        plantilla de webs de bares: bar.config.mjs (ejemplo), estilos, motor de la carta
+  clientes/bar-la-demo/       web de ejemplo con la plantilla (restaurante demo)
   herramientas/
+    web-bar.mjs              genera la web + carta de un bar desde su bar.config.mjs
     importar-carta.mjs       carga la carta de la web de un bar (platos + tamaños)
     espejo-web.py            copia una web y le añade pedidos.js (para pruebas)
   tests/
@@ -303,6 +350,7 @@ carta-nfc/
     e2e-fiscal.mjs           navegador real: datos fiscales → pedir → Cobrar → ticket con QR → "Ver tu ticket" → Tickets/Excel
     e2e-widget.mjs           pedidos.js sobre la copia de la web de Martínez (idiomas, tamaños)
     e2e-martinez.mjs         página propia de Martínez contra la BD local (pedir, "Ver tu ticket")
+    e2e-web-bar.mjs          plantilla de webs de bares: genera bar-la-demo, web (SEO, horario, mapa) y carta (pedir, mesa)
     sql-tests-informes.sql   informes: ventas, comparación, tiempos, productos, cobros, aislamiento
     e2e-informes.mjs         informes en gestión, tablet y móvil; cierre Z y Excel
     sql-tests-tpv.sql        comandero, stock, mover, cuentas separadas, rectificativas, cadena con negativos
@@ -346,6 +394,7 @@ bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_
                                       # → TODAS LAS PRUEBAS FISCALES OK
 node e2e-fiscal.mjs                   # levanta su propio servidor → E2E FISCAL OK
 node e2e-martinez.mjs                 # página de Martínez, sin tocar producción → E2E MARTÍNEZ OK
+node e2e-web-bar.mjs                  # plantilla de webs de bares (requiere cd ../herramientas && npm install) → E2E WEB BAR OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-informes.sql
 node e2e-informes.mjs                 # → E2E INFORMES OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-tpv.sql
