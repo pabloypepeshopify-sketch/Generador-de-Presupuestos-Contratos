@@ -87,6 +87,12 @@ Los enlaces con claves y los códigos de mesa no están en el repo: se entregan 
 
 Es una carpeta estática: se publica tal cual, sin build.
 
+- **Cloudflare Pages (publicado ahora):** proyecto `pedidos-nfc` → **https://pedidos-nfc.pages.dev**.
+  Con un token de API (permiso *Cuenta · Cloudflare Pages · Editar*) en `CLOUDFLARE_API_TOKEN` y el id de cuenta en
+  `CLOUDFLARE_ACCOUNT_ID`, desde esta carpeta:
+  `npx -y wrangler@4 pages deploy . --project-name pedidos-nfc --branch main`
+  (Cloudflare quita el `.html` de las direcciones: `/cocina.html?…` redirige a `/cocina?…` y funciona igual.)
+
 - **Netlify**, proyecto `pedidos-nfc-lite` (https://pedidos-nfc-lite.netlify.app): herramienta de Netlify
   `deploy-site` con el site id del proyecto y el comando que devuelve, ejecutado **dentro de `carta-nfc/lite/`**.
   (El 15/10/2026 la cuenta se quedó sin créditos y Netlify rechaza los despliegues.)
