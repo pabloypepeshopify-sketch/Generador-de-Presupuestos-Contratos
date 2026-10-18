@@ -34,12 +34,22 @@
       <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y llamar al camarero.</div>
       <div id="banner-sin-mesa" class="banner" hidden>Escanea el NFC (o el QR) de tu mesa para poder pedir desde aquí.</div>
       <section id="mis-pedidos" class="mis-pedidos card" hidden aria-live="polite"></section>
+      <div class="filtros" id="filtros" hidden>
+        <input type="search" id="buscar" placeholder="🔍 Buscar en la carta…" aria-label="Buscar en la carta" autocomplete="off">
+        <button type="button" class="btn sm" id="btn-alerg" aria-expanded="false" hidden>⚠️ Alergias</button>
+      </div>
+      <div class="alerg-panel card" id="alerg-panel" hidden>
+        <p class="small muted">Oculta los platos que declaran estos alérgenos. Ante la duda, pregunta al personal.</p>
+        <div class="alerg-chips" id="alerg-chips"></div>
+      </div>
+      <p id="sin-resultados" class="muted" hidden>Nada coincide. Prueba con otra palabra o quita algún filtro.</p>
       <main id="menu"></main>
       <section class="ayuda" id="ayuda">
         <button id="btn-camarero" class="btn" type="button">🙋 Llamar al camarero</button>
         <button id="btn-cuenta" class="btn" type="button">🧾 Pedir la cuenta</button>
       </section>
-      <p class="pie muted small">Si tienes alguna alergia o intolerancia, consulta al personal antes de pedir.</p>
+      <p class="pie muted small">Si tienes alguna alergia o intolerancia, consulta al personal antes de pedir.<br>
+        <a href="/privacidad.html">Privacidad</a> · Carta digital por VISAX AI</p>
     </div>
 
     <div class="cart-bar" id="cart-bar" hidden>

@@ -78,3 +78,17 @@
 .tam .precio { margin: 0; }
 .tam.agotado { opacity: .55; }
 .prod .ctrl { display: inline-flex; }
+
+/* Buscar, alergias y "Repetir" */
+.filtros { display: flex; gap: 8px; margin-top: 14px; }
+.filtros input { flex: 1; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; }
+.filtros .btn { flex: none; min-height: 44px; }
+.alerg-panel { margin-top: 8px; padding: 12px 14px; }
+.alerg-panel p { margin: 0 0 8px; }
+.alerg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-al { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.chip-al[aria-pressed="true"] { background: var(--danger); border-color: var(--danger); color: #fff; }
+#sin-resultados { padding: 24px 0 0; text-align: center; }
+.mp-acc { display: inline-flex; align-items: center; gap: 6px; }
+.mp-acc .btn.sm { min-height: 32px; padding: 4px 10px; font-size: 13px; }
+.pie a { color: inherit; }

@@ -68,6 +68,7 @@
     $('r-nombre').textContent = menu.restaurante.nombre;
     $('r-mensaje').textContent = menu.restaurante.mensaje || '';
     renderMenu();
+    prepararFiltros();
     renderEstadoPedidos();
     actualizarCabecera();
     $('cargando').hidden = true;
@@ -132,8 +133,10 @@
       .map((a) => `<span class="alergeno">${esc(ALERGENOS[a] || a)}</span>`).join('');
     const unico = g.items.length === 1 && !g.items[0].tam;
     const agotado = g.items.every((x) => !x.p.disponible);
+    const busca = norm([g.base, ...g.items.map((x) => x.p.nombre), desc ? desc.descripcion : ''].join(' '));
+    const alerg = [...new Set(g.items.flatMap((x) => x.p.alergenos || []))].join(',');
     return `
-      <article class="prod card${agotado ? ' agotado' : ''}">
+      <article class="prod card${agotado ? ' agotado' : ''}" data-busca="${esc(busca)}" data-alerg="${esc(alerg)}">
         <div class="prod-txt">
           <h3>${esc(unico ? p0.nombre : g.base)}</h3>
           ${desc ? `<p class="desc">${esc(desc.descripcion)}</p>` : ''}
@@ -239,7 +242,8 @@
     try {
       const res = await rpc('carta_pedir', { p_mesa: mesa.codigo, p_lineas: lineas, p_nota: $('carrito-nota').value.trim() || null });
       const lista = store.get(kPedidos(), []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
-      lista.unshift({ token: res.token, numero: res.numero, creado: res.creado, total: res.total, estado: res.estado });
+      lista.unshift({ token: res.token, numero: res.numero, creado: res.creado, total: res.total, estado: res.estado,
+        lineas: lineas.map((l) => [l.producto_id, l.cantidad]) });
       store.set(kPedidos(), lista.slice(0, 20));
       carrito = {};
       ses.set(kCarrito(), carrito);
@@ -290,7 +294,8 @@
     $('mis-pedidos').hidden = visibles.length === 0;
     $('mis-pedidos').innerHTML = '<h2>Tus pedidos</h2>' + visibles.map((p) => `
       <div class="mp-row"><span>Pedido nº ${esc(p.numero)} · <span class="num">${dinero(p.total, menu.restaurante.moneda)}</span></span>
-      <span class="estado ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span></div>`).join('');
+      <span class="mp-acc">${p.lineas && p.estado !== 'cancelado' && puedePedir() ? `<button type="button" class="btn sm" data-repetir="${esc(p.token)}">🔁 Repetir</button>` : ''}
+      <span class="estado ${esc(p.estado)}">${esc(ESTADOS[p.estado] || p.estado)}</span></span></div>`).join('');
   }
 
   async function refrescarPedidos() {
@@ -314,6 +319,62 @@
       } catch { /* reintenta en el siguiente ciclo */ }
     }
     pollTimer = setTimeout(refrescarPedidos, 8000);
+  }
+
+  // "Otra ronda": vuelve a poner en el carrito lo de un pedido anterior (lo agotado o retirado se salta).
+  function repetir(token) {
+    const p = store.get(kPedidos(), []).find((x) => x.token === token);
+    if (!p || !p.lineas) return;
+    let n = 0;
+    p.lineas.forEach(([id, cant]) => {
+      if (!productos[id] || !productos[id].disponible) return;
+      const actual = carrito[id] ? carrito[id].cantidad : 0;
+      carrito[id] = { cantidad: Math.min(20, actual + cant), nota: carrito[id] ? carrito[id].nota : '' };
+      n++;
+      refrescarControl(id);
+    });
+    ses.set(kCarrito(), carrito);
+    actualizarCarritoBar();
+    if (!n) { toast('Esos platos ya no están disponibles.', 'error'); return; }
+    if (n < p.lineas.length) toast('Algún plato ya no está disponible: lo hemos quitado.');
+    renderCarrito();
+    $('dlg-carrito').showModal();
+  }
+
+  // ------------------------------------------------------- buscar y alergias ----
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const kAlerg = () => 'carta:alerg:' + menu.restaurante.slug;
+  let sinAlerg = [];
+
+  function prepararFiltros() {
+    const todos = menu.categorias.flatMap((c) => c.productos);
+    const conAlerg = [...new Set(todos.flatMap((p) => p.alergenos || []))];
+    $('filtros').hidden = todos.length < 12 && !conAlerg.length;
+    $('buscar').hidden = todos.length < 12;
+    $('btn-alerg').hidden = !conAlerg.length;
+    sinAlerg = ses.get(kAlerg(), []).filter((a) => conAlerg.includes(a));
+    $('alerg-chips').innerHTML = Object.entries(ALERGENOS).filter(([k]) => conAlerg.includes(k)).map(([k, v]) =>
+      `<button type="button" class="chip-al" data-sin="${esc(k)}" aria-pressed="${sinAlerg.includes(k)}">Sin ${esc(v.toLowerCase())}</button>`).join('');
+    filtrar();
+  }
+
+  function filtrar() {
+    const q = norm($('buscar').value.trim());
+    let visibles = 0;
+    document.querySelectorAll('#menu .cat').forEach((sec) => {
+      let n = 0;
+      sec.querySelectorAll('.prod').forEach((art) => {
+        const al = art.dataset.alerg ? art.dataset.alerg.split(',') : [];
+        const ver = (!q || art.dataset.busca.includes(q)) && !al.some((a) => sinAlerg.includes(a));
+        art.hidden = !ver;
+        if (ver) n++;
+      });
+      sec.hidden = n === 0;
+      visibles += n;
+    });
+    $('sin-resultados').hidden = visibles > 0 || !menu.categorias.length;
+    $('btn-alerg').textContent = sinAlerg.length ? `⚠️ Sin ${sinAlerg.length} alérgeno${sinAlerg.length === 1 ? '' : 's'}` : '⚠️ Alergias';
+    $('btn-alerg').classList.toggle('primary', sinAlerg.length > 0);
   }
 
   async function avisar(tipo) {
@@ -345,7 +406,20 @@
     else if (t.id === 'mesa-btn') abrirMesas(false);
     else if (t.id === 'btn-camarero') avisar('camarero');
     else if (t.id === 'btn-cuenta') avisar('cuenta');
+    else if (t.dataset.repetir) repetir(t.dataset.repetir);
+    else if (t.id === 'btn-alerg') {
+      const abrir = $('alerg-panel').hidden;
+      $('alerg-panel').hidden = !abrir;
+      t.setAttribute('aria-expanded', String(abrir));
+    } else if (t.dataset.sin) {
+      const a = t.dataset.sin;
+      sinAlerg = sinAlerg.includes(a) ? sinAlerg.filter((x) => x !== a) : sinAlerg.concat(a);
+      t.setAttribute('aria-pressed', String(sinAlerg.includes(a)));
+      ses.set(kAlerg(), sinAlerg);
+      filtrar();
+    }
   });
+  document.addEventListener('input', (ev) => { if (ev.target.id === 'buscar') filtrar(); });
   document.addEventListener('input', (ev) => {
     const id = ev.target.dataset && ev.target.dataset.nota;
     if (id && carrito[id]) { carrito[id].nota = ev.target.value; ses.set(kCarrito(), carrito); }

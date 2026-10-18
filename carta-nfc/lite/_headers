@@ -8,6 +8,9 @@
 /cocina.html
   X-Robots-Tag: noindex
   Cache-Control: no-store
+/demo.html
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
 /kit.html
   X-Robots-Tag: noindex
   Cache-Control: no-store

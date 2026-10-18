@@ -27,6 +27,7 @@ const burgers = JSON.parse(rpcAdmin('categoria', { nombre: 'Burgers' })).id;
 rpcAdmin('producto', { nombre: 'Ensaladilla rusa · Tapa', precio: '3.9', categoria_id: patatas, descripcion: 'Con crujiente de patata', alergenos: ['huevo'] });
 rpcAdmin('producto', { nombre: 'Ensaladilla rusa · Media', precio: '9', categoria_id: patatas });
 rpcAdmin('producto', { nombre: 'McTínez', precio: '10', categoria_id: burgers, alergenos: ['gluten', 'lacteos'] });
+for (let i = 1; i <= 10; i++) rpcAdmin('producto', { nombre: `Burger extra ${i}`, precio: '9', categoria_id: burgers, alergenos: ['gluten'] });
 const mesa = (n) => psql(`select m.codigo from carta.mesas m join carta.restaurantes r on r.id = m.restaurante_id where r.slug = 'martinez-demo' and m.nombre = 'Mesa ${n}'`);
 
 const browser = await chromium.launch();
@@ -80,6 +81,22 @@ try {
   ok((await m.locator('#ok-texto').innerText()).includes('Mesa 2'), 'pedido enviado desde la mesa');
   await m.locator('#dlg-ok [data-cerrar]').click();
   ok(await sinScroll(m), 'carta en el móvil: sin scroll lateral');
+  ok(await m.locator('#mis-pedidos [data-repetir]').count() === 1, 'botón "🔁 Repetir" en Tus pedidos');
+
+  // Buscar y alergias
+  await m.fill('#buscar', 'ensalad');
+  ok(await m.locator('.prod:visible').count() === 1 && await m.locator('.cat:visible').count() === 1, 'buscador: "ensalad" deja solo la Ensaladilla');
+  await m.fill('#buscar', 'zzz');
+  ok(await m.locator('#sin-resultados').isVisible(), 'buscador sin resultados: aviso');
+  await m.fill('#buscar', '');
+  await m.click('#btn-alerg');
+  await m.locator('[data-sin="gluten"]').click();
+  ok(await m.locator('.prod:visible', { hasText: 'McTínez' }).count() === 0 && await m.locator('.prod:visible', { hasText: 'Ensaladilla' }).count() === 1,
+    'filtro "Sin gluten" oculta las burgers y deja la ensaladilla');
+  await m.locator('[data-sin="gluten"]').click();
+  ok(await m.locator('.prod:visible').count() === 12, 'quitar el filtro vuelve a mostrar todo');
+  await m.click('#btn-alerg');
+  ok(await m.locator('a[href="/privacidad.html"]').count() === 1, 'enlace a Privacidad en el pie');
 
   // ------------------------------------------------------------ LLEGA AL PANEL
   const ped = k.locator('#l-nuevos .ped', { hasText: 'Mesa 2' });
@@ -130,6 +147,10 @@ try {
   await card.getByRole('button', { name: /liberar mesa/ }).click();
   await card.waitFor({ state: 'detached' });
   ok(psql("select count(*) from carta.pedidos where not cerrado") === '0', 'mesa liberada: pedidos y avisos cerrados');
+  await m.locator('#mis-pedidos [data-repetir]').first().click();
+  await m.locator('#dlg-carrito[open]').waitFor();
+  ok((await m.locator('#carrito-total').innerText()).includes('17,80'), '"🔁 Repetir": otra ronda igual al carrito (17,80 €)');
+  await m.locator('#dlg-carrito [data-cerrar]').click();
 
   // ------------------------------------------------------------ CARTA GENERAL (QR del camarero)
   console.log('CARTA GENERAL');
@@ -181,6 +202,16 @@ try {
   ok(await sinScroll(a), 'informe en el móvil: sin scroll lateral');
   await shot(a, 'lite-05-informe');
 
+  // ------------------------------------------------------------ DEMO EN DIRECTO
+  const dm = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+  vigilar(dm, 'demo');
+  await dm.goto(`${BASE}/demo.html?r=martinez-demo&k=cocina-l&m=${mesa(2)}`);
+  ok(!dm.url().includes('cocina-l'), 'demo: la clave desaparece de la barra');
+  await dm.frameLocator('#f-cliente').getByRole('heading', { name: 'Martínez Bar (demo)' }).waitFor();
+  await dm.frameLocator('#f-bar').locator('#k-nombre', { hasText: 'Martínez' }).waitFor();
+  ok(true, 'demo: carta del cliente y panel del bar lado a lado');
+  await shot(dm, 'lite-06-demo');
+
   // ------------------------------------------------------------ ALTA (plataforma)
   console.log('ALTA');
   psql("select carta.fijar_clave_plataforma('plataforma-de-pruebas')");
@@ -195,7 +226,7 @@ try {
   await al.getByRole('button', { name: 'Dar de alta' }).click();
   const res = await al.locator('#resultado .secreto').innerText();
   ok(res.includes('/r/bar-casa-pepe') && res.includes('/admin.html?r=bar-casa-pepe') && res.includes('/cocina.html?r=bar-casa-pepe')
-    && res.includes('Panel del bar'), 'alta: los 3 enlaces (carta, gestión, panel del bar)');
+    && res.includes('Panel del bar') && res.includes('/demo.html?r=bar-casa-pepe'), 'alta: carta, gestión, panel del bar y demo en directo');
   al.once('dialog', (dd) => dd.accept());
   await al.locator('#lista .r', { hasText: 'Bar Casa Pepe' }).getByRole('button', { name: 'Desactivar' }).click();
   await al.locator('#lista .r', { hasText: 'Bar Casa Pepe' }).getByRole('button', { name: 'Activar' }).waitFor();

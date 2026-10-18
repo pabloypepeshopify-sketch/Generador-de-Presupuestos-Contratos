@@ -18,9 +18,11 @@ y las mismas funciones, **sin migraciones nuevas**: un bar sin datos fiscales ya
 
 | Página | Para quién | Qué hace |
 |---|---|---|
-| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. Carrito con nota por plato, **Enviar pedido**, estado (Recibido → ✓ Apuntado), **Llamar al camarero** y **Pedir la cuenta**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
+| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado), **Llamar al camarero** y **Pedir la cuenta**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
 | `cocina.html` | Móvil del bar | Pedidos **nuevos** en letra grande, **timbre fuerte** (se repite cada 20 s mientras haya algo sin atender) y pantalla siempre encendida. Un toque: **✓ Apuntado** (con ↩ para deshacer). Avisos de camarero y cuenta. Pestaña **Mesas**: lo que lleva cada mesa, **🖨 Imprimir ticket** y **Cobrada · liberar mesa**. Botón **📱 QR carta** para enseñar el QR de la carta general. Pausar pedidos. |
 | `admin.html` | Dueño | Carta (productos, precios, fotos, alérgenos, **Agotado** en un toque), Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa), claves e **Informes**. |
+| `demo.html` | Tú, para vender | **Demo en directo**: la carta del cliente y el móvil del bar lado a lado (en el móvil, con pestañas). Haces un pedido y el dueño ve cómo suena y llega. Enlace: `demo.html?r=<slug>&k=<clave del panel>&m=<código de mesa>` (sale en `alta.html`). |
+| `privacidad.html` | Cliente | Qué se guarda (nada personal). Enlazada en el pie de la carta. TODO(gestoría): revisar. |
 | `kit.html` | Tú (desde Gestión → Mesas y NFC) | **Kit de instalación**: un adhesivo por mesa (nombre, QR, zona del NFC, logo) en A4 o para imprenta, y el QR de la carta general en PNG para la galería del camarero. |
 | `alta.html` | Tú | Alta de bares (te da los 3 enlaces) y activar/desactivar (impagos). |
 | `clientes.html` | Tú | **Mis clientes y cobros**: cuota de cada bar (29 €/mes por defecto), quién debe, marcar "Pagado" y desactivar por impago (`supabase/008_cuotas.sql`). |
