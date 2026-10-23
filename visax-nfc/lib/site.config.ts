@@ -14,7 +14,7 @@ export const site = {
   description:
     'NFC de reseñas de Google, carta digital, pedido en mesa, llamar al camarero, redes sociales y WiFi con un toque. Te los enviamos programados, listos para usar.',
 
-  url: 'https://visax-nfc.vercel.app',
+  url: 'https://visaxnfc.com',
   // Web de automatizaciones con IA (enlace del menú "Automatizaciones IA")
   aiUrl: 'https://visaxai.es',
 
