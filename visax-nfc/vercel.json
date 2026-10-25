@@ -1,5 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["cdg1"]
+  "regions": ["cdg1"],
+  "redirects": [
+    {
+      "source": "/:path(.*)",
+      "has": [{ "type": "host", "value": "visax-nfc.vercel.app" }],
+      "destination": "https://visaxnfc.es/:path",
+      "permanent": true
+    },
+    {
+      "source": "/:path(.*)",
+      "has": [{ "type": "host", "value": "visax-nfc-visax-ai.vercel.app" }],
+      "destination": "https://visaxnfc.es/:path",
+      "permanent": true
+    }
+  ]
 }

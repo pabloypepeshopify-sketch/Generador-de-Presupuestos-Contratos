@@ -5,20 +5,83 @@ import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { createEnvironment } from './env';
-import { createScreen } from './phoneScreen';
+import { createScreen, type ScreenState } from './phoneScreen';
 
 /*
- * Portada 3D de VISAX NFC: el expositor de reseñas (cara = réplica exacta del
- * producto) y un móvil que se acerca, hace "tap" → onda de partículas violeta/cian
- * y en la pantalla se rellenan las 5 estrellas. En bucle, a 60 fps como máximo y
- * en pausa cuando no se ve.
+ * Escena 3D de VISAX NFC: el producto (cara = réplica exacta) y un móvil que se
+ * acerca, hace "tap" → onda de partículas violeta/cian y en la pantalla se ve lo
+ * que abre el NFC. Tres versiones:
+ *   review → expositor de reseñas: se rellenan las 5 estrellas
+ *   menu   → placa "Toca para ver menú": se abre la carta
+ *   order  → la misma placa: carta → plato añadido → pedido enviado a cocina
+ * En bucle, a 60 fps como máximo y en pausa cuando no se ve.
  */
 
 type Quality = 'full' | 'lite';
+export type SceneVariant = 'review' | 'menu' | 'order';
 
-const FACE_W = 2.4;
-const FACE_H = 3.2;
-const TILT = -0.2; // el expositor se inclina hacia atrás
+type VariantConfig = {
+  face: string;
+  w: number;
+  h: number;
+  /** Punto donde se acerca el móvil (icono NFC), relativo desde arriba y en x. */
+  tapY: number;
+  tapX: number;
+  /** Aro que brilla al hacer tap: centro relativo desde arriba y radios. */
+  glowY: number;
+  glowR: [number, number];
+  /** Peana metálica (solo el expositor). */
+  base: boolean;
+  screenAt: (lt: number) => ScreenState;
+};
+
+const IDLE: ScreenState = { mode: 'idle', stars: 0, items: 0 };
+const menuItems = (lt: number) => Math.min(4, Math.max(1, Math.floor((lt - 2.3) / 0.22) + 1));
+
+const VARIANTS: Record<SceneVariant, VariantConfig> = {
+  review: {
+    face: '/textures/stand-face.png',
+    w: 2.4,
+    h: 3.2,
+    tapY: 272 / 800,
+    tapX: 0.03,
+    glowY: 395 / 800,
+    glowR: [0.66, 0.84],
+    base: true,
+    screenAt: (lt) =>
+      lt >= 2.2 && lt < 7.1
+        ? { mode: lt >= 4.6 ? 'thanks' : 'review', stars: Math.min(5, Math.max(0, Math.floor((lt - 2.45) / 0.2) + 1)), items: 0 }
+        : IDLE,
+  },
+  menu: {
+    face: '/textures/menu-face.png',
+    w: 2.0,
+    h: (2.0 * 1712) / 1080,
+    tapY: 1440 / 1712,
+    tapX: 0,
+    glowY: 410 / 1712,
+    glowR: [0.42, 0.5],
+    base: false,
+    screenAt: (lt) => (lt >= 2.2 && lt < 7.1 ? { mode: 'menu', stars: 0, items: menuItems(lt) } : IDLE),
+  },
+  order: {
+    face: '/textures/menu-face.png',
+    w: 2.0,
+    h: (2.0 * 1712) / 1080,
+    tapY: 1440 / 1712,
+    tapX: 0,
+    glowY: 410 / 1712,
+    glowR: [0.42, 0.5],
+    base: false,
+    screenAt: (lt) => {
+      if (lt < 2.2 || lt >= 7.1) return IDLE;
+      if (lt < 4.4) return { mode: 'menu', stars: 0, items: menuItems(lt) };
+      return { mode: lt < 5.3 ? 'added' : 'sent', stars: 0, items: 4 };
+    },
+  },
+};
+
+const TILT = -0.2; // el producto se inclina hacia atrás
 const LOOP = 7.6;
 const FRAME_MS = 1000 / 60;
 
@@ -63,7 +126,7 @@ function pointsMaterial(vertex: string) {
 }
 
 /** Nube de ambiente alrededor del expositor, con repulsión del cursor. */
-function Ambient({ count }: { count: number }) {
+function Ambient({ count, containerId }: { count: number; containerId: string }) {
   const { size, viewport } = useThree();
   const geo = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -113,7 +176,7 @@ function Ambient({ count }: { count: number }) {
   const mouse = useRef({ x: 9, y: 9, tx: 9, ty: 9 });
 
   useEffect(() => {
-    const el = document.getElementById('hero-3d');
+    const el = document.getElementById(containerId);
     const onMove = (e: PointerEvent) => {
       if (!el || e.pointerType !== 'mouse') return;
       const r = el.getBoundingClientRect();
@@ -122,7 +185,7 @@ function Ambient({ count }: { count: number }) {
     };
     window.addEventListener('pointermove', onMove, { passive: true });
     return () => window.removeEventListener('pointermove', onMove);
-  }, []);
+  }, [containerId]);
 
   useEffect(() => () => (geo.dispose(), mat.dispose()), [geo, mat]);
 
@@ -141,10 +204,15 @@ function Ambient({ count }: { count: number }) {
   return <points geometry={geo} material={mat} frustumCulled={false} />;
 }
 
-function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) {
+type SceneProps = { quality: Quality; onReady: () => void; variant: SceneVariant; containerId: string };
+
+function Scene({ quality, onReady, variant, containerId }: SceneProps) {
+  const cfg = VARIANTS[variant];
+  const FACE_W = cfg.w;
+  const FACE_H = cfg.h;
   const { gl, camera, size, viewport } = useThree();
   const env = useMemo(() => createEnvironment(gl), [gl]);
-  const faceTex = useLoader(THREE.TextureLoader, '/textures/stand-face.png');
+  const faceTex = useLoader(THREE.TextureLoader, cfg.face);
   faceTex.colorSpace = THREE.SRGBColorSpace;
   faceTex.anisotropy = 8;
   const screen = useMemo(() => createScreen(), []);
@@ -154,7 +222,7 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
   const phoneRef = useRef<THREE.Group>(null);
   const ringsRef = useRef<THREE.Group>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const screenState = useRef({ mode: 'idle' as 'idle' | 'review' | 'thanks', stars: 0 });
+  const screenState = useRef<ScreenState>({ ...IDLE });
   const tmp = useMemo(
     () => ({
       icon: new THREE.Vector3(),
@@ -229,7 +297,7 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
   );
 
   useEffect(() => {
-    const el = document.getElementById('hero-3d');
+    const el = document.getElementById(containerId);
     const onMove = (e: PointerEvent) => {
       if (!el || e.pointerType !== 'mouse') return;
       const r = el.getBoundingClientRect();
@@ -238,7 +306,7 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
     };
     window.addEventListener('pointermove', onMove, { passive: true });
     return () => window.removeEventListener('pointermove', onMove);
-  }, []);
+  }, [containerId]);
 
   useFrame((state, delta) => {
     if (!ready.current) {
@@ -265,7 +333,7 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
 
     // Punto del icono NFC en el expositor y normal de su cara
     face.updateWorldMatrix(true, false);
-    tmp.icon.set(0.03, FACE_H / 2 + (0.5 - 272 / 800) * FACE_H, 0.05);
+    tmp.icon.set(cfg.tapX, FACE_H / 2 + (0.5 - cfg.tapY) * FACE_H, 0.05);
     face.localToWorld(tmp.icon);
     face.getWorldQuaternion(tmp.q);
     tmp.normal.set(0, 0, 1).applyQuaternion(tmp.q);
@@ -287,17 +355,11 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
     const pulse = lt > 2.2 && lt < 2.6 ? Math.sin(((lt - 2.2) / 0.4) * Math.PI) * 0.05 : 0;
     phone.position.addScaledVector(tmp.normal, -pulse);
 
-    // Pantalla: reposo → estrellas → gracias
+    // Pantalla según la versión (reseña, carta o pedido)
     const ss = screenState.current;
-    let mode: typeof ss.mode = 'idle';
-    let stars = 0;
-    if (lt >= 2.2 && lt < 7.1) {
-      mode = lt >= 4.6 ? 'thanks' : 'review';
-      stars = Math.min(5, Math.max(0, Math.floor((lt - 2.45) / 0.2) + 1));
-    }
-    if (mode !== ss.mode || stars !== ss.stars) {
-      ss.mode = mode;
-      ss.stars = stars;
+    const next = cfg.screenAt(lt);
+    if (next.mode !== ss.mode || next.stars !== ss.stars || next.items !== ss.items) {
+      Object.assign(ss, next);
       screen.draw(ss);
     }
 
@@ -327,13 +389,13 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
   });
 
   const faceGeo = useMemo(
-    () => new RoundedBoxGeometry(FACE_W, FACE_H, 0.06, 4, 0.05).translate(0, FACE_H / 2, 0),
-    [],
+    () => new RoundedBoxGeometry(FACE_W, FACE_H, cfg.base ? 0.06 : 0.04, 4, cfg.base ? 0.05 : 0.03).translate(0, FACE_H / 2, 0),
+    [FACE_W, FACE_H, cfg.base],
   );
-  const baseGeo = useMemo(() => new RoundedBoxGeometry(FACE_W, 0.05, 1.25, 3, 0.02), []);
+  const baseGeo = useMemo(() => new RoundedBoxGeometry(FACE_W, 0.05, 1.25, 3, 0.02), [FACE_W]);
   const phoneGeo = useMemo(() => new RoundedBoxGeometry(1.05, 2.12, 0.1, 6, 0.13), []);
   const ringGeo = useMemo(() => new THREE.RingGeometry(0.82, 0.9, 64), []);
-  const ringCenterY = FACE_H / 2 + (0.5 - 395 / 800) * FACE_H;
+  const ringCenterY = FACE_H / 2 + (0.5 - cfg.glowY) * FACE_H;
 
   return (
     <>
@@ -346,11 +408,11 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
           </mesh>
           {/* brillo del aro de colores al hacer tap */}
           <mesh ref={glowRef} position={[0.0, ringCenterY, 0.04]}>
-            <ringGeometry args={[0.66, 0.84, 64]} />
+            <ringGeometry args={[cfg.glowR[0], cfg.glowR[1], 64]} />
             <meshBasicMaterial color="#B9A8FF" transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} />
           </mesh>
         </group>
-        <mesh geometry={baseGeo} material={materials.edge} position={[0, -1.72, -0.58]} />
+        {cfg.base && <mesh geometry={baseGeo} material={materials.edge} position={[0, -1.72, -0.58]} />}
       </group>
 
       <group ref={phoneRef}>
@@ -377,7 +439,7 @@ function Scene({ quality, onReady }: { quality: Quality; onReady: () => void }) 
       </group>
 
       <primitive object={burst} frustumCulled={false} />
-      <Ambient count={quality === 'full' ? 6000 : 2500} />
+      <Ambient count={quality === 'full' ? 6000 : 2500} containerId={containerId} />
     </>
   );
 }
@@ -406,7 +468,17 @@ function FrameLimiter() {
   return null;
 }
 
-export default function HeroScene({ quality, onReady }: { quality: Quality; onReady: () => void }) {
+export default function HeroScene({
+  quality,
+  onReady,
+  variant = 'review',
+  containerId = 'hero-3d',
+}: {
+  quality: Quality;
+  onReady: () => void;
+  variant?: SceneVariant;
+  containerId?: string;
+}) {
   return (
     <Canvas
       aria-hidden="true"
@@ -417,7 +489,7 @@ export default function HeroScene({ quality, onReady }: { quality: Quality; onRe
       style={{ pointerEvents: 'none' }}
     >
       <Suspense fallback={null}>
-        <Scene quality={quality} onReady={onReady} />
+        <Scene quality={quality} onReady={onReady} variant={variant} containerId={containerId} />
       </Suspense>
       <FrameLimiter />
     </Canvas>

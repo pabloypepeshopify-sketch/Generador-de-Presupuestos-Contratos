@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Check, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/products';
-import { TIERS, eur, unitPrice } from '@/lib/pricing';
+import { bestTier, eur } from '@/lib/pricing';
 import { useCart } from '@/components/cart/CartProvider';
 import { ProductArt } from '@/components/ProductArt';
 
@@ -15,7 +15,7 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { add } = useCart();
-  const best = unitPrice(product.price, TIERS[0].min);
+  const best = bestTier(product);
 
   const onMove = (e: PointerEvent) => {
     const el = ref.current;
@@ -75,8 +75,14 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
             <div>
               <p className="font-display text-3xl tabular-nums">{eur(product.price)}</p>
               <p className="text-xs text-ink-soft">
-                IVA incl. · desde <span className="text-white">{eur(best)}</span>/ud comprando {TIERS[0].min}+
+                IVA incl.
+                {best.min > 1 && (
+                  <>
+                    {' '}· <span className="text-white">{eur(best.price)}</span>/ud desde {best.min} ud
+                  </>
+                )}
               </p>
+              {product.priceNote && <p className="mt-1 text-xs text-brand-cyan">{product.priceNote}</p>}
             </div>
             <Link
               href={`/productos/${product.slug}`}

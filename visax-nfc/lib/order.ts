@@ -12,9 +12,9 @@ export function cartTotals(items: CartItem[]) {
       return {
         product: p,
         qty: i.qty,
-        unit: unitPrice(p.price, i.qty),
-        total: lineTotal(p.price, i.qty),
-        off: discountFor(i.qty),
+        unit: unitPrice(p, i.qty),
+        total: lineTotal(p, i.qty),
+        off: discountFor(p, i.qty),
       };
     })
     .filter((l): l is NonNullable<typeof l> => !!l);

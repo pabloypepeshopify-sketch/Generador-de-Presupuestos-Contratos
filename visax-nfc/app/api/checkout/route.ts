@@ -32,12 +32,12 @@ export async function POST(req: Request) {
 
   const origin = req.headers.get('origin') ?? site.url;
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(({ product, qty }) => {
-    const off = discountFor(qty);
+    const off = discountFor(product!, qty);
     return {
       quantity: qty,
       price_data: {
         currency: 'eur',
-        unit_amount: unitPrice(product!.price, qty),
+        unit_amount: unitPrice(product!, qty),
         tax_behavior: 'inclusive',
         product_data: {
           name: product!.name,
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       },
     };
   });
-  const subtotal = items.reduce((s, { product, qty }) => s + unitPrice(product!.price, qty) * qty, 0);
+  const subtotal = items.reduce((s, { product, qty }) => s + unitPrice(product!, qty) * qty, 0);
   const shipping = shippingFor(subtotal);
 
   const kinds = new Set(items.map((i) => i.product!.linkKind));

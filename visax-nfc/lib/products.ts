@@ -23,6 +23,12 @@ export type Product = {
   includes: string[];
   /** Aviso destacado en la ficha (servicio aparte, compatibilidad…). */
   notice?: { title: string; text: string; quote?: string };
+  /** Precio por unidad según la cantidad (desde `min` unidades), en céntimos. */
+  tiers?: { min: number; price: number }[];
+  /** Aclaración corta junto al precio (p. ej. un extra que se contrata aparte). */
+  priceNote?: string;
+  /** Animación 3D de la ficha: el móvil se acerca al NFC y se ve lo que abre. */
+  scene?: 'review' | 'menu' | 'order';
 };
 
 /**
@@ -42,32 +48,15 @@ export const SETUP_LATER: LinkKind[] = ['order', 'waiter', 'wifi'];
 
 export const products: Product[] = [
   {
-    slug: 'expositor-resenas-google',
-    name: 'Expositor NFC de reseñas Google',
-    shortName: 'Expositor reseñas Google',
-    tagline: 'Un toque con el móvil y tu cliente está en tu ficha, listo para dejar la reseña.',
-    description:
-      'Colócalo en la barra, en la mesa o junto a la caja. Tu cliente acerca el móvil y se abre directamente tu página para valorar tu negocio en Google: sin buscarte, sin apps y sin QR que enfocar. Te lo enviamos ya programado con tu enlace.',
-    price: 2999,
-    image: '/products/expositor-resenas-google.png',
-    face: '/textures/stand-face.png',
-    linkKind: 'review',
-    bullets: [
-      'Abre tu página de reseñas de Google con un toque',
-      'Sin app, sin batería y sin QR',
-      'Funciona con iPhone y Android con NFC',
-      'Te llega programado con tu enlace',
-    ],
-    includes: ['Expositor de mesa con chip NFC', 'Programación con el enlace de tu negocio'],
-  },
-  {
     slug: 'tarjeta-nfc-menu',
     name: 'Tarjeta NFC "Toca para ver menú"',
     shortName: 'Tarjeta NFC menú',
     tagline: 'Pégala en la mesa y tu carta se abre en el móvil del cliente con un toque.',
     description:
       'Tarjeta adhesiva para mesas, barra o pared. El cliente acerca el móvil y ve tu carta digital al momento: se acabaron las cartas manchadas y reimprimir cada vez que cambias un precio. Te la enviamos programada con el enlace de tu carta.',
-    price: 1499,
+    price: 1500,
+    tiers: [{ min: 40, price: 1250 }],
+    scene: 'menu',
     image: '/products/tarjeta-nfc-menu.png',
     face: '/textures/menu-face.png',
     linkKind: 'menu',
@@ -85,9 +74,14 @@ export const products: Product[] = [
     shortName: 'NFC pedido en mesa',
     tagline: 'Tu cliente ve la carta y pide desde su móvil. El pedido llega directo a cocina.',
     description:
-      'El cliente acerca el móvil al NFC de la mesa, ve la carta y hace el pedido desde su teléfono. El pedido llega directo a cocina: menos espera para tu cliente, menos trabajo para el camarero y más rotación de mesas. Te lo enviamos programado para tu local.',
+      'El cliente acerca el móvil al NFC de la mesa, ve la carta y hace el pedido desde su teléfono. El pedido llega directo a cocina: menos espera para tu cliente, menos trabajo para el camarero y más rotación de mesas. Es la misma placa que la de la carta: lo que cambia es el software de pedidos, que se contrata aparte.',
     price: 1500,
+    tiers: [{ min: 40, price: 1250 }],
+    priceNote: 'Precio de la placa NFC. El software de pedidos se contrata aparte.',
+    image: '/products/tarjeta-nfc-menu.png',
+    face: '/textures/menu-face.png',
     icon: 'order',
+    scene: 'order',
     linkKind: 'order',
     bullets: [
       'Carta y pedido desde el móvil del cliente',
@@ -95,11 +89,60 @@ export const products: Product[] = [
       'Menos espera y más rotación de mesas',
       'Sin app ni batería',
     ],
-    includes: ['Tarjeta NFC adhesiva para la mesa', 'Programación con tu sistema de pedidos'],
+    includes: ['Placa NFC «Toca para ver menú», la misma que la de la carta', 'Programación con tu sistema de pedidos'],
     notice: {
       title: 'El sistema de pedidos se contrata aparte',
       text: 'Este precio es el del NFC. El sistema que recibe los pedidos en cocina lo ponemos nosotros y se contrata aparte: te hacemos presupuesto para tu local.',
       quote: 'Hola, quiero presupuesto del sistema de pedido en mesa para mi local.',
+    },
+  },
+  {
+    slug: 'expositor-resenas-google',
+    name: 'Expositor NFC de reseñas Google',
+    shortName: 'Expositor reseñas Google',
+    tagline: 'Un toque con el móvil y tu cliente está en tu ficha, listo para dejar la reseña.',
+    description:
+      'Colócalo en la barra, en la mesa o junto a la caja. Tu cliente acerca el móvil y se abre directamente tu página para valorar tu negocio en Google: sin buscarte, sin apps y sin QR que enfocar. Te lo enviamos ya programado con tu enlace.',
+    price: 2999,
+    tiers: [
+      { min: 50, price: 1000 },
+      { min: 100, price: 600 },
+    ],
+    scene: 'review',
+    image: '/products/expositor-resenas-google.png',
+    face: '/textures/stand-face.png',
+    linkKind: 'review',
+    bullets: [
+      'Abre tu página de reseñas de Google con un toque',
+      'Sin app, sin batería y sin QR',
+      'Funciona con iPhone y Android con NFC',
+      'Te llega programado con tu enlace',
+    ],
+    includes: ['Expositor de mesa con chip NFC', 'Programación con el enlace de tu negocio'],
+  },
+  {
+    slug: 'nfc-llamar-camarero',
+    name: 'NFC para llamar al camarero',
+    shortName: 'NFC llamar al camarero',
+    tagline: 'Un toque en la mesa y en tu tablet salta «Mesa 4 llama».',
+    description:
+      'El cliente toca el NFC de su mesa y salta un aviso en la tablet o pantalla del local: «Mesa 4 llama». El camarero acude directo, sin que el cliente tenga que levantar la mano ni esperar. Te lo enviamos programado para cada mesa.',
+    price: 1500,
+    tiers: [{ min: 40, price: 1250 }],
+    priceNote: 'Precio del NFC. El sistema de avisos se contrata aparte.',
+    icon: 'waiter',
+    linkKind: 'waiter',
+    bullets: [
+      'Aviso al momento en la tablet o pantalla del local',
+      'Cada NFC sabe de qué mesa es',
+      'Sin levantar la mano ni esperar',
+      'Sin app ni batería',
+    ],
+    includes: ['NFC para la mesa', 'Programación con tu mesa y tu sistema de avisos'],
+    notice: {
+      title: 'El sistema de avisos se contrata aparte',
+      text: 'Este precio es el del NFC. El sistema que muestra los avisos en tu tablet o pantalla lo ponemos nosotros y se contrata aparte: te hacemos presupuesto para tu local.',
+      quote: 'Hola, quiero presupuesto del sistema para llamar al camarero en mi local.',
     },
   },
   {
@@ -121,36 +164,14 @@ export const products: Product[] = [
     includes: ['NFC con chip programado', 'Programación con el enlace de tus redes'],
   },
   {
-    slug: 'nfc-llamar-camarero',
-    name: 'NFC para llamar al camarero',
-    shortName: 'NFC llamar al camarero',
-    tagline: 'Un toque en la mesa y en tu tablet salta «Mesa 4 llama».',
-    description:
-      'El cliente toca el NFC de su mesa y salta un aviso en la tablet o pantalla del local: «Mesa 4 llama». El camarero acude directo, sin que el cliente tenga que levantar la mano ni esperar. Te lo enviamos programado para cada mesa.',
-    price: 1500,
-    icon: 'waiter',
-    linkKind: 'waiter',
-    bullets: [
-      'Aviso al momento en la tablet o pantalla del local',
-      'Cada NFC sabe de qué mesa es',
-      'Sin levantar la mano ni esperar',
-      'Sin app ni batería',
-    ],
-    includes: ['NFC para la mesa', 'Programación con tu mesa y tu sistema de avisos'],
-    notice: {
-      title: 'El sistema de avisos se contrata aparte',
-      text: 'Este precio es el del NFC. El sistema que muestra los avisos en tu tablet o pantalla lo ponemos nosotros y se contrata aparte: te hacemos presupuesto para tu local.',
-      quote: 'Hola, quiero presupuesto del sistema para llamar al camarero en mi local.',
-    },
-  },
-  {
     slug: 'nfc-wifi',
     name: 'NFC de WiFi',
     shortName: 'NFC WiFi',
     tagline: 'Tu cliente toca y se conecta a tu WiFi, sin pedir ni teclear la contraseña.',
     description:
       'El cliente acerca el móvil y se conecta al WiFi del local al instante: nadie tiene que preguntar la contraseña ni teclearla. Te lo enviamos programado con tu red.',
-    price: 1500,
+    price: 2500,
+    tiers: [{ min: 3, price: 2000 }],
     icon: 'wifi',
     linkKind: 'wifi',
     bullets: [

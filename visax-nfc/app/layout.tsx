@@ -29,10 +29,11 @@ export const metadata: Metadata = {
   title: { default: `${site.name} — ${site.tagline}`, template: `%s · ${site.name}` },
   description: site.description,
   keywords: [
-    'expositor NFC reseñas Google',
-    'tarjeta NFC menú',
     'carta digital NFC',
     'pedido en mesa NFC',
+    'tarjeta NFC menú',
+    'digitalizar restaurante',
+    'expositor NFC reseñas Google',
     'llamar al camarero NFC',
     'NFC redes sociales',
     'WiFi NFC',

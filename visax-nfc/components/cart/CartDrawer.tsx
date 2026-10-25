@@ -6,15 +6,10 @@ import { Lock, MessageCircle, Minus, Plus, ShoppingBag, Trash2, Truck, X } from 
 import { ProductArt } from '@/components/ProductArt';
 import { useCart } from './CartProvider';
 import { cartTotals, whatsappOrderUrl } from '@/lib/order';
-import { TIERS, eur, unitPrice } from '@/lib/pricing';
+import { eur, nextTier } from '@/lib/pricing';
 import { site } from '@/lib/site.config';
 
 type Status = 'idle' | 'loading' | 'whatsapp' | 'error';
-
-/** Siguiente tramo de descuento alcanzable para una línea. */
-function nextTier(qty: number) {
-  return [...TIERS].reverse().find((t) => qty < t.min);
-}
 
 export function CartDrawer() {
   const { items, open, setOpen, setQty, remove } = useCart();
@@ -108,7 +103,9 @@ export function CartDrawer() {
               <>
                 <ul className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
                   {lines.map((l) => {
-                    const next = nextTier(l.qty);
+                    // Solo se sugiere el siguiente tramo cuando ya está cerca (a mitad de camino o más).
+                    const nt = nextTier(l.product, l.qty);
+                    const next = nt && l.qty * 2 >= nt.min ? nt : undefined;
                     return (
                       <li key={l.product.slug} className="rounded-2xl border border-ink-line bg-bg/60 p-4">
                         <div className="flex gap-4">
@@ -159,8 +156,8 @@ export function CartDrawer() {
                         </div>
                         {next && (
                           <p className="mt-3 text-xs text-brand-cyan">
-                            Añade {next.min - l.qty} más y pagas {eur(unitPrice(l.product.price, next.min))}/ud (−
-                            {Math.round(next.off * 100)} %)
+                            Añade {next.min - l.qty} más y pagas {eur(next.price)}/ud (−
+                            {Math.round((1 - next.price / l.product.price) * 100)} %)
                           </p>
                         )}
                       </li>

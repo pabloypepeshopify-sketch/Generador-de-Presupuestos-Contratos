@@ -25,8 +25,8 @@ export default function HomePage() {
       <main>
         <Hero />
         <Products />
-        <HowItWorks />
         <Benefits />
+        <HowItWorks />
         <Calculator />
         <Testimonials />
         <CrossSell />

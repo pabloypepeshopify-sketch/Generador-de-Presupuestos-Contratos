@@ -17,7 +17,7 @@ const steps = [
   {
     icon: Smartphone,
     title: 'Tus clientes tocan',
-    text: 'Acercan el móvil y al momento dejan su reseña, ven la carta, piden, te siguen, llaman al camarero o se conectan al WiFi. Sin apps y sin enfocar un QR.',
+    text: 'Acercan el móvil y al momento ven la carta, piden, llaman al camarero, se conectan al WiFi, te siguen o te dejan una reseña. Sin apps y sin enfocar un QR.',
   },
 ];
 
@@ -31,7 +31,7 @@ export function HowItWorks() {
             <>
               Tres pasos
               <br />
-              <span className="text-gradient italic">y a sumar reseñas</span>
+              <span className="text-gradient italic">y tu local, funcionando</span>
             </>
           }
         />

@@ -11,20 +11,21 @@ import { TierTable } from '@/components/TierTable';
 export function ProductBuy({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const { add } = useCart();
-  const off = discountFor(qty);
+  const off = discountFor(product, qty);
   const set = (q: number) => setQty(Math.max(1, Math.min(MAX_QTY, q)));
 
   return (
     <div className="space-y-6">
       <div className="flex items-end gap-4">
-        <p className="font-display text-5xl tabular-nums">{eur(unitPrice(product.price, qty))}</p>
+        <p className="font-display text-5xl tabular-nums">{eur(unitPrice(product, qty))}</p>
         <p className="pb-2 text-sm text-ink-soft">
           /ud · IVA incl.
           {off > 0 && <span className="ml-2 rounded-full bg-brand-violet/20 px-2 py-0.5 font-semibold text-white">−{Math.round(off * 100)} %</span>}
         </p>
       </div>
 
-      <TierTable base={product.price} qty={qty} />
+      <TierTable product={product} qty={qty} />
+      {product.priceNote && <p className="-mt-3 text-sm text-ink-soft">{product.priceNote}</p>}
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex items-center justify-between rounded-full border border-ink-line sm:justify-start">
@@ -58,7 +59,7 @@ export function ProductBuy({ product }: { product: Product }) {
           onClick={() => add(product.slug, qty)}
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-gradient px-6 py-3.5 font-semibold text-white shadow-glow transition hover:brightness-110"
         >
-          <ShoppingBag className="h-4 w-4" /> Añadir {qty > 1 ? `${qty} uds · ${eur(lineTotal(product.price, qty))}` : 'al carrito'}
+          <ShoppingBag className="h-4 w-4" /> Añadir {qty > 1 ? `${qty} uds · ${eur(lineTotal(product, qty))}` : 'al carrito'}
         </button>
       </div>
     </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/LegalPage';
 import { site } from '@/lib/site.config';
-import { TIERS, eur } from '@/lib/pricing';
+import { eur, tierSummary } from '@/lib/pricing';
+import { products } from '@/lib/products';
 
 export const metadata: Metadata = { title: 'Condiciones de venta, envíos y devoluciones' };
 
@@ -17,13 +18,21 @@ export default function Condiciones() {
 
       <h2>Productos y precios</h2>
       <p>
-        Los precios se muestran en euros con el IVA incluido. Se aplica un descuento automático por unidades del mismo
-        producto:{' '}
-        {[...TIERS]
-          .reverse()
-          .map((t) => `${t.min} o más, −${Math.round(t.off * 100)} %`)
-          .join('; ')}
-        . Los gastos de envío se muestran antes de pagar.
+        Los precios se muestran en euros con el IVA incluido. Algunos productos tienen un precio por unidad más bajo
+        según la cantidad que compres del mismo producto, que se aplica automáticamente:
+      </p>
+      <ul>
+        {products
+          .filter((p) => p.tiers?.length)
+          .map((p) => (
+            <li key={p.slug}>
+              {p.shortName}: {eur(p.price)}/ud; {tierSummary(p)}.
+            </li>
+          ))}
+      </ul>
+      <p>
+        Los productos que necesitan un software o sistema (pedido en mesa y llamar al camarero) se venden como NFC; el
+        software se contrata aparte con presupuesto. Los gastos de envío se muestran antes de pagar.
       </p>
 
       <h2>Pedido y pago</h2>

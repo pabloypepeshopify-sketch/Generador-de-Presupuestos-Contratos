@@ -10,9 +10,9 @@ export type Testimonial = { name: string; business: string; text: string };
 
 export const site = {
   name: 'VISAX NFC',
-  tagline: 'Más reseñas y menos papel, con un solo toque',
+  tagline: 'Carta, pedidos en mesa y reseñas con un solo toque',
   description:
-    'NFC de reseñas de Google, carta digital, pedido en mesa, llamar al camarero, redes sociales y WiFi con un toque. Te los enviamos programados, listos para usar.',
+    'Moderniza tu local con NFC: carta digital, pedidos desde la mesa, aviso al camarero, WiFi, redes sociales y reseñas de Google con un toque del móvil. Te lo enviamos programado y listo para usar.',
 
   url: 'https://visaxnfc.es',
   // Web de automatizaciones con IA (enlace del menú "Automatizaciones IA")

@@ -1,4 +1,5 @@
-import { TIERS, eur } from './pricing';
+import { eur, tierSummary } from './pricing';
+import { products } from './products';
 import { site } from './site.config';
 
 /** Preguntas frecuentes (web + datos estructurados FAQPage). */
@@ -25,10 +26,10 @@ export const faqs = [
   },
   {
     q: '¿Hay descuento si compro varios?',
-    a: `Sí, automático por unidades del mismo producto: ${[...TIERS]
-      .reverse()
-      .map((t) => `${t.min} o más, −${Math.round(t.off * 100)} %`)
-      .join('; ')}. Para pedidos más grandes o varios locales, escríbenos.`,
+    a: `Sí, el precio por unidad baja según la cantidad del mismo producto: ${products
+      .filter((p) => p.tiers?.length)
+      .map((p) => `${p.shortName}, ${tierSummary(p)}`)
+      .join('; ')}. Si eres distribuidor o tienes varios locales, escríbenos.`,
   },
   {
     q: '¿Puedo pedir factura?',

@@ -6,7 +6,7 @@ import { site } from '@/lib/site.config';
 type Delay = React.CSSProperties & { '--delay'?: string };
 const delay = (sec: number): Delay => ({ '--delay': `${sec}s` });
 
-/** Portada: titular + CTA a la izquierda, animación 3D del expositor a la derecha. */
+/** Portada: titular + CTA a la izquierda, animación 3D del pedido en mesa a la derecha. */
 export function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden pb-16 pt-28 sm:pt-32 lg:pb-24">
@@ -18,19 +18,19 @@ export function Hero() {
             className="hero-in glass mb-7 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-ink-soft"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-            Te llega programado con tu enlace · Envío {site.shipping.eta}
+            Moderniza tu local · Te llega programado · Envío {site.shipping.eta}
           </p>
           <h1 className="font-display text-[clamp(2.5rem,6.4vw,5.4rem)] font-medium leading-[0.98] tracking-tightest">
             <span style={delay(0.12)} className="hero-in block">
-              Un toque con el móvil.
+              Carta y pedidos,
             </span>
             <span style={delay(0.26)} className="hero-in block">
-              <span className="text-gradient-animate italic">Una reseña más.</span>
+              <span className="text-gradient-animate italic">en un toque.</span>
             </span>
           </h1>
           <p className="hero-in hero-slide mt-7 max-w-lg text-base text-ink-soft sm:text-lg">
-            NFC para reseñas de Google, carta, pedido en mesa, llamar al camarero, redes sociales y WiFi. Los pones en la
-            mesa y funcionan: sin app, sin batería y sin QR que enfocar.
+            Tu cliente acerca el móvil y ve la carta, pide desde la mesa y el pedido llega a cocina. También para llamar al
+            camarero, el WiFi, tus redes y las reseñas de Google. Sin app, sin batería y sin QR que enfocar.
           </p>
           <div style={delay(0.45)} className="hero-in mt-9 flex flex-col gap-3 sm:flex-row">
             <MagneticButton href="#productos" variant="primary" cursorLabel="Ver">
