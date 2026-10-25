@@ -15,6 +15,23 @@ export const site = {
   // URL pública (dominio propio conectado en Vercel)
   url: 'https://visaxai.es',
 
+  // Tienda de NFC de la misma casa (enlace del menú y de la sección "VISAX NFC")
+  nfcUrl: 'https://visaxnfc.es',
+
+  // ── TITULAR (aviso legal y privacidad) ─────────────────────
+  // VISAX es el nombre comercial; el titular legal es la persona dada de alta.
+  legal: {
+    holder: 'Pablo Villegas Becerra',
+    nif: '49851130X',
+    address: 'C/ Juan de Arratia, 5, 11540 Sanlúcar de Barrameda (Cádiz)',
+  },
+
+  // ── FUNDADORES (sección "Quiénes somos") ───────────────────
+  founders: [
+    { name: 'Pepe Sánchez Ortiz', initials: 'PS', role: 'Cofundador' },
+    { name: 'Pablo Villegas Becerra', initials: 'PV', role: 'Cofundador' },
+  ],
+
   // ── CONTACTO ────────────────────────────────────────────────
   phone: '656 999 241',
   phoneRaw: '+34656999241', // formato para enlaces tel:

@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
+const h2 = 'font-display text-2xl text-ink';
+const p = 'mt-2 text-sm leading-relaxed';
+
 export default function AvisoLegalPage() {
+  const { holder, nif, address } = site.legal;
   return (
     <>
       <Header />
@@ -23,31 +27,52 @@ export default function AvisoLegalPage() {
             <ArrowLeft className="h-4 w-4" /> Volver al inicio
           </Link>
           <h1 className="mt-8 font-display text-5xl">Aviso legal</h1>
-          <p className="mt-4 rounded-xl border border-brand-violet/30 bg-brand-gradient-soft p-4 text-sm text-ink-soft">
-            ⚠️ Texto de ejemplo (placeholder). Sustitúyelo por tu aviso legal real revisado por un
-            profesional. Edita <code>app/aviso-legal/page.tsx</code>.
-          </p>
+          <p className="mt-2 text-sm text-ink-soft">Última actualización: octubre de 2026</p>
           <div className="mt-8 space-y-6 text-ink-soft">
             <section>
-              <h2 className="font-display text-2xl text-ink">1. Datos identificativos</h2>
-              <p className="mt-2 text-sm leading-relaxed">
-                Titular: {site.legalName}. Contacto: {site.email} · {site.phone}. Completa aquí tu
-                NIF/CIF, domicilio y datos registrales.
+              <h2 className={h2}>1. Datos identificativos</h2>
+              <p className={p}>
+                En cumplimiento del artículo 10 de la Ley 34/2002, de Servicios de la Sociedad de la Información y de
+                Comercio Electrónico (LSSI-CE), se informa de los datos del titular de este sitio web:
+              </p>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
+                <li>Titular: {holder}</li>
+                <li>NIF: {nif}</li>
+                <li>Domicilio: {address}</li>
+                <li>
+                  Email: <a href={`mailto:${site.email}`} className="text-white underline">{site.email}</a> · Teléfono:{' '}
+                  {site.phone}
+                </li>
+                <li>Nombre comercial: {site.name}</li>
+                <li>Actividad: diseño e implantación de automatizaciones con Inteligencia Artificial para empresas.</li>
+              </ul>
+            </section>
+            <section>
+              <h2 className={h2}>2. Uso del sitio</h2>
+              <p className={p}>
+                El acceso a este sitio es gratuito y atribuye la condición de usuario, que se compromete a hacer un uso
+                adecuado de sus contenidos y a no emplearlos para actividades ilícitas. La información sobre servicios es
+                orientativa; cada proyecto se presupuesta por escrito antes de empezar.
               </p>
             </section>
             <section>
-              <h2 className="font-display text-2xl text-ink">2. Objeto</h2>
-              <p className="mt-2 text-sm leading-relaxed">
-                Este sitio web tiene por objeto informar sobre los servicios de automatización con
-                Inteligencia Artificial de {site.name}.
+              <h2 className={h2}>3. Propiedad intelectual e industrial</h2>
+              <p className={p}>
+                Los textos, diseños, logotipos y código de este sitio pertenecen a {holder} ({site.name}) o se usan con
+                autorización. Las marcas de terceros que se mencionan pertenecen a sus titulares.
               </p>
             </section>
             <section>
-              <h2 className="font-display text-2xl text-ink">3. Propiedad intelectual</h2>
-              <p className="mt-2 text-sm leading-relaxed">
-                Todos los contenidos de este sitio son titularidad de {site.legalName} o de terceros
-                que han autorizado su uso.
+              <h2 className={h2}>4. Responsabilidad</h2>
+              <p className={p}>
+                {site.name} no se hace responsable del uso indebido de los contenidos ni de los daños derivados de
+                interrupciones técnicas ajenas a su control. Los enlaces a sitios de terceros se ofrecen solo a título
+                informativo.
               </p>
+            </section>
+            <section>
+              <h2 className={h2}>5. Legislación aplicable</h2>
+              <p className={p}>Este sitio se rige por la legislación española.</p>
             </section>
           </div>
         </article>

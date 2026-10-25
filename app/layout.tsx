@@ -92,6 +92,8 @@ const jsonLd = {
     },
   ],
   slogan: site.tagline,
+  founder: site.founders.map((f) => ({ '@type': 'Person', name: f.name })),
+  sameAs: [site.nfcUrl],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

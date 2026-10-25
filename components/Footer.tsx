@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MessageCircle, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { ArrowUpRight, Phone, Mail, MessageCircle, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { site } from '@/lib/site.config';
@@ -12,6 +12,7 @@ const nav = [
   { label: 'Cómo funciona', href: '#como-funciona' },
   { label: 'Resultados', href: '#resultados' },
   { label: 'Reservar', href: '#reservar' },
+  { label: 'Nosotros', href: '#nosotros' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Contacto', href: '#contacto' },
 ];
@@ -72,6 +73,16 @@ export function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                <a
+                  href={site.nfcUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center gap-1 text-sm text-ink-soft transition hover:text-white"
+                >
+                  Tienda VISAX NFC <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -6,6 +6,8 @@ import { HowItWorks } from '@/components/HowItWorks';
 import { WhyAutomate } from '@/components/WhyAutomate';
 import { Stats } from '@/components/Stats';
 import { Testimonials } from '@/components/Testimonials';
+import { Founders } from '@/components/Founders';
+import { NfcSection } from '@/components/NfcSection';
 import { Schedule } from '@/components/Schedule';
 import { Contact } from '@/components/Contact';
 import { FAQ } from '@/components/FAQ';
@@ -25,8 +27,10 @@ export default function HomePage() {
         <WhyAutomate />
         <Stats />
         <Testimonials />
+        <Founders />
         <Schedule />
         <Contact />
+        <NfcSection />
         <FAQ />
       </main>
       <Footer />
