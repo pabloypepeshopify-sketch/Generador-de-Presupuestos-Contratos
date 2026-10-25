@@ -26,7 +26,12 @@ export function ProductGallery({ product }: { product: Product }) {
 
   const photos: Photo[] = [
     product.image && { kind: 'photo' as const, src: product.image, alt: product.name, label: 'Producto' },
-    product.face && { kind: 'photo' as const, src: product.face, alt: `Diseño frontal de ${product.name}`, label: 'Diseño' },
+    product.face && {
+      kind: 'photo' as const,
+      src: product.face,
+      alt: product.faceAlt ?? `Diseño frontal de ${product.name}`,
+      label: product.faceAlt ? 'Otro diseño' : 'Diseño',
+    },
   ].filter((v): v is Photo => !!v);
   const has3D = !!product.scene && mode !== 'static';
   const views: View[] = has3D ? [{ kind: '3d', label: 'En acción' }, ...photos] : photos;

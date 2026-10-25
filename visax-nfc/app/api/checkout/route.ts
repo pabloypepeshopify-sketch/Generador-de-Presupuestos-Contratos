@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   ];
   // Stripe admite 3 campos: si hacen falta más enlaces, se piden todos en uno.
   const links = [...kinds].flatMap((k) => LINK_FIELDS[k] ?? []);
-  const linkFields = links.length > 2 ? [{ key: 'enlaces', label: 'Enlaces a grabar: reseñas, carta, redes (opcional)' }] : links;
+  const linkFields = links.length > 2 ? [{ key: 'enlaces', label: 'Enlaces a grabar (reseñas, carta, redes)' }] : links;
   for (const f of linkFields)
     customFields.push({
       key: f.key,

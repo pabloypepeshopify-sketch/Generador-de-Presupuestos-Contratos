@@ -16,7 +16,8 @@ export type Product = {
   description: string;
   price: number; // céntimos, IVA incluido
   image?: string; // foto real del producto (sin fondo)
-  face?: string; // diseño frontal en alta resolución
+  face?: string; // diseño frontal en alta resolución (o segundo modelo)
+  faceAlt?: string; // texto alternativo de la segunda imagen, si no es el diseño frontal
   icon?: ProductIcon;
   linkKind: LinkKind;
   bullets: string[];
@@ -42,7 +43,11 @@ export const LINK_FIELDS: Partial<Record<LinkKind, { key: string; label: string;
     ask: 'Enlace de reseñas de Google (si no lo tengo, buscadlo vosotros)',
   },
   menu: { key: 'enlace_carta', label: 'Enlace de tu carta digital (opcional)', ask: 'Enlace de mi carta' },
-  social: { key: 'enlace_redes', label: 'Enlace de tus redes o de tus enlaces (opcional)', ask: 'Enlace de mis redes sociales' },
+  social: {
+    key: 'enlace_redes',
+    label: 'Tus redes: enlace y diseño (Instagram/Facebook)',
+    ask: 'Enlace de mis redes y diseño (Instagram o Facebook)',
+  },
 };
 export const SETUP_LATER: LinkKind[] = ['order', 'waiter', 'wifi'];
 
@@ -149,19 +154,22 @@ export const products: Product[] = [
     slug: 'nfc-redes-sociales',
     name: 'NFC de redes sociales',
     shortName: 'NFC redes sociales',
-    tagline: 'Un toque y tu cliente está en tu Instagram o tu TikTok, listo para seguirte.',
+    tagline: 'Un toque y tu cliente está en tu Instagram o tu Facebook, listo para seguirte.',
     description:
-      'El cliente toca el NFC y va directo a las redes sociales de tu local (Instagram, TikTok) o a una página con todos tus enlaces. Consigues seguidores reales: gente que ya está en tu local. Te lo enviamos programado con tu enlace.',
+      'El cliente toca el NFC y va directo a las redes sociales de tu local (Instagram, Facebook, TikTok) o a una página con todos tus enlaces. Consigues seguidores reales: gente que ya está en tu local. Elige el diseño de Instagram o el de Facebook y te lo enviamos programado con tu enlace.',
     price: 2500,
+    image: '/products/nfc-redes-instagram.png',
+    face: '/products/nfc-redes-facebook.png',
+    faceAlt: 'NFC de redes sociales con el diseño de Facebook',
     icon: 'social',
     linkKind: 'social',
     bullets: [
-      'Abre tu Instagram, tu TikTok o tu página de enlaces',
+      'Abre tu Instagram, tu Facebook, tu TikTok o tu página de enlaces',
       'Seguidores reales de gente que ya está en tu local',
       'Sin app, sin batería y sin QR',
       'Te llega programado con tu enlace',
     ],
-    includes: ['NFC con chip programado', 'Programación con el enlace de tus redes'],
+    includes: ['NFC con el diseño de Instagram o el de Facebook (el que elijas)', 'Programación con el enlace de tus redes'],
   },
   {
     slug: 'nfc-wifi',
