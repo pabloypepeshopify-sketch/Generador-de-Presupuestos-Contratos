@@ -67,6 +67,7 @@ const jsonLd = {
   email: site.email,
   areaServed: 'ES',
   address: { '@type': 'PostalAddress', streetAddress: site.legal.address, addressCountry: 'ES' },
+  founder: site.founders.map((f) => ({ '@type': 'Person', name: f.name })),
   makesOffer: products.map((p) => ({
     '@type': 'Offer',
     priceCurrency: 'EUR',

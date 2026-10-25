@@ -27,10 +27,10 @@ export default function HomePage() {
         <WhyAutomate />
         <Stats />
         <Testimonials />
+        <NfcSection />
         <Founders />
         <Schedule />
         <Contact />
-        <NfcSection />
         <FAQ />
       </main>
       <Footer />

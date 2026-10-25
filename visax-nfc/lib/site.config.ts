@@ -31,6 +31,12 @@ export const site = {
     address: 'C/ Juan de Arratia, 5, 11540 Sanlúcar de Barrameda (Cádiz)',
   },
 
+  // ── FUNDADORES (apartado "Quiénes somos") ───────────────────
+  founders: [
+    { name: 'Pepe Sánchez Ortiz', initials: 'PS', role: 'Cofundador' },
+    { name: 'Pablo Villegas Becerra', initials: 'PV', role: 'Cofundador' },
+  ],
+
   // ── ENVÍOS (importes en céntimos) ───────────────────────────
   shipping: {
     cost: 490,

@@ -8,6 +8,7 @@ import { Testimonials } from '@/components/Testimonials';
 import { CrossSell } from '@/components/CrossSell';
 import { FAQ } from '@/components/FAQ';
 import { ContactCTA } from '@/components/ContactCTA';
+import { Founders } from '@/components/Founders';
 import { Footer } from '@/components/Footer';
 import { faqs } from '@/lib/faqs';
 
@@ -31,6 +32,7 @@ export default function HomePage() {
         <Testimonials />
         <CrossSell />
         <FAQ />
+        <Founders />
         <ContactCTA />
       </main>
       <Footer />
