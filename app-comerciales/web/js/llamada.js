@@ -5,7 +5,7 @@ import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import { AvisoDuplicado } from './locales.js';
-import { puntosDe } from './concurso.js';
+import { concursoEnMarcha, puntosDe } from './concurso.js';
 import {
   ESTADOS, INTERES, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hora, hoyISO, mensajeError, normTel, normTxt,
   sumarDias, whatsappHref,
@@ -219,8 +219,8 @@ export function FormLlamada({ query, tipo: tipoInicial = 'llamada' }) {
           ${citaDeLaVisita
             ? html`<span>📅</span><div>Es la cita ${quienConsiguio ? html`que consiguió <b>${nombreDe(quienConsiguio)}</b>` : 'pendiente'}
                 · ${fechaRelativa(local.cita_fecha)}${local.cita_hora ? ` ${hora(local.cita_hora)}` : ''}.
-                <small>${quienConsiguio ? `Si hablas con el dueño, suma 1 punto para ${nombreDe(quienConsiguio)}.` : 'Se apunta como visita de esta cita.'}</small></div>`
-            : html`<span>🚪</span><div>Visita sin cita previa (puerta fría).<small>Si vendes, suma 7 puntos.</small></div>`}
+                <small>${quienConsiguio && concursoEnMarcha() ? `Si hablas con el dueño, suma 1 punto para ${nombreDe(quienConsiguio)}.` : 'Se apunta como visita de esta cita.'}</small></div>`
+            : html`<span>🚪</span><div>Visita sin cita previa (puerta fría).${concursoEnMarcha() ? html`<small>Si vendes, suma 7 puntos.</small>` : null}</div>`}
         </div>` : null}
       <//>
 

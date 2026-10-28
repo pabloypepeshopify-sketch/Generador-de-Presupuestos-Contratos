@@ -716,9 +716,9 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
   border: 1px solid rgba(124, 92, 255, 0.4);
   box-shadow: 0 24px 60px -30px rgba(124, 92, 255, 0.7), var(--brillo);
 }
-.concurso-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.concurso-cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .concurso-cab > div { display: flex; flex-direction: column; gap: 4px; }
-.concurso-cab b { font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: -0.03em; line-height: 1.1; }
+.concurso-cab b { font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: -0.03em; line-height: 1.1; white-space: nowrap; }
 .concurso-cab > small { flex: none; padding: 5px 11px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line-2); color: var(--muted); font-size: 12px; font-weight: 600; }
 .concurso-etq { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); }
 .podio { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
