@@ -43,10 +43,19 @@ export function Inicio() {
   const nombrePila = s.yo.nombre.split(' ')[0];
 
   return html`
-    <${Cabecera} titulo=${`Hola, ${nombrePila}`} sub=${capital(fechaLarga(hoy))}>
-      <a class="icono-btn" href="#/catalogo" aria-label="Catálogo"><${Icono} n="catalogo" /></a>
-      <a class="icono-btn" href="#/ajustes" aria-label="Ajustes"><${Avatar} p=${s.yo} t=${30} /></a>
-    </${Cabecera}>
+    <header class="cab cab-marca">
+      <img class="logo" src="/logo.svg" alt="VISAX NFC" />
+      <div class="cab-acc">
+        <a class="icono-btn" href="#/catalogo" aria-label="Catálogo"><${Icono} n="catalogo" /></a>
+        <a class="icono-btn avatar-btn" href="#/ajustes" aria-label="Ajustes"><${Avatar} p=${s.yo} t=${36} /></a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <span class="pildora"><i></i>${capital(fechaLarga(hoy))}</span>
+      <h1>Hola, <em class="acento">${nombrePila}.</em></h1>
+      <p>${d.mio.citas ? `Llevas ${d.mio.citas} ${d.mio.citas === 1 ? 'cita' : 'citas'} hoy. ¡A por la siguiente!` : 'El objetivo de cada llamada: hablar con el dueño en persona.'}</p>
+    </section>
 
     <div class="tiles">
       <div class="tile"><b>${d.mio.llamadas}</b><span>Llamadas hoy</span></div>
@@ -56,7 +65,7 @@ export function Inicio() {
     <p class="nota-equipo">Equipo hoy: <b>${d.equipo.llamadas}</b> llamadas · <b>${d.equipo.dueno}</b> con dueño · <b>${d.equipo.citas}</b> citas</p>
 
     <button class="btn primario grande bloque" onClick=${() => ir('/llamada')}>
-      <${Icono} n="tel" /> Registrar llamada
+      <${Icono} n="tel" /> Apuntar llamada
     </button>
 
     ${d.sinResultado.length ? html`
@@ -141,7 +150,7 @@ export function Agenda({ query }) {
   const totalRellamar = rellamar.reduce((n, [, ls]) => n + ls.length, 0);
 
   return html`
-    <${Cabecera} titulo="Agenda" sub="Visitas a dueños y llamadas pendientes" />
+    <${Cabecera} titulo="La" acento="agenda" sub="Visitas a dueños y llamadas pendientes" />
     <div class="segmento">
       <button class=${vista === 'visitas' ? 'on' : ''} onClick=${() => setVista('visitas')}>Visitas <small>${totalVisitas}</small></button>
       <button class=${vista === 'rellamar' ? 'on' : ''} onClick=${() => setVista('rellamar')}>Volver a llamar <small>${totalRellamar}</small></button>

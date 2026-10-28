@@ -105,10 +105,11 @@ export function Avatar({ id, p, t = 28 }) {
 
 export const nombreDe = (id) => perfil(id)?.nombre || '—';
 
-export function Cabecera({ titulo, sub, atras, children }) {
+// acento: parte final del título en cursiva con degradado, como en visaxnfc.es
+export function Cabecera({ titulo, acento, sub, atras, children }) {
   return html`<header class="cab">
     ${atras ? html`<button class="icono-btn" onClick=${() => volver(atras)} aria-label="Volver"><${Icono} n="atras" t=${22} /></button>` : null}
-    <div class="cab-tit"><h1>${titulo}</h1>${sub ? html`<p>${sub}</p>` : null}</div>
+    <div class="cab-tit"><h1>${titulo}${acento ? html` <em class="acento">${acento}</em>` : null}</h1>${sub ? html`<p>${sub}</p>` : null}</div>
     <div class="cab-acc">${children}</div>
   </header>`;
 }
@@ -178,5 +179,5 @@ export function TarjetaLocal({ l, mostrar = 'auto' }) {
 }
 
 export function Cargando({ texto = 'Cargando…' }) {
-  return html`<div class="cargando"><div class="marca-logo grande">V</div><p>${texto}</p></div>`;
+  return html`<div class="cargando"><img class="cargando-marca" src="/marca.svg" alt="" /><p>${texto}</p></div>`;
 }

@@ -59,7 +59,7 @@ export function Informe() {
   ];
 
   return html`
-    <${Cabecera} titulo="Equipo" sub="Cómo va cada uno">
+    <${Cabecera} titulo="El" acento="equipo" sub="Cómo va cada uno">
       <a class="icono-btn" href="#/catalogo" aria-label="Catálogo"><${Icono} n="catalogo" /></a>
       <a class="icono-btn" href="#/ajustes" aria-label="Ajustes"><${Icono} n="ajustes" /></a>
     </${Cabecera}>
@@ -140,8 +140,8 @@ export function Catalogo() {
   const lista = s.productos.filter((p) => p.activo || socio);
 
   return html`
-    <${Cabecera} titulo="Catálogo" sub="Lo que vendemos y a cuánto" atras="/">
-      ${socio ? html`<button class="icono-btn acento" onClick=${() => setEditando({})} aria-label="Añadir producto"><${Icono} n="mas" /></button>` : null}
+    <${Cabecera} titulo="El" acento="catálogo" sub="Lo que vendemos y a cuánto" atras="/">
+      ${socio ? html`<button class="icono-btn principal" onClick=${() => setEditando({})} aria-label="Añadir producto"><${Icono} n="mas" /></button>` : null}
     </${Cabecera}>
     ${editando ? html`<${FormProducto} p=${editando} alTerminar=${() => setEditando(null)} />` : null}
     ${lista.length ? html`<div class="catalogo">${lista.map((p) => html`<article class="producto ${p.activo ? '' : 'inactivo'}" key=${p.id}>
@@ -328,7 +328,7 @@ export function Miembros() {
 
   return html`
     <${Cabecera} titulo="Gestionar equipo" sub="Quién puede entrar en la app" atras="/ajustes">
-      <button class="icono-btn acento" onClick=${() => setNuevo({ nombre: '', usuario: '', password: contrasenaAleatoria(), rol: 'comercial' })} aria-label="Añadir persona"><${Icono} n="mas" /></button>
+      <button class="icono-btn principal" onClick=${() => setNuevo({ nombre: '', usuario: '', password: contrasenaAleatoria(), rol: 'comercial' })} aria-label="Añadir persona"><${Icono} n="mas" /></button>
     </${Cabecera}>
 
     ${credenciales ? html`<div class="credenciales">

@@ -144,9 +144,9 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
 
   if (hecho) return html`<${Hecho} id=${hecho} esVisita=${esVisita} />`;
 
-  const titulo = esVisita ? 'Resultado de la visita' : 'Apuntar llamada';
+  const [titulo, acento] = esVisita ? ['Resultado de la', 'visita'] : ['Apuntar', 'llamada'];
   return html`
-    <${Cabecera} titulo=${titulo} sub=${local ? local.nombre : 'Rápido: tres toques y listo'} atras=${local ? `/local/${local.id}` : '/'} />
+    <${Cabecera} titulo=${titulo} acento=${acento} sub=${local ? local.nombre : 'Rápido: tres toques y listo'} atras=${local ? `/local/${local.id}` : '/'} />
     <div class="formulario">
 
       ${!esVisita || !local ? html`
@@ -272,7 +272,7 @@ function Hecho({ id, esVisita }) {
   return html`
     <div class="hecho">
       <div class="hecho-ico" style=${`--c:${ESTADOS[l.estado].color}`}><${Icono} n="check" t=${40} /></div>
-      <h1>${l.estado === 'cita' ? '¡Cita conseguida!' : esVisita ? 'Visita apuntada' : 'Llamada apuntada'}</h1>
+      <h1>${l.estado === 'cita' ? html`¡Cita <em class="acento">conseguida!</em>` : esVisita ? html`Visita <em class="acento">apuntada</em>` : html`Llamada <em class="acento">apuntada</em>`}</h1>
       <p>${frases[l.estado] || 'Guardado.'}</p>
       <div class="hecho-acc">
         ${l.estado === 'cita' ? html`<a class="btn primario grande bloque" href=${gcalHref(l, nombreDe(l.cita_comercial_id))} target="_blank" rel="noopener"><${Icono} n="agenda" /> Añadir a Google Calendar</a>` : null}

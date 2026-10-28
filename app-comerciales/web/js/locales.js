@@ -50,9 +50,9 @@ export function Locales({ query }) {
   );
 
   return html`
-    <${Cabecera} titulo="Locales" sub=${`${s.locales.length} en total`}>
+    <${Cabecera} titulo="Los" acento="locales" sub=${`${s.locales.length} en total`}>
       <button class="icono-btn" onClick=${() => ir('/importar')} aria-label="Importar lista"><${Icono} n="subir" /></button>
-      <button class="icono-btn acento" onClick=${() => ir('/nuevo-local')} aria-label="Añadir local"><${Icono} n="mas" /></button>
+      <button class="icono-btn principal" onClick=${() => ir('/nuevo-local')} aria-label="Añadir local"><${Icono} n="mas" /></button>
     </${Cabecera}>
 
     <div class="buscador">

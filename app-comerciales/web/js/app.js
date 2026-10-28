@@ -27,11 +27,15 @@ function Login() {
   }
 
   return html`<main class="login">
+    <div class="login-hero">
+      <img class="logo" src="/logo.svg" alt="VISAX NFC" />
+      <span class="pildora"><i></i>Equipo comercial · Solo para el equipo</span>
+      <h1>Cada llamada, <em class="acento">en su sitio.</em></h1>
+      <p>Apunta llamadas, consigue citas con los dueños y mira cómo va el equipo en tiempo real.</p>
+    </div>
     <form class="login-caja" onSubmit=${entrar}>
-      <div class="marca"><span class="marca-logo">V</span><div><b>VISAX NFC</b><small>Equipo comercial</small></div></div>
-      <h1>Entra en tu cuenta</h1>
       <label class="campo"><span class="campo-et">Usuario</span>
-        <input value=${usuario} onInput=${(e) => setUsuario(e.target.value)} autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="p. ej. comercial1" required /></label>
+        <input value=${usuario} onInput=${(e) => setUsuario(e.target.value)} autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="p. ej. adriano" required /></label>
       <label class="campo"><span class="campo-et">Contraseña</span>
         <input type="password" value=${password} onInput=${(e) => setPassword(e.target.value)} autocomplete="current-password" required /></label>
       ${error ? html`<p class="error">${error}</p>` : null}
@@ -51,7 +55,7 @@ const NAV = [
 
 function Nav({ activa }) {
   return html`<nav class="nav" aria-label="Secciones">
-    <div class="nav-marca"><span class="marca-logo">V</span><b>VISAX Equipo</b></div>
+    <div class="nav-marca"><img src="/logo.svg" alt="VISAX NFC" /><small>Equipo comercial</small></div>
     ${NAV.map((it) => (it
       ? html`<a href=${`#${it[0]}`} class=${activa === it[0] ? 'on' : ''} aria-current=${activa === it[0] ? 'page' : null}><${Icono} n=${it[1]} t=${22} /><span>${it[2]}</span></a>`
       : html`<a href="#/llamada" class="fab" aria-label="Apuntar llamada"><${Icono} n="tel" t=${24} /><span>Llamada</span></a>`))}
