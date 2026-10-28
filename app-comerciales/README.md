@@ -9,7 +9,8 @@ El objetivo de cada llamada es **conseguir ver al dueño en persona**. La app gi
 - **Apuntar llamada en tres toques**: local (busca si ya existe para no llamar dos veces al mismo), quién lo cogió (nadie / empleado / dueño) y cómo fue (cita con el dueño / volver a llamar / no interesa / compra ya).
 - Datos que se sacan en la llamada: nombre del dueño, empleado que atendió, interés (poco / algo / mucho), productos del catálogo que le interesan, notas.
 - **Cita con el dueño**: día, hora, quién va, dirección. Botón para añadirla a Google Calendar y para confirmarla por WhatsApp.
-- **Resultado de la visita**: vendido (con importe), se lo piensa, otra cita, no interesa.
+- **Apuntar visita al local** (con cita o a puerta fría): con quién hablaste (dueño / empleado / cerrado) y resultado (vendido con importe, se lo piensa, otra cita, no interesa). La base de datos enlaza sola cada visita con su cita y guarda quién consiguió esa cita.
+- **Concurso del mes** entre comerciales: 1 punto por cita hecha (visita apuntada hablando con el dueño, para quien consiguió la cita) y 7 por venta (para quien la apunta; si es un socio, para el comercial de esa cita o local). Empate: más ventas. Las llamadas guardadas no se pueden editar ni antedatar.
 - **Estados de cada local**: Por llamar · No lo cogen · Volver a llamar · Cita con dueño · Cliente · No interesa.
 - **Agenda**: próximas visitas por día y lista de rellamadas (atrasadas, hoy, próximos días).
 - **Equipo**: llamadas, % que lo cogen, contactos con el dueño, citas, conversión llamada→cita y ventas por persona (hoy, semana, mes, 90 días). Exportación a CSV para Excel.

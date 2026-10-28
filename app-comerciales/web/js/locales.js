@@ -3,12 +3,13 @@ import { html, useEffect, useMemo, useState } from './preact.js';
 import {
   borrarLocal, crearLocal, editarLocal, esSocio, historial, importarLocales, useStore,
 } from './datos.js';
+import { puntosDe } from './concurso.js';
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, Interes, Seccion, TarjetaLocal, Vacio, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import {
-  ESTADOS, INTERES, ORDEN_ESTADOS, RESULTADOS, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
-  capital, hora, hoyISO, mapsHref, mensajeError, normTel, normTxt, porCita, sumarDias, telHref, whatsappHref,
+  ESTADOS, INTERES, ORDEN_ESTADOS, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
+  capital, hora, hoyISO, mapsHref, mensajeError, normTel, normTxt, porCita, sumarDias, telHref, textoResultado, whatsappHref,
 } from './util.js';
 
 // Los filtros se recuerdan mientras la app está abierta.
@@ -138,11 +139,12 @@ export function FichaLocal({ id }) {
       <div><small>Volver a llamar</small><b>${l.rellamar_fecha ? `${fechaRelativa(l.rellamar_fecha)}${l.rellamar_hora ? ` · ${hora(l.rellamar_hora)}` : ''}` : 'Sin fecha'}</b></div>
     </div>` : null}
 
-    <div class="botones-ficha">
+    <div class="botones-dos">
       ${l.estado === 'cita' || l.estado === 'cliente'
-        ? html`<button class="btn primario grande" onClick=${() => ir(`/visita?local=${l.id}`)}><${Icono} n="check" /> Apuntar visita</button>
+        ? html`<button class="btn primario grande" onClick=${() => ir(`/visita?local=${l.id}`)}><${Icono} n="mapa" /> Apuntar visita</button>
                <button class="btn sec grande" onClick=${() => ir(`/llamada?local=${l.id}`)}><${Icono} n="tel" /> Apuntar llamada</button>`
-        : html`<button class="btn primario grande bloque" onClick=${() => ir(`/llamada?local=${l.id}`)}><${Icono} n="tel" /> Apuntar llamada</button>`}
+        : html`<button class="btn primario grande" onClick=${() => ir(`/llamada?local=${l.id}`)}><${Icono} n="tel" /> Apuntar llamada</button>
+               <button class="btn sec grande" onClick=${() => ir(`/visita?local=${l.id}`)}><${Icono} n="mapa" /> Apuntar visita</button>`}
     </div>
 
     <${Seccion} titulo="Datos">
@@ -161,7 +163,7 @@ export function FichaLocal({ id }) {
 
     <${Seccion} titulo="Historial">
       ${hist === null && !llamadas.length ? html`<p class="tenue">Cargando…</p>`
-        : llamadas.length ? html`<ol class="historial">${llamadas.map((x) => html`<${EntradaHistorial} x=${x} productos=${s.productos} key=${x.id} />`)}</ol>`
+        : llamadas.length ? html`<ol class="historial">${llamadas.map((x) => html`<${EntradaHistorial} x=${x} productos=${s.productos} locales=${s.locales} key=${x.id} />`)}</ol>`
         : html`<${Vacio} titulo="Sin llamadas todavía" />`}
     </${Seccion}>
 
@@ -169,17 +171,23 @@ export function FichaLocal({ id }) {
   `;
 }
 
-function EntradaHistorial({ x, productos }) {
+function EntradaHistorial({ x, productos, locales }) {
   const prods = productos.filter((p) => x.productos?.includes(p.id)).map((p) => p.nombre);
   const quien = x.contacto === 'nadie' ? null : x.contacto === 'dueno' ? `Habló con el dueño${x.dueno_nombre ? ` (${x.dueno_nombre})` : ''}` : `Habló con un empleado${x.empleado_nombre ? ` (${x.empleado_nombre})` : ''}`;
+  const puntos = puntosDe(x, locales);
+  const deCita = x.tipo !== 'visita' ? null
+    : !x.cita_origen_id ? 'Visita sin cita previa (puerta fría)'
+    : x.cita_conseguida_por ? `Visita de la cita que consiguió ${nombreDe(x.cita_conseguida_por)}` : 'Visita de la cita';
   return html`<li class="res-${x.resultado}">
     <div class="h-cab"><${Avatar} id=${x.comercial_id} t=${24} /><b>${nombreDe(x.comercial_id)}</b>
       <span>${x.tipo === 'visita' ? 'Visita' : 'Llamada'} · ${haceCuanto(x.creado_en)}</span></div>
-    <div class="h-res"><span class="res res-${x.resultado}">${RESULTADOS[x.resultado]}</span>
+    ${deCita ? html`<p class="h-enlace">${deCita}</p>` : null}
+    <div class="h-res"><span class="res res-${x.resultado}">${textoResultado(x)}</span>
       ${x.resultado === 'cita' ? html` <span>${fechaRelativa(x.cita_fecha)}${x.cita_hora ? ` · ${hora(x.cita_hora)}` : ''} · va ${nombreDe(x.cita_comercial_id)}</span>` : null}
       ${x.resultado === 'rellamar' && x.rellamar_fecha ? html` <span>${fechaRelativa(x.rellamar_fecha)}${x.rellamar_hora ? ` · ${hora(x.rellamar_hora)}` : ''}</span>` : null}
       ${x.importe ? html` <b>${euros(x.importe)}</b>` : null}
-      <${Interes} n=${x.interes} /></div>
+      <${Interes} n=${x.interes} />
+      ${puntos.map((pt) => html`<span class=${`punto ${pt.tipo}`}>+${pt.puntos} ${nombreDe(pt.id)}</span>`)}</div>
     ${quien ? html`<p>${quien}</p>` : null}
     ${prods.length ? html`<div class="etqs">${prods.map((p) => html`<span class="etq">${p}</span>`)}</div>` : null}
     ${x.notas ? html`<p class="notas">${x.notas}</p>` : null}

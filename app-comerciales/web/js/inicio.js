@@ -1,11 +1,12 @@
 // Pantallas de Inicio (resumen del día) y Agenda (visitas y rellamadas).
 import { html, useMemo, useState } from './preact.js';
 import { useStore } from './datos.js';
+import { TarjetaConcurso } from './concurso.js';
 import {
   Avatar, BotonTel, Cabecera, Chips, Icono, Seccion, TarjetaLocal, Vacio, ir, nombreDe,
 } from './ui.js';
 import {
-  RESULTADOS, capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, porCita,
+  capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, porCita, textoResultado,
 } from './util.js';
 
 function contar(llamadas) {
@@ -64,9 +65,12 @@ export function Inicio() {
     </div>
     <p class="nota-equipo">Equipo hoy: <b>${d.equipo.llamadas}</b> llamadas · <b>${d.equipo.dueno}</b> con dueño · <b>${d.equipo.citas}</b> citas</p>
 
-    <button class="btn primario grande bloque" onClick=${() => ir('/llamada')}>
-      <${Icono} n="tel" /> Apuntar llamada
-    </button>
+    <div class="botones-dos">
+      <button class="btn primario grande" onClick=${() => ir('/llamada')}><${Icono} n="tel" /> Apuntar llamada</button>
+      <button class="btn sec grande" onClick=${() => ir('/visita')}><${Icono} n="mapa" /> Apuntar visita</button>
+    </div>
+
+    <${TarjetaConcurso} />
 
     ${d.sinResultado.length ? html`
       <${Seccion} titulo="Visitas sin resultado" enlace="/agenda">
@@ -95,11 +99,11 @@ export function Inicio() {
           return html`<li key=${ll.id} onClick=${() => l && ir(`/local/${l.id}`)}>
               <${Avatar} id=${ll.comercial_id} t=${30} />
               <div><b>${nombreDe(ll.comercial_id)}</b> ${ll.tipo === 'visita' ? 'visitó' : 'llamó a'} <b>${l?.nombre || 'un local'}</b>
-                <span class="res res-${ll.resultado}">${RESULTADOS[ll.resultado]}</span>
+                <span class="res res-${ll.resultado}">${textoResultado(ll)}</span>
                 <small>${haceCuanto(ll.creado_en)}</small></div>
             </li>`;
         })}</ul>`
-        : html`<${Vacio} titulo="Todavía no hay llamadas" texto="Pulsa «Registrar llamada» para apuntar la primera." />`}
+        : html`<${Vacio} titulo="Todavía no hay llamadas" texto="Pulsa «Apuntar llamada» para apuntar la primera." />`}
     </${Seccion}>
   `;
 }

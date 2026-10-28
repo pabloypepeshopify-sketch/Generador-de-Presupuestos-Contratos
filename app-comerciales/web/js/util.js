@@ -24,6 +24,10 @@ export const RESULTADOS = {
   vendido: 'Vendido',
 };
 
+// En una visita algunos resultados se leen distinto
+const RESULTADOS_VISITA = { no_contesta: 'Estaba cerrado', rellamar: 'Se lo piensa', cita: 'Otra cita' };
+export const textoResultado = (ll) => (ll.tipo === 'visita' && RESULTADOS_VISITA[ll.resultado]) || RESULTADOS[ll.resultado];
+
 export const INTERES = { 1: 'Poco', 2: 'Algo', 3: 'Mucho' };
 
 export const TIPOS_LOCAL = ['Bar', 'Restaurante', 'Cafetería', 'Hotel', 'Chiringuito', 'Pub / copas', 'Otro'];

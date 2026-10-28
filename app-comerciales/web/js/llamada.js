@@ -1,10 +1,11 @@
-// Formulario rápido para apuntar una llamada o el resultado de una visita.
+// Formulario rápido para apuntar una llamada o una visita al local (con cita o a puerta fría).
 import { html, useMemo, useState } from './preact.js';
 import { crearLocal, editarLocal, registrarLlamada, useStore } from './datos.js';
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import { AvisoDuplicado } from './locales.js';
+import { puntosDe } from './concurso.js';
 import {
   ESTADOS, INTERES, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hora, hoyISO, mensajeError, normTel, normTxt,
   sumarDias, whatsappHref,
@@ -23,17 +24,35 @@ const RESULTADOS_LLAMADA = {
     { v: 'vendido', txt: 'Compra ya', ico: '💰', color: 'var(--st-cliente)' },
   ],
 };
-const RESULTADOS_VISITA = [
-  { v: 'vendido', txt: 'Vendido', ico: '💰', color: 'var(--st-cliente)' },
-  { v: 'rellamar', txt: 'Se lo piensa', ico: '🤔', color: 'var(--st-rellamar)' },
-  { v: 'cita', txt: 'Otra cita', ico: '📅', color: 'var(--st-cita)' },
-  { v: 'no_interesa', txt: 'No le interesa', ico: '✕', color: 'var(--st-nointeresa)' },
+const RESULTADOS_VISITA = {
+  dueno: [
+    { v: 'vendido', txt: 'Vendido', ico: '💰', color: 'var(--st-cliente)' },
+    { v: 'rellamar', txt: 'Se lo piensa', ico: '🤔', color: 'var(--st-rellamar)' },
+    { v: 'cita', txt: 'Otra cita', ico: '📅', color: 'var(--st-cita)' },
+    { v: 'no_interesa', txt: 'No le interesa', ico: '✕', color: 'var(--st-nointeresa)' },
+  ],
+  empleado: [
+    { v: 'cita', txt: 'Cita para ver al dueño', ico: '📅', color: 'var(--st-cita)' },
+    { v: 'rellamar', txt: 'Volver a llamar', ico: '🔁', color: 'var(--st-rellamar)' },
+    { v: 'no_interesa', txt: 'No les interesa', ico: '✕', color: 'var(--st-nointeresa)' },
+  ],
+};
+const CONTACTOS_LLAMADA = [
+  { v: 'nadie', txt: 'No lo cogen', ico: '📵', color: 'var(--st-nocontesta)' },
+  { v: 'empleado', txt: 'Un empleado', ico: '🧑‍🍳', color: 'var(--st-rellamar)' },
+  { v: 'dueno', txt: 'El dueño', ico: '👔', color: 'var(--st-cita)' },
+];
+const CONTACTOS_VISITA = [
+  { v: 'dueno', txt: 'Con el dueño', ico: '👔', color: 'var(--st-cita)' },
+  { v: 'empleado', txt: 'Solo un empleado', ico: '🧑‍🍳', color: 'var(--st-rellamar)' },
+  { v: 'nadie', txt: 'Estaba cerrado', ico: '🔒', color: 'var(--st-nocontesta)' },
 ];
 const HORAS = ['10:00', '11:00', '12:00', '13:00', '17:00', '18:00', '19:00'];
 
 function inicial(l, yoId, esVisita) {
   return {
-    contacto: esVisita ? 'dueno' : null,
+    // En la visita a una cita lo normal es ver al dueño
+    contacto: esVisita && l?.estado === 'cita' ? 'dueno' : null,
     resultado: null,
     interes: l?.interes ?? null,
     dueno_nombre: l?.dueno_nombre || '',
@@ -51,8 +70,9 @@ function inicial(l, yoId, esVisita) {
   };
 }
 
-export function FormLlamada({ query, tipo = 'llamada' }) {
+export function FormLlamada({ query, tipo: tipoInicial = 'llamada' }) {
   const s = useStore();
+  const [tipo, setTipo] = useState(tipoInicial);
   const esVisita = tipo === 'visita';
   const [localId, setLocalId] = useState(query.local || null);
   const local = localId ? s.locales.find((l) => l.id === localId) : null;
@@ -65,8 +85,25 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
 
   function elegirLocal(l) {
     setLocalId(l.id);
-    setF((x) => ({ ...inicial(l, s.yo.id, esVisita), contacto: x.contacto, resultado: x.resultado, notas: x.notas }));
+    setF((x) => {
+      const base = inicial(l, s.yo.id, esVisita);
+      return { ...base, contacto: x.contacto || base.contacto, resultado: x.resultado, notas: x.notas };
+    });
   }
+
+  function cambiarTipo(t) {
+    setTipo(t);
+    setErrores({});
+    setF((x) => ({ ...x, contacto: t === 'visita' && local?.estado === 'cita' ? 'dueno' : null, resultado: null }));
+  }
+
+  // De qué cita es esta visita (la base de datos lo enlaza igual al guardar)
+  const citaDeLaVisita = esVisita && local?.estado === 'cita'
+    ? s.llamadas.find((x) => x.local_id === local.id && x.resultado === 'cita')
+    : null;
+  const quienConsiguio = citaDeLaVisita
+    ? citaDeLaVisita.tipo === 'llamada' ? citaDeLaVisita.comercial_id : citaDeLaVisita.cita_conseguida_por
+    : null;
 
   function elegirContacto(c) {
     setF((x) => ({ ...x, contacto: c, resultado: c === 'nadie' ? 'no_contesta' : x.resultado === 'no_contesta' || (c === 'empleado' && x.resultado === 'vendido') ? null : x.resultado }));
@@ -82,14 +119,14 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
     ? s.locales.find((l) => normTel(l.telefono) === normTel(nuevo.telefono) || normTel(l.dueno_telefono) === normTel(nuevo.telefono))
     : null;
 
-  const resultados = esVisita ? RESULTADOS_VISITA : RESULTADOS_LLAMADA[f.contacto] || [];
+  const resultados = (esVisita ? RESULTADOS_VISITA : RESULTADOS_LLAMADA)[f.contacto] || [];
   const conPersona = f.contacto && f.contacto !== 'nadie';
   const activos = s.perfiles.filter((p) => p.activo);
 
   async function guardar() {
     const err = {};
     if (!localId && !nuevo.nombre.trim()) err.local = 'Escribe el nombre del local o elige uno de la lista';
-    if (!f.contacto) err.contacto = '¿Quién lo cogió?';
+    if (!f.contacto) err.contacto = esVisita ? '¿Con quién hablaste?' : '¿Quién lo cogió?';
     if (!f.resultado) err.resultado = '¿Cómo ha ido?';
     if (f.resultado === 'cita' && !f.cita_fecha) err.cita = 'Pon el día de la cita';
     setErrores(err);
@@ -116,7 +153,7 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
       if (Object.keys(extra).length) await editarLocal(l.id, extra);
 
       const r = f.resultado;
-      await registrarLlamada({
+      const ll = await registrarLlamada({
         local_id: l.id,
         comercial_id: s.yo.id,
         tipo,
@@ -134,7 +171,7 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
         importe: r === 'vendido' && f.importe ? Number(String(f.importe).replace(',', '.')) || null : null,
         notas: f.notas.trim() || null,
       });
-      setHecho(l.id);
+      setHecho({ id: l.id, ll });
     } catch (e) {
       aviso(mensajeError(e), 'error');
     } finally {
@@ -142,14 +179,16 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
     }
   }
 
-  if (hecho) return html`<${Hecho} id=${hecho} esVisita=${esVisita} />`;
+  if (hecho) return html`<${Hecho} id=${hecho.id} ll=${hecho.ll} />`;
 
-  const [titulo, acento] = esVisita ? ['Resultado de la', 'visita'] : ['Apuntar', 'llamada'];
   return html`
-    <${Cabecera} titulo=${titulo} acento=${acento} sub=${local ? local.nombre : 'Rápido: tres toques y listo'} atras=${local ? `/local/${local.id}` : '/'} />
+    <${Cabecera} titulo="Apuntar" acento=${esVisita ? 'visita' : 'llamada'} sub=${local ? local.nombre : 'Rápido: tres toques y listo'} atras=${local ? `/local/${local.id}` : '/'} />
     <div class="formulario">
+      <div class="segmento">
+        <button type="button" class=${esVisita ? '' : 'on'} onClick=${() => cambiarTipo('llamada')}>📞 Llamada</button>
+        <button type="button" class=${esVisita ? 'on' : ''} onClick=${() => cambiarTipo('visita')}>🚪 Visita al local</button>
+      </div>
 
-      ${!esVisita || !local ? html`
       <${Grupo} titulo="1 · Local">
         ${local ? html`<div class="local-elegido">
             <div><b>${local.nombre}</b><span>${[local.zona, local.tipo].filter(Boolean).join(' · ')}</span>
@@ -176,20 +215,22 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
             ${dupTel ? html`<${AvisoDuplicado} l=${dupTel} motivo="Ese teléfono ya es de" onUsar=${elegirLocal} />` : null}
             <${Chips} opciones=${TIPOS_LOCAL.map((t) => ({ v: t, txt: t }))} valor=${nuevo.tipo} onCambio=${(v) => setNuevo({ ...nuevo, tipo: v })} />
           ` : null}`}
-      <//>` : null}
+        ${esVisita && local ? html`<div class=${`enlace-cita ${citaDeLaVisita ? 'con-cita' : ''}`}>
+          ${citaDeLaVisita
+            ? html`<span>📅</span><div>Es la cita ${quienConsiguio ? html`que consiguió <b>${nombreDe(quienConsiguio)}</b>` : 'pendiente'}
+                · ${fechaRelativa(local.cita_fecha)}${local.cita_hora ? ` ${hora(local.cita_hora)}` : ''}.
+                <small>${quienConsiguio ? `Si hablas con el dueño, suma 1 punto para ${nombreDe(quienConsiguio)}.` : 'Se apunta como visita de esta cita.'}</small></div>`
+            : html`<span>🚪</span><div>Visita sin cita previa (puerta fría).<small>Si vendes, suma 7 puntos.</small></div>`}
+        </div>` : null}
+      <//>
 
-      ${!esVisita ? html`
-      <${Grupo} titulo="2 · ¿Quién lo cogió?">
-        <${Chips} grande valor=${f.contacto} onCambio=${elegirContacto} opciones=${[
-          { v: 'nadie', txt: 'No lo cogen', ico: '📵', color: 'var(--st-nocontesta)' },
-          { v: 'empleado', txt: 'Un empleado', ico: '🧑‍🍳', color: 'var(--st-rellamar)' },
-          { v: 'dueno', txt: 'El dueño', ico: '👔', color: 'var(--st-cita)' },
-        ]} />
+      <${Grupo} titulo=${esVisita ? '2 · ¿Con quién hablaste?' : '2 · ¿Quién lo cogió?'}>
+        <${Chips} grande valor=${f.contacto} onCambio=${elegirContacto} opciones=${esVisita ? CONTACTOS_VISITA : CONTACTOS_LLAMADA} />
         ${errores.contacto && !f.contacto ? html`<p class="error">${errores.contacto}</p>` : null}
-      <//>` : null}
+      <//>
 
       ${conPersona ? html`
-      <${Grupo} titulo=${esVisita ? '¿Cómo ha ido la visita?' : '3 · ¿Cómo ha ido?'}>
+      <${Grupo} titulo="3 · ¿Cómo ha ido?">
         <${Chips} grande valor=${f.resultado} onCambio=${(v) => cambiar('resultado', v)} opciones=${resultados} />
         ${errores.resultado && !f.resultado ? html`<p class="error">${errores.resultado}</p>` : null}
 
@@ -254,16 +295,18 @@ export function FormLlamada({ query, tipo = 'llamada' }) {
   `;
 }
 
-function Hecho({ id, esVisita }) {
+function Hecho({ id, ll }) {
   const s = useStore();
   const l = s.locales.find((x) => x.id === id);
   if (!l) return null;
+  const esVisita = ll.tipo === 'visita';
+  const puntos = puntosDe(ll, s.locales);
   const frases = {
     cita: `Cita con el dueño de ${l.nombre}: ${fechaLarga(l.cita_fecha)}${l.cita_hora ? ` a las ${hora(l.cita_hora)}` : ''}. Va ${nombreDe(l.cita_comercial_id)}.`,
     rellamar: `Hay que volver a llamar a ${l.nombre}${l.rellamar_fecha ? ` ${fechaRelativa(l.rellamar_fecha).toLowerCase()}` : ''}.`,
-    no_contesta: `${l.nombre} no lo ha cogido. Queda en «No lo cogen».`,
+    no_contesta: esVisita ? `${l.nombre} estaba cerrado.` : `${l.nombre} no lo ha cogido. Queda en «No lo cogen».`,
     no_interesa: `${l.nombre} queda como «No interesa».`,
-    cliente: `¡Venta cerrada con ${l.nombre}!${l.importe_venta ? ` ${euros(l.importe_venta)}.` : ''}`,
+    cliente: `${l.nombre} pasa a cliente.${l.importe_venta ? ` ${euros(l.importe_venta)}.` : ''}`,
   };
   const textoWA = l.estado === 'cita'
     ? `Hola${l.dueno_nombre ? ` ${l.dueno_nombre}` : ''}, soy ${nombreDe(l.cita_comercial_id)} de VISAX NFC. Te confirmo que paso a verte ${fechaLarga(l.cita_fecha)}${l.cita_hora ? ` a las ${hora(l.cita_hora)}` : ''}. Un saludo.`
@@ -272,12 +315,15 @@ function Hecho({ id, esVisita }) {
   return html`
     <div class="hecho">
       <div class="hecho-ico" style=${`--c:${ESTADOS[l.estado].color}`}><${Icono} n="check" t=${40} /></div>
-      <h1>${l.estado === 'cita' ? html`¡Cita <em class="acento">conseguida!</em>` : esVisita ? html`Visita <em class="acento">apuntada</em>` : html`Llamada <em class="acento">apuntada</em>`}</h1>
-      <p>${frases[l.estado] || 'Guardado.'}</p>
+      <h1>${ll.resultado === 'vendido' ? html`¡Venta <em class="acento">cerrada!</em>` : l.estado === 'cita' ? html`¡Cita <em class="acento">conseguida!</em>` : esVisita ? html`Visita <em class="acento">apuntada</em>` : html`Llamada <em class="acento">apuntada</em>`}</h1>
+      <p>${(ll.resultado === 'no_contesta' ? frases.no_contesta : frases[l.estado]) || 'Guardado.'}</p>
+      ${puntos.length ? html`<div class="puntos-ganados">${puntos.map((pt) => html`<span class=${`punto ${pt.tipo}`}>
+        +${pt.puntos} ${pt.puntos === 1 ? 'punto' : 'puntos'} para ${nombreDe(pt.id)} · ${pt.tipo === 'cita' ? 'cita hecha' : 'venta'}</span>`)}</div>` : null}
       <div class="hecho-acc">
         ${l.estado === 'cita' ? html`<a class="btn primario grande bloque" href=${gcalHref(l, nombreDe(l.cita_comercial_id))} target="_blank" rel="noopener"><${Icono} n="agenda" /> Añadir a Google Calendar</a>` : null}
         ${wa ? html`<a class="btn sec grande bloque" href=${wa} target="_blank" rel="noopener"><${Icono} n="chat" /> Confirmar por WhatsApp al dueño</a>` : null}
-        <button class=${`btn ${l.estado === 'cita' ? 'sec' : 'primario'} grande bloque`} onClick=${() => ir(`/llamada?n=${Date.now()}`, { reemplazar: true })}><${Icono} n="tel" /> Apuntar otra llamada</button>
+        <button class=${`btn ${l.estado === 'cita' ? 'sec' : 'primario'} grande bloque`} onClick=${() => ir(`/${ll.tipo}?n=${Date.now()}`, { reemplazar: true })}>
+          <${Icono} n=${esVisita ? 'mapa' : 'tel'} /> ${esVisita ? 'Apuntar otra visita' : 'Apuntar otra llamada'}</button>
         <button class="btn fantasma bloque" onClick=${() => ir(`/local/${l.id}`, { reemplazar: true })}>Ver ficha del local</button>
         <button class="btn fantasma bloque" onClick=${() => volver('/')}>Volver</button>
       </div>

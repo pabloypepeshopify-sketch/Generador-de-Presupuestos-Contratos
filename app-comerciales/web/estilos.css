@@ -288,9 +288,8 @@ h1, h2, p { margin: 0; }
 .btn.peque { min-height: 36px; padding: 6px 14px; font-size: 13px; }
 .btn.bloque { width: 100%; }
 .botones-fila { display: flex; flex-wrap: wrap; gap: 8px; }
-.botones-ficha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.botones-ficha .bloque { grid-column: 1 / -1; }
-.botones-ficha .btn { padding-left: 12px; padding-right: 12px; white-space: nowrap; }
+.botones-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.botones-dos .btn { padding-left: 12px; padding-right: 12px; white-space: nowrap; }
 
 .btn-tel {
   flex: none;
@@ -699,6 +698,60 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
 .volumen { color: var(--cyan); font-size: 12.5px; }
 .producto-acc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
 .tarjeta-form { padding: 16px; border-radius: var(--r); background: var(--card); border: 1px solid rgba(124, 92, 255, 0.5); }
+
+/* ---------- Concurso del mes ---------- */
+.concurso {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 16px;
+  border-radius: 24px;
+  color: var(--text);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(124, 92, 255, 0.28), transparent 60%),
+    radial-gradient(90% 80% at 0% 100%, rgba(51, 198, 244, 0.14), transparent 60%),
+    var(--card);
+  border: 1px solid rgba(124, 92, 255, 0.4);
+  box-shadow: 0 24px 60px -30px rgba(124, 92, 255, 0.7), var(--brillo);
+}
+.concurso-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.concurso-cab > div { display: flex; flex-direction: column; gap: 4px; }
+.concurso-cab b { font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: -0.03em; line-height: 1.1; }
+.concurso-cab > small { flex: none; padding: 5px 11px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line-2); color: var(--muted); font-size: 12px; font-weight: 600; }
+.concurso-etq { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); }
+.podio { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.podio-fila { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: rgba(6, 6, 11, 0.45); border: 1px solid var(--line); }
+.podio-fila.lider { border-color: rgba(250, 204, 21, 0.45); background: linear-gradient(100deg, rgba(250, 204, 21, 0.12), rgba(6, 6, 11, 0.45) 60%); }
+.podio-fila.yo { box-shadow: inset 0 0 0 1px rgba(51, 198, 244, 0.5); }
+.podio-pos { width: 26px; text-align: center; font-family: var(--serif); font-size: 17px; color: var(--muted); }
+.podio-fila.lider .podio-pos { font-size: 20px; }
+.podio-nombre { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.podio-nombre b { font-family: var(--serif); font-weight: 500; font-size: 17px; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podio-nombre small { color: var(--faint); font-size: 12px; }
+.podio-puntos { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+.podio-puntos b { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 30px; background: var(--grad-texto); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.podio-fila.lider .podio-puntos b { background: linear-gradient(95deg, #FDE047, #F59E0B); -webkit-background-clip: text; background-clip: text; }
+.podio-puntos small { color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+.concurso-yo, .concurso-ganador { color: var(--muted); font-size: 14px; }
+.concurso-yo b, .concurso-ganador b { color: var(--text); }
+.concurso.compacto { cursor: pointer; }
+.reglas { color: var(--muted); font-size: 13.5px; }
+.reglas summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
+.reglas ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.reglas b { color: var(--text); }
+
+.punto { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.punto.cita { color: #86EFAC; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); }
+.punto.venta { color: #FDE68A; background: rgba(250, 204, 21, 0.12); border: 1px solid rgba(250, 204, 21, 0.4); }
+.puntos-ganados { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.puntos-ganados .punto { font-size: 14px; padding: 7px 16px; }
+.h-enlace { font-size: 12.5px !important; color: var(--cyan) !important; }
+.enlace-cita { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: rgba(255, 255, 255, 0.025); border: 1px dashed var(--line-2); color: var(--muted); font-size: 14px; }
+.enlace-cita.con-cita { border: 1px solid rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.07); color: var(--text); }
+.enlace-cita > span { font-size: 18px; line-height: 1.2; }
+.enlace-cita small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 
 /* ---------- Ajustes y equipo ---------- */
 .perfil-cab { display: flex; align-items: center; gap: 16px; padding: 6px 0; }
