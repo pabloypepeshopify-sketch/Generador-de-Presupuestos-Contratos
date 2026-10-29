@@ -18,12 +18,15 @@ El objetivo de cada llamada es **conseguir ver al dueño en persona**. La app gi
 - **Importar listados** de bares pegando columnas desde Excel o Google Sheets (salta los repetidos).
 - Tiempo real: lo que apunta un compañero aparece al instante en el resto de móviles.
 - Gestión del equipo (solo socios): dar de alta, cambiar contraseña, renombrar, cambiar rol, quitar acceso.
+- **Captación sin llamar en frío** (ver [`CAPTACION.md`](CAPTACION.md)): radar diario de Google Maps por zonas, informe personal de cada local con su nota y reseñas frente a su zona, «Analiza tu local gratis», asistente con IA en el chat y en WhatsApp, cartas con QR y la lista de **Calientes** para llamar primero a quien ya mostró interés.
 
 ## Cómo está hecho
 
 - `web/`: HTML + JS sin paso de build (Preact + htm desde jsDelivr, supabase-js UMD). Se despliega tal cual en Vercel (proyecto `visax-equipo`).
 - `supabase/migrations/`: esquema, RLS y trigger que actualiza la ficha del local con cada llamada. Proyecto Supabase `visax-comerciales` (separado del de facturación).
 - `supabase/functions/equipo/`: función Edge para que los socios gestionen usuarios con la service role (nunca llega al navegador).
+- `supabase/functions/radar`, `informe`, `whatsapp` y `_shared/`: captación (radar de Google Maps, API pública del informe, asistente con IA y WhatsApp). Pruebas en `supabase/functions/tests/`.
+- `informe-web/`: página pública del informe y de «Analiza tu local» (proyecto Vercel `visax-informe`).
 
 Los usuarios entran con **usuario + contraseña** (por debajo se guardan como `usuario@equipo.visaxnfc.es`, no se envía ningún correo).
 
