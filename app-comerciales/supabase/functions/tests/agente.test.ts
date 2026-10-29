@@ -173,7 +173,7 @@ Deno.test("con el agente pausado no llama a la IA, pero ordena los mensajes", as
   assertEquals(db.tablas.mensajes.map((m) => [m.orden, m.autor, m.rol]), [[1, "cliente", "user"], [2, "equipo", "assistant"]]);
 });
 
-Deno.test("sin clave de la API avisa una sola vez y pasa la conversación al equipo", async () => {
+Deno.test("sin clave de la API avisa una sola vez al cliente y al equipo", async () => {
   const { db, sb } = preparar();
   Deno.env.delete("ANTHROPIC_API_KEY");
   const conv = await crearConversacion(sb, db.tablas.locales[0], "web");
@@ -181,9 +181,17 @@ Deno.test("sin clave de la API avisa una sola vez y pasa la conversación al equ
   const r = await atender(sb, conv.id);
   assertEquals(r.length, 1);
   assertStringIncludes(r[0], "aviso al equipo");
-  assertEquals(db.tablas.locales[0].agente_pausado, true);
   assertEquals(db.tablas.locales[0].estado, "rellamar");
   assertEquals(peticiones.length, 0);
+
+  // No repite el aviso; y cuando vuelve la clave, el agente responde solo
+  await mensajeDelCliente(sb, conv.id, "¿Hola?");
+  assertEquals(await atender(sb, conv.id), []);
+  Deno.env.set("ANTHROPIC_API_KEY", "prueba");
+  guion = [texto("¡Ya estoy! ¿En qué te ayudo?")];
+  await mensajeDelCliente(sb, conv.id, "¿Sigues ahí?");
+  assertEquals(await atender(sb, conv.id), ["¡Ya estoy! ¿En qué te ayudo?"]);
+  historialValido(peticiones[0].cuerpo.messages);
 });
 
 Deno.test("si el modelo rechaza, contesta con un mensaje amable", async () => {

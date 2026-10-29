@@ -340,7 +340,7 @@ export async function atender(db: SupabaseClient, conversacionId: string, enviar
             await pedirLlamada(db, local!.id, "El agente no pudo responder: contestar a mano");
             await decir(SIN_SERVICIO);
           }
-          await db.from("locales").update({ agente_pausado: true }).eq("id", local!.id);
+          // Sin pausar: en cuanto la API vuelva (o se ponga la clave), el agente sigue solo
         }
       }
     } finally {
