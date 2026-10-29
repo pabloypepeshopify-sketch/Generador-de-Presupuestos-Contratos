@@ -1,15 +1,15 @@
 // Lista de locales, ficha con historial, alta/edición e importación de listados.
 import { html, useEffect, useMemo, useState } from './preact.js';
 import {
-  borrarLocal, crearLocal, editarLocal, esSocio, historial, importarLocales, useStore,
+  actividadDigital, borrarLocal, busqueda, crearLocal, editarLocal, esSocio, historial, importarLocales, responderWhatsApp, useStore,
 } from './datos.js';
 import { puntosDe } from './concurso.js';
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, Interes, Seccion, TarjetaLocal, Vacio, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import {
-  ESTADOS, INTERES, ORDEN_ESTADOS, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
-  capital, hora, hoyISO, mapsHref, mensajeError, normTel, normTxt, porCita, sumarDias, telHref, textoResultado, whatsappHref,
+  ESTADOS, INTERES, OPORTUNIDAD, ORDEN_ESTADOS, ORIGENES, TIPOS_LOCAL, copiar, enlaceInforme, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
+  capital, hora, hoyISO, mapsHref, mensajeError, mensajeInforme, normTel, normTxt, porCita, sumarDias, telHref, textoResultado, whatsappHref,
 } from './util.js';
 
 // Los filtros se recuerdan mientras la app está abierta.
@@ -17,7 +17,7 @@ const filtros = { estado: 'todos', quien: 'todos', q: '', orden: 'reciente' };
 
 export function Locales({ query }) {
   const s = useStore();
-  const [f, setF] = useState(() => ({ ...filtros, ...(query.estado ? { estado: query.estado } : {}) }));
+  const [f, setF] = useState(() => ({ ...filtros, ...(query.estado ? { estado: query.estado } : {}), ...(query.q ? { q: query.q } : {}) }));
   const [limite, setLimite] = useState(60);
   const cambiar = (k, v) => {
     setF((x) => ({ ...x, [k]: v }));
@@ -52,6 +52,7 @@ export function Locales({ query }) {
 
   return html`
     <${Cabecera} titulo="Los" acento="locales" sub=${`${s.locales.length} en total`}>
+      <button class="icono-btn" onClick=${() => ir('/captacion?vista=radar')} aria-label="Radar de Google Maps"><${Icono} n="radar" /></button>
       <button class="icono-btn" onClick=${() => ir('/importar')} aria-label="Importar lista"><${Icono} n="subir" /></button>
       <button class="icono-btn principal" onClick=${() => ir('/nuevo-local')} aria-label="Añadir local"><${Icono} n="mas" /></button>
     </${Cabecera}>
@@ -161,6 +162,8 @@ export function FichaLocal({ id }) {
       </dl>
     </${Seccion}>
 
+    <${BloqueCaptacion} l=${l} wa=${wa} />
+
     <${Seccion} titulo="Historial">
       ${hist === null && !llamadas.length ? html`<p class="tenue">Cargando…</p>`
         : llamadas.length ? html`<ol class="historial">${llamadas.map((x) => html`<${EntradaHistorial} x=${x} productos=${s.productos} locales=${s.locales} key=${x.id} />`)}</ol>`
@@ -169,6 +172,114 @@ export function FichaLocal({ id }) {
 
     ${esSocio() ? html`<button class="btn peligro bloque" onClick=${borrar}><${Icono} n="papelera" /> Borrar local</button>` : null}
   `;
+}
+
+// ---------- Captación en la ficha: Google, su informe, lo que ha hecho y sus conversaciones ----------
+const POR_DONDE = { qr: 'desde el QR', nfc: 'con la pegatina NFC', carta: 'desde la carta', ig: 'desde Instagram', wa: 'desde WhatsApp', email: 'desde un email', anuncio: 'desde un anuncio', video: 'desde un vídeo', analiza: 'tras analizar su local' };
+
+function textoEvento(e) {
+  switch (e.tipo) {
+    case 'visto': return `Abrió su informe${POR_DONDE[e.detalle] ? ` ${POR_DONDE[e.detalle]}` : ''}`;
+    case 'whatsapp': return e.detalle || 'Pulsó «Hablar por WhatsApp» en su informe';
+    case 'tienda': return `Fue a la tienda${e.detalle ? `: ${e.detalle}` : ''}`;
+    case 'chat': return `Escribió al asistente: «${e.detalle}»`;
+    default: return e.detalle || e.tipo;
+  }
+}
+
+function BloqueCaptacion({ l, wa }) {
+  const [act, setAct] = useState(null);
+  const [zona, setZona] = useState(null);
+  const cargar = () => actividadDigital(l.id).then(setAct).catch(() => setAct({ eventos: [], conversaciones: [] }));
+
+  useEffect(() => {
+    cargar();
+  }, [l.id, l.informe_visitas, l.ultimo_mensaje_en, l.pidio_contacto_en]);
+  // Con conversaciones abiertas, refresca para ver las respuestas del agente
+  useEffect(() => {
+    if (!act?.conversaciones.length) return;
+    const t = setInterval(cargar, 15000);
+    return () => clearInterval(t);
+  }, [act?.conversaciones.length, l.id]);
+  useEffect(() => {
+    if (l.busqueda_id) busqueda(l.busqueda_id).then(setZona).catch(() => {});
+  }, [l.busqueda_id]);
+
+  const faltan = zona?.mediana_resenas != null && l.google_resenas != null ? zona.mediana_resenas - l.google_resenas : null;
+  const copiarTxt = async (txt, ok) => {
+    const hecho = await copiar(txt);
+    aviso(hecho ? ok : 'No se pudo copiar', hecho ? 'ok' : 'error');
+  };
+  const waInforme = wa ? whatsappHref(l.dueno_telefono, mensajeInforme(l, 'wa')) || whatsappHref(l.telefono, mensajeInforme(l, 'wa')) : null;
+
+  return html`
+    ${l.google_nota != null || l.google_id ? html`<${Seccion} titulo="Google Maps">
+      <div class="tiles">
+        <div class="tile"><b>${l.google_nota != null ? String(l.google_nota).replace('.', ',') : '–'}<small>★</small></b><span>Nota</span></div>
+        <div class="tile"><b>${l.google_resenas ?? 0}</b><span>Reseñas</span></div>
+        <div class="tile"><b>${zona?.mediana_resenas ?? '–'}</b><span>Mitad de su zona supera</span></div>
+      </div>
+      ${l.oportunidad ? html`<p class="ayuda"><b>${OPORTUNIDAD[l.oportunidad]}</b>${faltan > 0 ? ` · le faltan unas ${faltan} reseñas para la mitad alta de su zona` : ''}${zona?.media_nota != null ? ` · nota media de la zona ${String(zona.media_nota).replace('.', ',')}` : ''}</p>` : null}
+      <div class="botones-fila">
+        ${l.maps_url ? html`<a class="btn fantasma peque" href=${l.maps_url} target="_blank" rel="noopener"><${Icono} n="mapa" t=${16} /> Su ficha</a>` : null}
+        ${l.web ? html`<a class="btn fantasma peque" href=${l.web} target="_blank" rel="noopener"><${Icono} n="externo" t=${16} /> Su web</a>` : null}
+      </div>
+    </${Seccion}>` : null}
+
+    <${Seccion} titulo="Su informe">
+      <p class="ayuda">${ORIGENES[l.origen] || ''}${l.informe_visitas ? ` · lo ha abierto ${l.informe_visitas} ${l.informe_visitas === 1 ? 'vez' : 'veces'}, la última ${haceCuanto(l.informe_visto_en)}` : ' · aún no lo ha abierto'}${l.carta_enviada_en ? ` · carta enviada ${haceCuanto(l.carta_enviada_en)}` : ''}</p>
+      <div class="botones-fila">
+        <a class="btn sec peque" href=${`${enlaceInforme(l)}?p=1`} target="_blank" rel="noopener"><${Icono} n="externo" t=${16} /> Ver informe</a>
+        <button class="btn fantasma peque" onClick=${() => copiarTxt(enlaceInforme(l, 'nfc'), 'Enlace para la pegatina NFC copiado')}><${Icono} n="enlace" t=${16} /> Enlace NFC</button>
+        <button class="btn fantasma peque" onClick=${() => copiarTxt(mensajeInforme(l, 'ig'), 'Mensaje copiado: pégalo en Instagram')}><${Icono} n="copiar" t=${16} /> Mensaje Instagram</button>
+        ${waInforme ? html`<a class="btn fantasma peque" href=${waInforme} target="_blank" rel="noopener"><${Icono} n="chat" t=${16} /> Mandar por WhatsApp</a>` : null}
+      </div>
+      ${act?.eventos.length ? html`<ul class="eventos">${act.eventos.slice(0, 12).map((e) => html`<li key=${e.id}><span>${textoEvento(e)}</span><small>${haceCuanto(e.creado_en)}</small></li>`)}</ul>` : null}
+    </${Seccion}>
+
+    ${act?.conversaciones.map((c) => html`<${Conversacion} c=${c} l=${l} alCambiar=${cargar} key=${c.id} />`)}
+  `;
+}
+
+function Conversacion({ c, l, alCambiar }) {
+  const [texto, setTexto] = useState('');
+  const [enviando, setEnviando] = useState(false);
+
+  async function pausar() {
+    try {
+      await editarLocal(l.id, { agente_pausado: !l.agente_pausado });
+      aviso(l.agente_pausado ? 'El asistente vuelve a contestar solo' : 'Asistente en pausa: contestáis vosotros');
+    } catch (e) {
+      aviso(mensajeError(e), 'error');
+    }
+  }
+
+  async function enviar(e) {
+    e.preventDefault();
+    if (!texto.trim()) return;
+    setEnviando(true);
+    try {
+      await responderWhatsApp(c.id, texto.trim());
+      setTexto('');
+      aviso('Enviado por WhatsApp. El asistente queda en pausa en esta conversación.');
+      alCambiar();
+    } catch (err) {
+      aviso(mensajeError(err), 'error');
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return html`<${Seccion} titulo=${c.canal === 'whatsapp' ? `WhatsApp · +${c.wa_id}` : 'Chat de su informe'}>
+    <div class="conv-cab"><span class=${`etq ${l.agente_pausado ? '' : 'activo'}`}><${Icono} n="robot" t=${14} /> ${l.agente_pausado ? 'Asistente en pausa' : 'Asistente contestando'}</span>
+      <button class="btn fantasma peque" onClick=${pausar}>${l.agente_pausado ? 'Reactivar asistente' : 'Pausar asistente'}</button></div>
+    <ol class="conversacion">${c.mensajes.map((m) => html`<li class=${`burbuja ${m.autor}`} key=${m.id}>
+      ${m.texto}<small>${m.autor === 'agente' ? 'Asistente' : m.autor === 'equipo' ? 'Equipo' : 'Cliente'} · ${haceCuanto(m.creado_en)}</small></li>`)}</ol>
+    ${c.canal === 'whatsapp' ? html`<form class="responder" onSubmit=${enviar}>
+      <textarea rows="2" value=${texto} onInput=${(e) => setTexto(e.target.value)} placeholder="Contestar por WhatsApp (pausa al asistente)"></textarea>
+      <button class="btn primario" disabled=${enviando || !texto.trim()}>${enviando ? 'Enviando…' : 'Enviar'}</button>
+    </form>` : html`<p class="ayuda">El chat de la web no admite respuestas a mano: llamadle o escribidle por WhatsApp.</p>`}
+  </${Seccion}>`;
 }
 
 function EntradaHistorial({ x, productos, locales }) {

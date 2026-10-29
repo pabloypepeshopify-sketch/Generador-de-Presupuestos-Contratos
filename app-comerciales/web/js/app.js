@@ -6,6 +6,7 @@ import { Agenda, Inicio } from './inicio.js';
 import { EditarLocal, FichaLocal, Importar, Locales } from './locales.js';
 import { FormLlamada } from './llamada.js';
 import { Ajustes, Catalogo, Informe, Miembros } from './equipo.js';
+import { Captacion, Cartas } from './captacion.js';
 import { mensajeError } from './util.js';
 
 function Login() {
@@ -77,6 +78,8 @@ function Pagina({ ruta }) {
     case 'catalogo': return [html`<${Catalogo} />`, ''];
     case 'ajustes': return [html`<${Ajustes} />`, ''];
     case 'miembros': return [html`<${Miembros} />`, ''];
+    case 'captacion': return [html`<${Captacion} query=${ruta.query} />`, ''];
+    case 'cartas': return [html`<${Cartas} />`, ''];
     default: return [html`<${Inicio} />`, '/'];
   }
 }

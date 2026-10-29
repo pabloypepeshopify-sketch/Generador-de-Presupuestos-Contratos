@@ -6,7 +6,7 @@ import {
   Avatar, BotonTel, Cabecera, Chips, Icono, Seccion, TarjetaLocal, Vacio, ir, nombreDe,
 } from './ui.js';
 import {
-  capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, porCita, textoResultado,
+  calor, capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, porCita, textoResultado,
 } from './util.js';
 
 function contar(llamadas) {
@@ -37,6 +37,7 @@ export function Inicio() {
       rellamar: s.locales.filter((l) => l.estado === 'rellamar' && (!l.rellamar_fecha || l.rellamar_fecha <= hoy)).sort(porRellamar(s.yo.id)),
       porLlamar: s.locales.filter((l) => l.estado === 'pendiente' || l.estado === 'no_contesta').length,
       recientes: [...s.llamadas].sort((a, b) => b.creado_en.localeCompare(a.creado_en)).slice(0, 8),
+      calientes: s.locales.map((l) => ({ l, c: calor(l) })).filter((x) => x.c).sort((a, b) => b.c.ts.localeCompare(a.c.ts)),
     };
   }, [s.llamadas, s.locales, s.yo.id, hoy]);
 
@@ -47,6 +48,7 @@ export function Inicio() {
     <header class="cab cab-marca">
       <img class="logo" src="/logo.svg" alt="VISAX NFC" />
       <div class="cab-acc">
+        <a class="icono-btn" href="#/captacion" aria-label="Captación"><${Icono} n="radar" /></a>
         <a class="icono-btn" href="#/catalogo" aria-label="Catálogo"><${Icono} n="catalogo" /></a>
         <a class="icono-btn avatar-btn" href="#/ajustes" aria-label="Ajustes"><${Avatar} p=${s.yo} t=${36} /></a>
       </div>
@@ -69,6 +71,11 @@ export function Inicio() {
       <button class="btn primario grande" onClick=${() => ir('/llamada')}><${Icono} n="tel" /> Apuntar llamada</button>
       <button class="btn sec grande" onClick=${() => ir('/visita')}><${Icono} n="mapa" /> Apuntar visita</button>
     </div>
+
+    ${d.calientes.length ? html`
+      <${Seccion} titulo="Calientes · llamar primero" enlace="/captacion">
+        <div class="lista">${d.calientes.slice(0, 4).map(({ l }) => html`<${TarjetaLocal} l=${l} key=${l.id} />`)}</div>
+      </${Seccion}>` : null}
 
     <${TarjetaConcurso} />
 

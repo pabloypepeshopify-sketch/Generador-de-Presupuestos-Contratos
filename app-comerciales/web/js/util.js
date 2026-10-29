@@ -34,6 +34,48 @@ export const TIPOS_LOCAL = ['Bar', 'Restaurante', 'Cafetería', 'Hotel', 'Chirin
 
 export const COLORES = ['#7C5CFF', '#33C6F4', '#22C55E', '#F5A524', '#F25F5C', '#EC4899', '#3F7DFB', '#14B8A6'];
 
+// ---------- Captación ----------
+// Página pública del informe de cada local (enlaces, QR de las cartas y pegatinas NFC)
+export const INFORME_URL = 'https://visax-informe.vercel.app';
+
+export const ORIGENES = {
+  manual: 'Apuntado por el equipo',
+  radar: 'Radar de Google Maps',
+  web: 'Analizó su local en la web',
+  whatsapp: 'Escribió por WhatsApp',
+};
+export const OPORTUNIDAD = { 3: 'Mucha oportunidad', 2: 'Algo de oportunidad', 1: 'Ya va fuerte' };
+
+// origen: qr, nfc, carta, ig, wa… para saber por dónde entró
+export const enlaceInforme = (l, origen) => `${INFORME_URL}/para/${l.codigo}${origen ? `?o=${origen}` : ''}`;
+
+// Señal más reciente de interés (últimos 14 días): abrió su informe, escribió o pidió contacto
+export function calor(l) {
+  if (l.estado === 'cliente' || l.estado === 'no_interesa') return null;
+  const desde = Date.now() - 14 * 864e5;
+  const senales = [
+    [l.pidio_contacto_en, 'Pidió que le contactemos'],
+    [l.ultimo_mensaje_en, 'Escribió al asistente'],
+    [l.informe_visto_en, `Abrió su informe${l.informe_visitas > 1 ? ` (${l.informe_visitas} veces)` : ''}`],
+  ].filter(([ts]) => ts && Date.parse(ts) >= desde).sort((a, b) => b[0].localeCompare(a[0]));
+  return senales.length ? { ts: senales[0][0], txt: senales[0][1] } : null;
+}
+
+// Mensaje uno a uno (Instagram, o WhatsApp a quien ya conocemos) con su informe
+export function mensajeInforme(l, origen = 'ig') {
+  const nombre = l.dueno_nombre ? ` ${l.dueno_nombre.split(' ')[0]}` : '';
+  return `Hola${nombre}, somos Pablo y Pepe, de VISAX NFC. Hemos preparado un informe gratis de la ficha de Google de ${l.nombre}${l.zona ? `: cómo estáis frente a los locales de ${l.zona}` : ''}. Os lo dejo por si os sirve: ${enlaceInforme(l, origen)}\nSi no os interesa, decídnoslo y no os volvemos a escribir.`;
+}
+
+export async function copiar(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ---------- Fechas (siempre en hora local del móvil) ----------
 const dos = (n) => String(n).padStart(2, '0');
 

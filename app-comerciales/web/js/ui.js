@@ -2,7 +2,7 @@
 import { html, useEffect, useState } from './preact.js';
 import { actualizar, perfil, store, useStore } from './datos.js';
 import {
-  ESTADOS, INTERES, fechaRelativa, haceCuanto, hora, iniciales, telHref,
+  ESTADOS, INTERES, calor, fechaRelativa, haceCuanto, hora, iniciales, telHref,
 } from './util.js';
 
 // ---------- Rutas (#/locales, #/local/<id>...) ----------
@@ -79,6 +79,13 @@ const RUTAS = {
   ajustes: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   aviso: '<path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
   euro: '<path d="M18 7a7 7 0 1 0 0 10M4 10h10M4 14h10"/>',
+  radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.5-6.5"/>',
+  fuego: '<path d="M12 22c4 0 7-3 7-7 0-3-2-5.5-3.5-7-.3 2-1.5 3.5-3 4 .5-3-1-6.5-4-9 0 3.5-3.5 6-3.5 11 0 4.4 3.1 8 7 8z"/>',
+  enlace: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  imprimir: '<path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/>',
+  copiar: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+  estrella: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',
+  robot: '<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/>',
 };
 
 export function Icono({ n, t = 20 }) {
@@ -160,11 +167,14 @@ export function BotonTel({ tel, peque }) {
 export function TarjetaLocal({ l, mostrar = 'auto' }) {
   const verCita = l.estado === 'cita' && l.cita_fecha;
   const verRellamar = l.estado === 'rellamar' && (l.rellamar_fecha || mostrar === 'rellamar');
+  const caliente = calor(l);
   return html`<article class="tarjeta-local" onClick=${() => ir(`/local/${l.id}`)} tabindex="0"
       onKeyDown=${(e) => e.key === 'Enter' && ir(`/local/${l.id}`)}>
     <div class="tl-main">
       <div class="tl-fila1"><b class="tl-nombre">${l.nombre}</b><${Interes} n=${l.interes} /></div>
-      <div class="tl-fila2"><${Insignia} estado=${l.estado} />${l.zona ? html`<span>${l.zona}</span>` : null}${l.tipo ? html`<span>${l.tipo}</span>` : null}</div>
+      <div class="tl-fila2"><${Insignia} estado=${l.estado} />${l.zona ? html`<span>${l.zona}</span>` : null}${l.tipo ? html`<span>${l.tipo}</span>` : null}
+        ${l.google_nota != null ? html`<span class="tl-google">★ ${String(l.google_nota).replace('.', ',')} · ${l.google_resenas ?? 0} reseñas</span>` : null}</div>
+      ${caliente ? html`<div class="tl-dato caliente"><${Icono} n="fuego" t=${15} /> ${caliente.txt} · ${haceCuanto(caliente.ts)}</div>` : null}
       ${verCita ? html`<div class="tl-dato cita"><${Icono} n="agenda" t=${15} /> ${fechaRelativa(l.cita_fecha)}${l.cita_hora ? ` · ${hora(l.cita_hora)}` : ''} · va ${nombreDe(l.cita_comercial_id)}</div>` : null}
       ${verRellamar ? html`<div class="tl-dato rellamar"><${Icono} n="reloj" t=${15} /> Llamar ${l.rellamar_fecha ? fechaRelativa(l.rellamar_fecha).toLowerCase() : 'otra vez'}${l.rellamar_hora ? ` · ${hora(l.rellamar_hora)}` : ''}</div>` : null}
       ${l.dueno_nombre ? html`<div class="tl-dato">Dueño: <b>${l.dueno_nombre}</b>${l.hablado_con_dueno ? ' · ya habló con él' : ''}</div>` : null}

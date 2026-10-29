@@ -21,6 +21,8 @@ export const store = {
   productos: [],
   locales: [],
   llamadas: [],
+  zonas: [],
+  cartas: [], // ids de los locales elegidos para imprimir cartas
   listo: false,
   errorCarga: null,
   aviso: null,
@@ -73,14 +75,15 @@ async function todas(consulta) {
 
 async function cargarTodo() {
   const desde = new Date(Date.now() - DIAS_HISTORIAL * 864e5).toISOString();
-  const [perfiles, productos, locales, llamadas] = await Promise.all([
+  const [perfiles, productos, locales, llamadas, zonas] = await Promise.all([
     todas(() => sb.from('perfiles').select('*').order('creado_en').order('id')),
     todas(() => sb.from('productos').select('*').order('orden').order('creado_en')),
     todas(() => sb.from('locales').select('*').order('creado_en').order('id')),
     todas(() => sb.from('llamadas').select('*').gte('creado_en', desde).order('creado_en', { ascending: false }).order('id')),
+    todas(() => sb.from('zonas').select('*').order('creado_en').order('id')),
   ]);
   const yo = perfiles.find((p) => p.id === store.sesion?.user?.id) || null;
-  actualizar({ perfiles, productos, locales, llamadas, yo, listo: true, errorCarga: null });
+  actualizar({ perfiles, productos, locales, llamadas, zonas, yo, listo: true, errorCarga: null });
   escuchar();
 }
 
@@ -97,7 +100,7 @@ let canal = null;
 async function escuchar() {
   if (canal) return;
   canal = sb.channel('equipo');
-  for (const tabla of ['locales', 'llamadas', 'perfiles', 'productos']) {
+  for (const tabla of ['locales', 'llamadas', 'perfiles', 'productos', 'zonas']) {
     canal.on('postgres_changes', { event: '*', schema: 'public', table: tabla }, (p) => {
       if (p.errors?.length) return;
       if (p.eventType === 'DELETE') {
@@ -132,7 +135,7 @@ export async function cerrarSesion() {
 function limpiar() {
   if (canal) sb.removeChannel(canal);
   canal = null;
-  actualizar({ yo: null, perfiles: [], productos: [], locales: [], llamadas: [], listo: false, errorCarga: null });
+  actualizar({ yo: null, perfiles: [], productos: [], locales: [], llamadas: [], zonas: [], cartas: [], listo: false, errorCarga: null });
 }
 
 sb.auth.onAuthStateChange((evento, sesion) => {
@@ -192,6 +195,73 @@ export async function historial(localId) {
   const { data, error } = await sb.from('llamadas').select('*').eq('local_id', localId).order('creado_en', { ascending: false });
   if (error) throw error;
   return data;
+}
+
+// ---------- Captación: radar, informe, conversaciones del agente y cartas ----------
+async function invocar(funcion, cuerpo) {
+  const { data, error } = await sb.functions.invoke(funcion, { body: cuerpo });
+  if (error) {
+    let msg = error.message;
+    try {
+      msg = (await error.context.json()).error || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+  return data;
+}
+
+export async function guardarZona(z) {
+  const { id, ...campos } = z;
+  const q = id ? sb.from('zonas').update(campos).eq('id', id) : sb.from('zonas').insert(campos);
+  const { data, error } = await q.select().single();
+  if (error) throw error;
+  fusionar('zonas', data);
+  return data;
+}
+
+export async function borrarZona(id) {
+  const { error } = await sb.from('zonas').delete().eq('id', id);
+  if (error) throw error;
+  actualizar({ zonas: store.zonas.filter((z) => z.id !== id) });
+}
+
+// Barre la zona ahora en Google Maps. Los locales nuevos llegan solos por tiempo real.
+export const lanzarRadar = (zonaId) => invocar('radar', { accion: 'zona', zona_id: zonaId });
+
+export async function actividadDigital(localId) {
+  const [eventos, conversaciones] = await Promise.all([
+    sb.from('eventos').select('*').eq('local_id', localId).order('creado_en', { ascending: false }).limit(50),
+    sb.from('conversaciones').select('id, canal, wa_id, creado_en, actualizado_en, mensajes(id, autor, texto, creado_en)')
+      .eq('local_id', localId).order('actualizado_en', { ascending: false }),
+  ]);
+  if (eventos.error) throw eventos.error;
+  if (conversaciones.error) throw conversaciones.error;
+  for (const c of conversaciones.data) c.mensajes = c.mensajes.filter((m) => m.texto).sort((a, b) => a.id - b.id);
+  return { eventos: eventos.data, conversaciones: conversaciones.data };
+}
+
+export const responderWhatsApp = (conversacionId, texto) => invocar('whatsapp', { accion: 'enviar', conversacion_id: conversacionId, texto });
+
+export async function busqueda(id) {
+  const { data, error } = await sb.from('busquedas').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function busquedasDe(ids) {
+  if (!ids.length) return [];
+  const { data, error } = await sb.from('busquedas').select('*').in('id', ids);
+  if (error) throw error;
+  return data;
+}
+
+export async function marcarCartasEnviadas(ids) {
+  const ahora = new Date().toISOString();
+  for (let i = 0; i < ids.length; i += 200) {
+    const { data, error } = await sb.from('locales').update({ carta_enviada_en: ahora }).in('id', ids.slice(i, i + 200)).select();
+    if (error) throw error;
+    data.forEach((l) => fusionar('locales', l));
+  }
 }
 
 // ---------- Catálogo ----------
