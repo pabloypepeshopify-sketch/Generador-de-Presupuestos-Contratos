@@ -29,7 +29,8 @@
       sesion = { slug: qs.get('r').toLowerCase(), clave: qs.get('k') };
       history.replaceState(null, '', location.pathname); // la clave no se queda a la vista en la barra
     } else {
-      sesion = store.get(K_SESION, null);
+      // Desde Gestión se entra directo: la clave del dueño también abre el panel.
+      sesion = store.get(K_SESION, null) || store.get('carta:admin', null);
     }
     if (!sesion) return mostrarLogin();
     entrar();
