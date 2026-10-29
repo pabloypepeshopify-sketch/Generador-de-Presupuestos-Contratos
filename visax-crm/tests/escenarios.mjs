@@ -192,6 +192,9 @@ try {
     const tarjeta = pB.locator('section[aria-label^="Interesado"] article', { hasText: N.tienda });
     await tarjeta.waitFor();
     const destino = pB.locator('section[aria-label^="Preparando propuesta"]');
+    // Las columnas se desplazan en horizontal: hay que tener origen y destino a la vista
+    await destino.scrollIntoViewIfNeeded();
+    await tarjeta.scrollIntoViewIfNeeded();
     const a = await tarjeta.locator('p', { hasText: 'Último contacto' }).boundingBox();
     const b = await destino.boundingBox();
     await pB.mouse.move(a.x + a.width / 2, a.y + a.height / 2);

@@ -4,7 +4,7 @@ import { useActionState, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, CircleCheck, Lightbulb } from 'lucide-react';
 import { registrarInteraccion } from '@/acciones/seguimiento';
-import { BotonEnviar, useAviso } from '@/components/cliente';
+import { BotonEnviar } from '@/components/cliente';
 import { Avatar, Campo, EstadoBadge, IconoInteraccion, conColor } from '@/components/ui';
 import { fechaCorta, sumarDias } from '@/lib/fechas';
 import { GRUPOS_RESULTADO, NIVELES } from '@/lib/textos';
@@ -67,12 +67,9 @@ export function FormularioContacto({ negocio, contactos, serviciosActuales, tare
   const [nuevoEstado, setNuevoEstado] = useState('');
   const err = resultadoAccion && !resultadoAccion.ok ? resultadoAccion.campos ?? {} : {};
   const router = useRouter();
-  const avisar = useAviso();
   useEffect(() => {
-    if (resultadoAccion?.ok) {
-      avisar(resultadoAccion.mensaje ?? 'Contacto registrado');
-      router.push(`/negocios/${negocio.id}`);
-    }
+    // El aviso «Contacto registrado» llega por cookie al cambiar de página
+    if (resultadoAccion?.ok) router.push(`/negocios/${negocio.id}`);
   }, [resultadoAccion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const nombreServicio = (c: string) => cat.servicios.find((s) => s.codigo === c)?.nombre ?? c;

@@ -5,6 +5,7 @@ import { obtenerSesion } from '@/lib/sesion';
 import { datosFormulario, erroresDe, esquemaInteraccion, esquemaReprogramar, esquemaTarea } from '@/lib/validacion';
 import { mensajeErrorBD } from '@/lib/textos';
 import type { ResultadoAccion } from '@/lib/tipos';
+import { avisarTrasRedirigir } from '@/lib/aviso';
 
 const SIN_SESION: ResultadoAccion = { ok: false, error: 'Tu sesión ha caducado. Vuelve a entrar.' };
 const uuid = z.string().uuid();
@@ -36,8 +37,10 @@ export async function registrarInteraccion(_: ResultadoAccion | null, fd: FormDa
     p_completar_tarea: d.completar_tarea,
   });
   if (error) return { ok: false, error: mensajeErrorBD(error.message) };
-  // La navegación a la ficha la hace el formulario (más fiable que redirigir a la página padre)
-  return { ok: true, mensaje: 'Contacto registrado' };
+  // La cookie del aviso también hace que Next descarte la caché del navegador, así la ficha
+  // no se pinta con datos precargados antes de guardar. La navegación la hace el formulario.
+  await avisarTrasRedirigir('contacto');
+  return { ok: true };
 }
 
 export async function borrarInteraccion(id: string): Promise<ResultadoAccion> {
