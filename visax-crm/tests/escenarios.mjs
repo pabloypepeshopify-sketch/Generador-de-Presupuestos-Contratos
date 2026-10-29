@@ -100,11 +100,32 @@ async function guardarContacto(p, id) {
   await p.waitForLoadState('networkidle');
 }
 
+// Borra los negocios de prueba (y en cascada su historial, contactos y tareas)
+async function borrarDatosDePrueba() {
+  try {
+    const sesion = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: `${A.usuario}@crm.visaxai.es`, password: A.clave }),
+    }).then((r) => r.json());
+    const r = await fetch(`${SB_URL}/rest/v1/negocios?nombre=like.${encodeURIComponent(PREFIJO)}*`, {
+      method: 'DELETE',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${sesion.access_token}`, Prefer: 'return=representation' },
+    });
+    return (await r.json()).length ?? 0;
+  } catch (e) {
+    return `0 (error: ${e.message})`;
+  }
+}
+
 const ids = {};
 const ctxA = await nuevoContexto(false);
 const ctxBMovil = await nuevoContexto(true);
 const ctxB = await nuevoContexto(false);
 let pA, pBm, pB;
+
+const restos = await borrarDatosDePrueba();
+if (restos) console.log(`Restos de pruebas anteriores borrados: ${restos}`);
 
 try {
   pA = await abrirSesion(ctxA, A);
@@ -303,21 +324,7 @@ try {
     await captura(pA, '10-escritorio-ficha');
   });
 } finally {
-  // Limpieza: borra los negocios de prueba (y en cascada su historial, contactos y tareas)
-  try {
-    const sesion = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: `${A.usuario}@crm.visaxai.es`, password: A.clave }),
-    }).then((r) => r.json());
-    const r = await fetch(`${SB_URL}/rest/v1/negocios?nombre=like.${encodeURIComponent(PREFIJO)}*`, {
-      method: 'DELETE',
-      headers: { apikey: SB_KEY, Authorization: `Bearer ${sesion.access_token}`, Prefer: 'return=representation' },
-    });
-    console.log(`Limpieza: ${(await r.json()).length ?? 0} negocios de prueba borrados`);
-  } catch (e) {
-    console.log('No se ha podido limpiar:', e.message);
-  }
+  console.log(`Limpieza: ${await borrarDatosDePrueba()} negocios de prueba borrados`);
   await navegador.close();
 }
 
