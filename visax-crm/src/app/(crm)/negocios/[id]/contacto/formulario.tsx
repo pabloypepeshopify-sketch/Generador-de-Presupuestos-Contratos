@@ -69,7 +69,13 @@ export function FormularioContacto({ negocio, contactos, serviciosActuales, tare
   const router = useRouter();
   useEffect(() => {
     // El aviso «Contacto registrado» llega por cookie al cambiar de página
-    if (resultadoAccion?.ok) router.push(`/negocios/${negocio.id}`);
+    if (!resultadoAccion?.ok) return;
+    const ficha = `/negocios/${negocio.id}`;
+    router.push(ficha);
+    // Con mala cobertura la navegación puede quedarse a medias: el contacto ya está guardado,
+    // así que si en unos segundos no se ha abierto la ficha, se carga la página entera.
+    const respaldo = setTimeout(() => window.location.assign(ficha), 6000);
+    return () => clearTimeout(respaldo);
   }, [resultadoAccion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const nombreServicio = (c: string) => cat.servicios.find((s) => s.codigo === c)?.nombre ?? c;
@@ -377,7 +383,13 @@ export function FormularioContacto({ negocio, contactos, serviciosActuales, tare
 
       <div className="fixed inset-x-0 bottom-[62px] z-10 border-t border-borde bg-fondo/95 p-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <BotonEnviar className="btn btn-primario btn-lg w-full md:w-auto" disabled={!resultado || resultadoAccion?.ok === true} pendiente="Guardando…">
-          Guardar contacto{quien && quien.id !== yo.id ? ` de ${quien.nombre}` : ''}
+          {resultadoAccion?.ok ? (
+            <>
+              <CircleCheck className="size-4" /> Guardado. Abriendo la ficha…
+            </>
+          ) : (
+            <>Guardar contacto{quien && quien.id !== yo.id ? ` de ${quien.nombre}` : ''}</>
+          )}
         </BotonEnviar>
       </div>
     </form>
