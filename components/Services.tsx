@@ -1,63 +1,51 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { X, Check, Sparkles } from 'lucide-react';
-import { services, customService, type Service } from '@/lib/services';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Check, ArrowRight, Nfc } from 'lucide-react';
+import { categories, servicesIn, type CategoryId, type Service } from '@/lib/services';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { ServiceCard } from '@/components/ServiceCard';
-import { ServicesTrack } from '@/components/ServicesTrack';
-import { XP_EVENTS, xpMode } from '@/lib/experience';
+import { cn } from '@/lib/utils';
 
-const PARALLAX_RATIO = 0.08; // laterales un 8 % más lentos que la columna central
-const PARALLAX_MAX = 40; // px: tope para que las filas no se descuadren
-
+/** Servicios agrupados por categoría, con barra de categorías fija al hacer scroll. */
 export function Services() {
   const [active, setActive] = useState<Service | null>(null);
-  const grid = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
+  const [current, setCurrent] = useState<CategoryId>(categories[0].id);
+  const bar = useRef<HTMLDivElement>(null);
 
-  // Abrir el detalle desde las tarjetas 3D
+  // Marca en la barra la categoría que se está viendo.
   useEffect(() => {
-    const on = (e: Event) => {
-      const found = services.find((x) => x.slug === (e as CustomEvent<string>).detail);
-      if (found) setActive(found);
-    };
-    window.addEventListener(XP_EVENTS.OPEN_SERVICE, on);
-    return () => window.removeEventListener(XP_EVENTS.OPEN_SERVICE, on);
-  }, []);
-
-  // Parallax de la rejilla (solo sin 3D, con 3 columnas y sin movimiento reducido).
-  useEffect(() => {
-    if (!grid.current || xpMode() !== 'off') return;
-    gsap.registerPlugin(ScrollTrigger);
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
-      const sides = gsap.utils.toArray<HTMLElement>('[data-lateral]', grid.current);
-      const setY = sides.map((el) => gsap.quickSetter(el, 'y', 'px'));
-      gsap.set(sides, { willChange: 'transform' });
-      ScrollTrigger.create({
-        trigger: grid.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        onUpdate: (self) => {
-          // 0 cuando el grid está centrado en pantalla; se retrasa al alejarse.
-          const mid = (self.start + self.end) / 2;
-          const y = gsap.utils.clamp(
-            -PARALLAX_MAX,
-            PARALLAX_MAX,
-            (self.scroll() - mid) * PARALLAX_RATIO,
-          );
-          setY.forEach((set) => set(y));
-        },
-      });
-      return () => gsap.set(sides, { clearProps: 'transform,willChange' });
+    const io = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.find((e) => e.isIntersecting);
+        if (hit) setCurrent(hit.target.id as CategoryId);
+      },
+      { rootMargin: '-40% 0px -55% 0px' },
+    );
+    categories.forEach((c) => {
+      const el = document.getElementById(c.id);
+      if (el) io.observe(el);
     });
-    return () => mm.revert();
+    return () => io.disconnect();
   }, []);
+
+  // En móvil la barra se desliza sola para que la categoría activa quede a la vista.
+  useEffect(() => {
+    const el = bar.current;
+    const chip = el?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!el || !chip) return;
+    el.scrollTo({ left: chip.offsetLeft - (el.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
+  }, [current]);
+
+  // Escape cierra el detalle
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setActive(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [active]);
 
   return (
     <section id="servicios" className="section">
@@ -66,56 +54,82 @@ export function Services() {
           eyebrow="Servicios"
           title={
             <>
-              Automatizaciones que
+              Todo lo que hacemos
               <br />
-              <span className="text-gradient italic">trabajan por ti</span>
+              <span className="text-gradient italic">por tu negocio</span>
             </>
           }
-          intro="Cada tarjeta es un proceso real que ya hemos puesto en piloto automático para negocios como el tuyo. Pásalos por encima y descúbrelos."
+          intro="Elige lo que te quita más tiempo. Pulsa cualquier servicio para ver cómo funciona y con qué herramientas trabaja."
         />
 
-        {/* Sin 3D (movimiento reducido, equipos modestos, sin JS): rejilla HTML */}
-        <div ref={grid} className="services-grid mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, i) => (
-            <div key={service.slug} data-lateral={i % 3 !== 1 ? '' : undefined}>
-              <ServiceCard service={service} index={i} onOpen={setActive} />
-            </div>
-          ))}
-
-          {/* Tarjeta a medida */}
-          <div data-lateral={services.length % 3 !== 1 ? '' : undefined}>
-            <motion.a
-              href="#contacto"
-              initial={reduce ? false : { opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: 0.4,
-                delay: (services.length % 3) * 0.06,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              data-cursor="Hablar"
-              className="card-fx group relative flex h-full flex-col items-start justify-between gap-8 overflow-hidden rounded-[var(--radius)] border border-brand-violet/30 bg-brand-gradient-soft p-7"
+        {/* Barra de categorías: se queda fija debajo del menú mientras recorres los servicios */}
+        <nav
+          aria-label="Categorías de servicios"
+          className="sticky top-[72px] z-30 -mx-[clamp(1.25rem,5vw,3rem)] mt-10 border-b border-ink-line bg-bg/95 px-[clamp(1.25rem,5vw,3rem)] py-3 sm:top-[80px]"
+        >
+          <div ref={bar} className="no-scrollbar relative flex gap-2 overflow-x-auto">
+            {categories.map((c) => (
+              <a
+                key={c.id}
+                href={`#${c.id}`}
+                aria-current={current === c.id ? 'true' : undefined}
+                className={cn(
+                  'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+                  current === c.id
+                    ? 'border-brand-violet/60 bg-brand-violet/15 text-white'
+                    : 'border-ink-line text-ink-soft hover:text-white',
+                )}
+              >
+                <c.icon className="h-4 w-4" /> {c.chip}
+              </a>
+            ))}
+            <a
+              href="#nfc"
+              className="flex shrink-0 items-center gap-2 rounded-full border border-ink-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-white"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-white">
-                <Sparkles className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-display text-2xl leading-tight">{customService.title}</h3>
-                <p className="mt-2 text-sm text-ink-soft">{customService.description}</p>
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                  {customService.short} →
-                </span>
-              </div>
-            </motion.a>
+              <Nfc className="h-4 w-4" /> Bares y restaurantes
+            </a>
           </div>
+        </nav>
+
+        <div className="mt-6 flex flex-col">
+          {categories.map((c) => {
+            const list = servicesIn(c.id);
+            return (
+              <div key={c.id} id={c.id} className="scroll-mt-40 pt-12">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gradient-soft text-brand-cyan">
+                      <c.icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="font-display text-2xl sm:text-3xl">{c.title}</h3>
+                  </div>
+                  <p className="max-w-md text-sm text-ink-soft sm:text-right">{c.intro}</p>
+                </div>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {list.map((service, i) => (
+                    <ServiceCard key={service.slug} service={service} index={i} onOpen={setActive} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-14 flex flex-col items-start justify-between gap-5 rounded-[var(--radius)] border border-brand-violet/30 bg-brand-gradient-soft p-7 sm:flex-row sm:items-center">
+          <div>
+            <p className="font-display text-2xl">¿No sabes cuál necesitas?</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Cuéntanos cómo trabajas y te decimos qué te ahorra más tiempo. La llamada es gratis.
+            </p>
+          </div>
+          <MagneticButton href="/#reservar" variant="primary" className="shrink-0">
+            Reservar llamada <ArrowRight className="h-4 w-4" />
+          </MagneticButton>
         </div>
       </div>
 
-      {/* Con 3D: recorrido por las tarjetas de cristal */}
-      <ServicesTrack onOpen={setActive} />
-
-      {/* Modal de detalle */}
+      {/* Detalle del servicio */}
       <AnimatePresence>
         {active && (
           <motion.div
@@ -126,17 +140,16 @@ export function Services() {
             role="dialog"
             aria-modal="true"
             aria-label={active.title}
-            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
+            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/75 p-4 sm:items-center"
           >
             <motion.div
-              initial={{ y: 60, opacity: 0, scale: 0.96 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 60, opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 60, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="glass relative w-full max-w-lg overflow-hidden rounded-[var(--radius)] p-8 shadow-card"
+              className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius)] border border-ink-line bg-bg-raise p-7 shadow-card sm:p-8"
             >
-              <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-brand-blue/20 blur-3xl" />
               <button
                 onClick={() => setActive(null)}
                 className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-soft transition hover:text-white"
@@ -148,7 +161,8 @@ export function Services() {
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ink-line bg-white/[0.05] text-brand-cyan">
                 <active.icon className="h-6 w-6" />
               </span>
-              <h3 className="mt-5 font-display text-3xl">{active.title}</h3>
+              <p className="eyebrow mt-5">{categories.find((c) => c.id === active.category)?.title}</p>
+              <h3 className="mt-2 font-display text-3xl">{active.title}</h3>
               <p className="mt-3 leading-relaxed text-ink-soft">{active.description}</p>
 
               <div className="mt-5 flex items-center gap-2 rounded-xl border border-brand-violet/20 bg-brand-gradient-soft px-4 py-3">
@@ -157,22 +171,19 @@ export function Services() {
               </div>
 
               <div className="mt-5">
-                <p className="mb-2 text-xs uppercase tracking-widest text-ink-faint">Integra con</p>
+                <p className="mb-2 text-xs uppercase tracking-widest text-ink-faint">Trabaja con</p>
                 <div className="flex flex-wrap gap-2">
                   {active.tools.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-ink-line px-3 py-1 text-xs text-ink-soft"
-                    >
+                    <span key={t} className="rounded-full border border-ink-line px-3 py-1 text-xs text-ink-soft">
                       {t}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-7 flex gap-3">
-                <MagneticButton href="#reservar" variant="primary" className="flex-1">
-                  Quiero esto
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <MagneticButton href="/#reservar" variant="primary" className="flex-1" onClick={() => setActive(null)}>
+                  Lo quiero
                 </MagneticButton>
                 <MagneticButton href="/servicios" variant="secondary" className="flex-1">
                   Ver todos

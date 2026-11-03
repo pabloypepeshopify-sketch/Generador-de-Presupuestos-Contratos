@@ -8,7 +8,11 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 const faqs = [
   {
     q: '¿Cuánto tarda en estar funcionando?',
-    a: 'Depende de la automatización, pero la mayoría de proyectos están operativos en 1 a 3 semanas desde el diagnóstico. Los flujos más sencillos, en pocos días.',
+    a: 'Depende del proyecto, pero la mayoría de automatizaciones están operativas en 1 a 3 semanas desde el diagnóstico, y las más sencillas, en pocos días. Una web o un software a medida te lo planificamos por fases antes de empezar.',
+  },
+  {
+    q: '¿También hacéis páginas web y programas a medida?',
+    a: 'Sí. Diseñamos webs modernas y rápidas, adaptadas al móvil y preparadas para Google, y creamos software a medida cuando ningún programa encaja con tu negocio. Como con las automatizaciones, empezamos con una llamada gratis y te damos un precio cerrado.',
   },
   {
     q: '¿Se integra con las herramientas que ya uso?',

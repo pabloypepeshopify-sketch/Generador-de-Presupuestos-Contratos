@@ -6,12 +6,12 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { RevealGroup, RevealItem } from '@/components/ui/Reveal';
 
 const benefits = [
-  { icon: Clock, title: 'Ahorra horas cada día', text: 'Las tareas repetitivas dejan de comerse tu tiempo y el de tu equipo.' },
-  { icon: ShieldCheck, title: 'Cero errores humanos', text: 'La IA no se despista, no olvida y sigue tus reglas al pie de la letra.' },
-  { icon: Headphones, title: 'Atención 24/7', text: 'Responde, agenda y confirma incluso mientras duermes o estás de vacaciones.' },
-  { icon: TrendingUp, title: 'Más citas cerradas', text: 'Ninguna oportunidad se enfría: cada lead recibe respuesta al instante.' },
-  { icon: Wallet, title: 'Menos costes de personal', text: 'Automatizas lo que hoy exige contratar, sin nóminas ni bajas.' },
-  { icon: Sparkle, title: 'Imagen profesional', text: 'Documentos, respuestas y seguimiento impecables que transmiten confianza.' },
+  { icon: Clock, title: 'Ahorra horas cada día' },
+  { icon: ShieldCheck, title: 'Cero errores humanos' },
+  { icon: Headphones, title: 'Atención 24/7' },
+  { icon: TrendingUp, title: 'Más citas cerradas' },
+  { icon: Wallet, title: 'Menos costes de personal' },
+  { icon: Sparkle, title: 'Imagen profesional' },
 ];
 
 const before = [
@@ -19,7 +19,7 @@ const before = [
   'Se te escapan clientes por tardar en contestar',
   'Presupuestos y facturas a mano, propensos a errores',
   'Persigues impagos incómodamente',
-  'Sin tiempo para hacer crecer el negocio',
+  'Programas que no encajan y una web que no trae clientes',
 ];
 
 const after = [
@@ -27,7 +27,7 @@ const after = [
   'Cada lead recibe respuesta en segundos',
   'Documentos profesionales generados en un clic',
   'Los recordatorios de cobro se envían solos',
-  'Te dedicas a lo que de verdad mueve tu negocio',
+  'Software y web hechos a tu medida, que trabajan para ti',
 ];
 
 export function WhyAutomate() {
@@ -46,26 +46,25 @@ export function WhyAutomate() {
           intro="Cada hora que dedicas a tareas repetitivas es una hora que no dedicas a crecer. La IA se encarga de lo tedioso; tú, de lo importante."
         />
 
-        {/* Beneficios */}
-        <RevealGroup className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Beneficios: solo icono y titular, para leerlos de un vistazo */}
+        <RevealGroup className="mt-12 grid grid-cols-2 gap-3 lg:grid-cols-3" stagger={0.06}>
           {benefits.map((b) => (
             <RevealItem key={b.title}>
-              <div className="group h-full rounded-2xl border border-ink-line bg-bg-soft/40 p-6 transition-colors hover:border-brand-blue/40">
-                <b.icon className="h-7 w-7 text-brand-cyan transition-transform duration-300 group-hover:scale-110" />
-                <h3 className="mt-4 font-display text-xl">{b.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{b.text}</p>
+              <div className="flex h-full items-center gap-3 rounded-2xl border border-ink-line bg-bg-soft/50 p-4 sm:p-5">
+                <b.icon className="h-5 w-5 shrink-0 text-brand-cyan sm:h-6 sm:w-6" />
+                <h3 className="font-sans text-sm font-semibold leading-snug tracking-normal sm:text-base">{b.title}</h3>
               </div>
             </RevealItem>
           ))}
         </RevealGroup>
 
         {/* Antes vs Después */}
-        <div className="mt-16 grid gap-4 lg:grid-cols-2">
+        <div className="mt-8 grid gap-4 lg:grid-cols-2">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.5 }}
             className="rounded-[var(--radius)] border border-ink-line bg-bg-soft/30 p-8"
           >
             <p className="eyebrow text-ink-faint">Antes</p>
@@ -83,13 +82,12 @@ export function WhyAutomate() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.5 }}
             className="border-gradient relative overflow-hidden rounded-[var(--radius)] bg-brand-gradient-soft p-8 glow-blue"
           >
-            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-blue/20 blur-3xl" />
             <p className="eyebrow text-brand-cyan">Después</p>
             <h3 className="mt-2 font-display text-2xl">Con VISAX AI</h3>
             <ul className="mt-6 space-y-4">

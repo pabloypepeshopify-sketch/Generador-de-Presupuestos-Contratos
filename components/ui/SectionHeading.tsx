@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { RevealText } from './RevealText';
 import { cn } from '@/lib/utils';
-import { registerChroma } from '@/lib/chroma';
 import type { ReactNode } from 'react';
 
-/** Cabecera de sección: eyebrow con línea + titular con revelado por líneas. */
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Cabecera de sección: eyebrow con línea + titular y entradilla que suben al aparecer. */
 export function SectionHeading({
   eyebrow,
   title,
@@ -21,51 +20,31 @@ export function SectionHeading({
   align?: 'left' | 'center';
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => (ref.current ? registerChroma(ref.current) : undefined), []);
-
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex flex-col gap-5',
-        align === 'center' && 'items-center text-center',
-        className,
-      )}
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className={cn('flex flex-col gap-5', align === 'center' && 'items-center text-center', className)}
     >
       {eyebrow && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center gap-3"
-        >
+        <div className="flex items-center gap-3">
           <span className="h-px w-8 bg-gradient-to-r from-brand-cyan to-brand-violet" />
           <span className="eyebrow">{eyebrow}</span>
-        </motion.div>
+        </div>
       )}
-      <RevealText
-        as="h2"
-        type="lines"
-        className="max-w-4xl font-display text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
-      >
-        {title}
-      </RevealText>
+      <h2 className="max-w-4xl font-display text-4xl leading-[1.05] sm:text-5xl md:text-6xl">{title}</h2>
       {intro && (
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.15 }}
+        <p
           className={cn(
             'max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg',
             align === 'center' && 'mx-auto',
           )}
         >
           {intro}
-        </motion.p>
+        </p>
       )}
-    </div>
+    </motion.div>
   );
 }

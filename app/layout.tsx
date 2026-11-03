@@ -2,13 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
 import { site } from '@/lib/site.config';
-import { SmoothScroll } from '@/components/providers/SmoothScroll';
-import { CustomCursor } from '@/components/providers/CustomCursor';
-import { Preloader } from '@/components/Preloader';
+import { Motion } from '@/components/providers/Motion';
 import { ScrollProgress } from '@/components/ScrollProgress';
-import { CookieBanner } from '@/components/CookieBanner';
 import { FloatingCTA } from '@/components/FloatingCTA';
-import { introScript } from '@/lib/intro';
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -38,6 +34,8 @@ export const metadata: Metadata = {
     'recepcionista virtual IA',
     'agente de voz IA',
     'automatizar negocio',
+    'software a medida',
+    'páginas web para negocios',
     'Make',
     'VISAX AI',
   ],
@@ -98,27 +96,18 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: introScript }} />
-        <noscript>
-          <style>{'.preloader{display:none!important}'}</style>
-        </noscript>
-      </head>
+    <html lang="es" className={`${display.variable} ${sans.variable}`}>
       <body>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Preloader />
         <ScrollProgress />
         <div className="grain" aria-hidden="true" />
-        <CustomCursor />
-        <SmoothScroll>
+        <Motion>
           {children}
           <FloatingCTA />
-          <CookieBanner />
-        </SmoothScroll>
+        </Motion>
       </body>
     </html>
   );

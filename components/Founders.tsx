@@ -46,7 +46,7 @@ export function Founders() {
             Trato directo, sin intermediarios ni centralitas.
           </p>
           {site.whatsapp && (
-            <MagneticButton href={`https://wa.me/${site.whatsapp}`} variant="secondary" cursorLabel="Hablar">
+            <MagneticButton href={`https://wa.me/${site.whatsapp}`} variant="secondary">
               <MessageCircle className="h-4 w-4" /> Háblanos por WhatsApp
             </MagneticButton>
           )}

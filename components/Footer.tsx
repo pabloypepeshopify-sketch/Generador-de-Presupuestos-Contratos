@@ -8,13 +8,14 @@ import { MagneticButton } from '@/components/ui/MagneticButton';
 import { site } from '@/lib/site.config';
 
 const nav = [
-  { label: 'Servicios', href: '#servicios' },
-  { label: 'Cómo funciona', href: '#como-funciona' },
-  { label: 'Resultados', href: '#resultados' },
-  { label: 'Reservar', href: '#reservar' },
-  { label: 'Nosotros', href: '#nosotros' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Servicios', href: '/#servicios' },
+  { label: 'Todos los servicios', href: '/servicios' },
+  { label: 'Ideas por sector', href: '/#ejemplos' },
+  { label: 'Cómo trabajamos', href: '/#como-funciona' },
+  { label: 'Reservar', href: '/#reservar' },
+  { label: 'Nosotros', href: '/#nosotros' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'Contacto', href: '/#contacto' },
 ];
 
 const socialIcons = [
@@ -28,7 +29,7 @@ export function Footer() {
 
   return (
     <footer className="relative overflow-hidden border-t border-ink-line pt-20">
-      <div className="pointer-events-none absolute -top-1/2 left-1/2 h-[60vh] w-[80vw] -translate-x-1/2 rounded-full bg-brand-blue/10 blur-[140px]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[60vh] bg-[radial-gradient(50%_60%_at_50%_0%,rgba(63,125,251,0.12),transparent_70%)]" />
 
       <div className="container-x relative">
         {/* CTA final */}
@@ -36,8 +37,8 @@ export function Footer() {
           <h2 className="max-w-xl font-display text-4xl leading-tight sm:text-5xl">
             Pon tu negocio en <span className="text-gradient italic">piloto automático</span>.
           </h2>
-          <MagneticButton href="#reservar" variant="primary" cursorLabel="Reservar">
-            Reservar reunión
+          <MagneticButton href="/#reservar" variant="primary">
+            Reserva una llamada gratis
           </MagneticButton>
         </div>
 

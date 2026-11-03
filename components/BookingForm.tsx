@@ -553,7 +553,7 @@ export function BookingForm() {
             <button
               type="submit"
               disabled={submit === 'loading'}
-              data-cursor="Reservar"
+             
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand px-7 py-4 text-sm font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-70"
             >
               {submit === 'loading' ? (

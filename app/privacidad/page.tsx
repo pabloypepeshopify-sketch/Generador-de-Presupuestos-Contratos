@@ -94,8 +94,8 @@ export default function PrivacidadPage() {
             <section>
               <h2 className={h2}>7. Cookies</h2>
               <p className={p}>
-                Este sitio no usa cookies de publicidad ni de analítica. Solo guarda en tu navegador (almacenamiento local) tu
-                elección en el aviso de cookies, para no volver a mostrártelo.
+                Este sitio no usa cookies de publicidad ni de analítica, ni guarda datos en tu navegador para seguirte. Por eso no
+                te mostramos ningún aviso de cookies.
               </p>
             </section>
           </div>

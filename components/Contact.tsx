@@ -60,7 +60,7 @@ export function Contact() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              data-cursor="Llamar"
+             
               className="border-gradient group mt-10 flex items-center justify-between gap-4 rounded-[var(--radius)] bg-bg-soft/40 p-6 transition-colors hover:bg-bg-soft/70"
             >
               <div className="flex items-center gap-4">
@@ -81,7 +81,7 @@ export function Contact() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <a
                 href={`mailto:${site.email}`}
-                data-cursor="Email"
+               
                 className="flex items-center gap-3 rounded-2xl border border-ink-line bg-bg-soft/40 p-4 transition-colors hover:border-brand-blue/40"
               >
                 <Mail className="h-5 w-5 text-brand-cyan" />
@@ -92,7 +92,7 @@ export function Contact() {
                   href={`https://wa.me/${site.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  data-cursor="WhatsApp"
+                 
                   className="flex items-center gap-3 rounded-2xl border border-ink-line bg-bg-soft/40 p-4 transition-colors hover:border-brand-blue/40"
                 >
                   <MessageCircle className="h-5 w-5 text-[#25D366]" />
@@ -131,7 +131,7 @@ export function Contact() {
             <button
               type="submit"
               disabled={status === 'loading' || status === 'done'}
-              data-cursor="Enviar"
+             
               className="flex items-center justify-center gap-2 rounded-full bg-brand px-7 py-3.5 text-sm font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-70"
             >
               {status === 'loading' ? (

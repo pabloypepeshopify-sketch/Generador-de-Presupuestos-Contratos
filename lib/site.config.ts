@@ -10,7 +10,7 @@ export const site = {
   legalName: 'VISAX AI',
   tagline: 'Automatizamos tu negocio con Inteligencia Artificial',
   description:
-    'VISAX AI diseña automatizaciones a medida con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, cobros, facturas y contratos. Menos tareas manuales, más negocio.',
+    'VISAX AI automatiza tu negocio con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, presupuestos, facturas y cobros, además de software y páginas web a medida. Menos tareas manuales, más negocio.',
 
   // URL pública (dominio propio conectado en Vercel)
   url: 'https://visaxai.es',

@@ -9,16 +9,17 @@ import { MagneticButton } from '@/components/ui/MagneticButton';
 import { site } from '@/lib/site.config';
 import { cn } from '@/lib/utils';
 
+// Rutas con "/" delante: desde /servicios o /reservar también llevan al inicio.
 const nav = [
-  { label: 'Servicios', href: '#servicios' },
-  { label: 'Cómo funciona', href: '#como-funciona' },
-  { label: 'Resultados', href: '#resultados' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Servicios', href: '/#servicios' },
+  { label: 'Cómo trabajamos', href: '/#como-funciona' },
+  { label: 'Nosotros', href: '/#nosotros' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'Contacto', href: '/#contacto' },
 ];
 
-// En el menú del móvil también aparece "Nosotros" (en escritorio no cabe).
-const navMobile = [...nav.slice(0, 3), { label: 'Nosotros', href: '#nosotros' }, ...nav.slice(3)];
+// En el menú del móvil también aparecen las ideas por sector (en escritorio no caben).
+const navMobile = [nav[0], { label: 'Ideas por sector', href: '/#ejemplos' }, ...nav.slice(1)];
 
 /** Header fijo translúcido que se compacta al hacer scroll. */
 export function Header() {
@@ -54,7 +55,7 @@ export function Header() {
               scrolled ? 'glass py-2.5 shadow-card' : 'py-2',
             )}
           >
-            <Link href="/" aria-label="VISAX AI — inicio" data-cursor="Inicio">
+            <Link href="/" aria-label="VISAX AI — inicio">
               <Logo />
             </Link>
 
@@ -89,8 +90,8 @@ export function Header() {
                 {site.phone}
               </a>
               <div className="hidden sm:block">
-                <MagneticButton href="#reservar" variant="primary" cursorLabel="Reservar" className="whitespace-nowrap px-5 py-2.5">
-                  Reservar reunión
+                <MagneticButton href="/#reservar" variant="primary" className="whitespace-nowrap px-5 py-2.5">
+                  Llamada gratis
                 </MagneticButton>
               </div>
               <button
@@ -112,7 +113,7 @@ export function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-bg/95 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-[9999] overflow-y-auto bg-bg lg:hidden"
           >
             <div className="container-x flex items-center justify-between py-6">
               <Logo />
@@ -124,7 +125,7 @@ export function Header() {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <nav className="container-x mt-10 flex flex-col gap-2">
+            <nav className="container-x mt-4 flex flex-col">
               {navMobile.map((item, i) => (
                 <motion.a
                   key={item.href}
@@ -133,7 +134,7 @@ export function Header() {
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.08 * i }}
-                  className="border-b border-ink-line py-5 font-display text-3xl"
+                  className="border-b border-ink-line py-4 font-display text-3xl"
                 >
                   {item.label}
                 </motion.a>
@@ -146,17 +147,17 @@ export function Header() {
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.08 * navMobile.length }}
-                className="flex items-center gap-2 border-b border-ink-line py-5 font-display text-3xl"
+                className="flex items-center gap-2 border-b border-ink-line py-4 font-display text-3xl"
               >
                 Tienda NFC <ArrowUpRight className="h-6 w-6 text-brand-cyan" />
               </motion.a>
             </nav>
-            <div className="container-x mt-10 flex flex-col gap-4">
+            <div className="container-x mb-10 mt-8 flex flex-col gap-4">
               <a href={`tel:${site.phoneRaw}`} className="flex items-center gap-3 text-lg text-ink-soft">
                 <Phone className="h-5 w-5 text-brand-cyan" /> {site.phone}
               </a>
-              <MagneticButton href="#reservar" variant="primary" className="w-full">
-                Reservar reunión
+              <MagneticButton href="/#reservar" variant="primary" className="w-full">
+                Reserva una llamada gratis
               </MagneticButton>
             </div>
           </motion.div>

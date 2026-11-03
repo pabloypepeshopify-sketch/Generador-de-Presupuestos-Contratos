@@ -11,7 +11,6 @@ type Props = {
   variant?: 'primary' | 'secondary' | 'ghost';
   className?: string;
   strength?: number;
-  cursorLabel?: string;
   type?: 'button' | 'submit';
   ariaLabel?: string;
 };
@@ -27,7 +26,6 @@ export function MagneticButton({
   variant = 'primary',
   className,
   strength = 0.35,
-  cursorLabel,
   type = 'button',
   ariaLabel,
 }: Props) {
@@ -69,7 +67,7 @@ export function MagneticButton({
     className: styles,
     onMouseMove: handleMove,
     onMouseLeave: handleLeave,
-    'data-cursor': cursorLabel,
+    onClick,
     'aria-label': ariaLabel,
   } as const;
 
@@ -90,7 +88,7 @@ export function MagneticButton({
   }
 
   return (
-    <button type={type} onClick={onClick} {...shared}>
+    <button type={type} {...shared}>
       {inner}
     </button>
   );

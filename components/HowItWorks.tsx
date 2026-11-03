@@ -1,117 +1,87 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, type MotionValue } from 'framer-motion';
 import { Search, PenTool, Plug, Rocket, type LucideIcon } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/SectionHeading';
+import { RevealGroup, RevealItem } from '@/components/ui/Reveal';
 
 type Step = { icon: LucideIcon; title: string; text: string };
 
 const steps: Step[] = [
   {
     icon: Search,
-    title: 'Diagnóstico gratuito',
-    text: 'Analizamos tu día a día y detectamos qué tareas repetitivas te roban horas y dinero.',
+    title: 'Llamada gratis',
+    text: 'Nos cuentas cómo trabajas y vemos qué tareas te roban más horas y dinero.',
   },
   {
     icon: PenTool,
-    title: 'Diseñamos tu automatización',
-    text: 'Creamos el flujo con IA a tu medida: qué se automatiza, cómo y con qué reglas de negocio.',
+    title: 'Te proponemos la solución',
+    text: 'Qué se automatiza, qué software o web necesitas y con qué reglas. Con precio cerrado.',
   },
   {
     icon: Plug,
-    title: 'Integramos con tus herramientas',
-    text: 'Lo conectamos con tu email, calendario, hojas, teléfono y CRM. Sin cambiar tu forma de trabajar.',
+    title: 'Lo montamos y conectamos',
+    text: 'Con tu email, calendario, teléfono y programas. Sin cambiar tu forma de trabajar.',
   },
   {
     icon: Rocket,
-    title: 'Tú te dedicas a tu negocio',
-    text: 'La automatización trabaja 24/7. Tú recibes resultados y te centras en lo que importa.',
+    title: 'Funciona solo',
+    text: 'Tu negocio trabaja 24/7 y nosotros seguimos a tu lado para ajustar lo que haga falta.',
   },
 ];
 
-function StepRow({
-  step,
-  index,
-  progress,
-}: {
-  step: Step;
-  index: number;
-  progress: MotionValue<number>;
-}) {
-  const start = index / steps.length;
-  const end = (index + 1) / steps.length;
-  const opacity = useTransform(progress, [start - 0.12, start, end, end + 0.12], [0.25, 1, 1, 0.25]);
-  const x = useTransform(progress, [start - 0.12, start], [40, 0]);
-  const Icon = step.icon;
+const commitments = [
+  { big: 'Gratis', text: 'La primera llamada y el estudio de tu caso.' },
+  { big: 'Precio cerrado', text: 'Sabes lo que pagas antes de empezar.' },
+  { big: '1–3 semanas', text: 'Lo normal para tenerlo funcionando.' },
+  { big: '24/7', text: 'Tus automatizaciones no descansan.' },
+];
 
-  return (
-    <motion.div style={{ opacity, x }} className="flex gap-6 py-8">
-      <div className="flex flex-col items-center">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-ink-line bg-bg-soft text-brand-cyan">
-          <Icon className="h-6 w-6" />
-        </span>
-      </div>
-      <div>
-        <span className="font-display text-sm text-brand-violet">
-          0{index + 1}
-        </span>
-        <h3 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">{step.title}</h3>
-        <p className="mt-3 max-w-md leading-relaxed text-ink-soft">{step.text}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-/** Storytelling con recorrido: el índice avanza mientras haces scroll. */
+/** Cómo trabajamos: cuatro pasos y nuestros compromisos. */
 export function HowItWorks() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start start', 'end end'],
-  });
-  const progress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const lineScale = useTransform(progress, [0, 1], [0, 1]);
-
   return (
-    <section id="como-funciona" ref={ref} className="relative" style={{ height: '320vh' }}>
-      <div className="sticky top-0 flex min-h-screen items-center overflow-hidden py-20">
-        <div className="pointer-events-none absolute left-1/2 top-1/3 h-[50vh] w-[50vh] -translate-x-1/2 rounded-full bg-brand-violet/10 blur-[130px]" />
-        <div className="container-x grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <SectionHeading
-              eyebrow="Cómo funciona"
-              title={
-                <>
-                  De tu caos diario
-                  <br />
-                  <span className="text-gradient italic">al piloto automático</span>
-                </>
-              }
-              intro="Cuatro pasos. Cero fricción. Nosotros construimos, tú recoges los resultados."
-            />
-            <div className="mt-8 flex items-center gap-4">
-              <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-ink-line">
-                <motion.div
-                  className="absolute inset-y-0 left-0 w-full origin-left rounded-full bg-brand"
-                  style={{ scaleX: lineScale }}
-                />
-              </div>
-            </div>
-          </div>
+    <section id="como-funciona" className="section">
+      <div className="container-x">
+        <SectionHeading
+          eyebrow="Cómo trabajamos"
+          title={
+            <>
+              De la primera llamada
+              <br />
+              <span className="text-gradient italic">a tu negocio funcionando solo</span>
+            </>
+          }
+          intro="Cuatro pasos. Nosotros lo construimos; tú ves los resultados."
+        />
 
-          <div className="relative">
-            {/* Línea vertical de progreso */}
-            <div className="absolute left-7 top-0 hidden h-full w-px bg-ink-line sm:block">
-              <motion.div
-                className="absolute inset-x-0 top-0 origin-top bg-gradient-to-b from-brand-cyan to-brand-violet"
-                style={{ scaleY: lineScale, height: '100%' }}
-              />
+        <RevealGroup className="relative mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
+          {/* Línea que une los pasos (escritorio) */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-8 right-8 top-[3.25rem] hidden h-px bg-gradient-to-r from-brand-cyan via-brand-blue to-brand-violet opacity-40 lg:block"
+          />
+          {steps.map((s, i) => (
+            <RevealItem key={s.title}>
+              <div className="relative h-full rounded-[var(--radius)] border border-ink-line bg-bg-soft/70 p-6">
+                <div className="flex items-center justify-between">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ink-line bg-bg-raise text-brand-cyan">
+                    <s.icon className="h-6 w-6" />
+                  </span>
+                  <span className="font-display text-4xl text-white/10">0{i + 1}</span>
+                </div>
+                <h3 className="mt-5 font-display text-2xl leading-tight">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.text}</p>
+              </div>
+            </RevealItem>
+          ))}
+        </RevealGroup>
+
+        <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius)] border border-ink-line bg-ink-line lg:grid-cols-4">
+          {commitments.map((c) => (
+            <div key={c.big} className="bg-bg-soft p-5 sm:p-6">
+              <p className="font-display text-2xl text-gradient sm:text-3xl">{c.big}</p>
+              <p className="mt-1 text-xs text-ink-soft sm:text-sm">{c.text}</p>
             </div>
-            {steps.map((step, i) => (
-              <StepRow key={i} step={step} index={i} progress={progress} />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>

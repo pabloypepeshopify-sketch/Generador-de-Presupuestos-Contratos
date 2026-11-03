@@ -35,20 +35,20 @@ export function FloatingCTA() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Escríbenos por WhatsApp"
-              data-cursor="WhatsApp"
+             
               className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-lg transition-transform hover:scale-110"
             >
               <MessageCircle className="h-6 w-6" />
             </a>
           )}
           <a
-            href="#reservar"
-            aria-label="Reservar reunión"
-            data-cursor="Reservar"
+            href="/#reservar"
+            aria-label="Reserva una llamada gratis"
+           
             className="flex items-center gap-2 rounded-full bg-brand px-5 py-3.5 text-sm font-semibold text-white shadow-glow transition-transform hover:scale-105"
           >
             <CalendarClock className="h-5 w-5" />
-            <span className="hidden sm:inline">Reservar reunión</span>
+            <span className="hidden sm:inline">Llamada gratis</span>
           </a>
         </motion.div>
       )}
