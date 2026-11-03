@@ -7,7 +7,7 @@ import {
 import { AvisoDuplicado } from './locales.js';
 import { concursoEnMarcha, puntosDe } from './concurso.js';
 import {
-  ESTADOS, INTERES, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hora, hoyISO, mensajeError, normTel, normTxt,
+  ESTADOS, HORAS, INTERES, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hora, hoyISO, mensajeError, normTel, normTxt,
   sumarDias, whatsappHref,
 } from './util.js';
 
@@ -47,7 +47,6 @@ const CONTACTOS_VISITA = [
   { v: 'empleado', txt: 'Solo un empleado', ico: '🧑‍🍳', color: 'var(--st-rellamar)' },
   { v: 'nadie', txt: 'Estaba cerrado', ico: '🔒', color: 'var(--st-nocontesta)' },
 ];
-const HORAS = ['10:00', '11:00', '12:00', '13:00', '17:00', '18:00', '19:00'];
 
 function inicial(l, yoId, esVisita) {
   return {

@@ -73,6 +73,9 @@ export function fechaRelativa(iso) {
 }
 export const hora = (t) => (t ? t.slice(0, 5) : '');
 
+// Horas rápidas para citas
+export const HORAS = ['10:00', '11:00', '12:00', '13:00', '17:00', '18:00', '19:00'];
+
 const horaDe = (d) => `${dos(d.getHours())}:${dos(d.getMinutes())}`;
 export function haceCuanto(ts) {
   if (!ts) return '';

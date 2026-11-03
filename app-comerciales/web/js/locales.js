@@ -8,7 +8,7 @@ import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, Interes, Seccion, TarjetaLocal, Vacio, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import {
-  ESTADOS, INTERES, ORDEN_ESTADOS, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
+  ESTADOS, HORAS, INTERES, ORDEN_ESTADOS, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto,
   capital, hora, hoyISO, mapsHref, mensajeError, normTel, normTxt, porCita, sumarDias, telHref, textoResultado, whatsappHref,
 } from './util.js';
 
@@ -87,6 +87,7 @@ export function FichaLocal({ id }) {
   const s = useStore();
   const l = s.locales.find((x) => x.id === id);
   const [hist, setHist] = useState(null);
+  const [cambiandoCita, setCambiandoCita] = useState(false);
 
   useEffect(() => {
     historial(id).then(setHist).catch(() => setHist([]));
@@ -131,9 +132,11 @@ export function FichaLocal({ id }) {
       ${l.estado === 'cita' ? html`<a class="accion" href=${gcalHref(l, nombreDe(l.cita_comercial_id))} target="_blank" rel="noopener"><${Icono} n="agenda" /><span>Calendario</span></a>` : null}
     </div>
 
-    ${l.estado === 'cita' ? html`<div class="bloque-cita">
+    ${l.estado === 'cita' && cambiandoCita ? html`<${CambiarCita} l=${l} onListo=${() => setCambiandoCita(false)} />`
+    : l.estado === 'cita' ? html`<div class="bloque-cita">
       <div><small>Cita con el dueño</small><b>${[hoyISO(), sumarDias(hoyISO(), 1)].includes(l.cita_fecha) ? `${fechaRelativa(l.cita_fecha)} · ` : ''}${capital(fechaLarga(l.cita_fecha))}</b>
         <span>${l.cita_hora ? `a las ${hora(l.cita_hora)}` : 'sin hora'} · va <b>${nombreDe(l.cita_comercial_id)}</b></span></div>
+      <button class="btn fantasma peque cambiar-cita" onClick=${() => setCambiandoCita(true)}><${Icono} n="editar" t=${16} /> Cambiar día u hora</button>
     </div>` : null}
     ${l.estado === 'rellamar' ? html`<div class="bloque-cita rellamar">
       <div><small>Volver a llamar</small><b>${l.rellamar_fecha ? `${fechaRelativa(l.rellamar_fecha)}${l.rellamar_hora ? ` · ${hora(l.rellamar_hora)}` : ''}` : 'Sin fecha'}</b></div>
@@ -196,6 +199,48 @@ function EntradaHistorial({ x, productos, locales }) {
 
 // ---------- Alta y edición ----------
 const VACIO = { nombre: '', tipo: null, telefono: '', direccion: '', zona: '', dueno_nombre: '', dueno_telefono: '', estado: 'pendiente', interes: null, productos: [], comercial_id: null, notas: '' };
+
+// Cambia el día, la hora o quién va a una cita ya conseguida. No apunta una llamada nueva,
+// así que el punto del concurso sigue siendo de quien consiguió la cita.
+function CambiarCita({ l, onListo }) {
+  const s = useStore();
+  const [f, setF] = useState(() => ({ fecha: l.cita_fecha || hoyISO(), hora: hora(l.cita_hora), quien: l.cita_comercial_id || s.yo.id }));
+  const [guardando, setGuardando] = useState(false);
+  const cambiar = (k, v) => setF((x) => ({ ...x, [k]: v }));
+  const activos = s.perfiles.filter((p) => p.activo || p.id === f.quien);
+
+  async function guardar(e) {
+    e.preventDefault();
+    if (!f.fecha) return aviso('Pon el día de la cita', 'error');
+    setGuardando(true);
+    try {
+      await editarLocal(l.id, { cita_fecha: f.fecha, cita_hora: f.hora || null, cita_comercial_id: f.quien });
+      aviso('Cita cambiada');
+      onListo();
+    } catch (err) {
+      aviso(mensajeError(err), 'error');
+      setGuardando(false);
+    }
+  }
+
+  return html`<form class="tarjeta-form formulario" onSubmit=${guardar}>
+    <span class="campo-et">Día de la cita</span>
+    <${Chips} valor=${f.fecha} onCambio=${(v) => v && cambiar('fecha', v)} opciones=${[0, 1, 2].map((n) => ({ v: sumarDias(hoyISO(), n), txt: fechaRelativa(sumarDias(hoyISO(), n)) }))} />
+    <div class="dos-col">
+      <${Campo} etiqueta="Fecha"><input type="date" value=${f.fecha} onInput=${(e) => cambiar('fecha', e.target.value)} required /><//>
+      <${Campo} etiqueta="Hora"><input type="time" value=${f.hora} step="900" onInput=${(e) => cambiar('hora', e.target.value)} /><//>
+    </div>
+    <${Chips} valor=${f.hora} onCambio=${(v) => cambiar('hora', v || '')} opciones=${HORAS.map((h) => ({ v: h, txt: h }))} />
+    <span class="campo-et">¿Quién va a ver al dueño?</span>
+    <${Chips} valor=${f.quien} onCambio=${(v) => v && cambiar('quien', v)}
+      opciones=${activos.map((p) => ({ v: p.id, txt: p.id === s.yo.id ? `${p.nombre} (yo)` : p.nombre, ico: html`<${Avatar} p=${p} t=${18} />` }))} />
+    <p class="ayuda">No cuenta como llamada nueva: el punto del concurso sigue siendo de quien consiguió la cita.</p>
+    <div class="botones-dos">
+      <button type="button" class="btn sec" onClick=${onListo} disabled=${guardando}>Cancelar</button>
+      <button class="btn primario" disabled=${guardando}>${guardando ? 'Guardando…' : 'Guardar cita'}</button>
+    </div>
+  </form>`;
+}
 
 export function EditarLocal({ id }) {
   const s = useStore();

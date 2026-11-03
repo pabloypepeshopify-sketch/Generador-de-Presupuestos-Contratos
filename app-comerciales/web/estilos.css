@@ -606,6 +606,7 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
 .bloque-cita > div > b { font-family: var(--serif); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; }
 .bloque-cita span { color: var(--muted); }
 .bloque-cita span b { color: var(--text); }
+.bloque-cita .cambiar-cita { margin-top: 12px; }
 .datos { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border-radius: var(--r); overflow: hidden; background: var(--line); border: 1px solid var(--line); }
 .datos > div { background: #0D0D17; padding: 12px 15px; min-width: 0; }
 .datos .ancho { grid-column: 1 / -1; }
