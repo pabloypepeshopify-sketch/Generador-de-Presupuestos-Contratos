@@ -32,7 +32,7 @@ export function BorrarNegocio({ id, nombre }: { id: string; nombre: string }) {
       disabled={pendiente}
       onClick={() =>
         ejecutar(() => borrarNegocio(id), {
-          confirmar: `¿Eliminar «${nombre}»? Se borrarán también su historial, contactos y tareas. No se puede deshacer.\n\nSi solo no vais a seguir con él, cambia su estado a «Descartado».`,
+          confirmar: `¿Eliminar «${nombre}»? Se borrarán también su historial, contactos, tareas, cobros y facturas. No se puede deshacer.\n\nSi solo no vais a seguir con él, cambia su estado a «Descartado».`,
         })
       }
     >

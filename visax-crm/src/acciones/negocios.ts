@@ -92,8 +92,11 @@ export async function borrarNegocio(id: string): Promise<ResultadoAccion> {
   const { supabase, socio } = await obtenerSesion();
   if (!socio) return SIN_SESION;
   if (!uuid.safeParse(id).success) return { ok: false, error: 'Negocio no válido' };
+  // Las facturas se borran con el negocio; sus PDF hay que quitarlos del almacén aparte
+  const { data: facturas } = await supabase.from('facturas').select('archivo_path').eq('negocio_id', id);
   const { error } = await supabase.from('negocios').delete().eq('id', id);
   if (error) return { ok: false, error: mensajeErrorBD(error.message) };
+  if (facturas?.length) await supabase.storage.from('documentos').remove(facturas.map((f) => f.archivo_path));
   await avisarTrasRedirigir('borrado');
   redirect('/negocios');
 }

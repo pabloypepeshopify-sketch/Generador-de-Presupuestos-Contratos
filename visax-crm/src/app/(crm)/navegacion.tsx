@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building2, CalendarCheck, Columns3, LayoutDashboard, LogOut, Plus, Search, Settings } from 'lucide-react';
+import { Building2, CalendarCheck, Columns3, LayoutDashboard, LogOut, Plus, Search, Settings, Wallet } from 'lucide-react';
 import { cerrarSesion } from '@/acciones/auth';
 import { Avatar, Logo } from '@/components/ui';
 import type { Socio } from '@/lib/tipos';
@@ -12,6 +12,7 @@ const SECCIONES = [
   { href: '/negocios', txt: 'Negocios', Icono: Building2 },
   { href: '/kanban', txt: 'Kanban', Icono: Columns3 },
   { href: '/agenda', txt: 'Agenda', Icono: CalendarCheck },
+  { href: '/dinero', txt: 'Dinero', Icono: Wallet },
 ];
 
 const activa = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ruta === href || ruta.startsWith(`${href}/`));
@@ -85,7 +86,7 @@ export function Navegacion({ socio }: { socio: Socio }) {
       {/* Móvil: navegación inferior */}
       <nav aria-label="Secciones" className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-around border-t border-borde bg-[#0b0b12]/95 px-2 pt-1.5 pb-[max(6px,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
         {SECCIONES.slice(0, 2).map(({ href, txt, Icono }) => (
-          <Link key={href} href={href} aria-current={activa(ruta, href) ? 'page' : undefined} className={`flex w-16 flex-col items-center gap-0.5 py-1 text-[11px] font-medium ${activa(ruta, href) ? 'text-texto' : 'text-tenue'}`}>
+          <Link key={href} href={href} aria-current={activa(ruta, href) ? 'page' : undefined} className={`flex w-14 flex-col items-center gap-0.5 py-1 text-[11px] font-medium ${activa(ruta, href) ? 'text-texto' : 'text-tenue'}`}>
             <Icono className={`size-5 ${activa(ruta, href) ? 'text-cian' : ''}`} />
             {txt}
           </Link>
@@ -94,7 +95,7 @@ export function Navegacion({ socio }: { socio: Socio }) {
           <Plus className="size-6" />
         </Link>
         {SECCIONES.slice(2).map(({ href, txt, Icono }) => (
-          <Link key={href} href={href} aria-current={activa(ruta, href) ? 'page' : undefined} className={`flex w-16 flex-col items-center gap-0.5 py-1 text-[11px] font-medium ${activa(ruta, href) ? 'text-texto' : 'text-tenue'}`}>
+          <Link key={href} href={href} aria-current={activa(ruta, href) ? 'page' : undefined} className={`flex w-14 flex-col items-center gap-0.5 py-1 text-[11px] font-medium ${activa(ruta, href) ? 'text-texto' : 'text-tenue'}`}>
             <Icono className={`size-5 ${activa(ruta, href) ? 'text-cian' : ''}`} />
             {txt}
           </Link>

@@ -150,5 +150,93 @@ export type CambioEstado = {
   creado_en: string;
 };
 
+// ---------- Dinero ----------
+export type Periodicidad = 'unico' | 'mensual' | 'trimestral' | 'anual';
+
+export type Contrato = {
+  id: string;
+  negocio_id: string;
+  concepto: string;
+  servicio: string | null;
+  periodicidad: Periodicidad;
+  importe_base: number;
+  iva_pct: number;
+  irpf_pct: number;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  notas: string | null;
+  creado_en: string;
+};
+
+export type EstadoCobro = 'pendiente' | 'cobrado' | 'anulado';
+
+export type Cobro = {
+  id: string;
+  negocio_id: string;
+  contrato_id: string | null;
+  concepto: string;
+  fecha_prevista: string;
+  importe_base: number;
+  iva_pct: number;
+  irpf_pct: number;
+  importe_iva: number;
+  importe_irpf: number;
+  importe_total: number;
+  estado: EstadoCobro;
+  fecha_cobro: string | null;
+  metodo: string | null;
+  cobrado_por: string | null;
+  notas: string | null;
+  creado_en: string;
+};
+
+export type Factura = {
+  id: string;
+  negocio_id: string;
+  cobro_id: string | null;
+  numero: string | null;
+  fecha: string;
+  importe_total: number | null;
+  archivo_path: string;
+  archivo_nombre: string;
+  archivo_bytes: number | null;
+  notas: string | null;
+  creado_por: string | null;
+  creado_en: string;
+};
+
+export type Gasto = {
+  id: string;
+  negocio_id: string | null;
+  concepto: string;
+  categoria: string;
+  fecha: string;
+  importe_base: number;
+  iva_pct: number;
+  importe_iva: number;
+  importe_total: number;
+  justificante_path: string | null;
+  justificante_nombre: string | null;
+  notas: string | null;
+  creado_en: string;
+};
+
+/** Negocio mínimo para listas y selectores */
+export type NegocioRef = { id: string; nombre: string; estado?: string };
+
+export type ResumenDinero = {
+  ingresos: number;
+  iva_cobrado: number;
+  irpf_retenido: number;
+  entrado: number;
+  num_cobros: number;
+  gastos: number;
+  gastos_iva: number;
+  num_gastos: number;
+  pendiente_vencido: number;
+  num_pendientes_vencidos: number;
+  num_atrasados: number;
+};
+
 // Respuesta estándar de las acciones del servidor
 export type ResultadoAccion<T = undefined> = { ok: true; datos?: T; mensaje?: string } | { ok: false; error: string; campos?: Record<string, string> };

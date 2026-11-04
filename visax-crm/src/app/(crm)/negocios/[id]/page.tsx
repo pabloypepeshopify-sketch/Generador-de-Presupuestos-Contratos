@@ -14,6 +14,7 @@ import { EditorServicios } from './servicios';
 import { EditorContactos } from './contactos';
 import { NuevaTarea } from './nueva-tarea';
 import { Historial } from './historial';
+import { DineroNegocio } from './dinero';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -48,6 +49,8 @@ export default async function FichaNegocio({ params }: { params: Promise<{ id: s
   const cambios = (cambiosR.data ?? []) as CambioEstado[];
   const creador = cat.socios.find((s) => s.id === negocio.creado_por);
   const proxima = pendientes[0];
+  const esCliente = negocio.estado === 'cliente_ganado';
+  const dinero = <DineroNegocio negocioId={negocio.id} servicios={cat.servicios} esCliente={esCliente} />;
 
   return (
     <>
@@ -126,6 +129,8 @@ export default async function FichaNegocio({ params }: { params: Promise<{ id: s
             )}
           </Seccion>
 
+          {esCliente && dinero}
+
           <Seccion
             titulo={
               <>
@@ -141,6 +146,7 @@ export default async function FichaNegocio({ params }: { params: Promise<{ id: s
           <DatosNegocio negocio={negocio} socios={cat.socios} />
           <EditorServicios negocioId={negocio.id} servicios={cat.servicios} actuales={servicios} />
           <EditorContactos negocioId={negocio.id} contactos={contactos} />
+          {!esCliente && dinero}
           {interacciones.length === 0 && pendientes.length === 0 && (
             <Vacio titulo="Negocio sin actividad" texto="Registra la primera visita o llamada para empezar su historial." />
           )}

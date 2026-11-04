@@ -29,7 +29,12 @@ const N = {
   inmo: `${PREFIJO} Inmobiliaria Costa Sur`,
   resto: `${PREFIJO} Restaurante El Puerto`,
   tienda: `${PREFIJO} Tienda Moda Norte`,
+  clinica: `${PREFIJO} Clínica Dental Sol`,
 };
+const NUMERO_FACTURA = `PRUEBA-${Date.now()}`;
+// PDF mínimo válido para la prueba de facturas
+const PDF = '%PDF-1.4\n1 0 obj <</Type/Catalog/Pages 2 0 R>> endobj\n2 0 obj <</Type/Pages/Kids[3 0 R]/Count 1>> endobj\n3 0 obj <</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>> endobj\ntrailer <</Root 1 0 R>>\n%%EOF\n';
+const leerEuros = (t) => Number(String(t).replace(/[^\d,-]/g, '').replace(',', '.'));
 
 const resultados = [];
 const errores = [];
@@ -101,21 +106,41 @@ async function guardarContacto(p, id) {
 }
 
 // Borra los negocios de prueba (y en cascada su historial, contactos y tareas)
+async function tokenDePablo() {
+  const sesion = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: `${A.usuario}@crm.visaxai.es`, password: A.clave }),
+  }).then((r) => r.json());
+  return sesion.access_token;
+}
+
+// Borra los negocios de prueba (y en cascada su historial, contactos, tareas, cobros y facturas),
+// los gastos de prueba y los PDF que se subieron
 async function borrarDatosDePrueba() {
   try {
-    const sesion = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: `${A.usuario}@crm.visaxai.es`, password: A.clave }),
-    }).then((r) => r.json());
-    const r = await fetch(`${SB_URL}/rest/v1/negocios?nombre=like.${encodeURIComponent(PREFIJO)}*`, {
-      method: 'DELETE',
-      headers: { apikey: SB_KEY, Authorization: `Bearer ${sesion.access_token}`, Prefer: 'return=representation' },
-    });
+    const auth = { apikey: SB_KEY, Authorization: `Bearer ${await tokenDePablo()}` };
+    const pref = encodeURIComponent(PREFIJO);
+    const json = (r) => (r.ok ? r.json() : []);
+    const facturas = await fetch(`${SB_URL}/rest/v1/facturas?select=archivo_path,negocios!inner(nombre)&negocios.nombre=like.${pref}*`, { headers: auth }).then(json);
+    const gastos = await fetch(`${SB_URL}/rest/v1/gastos?concepto=like.${pref}*&select=justificante_path`, { method: 'DELETE', headers: { ...auth, Prefer: 'return=representation' } }).then(json);
+    const archivos = [...facturas.map((f) => f.archivo_path), ...gastos.map((g) => g.justificante_path)].filter(Boolean);
+    if (archivos.length) await fetch(`${SB_URL}/storage/v1/object/documentos`, { method: 'DELETE', headers: { ...auth, 'Content-Type': 'application/json' }, body: JSON.stringify({ prefixes: archivos }) });
+    const r = await fetch(`${SB_URL}/rest/v1/negocios?nombre=like.${pref}*`, { method: 'DELETE', headers: { ...auth, Prefer: 'return=representation' } });
     return (await r.json()).length ?? 0;
   } catch (e) {
     return `0 (error: ${e.message})`;
   }
+}
+
+/** Indicadores del mes actual en Dinero (0 si todavía no hay nada apuntado) */
+async function resumenMes(p) {
+  await p.goto(`${BASE}/dinero`);
+  await p.getByRole('heading', { name: 'Dinero', exact: true }).waitFor();
+  const bloque = p.locator('section').filter({ has: p.getByText('Para cada uno', { exact: true }) }).first();
+  if (!(await bloque.count())) return { ingresos: 0, gastos: 0, ganancia: 0, cada: 0 };
+  const valor = async (txt) => leerEuros(await bloque.locator('div.caja', { has: p.getByText(txt, { exact: true }) }).first().locator('span').first().innerText());
+  return { ingresos: await valor('Ingresos'), gastos: await valor('Gastos'), ganancia: await valor('Ganancia'), cada: await valor('Para cada uno') };
 }
 
 const ids = {};
@@ -322,6 +347,113 @@ try {
     await captura(pA, '10-escritorio-agenda');
     await pA.goto(`${BASE}/negocios/${ids.inmo}`);
     await captura(pA, '10-escritorio-ficha');
+  });
+
+  // ---------- Dinero ----------
+  await escenario('11. Dinero: servicio mensual, cuota pendiente y cobro apuntado (suma al resumen y 50/50)', async () => {
+    const antes = await resumenMes(pA);
+    ids.clinica = await altaRapida(pA, { nombre: N.clinica, sector: 'Clínica', localidad: 'Rota', responsable: 'Pablo' });
+    await pA.getByLabel('Estado comercial', { exact: true }).selectOption('cliente_ganado');
+    await pA.getByRole('heading', { name: 'Servicios contratados' }).waitFor({ timeout: 30000 });
+    await pA.getByRole('button', { name: 'Servicio contratado' }).click();
+    const dlg = pA.getByRole('dialog', { name: 'Nuevo servicio contratado' });
+    await dlg.locator('input[name=concepto]').fill('Mantenimiento web');
+    await dlg.getByRole('button', { name: 'Mensual', exact: true }).click();
+    await dlg.locator('input[name=importe_base]').fill('100');
+    await dlg.getByText('114,00 €').waitFor(); // 100 + 21 % IVA − 7 % IRPF
+    await dlg.getByRole('button', { name: 'Añadir servicio' }).click();
+    await pA.getByText('Servicio añadido').first().waitFor();
+    const cuota = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first();
+    await cuota.waitFor();
+    const texto = await cuota.innerText();
+    comprobar(texto.includes('114,00'), 'La cuota no muestra 114,00 € a cobrar');
+    comprobar(texto.includes('Vence hoy'), 'La cuota de hoy no sale como «Vence hoy»');
+    await cuota.getByRole('button', { name: 'Marcar cobrado' }).click();
+    await cuota.getByRole('button', { name: 'Apuntar cobro' }).click();
+    await pA.getByText('Cobro apuntado').first().waitFor();
+    await pA.locator('li', { hasText: 'Mantenimiento web ·' }).first().getByText('Cobrado', { exact: true }).waitFor();
+    const despues = await resumenMes(pA);
+    comprobar(Math.abs(despues.ingresos - antes.ingresos - 100) < 0.01, `Los ingresos del mes no han subido 100 € (${antes.ingresos} → ${despues.ingresos})`);
+    comprobar(Math.abs(despues.cada - antes.cada - 50) < 0.01, `La parte de cada uno no ha subido 50 € (${antes.cada} → ${despues.cada})`);
+    await captura(pA, '11-dinero-resumen');
+  });
+
+  await escenario('12. Dinero: subir la factura en PDF de un cobro, abrirla y que el otro socio la vea', async () => {
+    await pA.goto(`${BASE}/negocios/${ids.clinica}`);
+    const cuota = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first();
+    await cuota.getByRole('button', { name: 'Subir factura' }).click();
+    const dlg = pA.getByRole('dialog', { name: 'Subir factura' });
+    await dlg.locator('input[type=file]').setInputFiles({ name: 'factura-prueba.pdf', mimeType: 'application/pdf', buffer: Buffer.from(PDF) });
+    await dlg.locator('input[name=numero]').fill(NUMERO_FACTURA);
+    const propuesto = await dlg.locator('input[name=importe_total]').inputValue();
+    comprobar(['114', '114,00'].includes(propuesto), `No propone el total del cobro (${propuesto})`);
+    await dlg.getByRole('button', { name: 'Guardar factura' }).click();
+    await pA.getByText('Factura guardada').first().waitFor({ timeout: 30000 });
+    const enlace = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first().getByRole('link', { name: `Factura ${NUMERO_FACTURA}` });
+    await enlace.waitFor();
+    const href = await enlace.getAttribute('href');
+    const r = await pA.evaluate(async (u) => {
+      const res = await fetch(u);
+      const b = new Uint8Array(await res.arrayBuffer());
+      return { ok: res.ok, status: res.status, tipo: res.headers.get('content-type'), inicio: String.fromCharCode(...b.slice(0, 4)) };
+    }, href);
+    comprobar(r.ok, `El PDF no se abre (${r.status})`);
+    comprobar((r.tipo ?? '').includes('pdf'), `No llega un PDF (${r.tipo})`);
+    comprobar(r.inicio === '%PDF', 'El archivo que se abre no es el PDF subido');
+    ids.factura = href.match(/documentos\/([0-9a-f-]{36})/)[1];
+    await pB.goto(`${BASE}/dinero/facturas?q=${encodeURIComponent(NUMERO_FACTURA)}`);
+    await pB.getByText(`Factura ${NUMERO_FACTURA}`).waitFor();
+    await captura(pB, '12-dinero-facturas');
+  });
+
+  await escenario('13. Dinero: gasto de un cliente, lo que deja y diseño en el móvil', async () => {
+    const antes = await resumenMes(pA);
+    await pA.goto(`${BASE}/negocios/${ids.clinica}`);
+    await pA.getByRole('button', { name: 'Gasto', exact: true }).click();
+    const dlg = pA.getByRole('dialog', { name: 'Nuevo gasto' });
+    await dlg.locator('input[name=concepto]').fill(`${PREFIJO} Hosting de la web`);
+    await dlg.locator('input[name=importe_base]').fill('30');
+    await dlg.getByRole('button', { name: 'Apuntar gasto' }).click();
+    await pA.getByText('Gasto apuntado').first().waitFor();
+    const deja = pA.locator('dl > div', { has: pA.getByText('Lo que deja', { exact: true }) }).locator('dd').first();
+    for (let i = 0; i < 20 && leerEuros(await deja.innerText()) !== 70; i++) await pA.waitForTimeout(500);
+    comprobar(leerEuros(await deja.innerText()) === 70, `«Lo que deja» debería ser 70,00 € y es ${await deja.innerText()}`);
+    await captura(pA, '13-ficha-dinero');
+    const despues = await resumenMes(pA);
+    comprobar(Math.abs(despues.gastos - antes.gastos - 30) < 0.01, `Los gastos del mes no han subido 30 € (${antes.gastos} → ${despues.gastos})`);
+    comprobar(Math.abs(antes.ganancia - despues.ganancia - 30) < 0.01, `La ganancia no ha bajado 30 € (${antes.ganancia} → ${despues.ganancia})`);
+    for (const ruta of ['/dinero', '/dinero/cobros', '/dinero/gastos', '/dinero/facturas', `/negocios/${ids.clinica}`]) {
+      await pBm.goto(`${BASE}${ruta}`);
+      await pBm.waitForLoadState('networkidle');
+      const desborda = await pBm.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      comprobar(desborda <= 1, `${ruta} se sale ${desborda}px de ancho en el móvil`);
+    }
+    await captura(pBm, '13-movil-ficha-dinero');
+  });
+
+  await escenario('14. Dinero: sin sesión no se ven cobros, facturas, gastos ni los PDF', async () => {
+    const anon = await nuevoContexto(false);
+    const p = await anon.newPage();
+    for (const ruta of ['/dinero', '/dinero/cobros', '/dinero/gastos', '/dinero/facturas', `/documentos/${ids.factura}?de=factura`]) {
+      await p.goto(`${BASE}${ruta}`);
+      comprobar(new URL(p.url()).pathname === '/login', `${ruta} no redirige al login`);
+    }
+    await anon.close();
+    const cab = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` };
+    for (const tabla of ['contratos', 'cobros', 'facturas', 'gastos']) {
+      const r = await fetch(`${SB_URL}/rest/v1/${tabla}?select=*&limit=5`, { headers: cab });
+      const cuerpo = await r.text();
+      comprobar(!r.ok || cuerpo.trim() === '[]', `La tabla ${tabla} responde datos sin sesión (${r.status})`);
+    }
+    const rpc = await fetch(`${SB_URL}/rest/v1/rpc/dinero_resumen`, { method: 'POST', headers: { ...cab, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_desde: '2026-01-01', p_hasta: '2026-12-31' }) });
+    comprobar(!rpc.ok, 'dinero_resumen responde sin sesión');
+    const auth = { apikey: SB_KEY, Authorization: `Bearer ${await tokenDePablo()}` };
+    const [f] = await fetch(`${SB_URL}/rest/v1/facturas?id=eq.${ids.factura}&select=archivo_path`, { headers: auth }).then((r) => r.json());
+    comprobar(f?.archivo_path, 'No se encuentra la factura de prueba');
+    for (const url of [`${SB_URL}/storage/v1/object/documentos/${f.archivo_path}`, `${SB_URL}/storage/v1/object/public/documentos/${f.archivo_path}`]) {
+      const r = await fetch(url, { headers: cab });
+      comprobar(!r.ok, `El PDF se puede descargar sin sesión (${r.status})`);
+    }
   });
 } finally {
   console.log(`Limpieza: ${await borrarDatosDePrueba()} negocios de prueba borrados`);

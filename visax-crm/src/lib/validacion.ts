@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { leerImporte } from '@/lib/dinero';
 
 // Validación en el servidor de todo lo que llega de los formularios.
 // La base de datos vuelve a comprobar tipos, referencias y permisos (RLS).
@@ -128,6 +129,86 @@ export const esquemaServicio = z.object({
   servicio: codigo,
   nivel: z.enum(['alto', 'medio', 'bajo', 'por_valorar', 'no', 'quitar']),
   notas: texto(1000),
+});
+
+// ---------- Dinero ----------
+const fechaObligatoria = (mensaje: string) => z.string({ required_error: mensaje }).regex(/^\d{4}-\d{2}-\d{2}$/, mensaje);
+const importe = z.preprocess(
+  (v) => (typeof v === 'string' ? leerImporte(v) : v),
+  z.number({ invalid_type_error: 'Pon el importe', required_error: 'Pon el importe' }).positive('El importe debe ser mayor que 0').max(10_000_000, 'Importe demasiado alto'),
+);
+const importeOpcional = z.preprocess(
+  (v) => (typeof v === 'string' ? leerImporte(v) : v ?? null),
+  z.number().min(0, 'Debe ser positivo').max(10_000_000).nullable(),
+);
+const porcentaje = z.preprocess((v) => (typeof v === 'string' && v.trim() !== '' ? Number(v.replace(',', '.')) : v), z.number({ invalid_type_error: 'Porcentaje no válido' }).min(0).max(30));
+const metodo = z.preprocess(vacioANull, z.enum(['transferencia', 'bizum', 'tarjeta', 'efectivo', 'domiciliacion', 'otro']).nullable().optional()).transform((v) => v ?? null);
+export const RUTA_FACTURA = /^facturas\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.pdf$/;
+export const RUTA_JUSTIFICANTE = /^gastos\/[0-9a-f-]{36}\.(pdf|jpg|png|webp)$/;
+
+export const esquemaContrato = z
+  .object({
+    id: uuidOpcional,
+    negocio_id: uuid,
+    concepto: z.string().trim().min(1, 'Pon qué servicio es').max(160),
+    servicio: codigoOpcional,
+    periodicidad: z.enum(['unico', 'mensual', 'trimestral', 'anual'], { errorMap: () => ({ message: 'Elige cómo se paga' }) }),
+    importe_base: importe,
+    iva_pct: porcentaje,
+    irpf_pct: porcentaje,
+    fecha_inicio: fechaObligatoria('Pon la fecha del primer cobro'),
+    fecha_fin: fecha,
+    notas: texto(1000),
+  })
+  .refine((d) => d.periodicidad === 'unico' || !d.fecha_fin || d.fecha_fin >= d.fecha_inicio, { message: 'La fecha de fin no puede ser anterior al inicio', path: ['fecha_fin'] });
+
+export const esquemaCobro = z
+  .object({
+    id: uuidOpcional,
+    negocio_id: uuid,
+    concepto: z.string().trim().min(1, 'Pon el concepto').max(200),
+    fecha_prevista: fechaObligatoria('Pon la fecha del cobro'),
+    importe_base: importe,
+    iva_pct: porcentaje,
+    irpf_pct: porcentaje,
+    ya_cobrado: casilla,
+    fecha_cobro: fecha,
+    metodo,
+    notas: texto(1000),
+  })
+  .refine((d) => !d.ya_cobrado || d.fecha_cobro, { message: 'Pon el día en que se cobró', path: ['fecha_cobro'] });
+
+export const esquemaMarcarCobrado = z.object({
+  id: uuid,
+  fecha_cobro: fechaObligatoria('Pon el día en que se cobró'),
+  metodo,
+});
+
+export const esquemaFactura = z.object({
+  negocio_id: uuid,
+  cobro_id: uuidOpcional,
+  numero: texto(40),
+  fecha: fechaObligatoria('Pon la fecha de la factura'),
+  importe_total: importeOpcional,
+  notas: texto(1000),
+  archivo_path: z.string().regex(RUTA_FACTURA, 'Archivo no válido'),
+  archivo_nombre: z.string().trim().min(1).max(200),
+  archivo_bytes: z.coerce.number().int().min(1).max(10 * 1024 * 1024),
+  marcar_cobrado: casilla,
+});
+
+export const esquemaGasto = z.object({
+  id: uuidOpcional,
+  negocio_id: uuidOpcional,
+  concepto: z.string().trim().min(1, 'Pon en qué se ha gastado').max(160),
+  categoria: z.enum(['hosting', 'herramientas', 'ia_apis', 'publicidad', 'material', 'gestoria', 'desplazamientos', 'formacion', 'otros'], { errorMap: () => ({ message: 'Elige una categoría' }) }),
+  fecha: fechaObligatoria('Pon la fecha del gasto'),
+  importe_base: importe,
+  iva_pct: porcentaje,
+  notas: texto(1000),
+  justificante_path: z.preprocess(vacioANull, z.string().regex(RUTA_JUSTIFICANTE, 'Archivo no válido').nullable().optional()).transform((v) => v ?? null),
+  justificante_nombre: texto(200),
+  quitar_justificante: casilla,
 });
 
 /** FormData → objeto plano. Los campos repetidos (checkbox múltiples) se devuelven como lista. */

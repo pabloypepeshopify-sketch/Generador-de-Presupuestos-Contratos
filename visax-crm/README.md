@@ -20,6 +20,7 @@ la app de comerciales NFC (`app-comerciales/`).
 ```
 src/app/login, src/app/activar     Entrada y activación de cuenta (públicas)
 src/app/(crm)/                     Todo lo demás (requiere sesión de socio)
+  dinero/                          Resumen, cobros, gastos y facturas
   page.tsx                         Panel con métricas y próximas acciones
   negocios/                        Tabla + filtros, alta rápida, ficha, registro de contacto
   kanban/                          Tablero por estado (arrastrar o menú «Mover a…»)
@@ -113,9 +114,30 @@ Cada tarjeta explica su definición en pantalla. Resumen:
 Con el filtro de socio: negocios de los que es responsable, contactos que ha hecho él y tareas
 asignadas a él.
 
+## Dinero
+
+Apartado **Dinero** (menú) y bloque **Dinero** en la ficha de cada negocio:
+
+- **Servicios contratados** por cliente: pago único, mensual, trimestral o anual, con importe sin IVA,
+  IVA (21 % por defecto) e IRPF (7 % por defecto; 0 % para particulares). Las cuotas se generan solas
+  hasta un mes vista cada vez que se abre el apartado (sin procesos programados).
+- **Cobros**: pendientes, atrasados y cobrados. Se marcan como cobrados con fecha y forma de pago.
+  Una cuota que no se va a cobrar se *anula* (no se borra, para que no vuelva a aparecer).
+- **Facturas en PDF** (solo para tenerlas ordenadas, sin Verifactu): número, fecha, importe y cliente,
+  enlazadas al cobro. Se guardan en el almacén privado `documentos` de Supabase; el navegador las
+  sube directamente con un permiso de un solo uso y se abren con enlaces que caducan a los 2 minutos.
+- **Gastos** generales o de un cliente (con justificante opcional), para ver lo que deja cada cliente.
+- **Resumen** del mes y del año: ingresos, gastos, ganancia y la parte de cada socio (50/50), además
+  del IVA cobrado, el IVA de los gastos y el IRPF retenido. Criterio de caja: cuenta lo cobrado en
+  esas fechas.
+
+Base de datos: migración `20261104130000_dinero.sql` (tablas `contratos`, `cobros`, `facturas`,
+`gastos`, funciones `generar_cobros`, `guardar_contrato`, `borrar_contrato`, `dinero_resumen`, bucket
+privado `documentos` y sus políticas). Plan gratuito de Supabase: 1 GB de almacén, de sobra para PDF.
+
 ## Pruebas
 
-`tests/escenarios.mjs` recorre los 10 escenarios de aceptación con Playwright en una instancia en
+`tests/escenarios.mjs` recorre los 10 escenarios de aceptación y 4 de dinero (cuota mensual, factura en PDF, gasto de un cliente y seguridad) con Playwright en una instancia en
 marcha, con negocios ficticios prefijados `[PRUEBA]` que borra al terminar. Necesita dos cuentas
 activas y estas variables (no las guardes en el repositorio):
 
