@@ -36,6 +36,9 @@ export const site = {
   phone: '656 999 241',
   phoneRaw: '+34656999241', // formato para enlaces tel:
   email: 'contactovisaxai@gmail.com',
+  // Teléfono para la llamada gratuita (apartado "Reserva una llamada gratuita")
+  callPhone: '622 293 436',
+  callPhoneRaw: '+34622293436',
   // Número de WhatsApp en formato internacional sin signos (déjalo vacío para ocultar el botón)
   whatsapp: '34656999241',
 

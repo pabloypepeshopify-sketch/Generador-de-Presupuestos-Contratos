@@ -32,6 +32,13 @@ export type Category = {
 /** Categorías en el orden en que se muestran. */
 export const categories: Category[] = [
   {
+    id: 'a-medida',
+    icon: Wand2,
+    title: 'Software, webs y automatizaciones a medida',
+    chip: 'A tu medida',
+    intro: 'Lo que tu negocio necesita y no existe hecho: lo diseñamos y lo construimos para ti.',
+  },
+  {
     id: 'atencion',
     icon: Headphones,
     title: 'Atención al cliente 24/7',
@@ -51,13 +58,6 @@ export const categories: Category[] = [
     title: 'Ventas y reputación',
     chip: 'Ventas y reseñas',
     intro: 'Atiende primero a los clientes que más valen y consigue más reseñas de 5 estrellas.',
-  },
-  {
-    id: 'a-medida',
-    icon: Wand2,
-    title: 'Software, webs y automatizaciones a medida',
-    chip: 'A tu medida',
-    intro: 'Lo que tu negocio necesita y no existe hecho: lo diseñamos y lo construimos para ti.',
   },
 ];
 
@@ -211,16 +211,17 @@ export const services: Service[] = [
 
 export const servicesIn = (id: CategoryId) => services.filter((s) => s.category === id);
 
-// Tecnologías para el marquee de logos
+// Herramientas que integramos (cinta de logos). Logos en blanco en public/logos;
+// `ratio` = ancho/alto del logo (1 = solo símbolo).
 export const technologies = [
-  'OpenAI',
-  'Make',
-  'Google Calendar',
-  'Google Sheets',
-  'Gmail',
-  'Vapi',
-  'Twilio',
-  'Slack',
-  'Tally',
-  'Google Docs',
+  { name: 'OpenAI', logo: '/logos/openai.svg', ratio: 4.06 },
+  { name: 'Make', logo: '/logos/make.svg', ratio: 1 },
+  { name: 'Google Calendar', logo: '/logos/google-calendar.svg', ratio: 1 },
+  { name: 'Gmail', logo: '/logos/gmail.svg', ratio: 1 },
+  { name: 'Vapi', logo: '/logos/vapi.svg', ratio: 3.12 },
+  { name: 'Twilio', logo: '/logos/twilio.svg', ratio: 3.3 },
+  { name: 'Google Sheets', logo: '/logos/google-sheets.svg', ratio: 1 },
+  { name: 'Slack', logo: '/logos/slack.svg', ratio: 3.94 },
+  { name: 'Tally', logo: '/logos/tally.png', ratio: 2.535 },
+  { name: 'Google Docs', logo: '/logos/google-docs.svg', ratio: 1 },
 ];

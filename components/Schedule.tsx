@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Clock, CalendarCheck, Zap } from 'lucide-react';
+import { Clock, CalendarCheck, Zap, Phone, ArrowDown } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { BookingForm } from '@/components/BookingForm';
 import { site } from '@/lib/site.config';
@@ -28,12 +28,45 @@ export function Schedule() {
               Reserva una <span className="text-gradient italic">llamada gratuita</span>
             </>
           }
-          intro="Cuéntanos qué quieres automatizar y te enseñamos exactamente cómo lo haríamos en tu negocio. Sin compromiso."
+          intro="Llámanos ahora o elige día y hora en el calendario. Te contamos exactamente cómo lo haríamos en tu negocio, sin compromiso."
         />
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-          {/* Horario visual */}
-          <div className="flex flex-col gap-6">
+        {/* Dos formas de hablar: llamar ya o reservar en el calendario */}
+        <div className="mt-12 grid gap-4 sm:grid-cols-2">
+          <a
+            href={`tel:${site.callPhoneRaw}`}
+            className="border-gradient group flex items-center gap-5 rounded-[var(--radius)] bg-bg-soft/60 p-6 transition-colors hover:bg-bg-soft"
+          >
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-glow">
+              <Phone className="h-6 w-6" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs uppercase tracking-widest text-ink-faint">Llámanos ahora</span>
+              <span className="block font-display text-3xl tabular-nums">{site.callPhone}</span>
+              <span className="block text-sm text-ink-soft">
+                {site.schedule.weekdays} · {site.schedule.hours}
+              </span>
+            </span>
+          </a>
+          <a
+            href="#reservar-calendario"
+            className="group flex items-center gap-5 rounded-[var(--radius)] border border-ink-line bg-bg-soft/40 p-6 transition-colors hover:border-brand-blue/40"
+          >
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-ink-line bg-white/[0.05] text-brand-cyan">
+              <CalendarCheck className="h-6 w-6" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs uppercase tracking-widest text-ink-faint">O si lo prefieres</span>
+              <span className="block font-display text-2xl">Reserva día y hora</span>
+              <span className="block text-sm text-ink-soft">Elige un hueco en el calendario y te llamamos.</span>
+            </span>
+            <ArrowDown className="h-5 w-5 shrink-0 text-ink-faint transition group-hover:translate-y-0.5 group-hover:text-white" />
+          </a>
+        </div>
+
+        <div id="reservar-calendario" className="mt-8 grid scroll-mt-24 gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+          {/* Horario visual (en móvil, después del calendario: lo primero es reservar) */}
+          <div className="order-last flex flex-col gap-6 lg:order-none">
             <div className="glass rounded-[var(--radius)] p-7">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-brand-cyan" />
