@@ -34,6 +34,9 @@ const N = {
 const NUMERO_FACTURA = `PRUEBA-${Date.now()}`;
 // PDF mínimo válido para la prueba de facturas
 const PDF = '%PDF-1.4\n1 0 obj <</Type/Catalog/Pages 2 0 R>> endobj\n2 0 obj <</Type/Pages/Kids[3 0 R]/Count 1>> endobj\n3 0 obj <</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>> endobj\ntrailer <</Root 1 0 R>>\n%%EOF\n';
+// Cuota del mes en curso (con un servicio mensual también aparece ya la del mes que viene)
+const MES_EN_CURSO = new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', month: 'long', year: 'numeric' }).format(new Date()).replace(' de ', ' ');
+const CUOTA_MES = `Mantenimiento web · ${MES_EN_CURSO}`;
 const leerEuros = (t) => Number(String(t).replace(/[^\d,-]/g, '').replace(',', '.'));
 
 const resultados = [];
@@ -363,15 +366,16 @@ try {
     await dlg.getByText('114,00 €').waitFor(); // 100 + 21 % IVA − 7 % IRPF
     await dlg.getByRole('button', { name: 'Añadir servicio' }).click();
     await pA.getByText('Servicio añadido').first().waitFor();
-    const cuota = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first();
+    const cuota = pA.locator('li', { hasText: CUOTA_MES });
     await cuota.waitFor();
+    comprobar((await pA.locator('li', { hasText: 'Mantenimiento web ·' }).count()) === 2, 'Deberían salir la cuota de este mes y la del que viene');
     const texto = await cuota.innerText();
     comprobar(texto.includes('114,00'), 'La cuota no muestra 114,00 € a cobrar');
     comprobar(texto.includes('Vence hoy'), 'La cuota de hoy no sale como «Vence hoy»');
     await cuota.getByRole('button', { name: 'Marcar cobrado' }).click();
     await cuota.getByRole('button', { name: 'Apuntar cobro' }).click();
     await pA.getByText('Cobro apuntado').first().waitFor();
-    await pA.locator('li', { hasText: 'Mantenimiento web ·' }).first().getByText('Cobrado', { exact: true }).waitFor();
+    await pA.locator('li', { hasText: CUOTA_MES }).getByText('Cobrado', { exact: true }).waitFor();
     const despues = await resumenMes(pA);
     comprobar(Math.abs(despues.ingresos - antes.ingresos - 100) < 0.01, `Los ingresos del mes no han subido 100 € (${antes.ingresos} → ${despues.ingresos})`);
     comprobar(Math.abs(despues.cada - antes.cada - 50) < 0.01, `La parte de cada uno no ha subido 50 € (${antes.cada} → ${despues.cada})`);
@@ -380,7 +384,7 @@ try {
 
   await escenario('12. Dinero: subir la factura en PDF de un cobro, abrirla y que el otro socio la vea', async () => {
     await pA.goto(`${BASE}/negocios/${ids.clinica}`);
-    const cuota = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first();
+    const cuota = pA.locator('li', { hasText: CUOTA_MES });
     await cuota.getByRole('button', { name: 'Subir factura' }).click();
     const dlg = pA.getByRole('dialog', { name: 'Subir factura' });
     await dlg.locator('input[type=file]').setInputFiles({ name: 'factura-prueba.pdf', mimeType: 'application/pdf', buffer: Buffer.from(PDF) });
@@ -389,7 +393,7 @@ try {
     comprobar(['114', '114,00'].includes(propuesto), `No propone el total del cobro (${propuesto})`);
     await dlg.getByRole('button', { name: 'Guardar factura' }).click();
     await pA.getByText('Factura guardada').first().waitFor({ timeout: 30000 });
-    const enlace = pA.locator('li', { hasText: 'Mantenimiento web ·' }).first().getByRole('link', { name: `Factura ${NUMERO_FACTURA}` });
+    const enlace = pA.locator('li', { hasText: CUOTA_MES }).getByRole('link', { name: `Factura ${NUMERO_FACTURA}` });
     await enlace.waitFor();
     const href = await enlace.getAttribute('href');
     const r = await pA.evaluate(async (u) => {

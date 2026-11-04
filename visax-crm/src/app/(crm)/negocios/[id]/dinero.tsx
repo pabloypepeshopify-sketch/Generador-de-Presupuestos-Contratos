@@ -104,7 +104,7 @@ export async function DineroNegocio({ negocioId, servicios, esCliente }: { negoc
 
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-[13px] font-semibold">
-          Cobros <span className="font-normal text-tenue">· {pendientes.length} pendientes</span>
+          Cobros <span className="font-normal text-tenue">· {pendientes.length} {pendientes.length === 1 ? 'pendiente' : 'pendientes'}</span>
         </h3>
         <BotonCobro negocioId={negocioId} />
       </div>
