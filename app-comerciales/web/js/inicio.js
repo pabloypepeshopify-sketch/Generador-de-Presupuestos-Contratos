@@ -1,4 +1,4 @@
-// Pantallas de Inicio (resumen del día) y Agenda (visitas y rellamadas).
+// Pantallas de Inicio (resumen de la semana) y Agenda (visitas y rellamadas).
 import { html, useMemo, useState } from './preact.js';
 import { useStore } from './datos.js';
 import { TarjetaConcurso } from './concurso.js';
@@ -6,7 +6,7 @@ import {
   Avatar, BotonTel, Cabecera, Chips, Icono, Seccion, TarjetaLocal, Vacio, ir, nombreDe,
 } from './ui.js';
 import {
-  capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, porCita, textoResultado,
+  capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, inicioPeriodo, isoLocal, porCita, textoResultado,
 } from './util.js';
 
 function contar(llamadas) {
@@ -28,10 +28,12 @@ export function Inicio() {
   const hoy = hoyISO();
 
   const d = useMemo(() => {
-    const deHoy = s.llamadas.filter((l) => diaDe(l.creado_en) === hoy);
+    // Contadores de la semana en curso (de lunes a hoy)
+    const lunes = isoLocal(inicioPeriodo('semana'));
+    const deSemana = s.llamadas.filter((l) => diaDe(l.creado_en) >= lunes);
     return {
-      mio: contar(deHoy.filter((l) => l.comercial_id === s.yo.id)),
-      equipo: contar(deHoy),
+      mio: contar(deSemana.filter((l) => l.comercial_id === s.yo.id)),
+      equipo: contar(deSemana),
       citas: s.locales.filter((l) => l.estado === 'cita' && l.cita_fecha >= hoy).sort(porCita),
       sinResultado: s.locales.filter((l) => l.estado === 'cita' && l.cita_fecha < hoy).sort(porCita),
       rellamar: s.locales.filter((l) => l.estado === 'rellamar' && (!l.rellamar_fecha || l.rellamar_fecha <= hoy)).sort(porRellamar(s.yo.id)),
@@ -55,15 +57,15 @@ export function Inicio() {
     <section class="hero">
       <span class="pildora"><i></i>${capital(fechaLarga(hoy))}</span>
       <h1>Hola, <em class="acento">${nombrePila}.</em></h1>
-      <p>${d.mio.citas ? `Llevas ${d.mio.citas} ${d.mio.citas === 1 ? 'cita' : 'citas'} hoy. ¡A por la siguiente!` : 'El objetivo de cada llamada: hablar con el dueño en persona.'}</p>
+      <p>${d.mio.citas ? `Llevas ${d.mio.citas} ${d.mio.citas === 1 ? 'cita' : 'citas'} esta semana. ¡A por la siguiente!` : 'El objetivo de cada llamada: hablar con el dueño en persona.'}</p>
     </section>
 
     <div class="tiles">
-      <div class="tile"><b>${d.mio.llamadas}</b><span>Llamadas hoy</span></div>
+      <div class="tile"><b>${d.mio.llamadas}</b><span>Llamadas esta semana</span></div>
       <div class="tile"><b>${d.mio.dueno}</b><span>Con el dueño</span></div>
-      <div class="tile destacado"><b>${d.mio.citas}</b><span>Citas hoy</span></div>
+      <div class="tile destacado"><b>${d.mio.citas}</b><span>Citas esta semana</span></div>
     </div>
-    <p class="nota-equipo">Equipo hoy: <b>${d.equipo.llamadas}</b> llamadas · <b>${d.equipo.dueno}</b> con dueño · <b>${d.equipo.citas}</b> citas</p>
+    <p class="nota-equipo">Equipo esta semana: <b>${d.equipo.llamadas}</b> ${d.equipo.llamadas === 1 ? 'llamada' : 'llamadas'} · <b>${d.equipo.dueno}</b> con dueño · <b>${d.equipo.citas}</b> ${d.equipo.citas === 1 ? 'cita' : 'citas'}</p>
 
     <div class="botones-dos">
       <button class="btn primario grande" onClick=${() => ir('/llamada')}><${Icono} n="tel" /> Apuntar llamada</button>
