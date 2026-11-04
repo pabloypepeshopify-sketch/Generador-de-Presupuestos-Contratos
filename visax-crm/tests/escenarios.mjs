@@ -13,8 +13,8 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
 const BASE = (process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
-const A = { usuario: process.env.CRM_USUARIO_A ?? 'pablo', clave: process.env.CRM_CLAVE_A, nombre: 'Pablo' };
-const B = { usuario: process.env.CRM_USUARIO_B ?? 'pepe', clave: process.env.CRM_CLAVE_B, nombre: 'Pepe' };
+const A = { usuario: process.env.CRM_USUARIO_A ?? 'pablo', clave: process.env.CRM_CLAVE_A, nombre: process.env.CRM_NOMBRE_A ?? 'Pablo' };
+const B = { usuario: process.env.CRM_USUARIO_B ?? 'pepe', clave: process.env.CRM_CLAVE_B, nombre: process.env.CRM_NOMBRE_B ?? 'Pepe' };
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 const CAPTURAS = path.resolve(process.env.CAPTURAS ?? 'tests/capturas');
@@ -158,7 +158,7 @@ try {
   pB = await abrirSesion(ctxB, B);
 
   await escenario('1. Alta de negocio: Pablo registra una inmobiliaria y aparece en la tabla y en el Kanban', async () => {
-    ids.inmo = await altaRapida(pA, { nombre: N.inmo, sector: 'Inmobiliaria', localidad: 'Sanlúcar', servicio: 'Página web', responsable: 'Pablo' });
+    ids.inmo = await altaRapida(pA, { nombre: N.inmo, sector: 'Inmobiliaria', localidad: 'Sanlúcar', servicio: 'Página web', responsable: A.nombre });
     await pA.goto(`${BASE}/negocios?q=${encodeURIComponent('Costa Sur')}`);
     const fila = pA.locator('table tbody tr', { hasText: N.inmo });
     await fila.waitFor();
@@ -170,7 +170,7 @@ try {
   });
 
   await escenario('2. Visita sin encontrar al dueño (desde el móvil): resultado, hora 17:30 y seguimiento en la agenda', async () => {
-    ids.resto = await altaRapida(pBm, { nombre: N.resto, sector: 'Restaurante', localidad: 'Chipiona', servicio: 'Automatizaciones con IA', responsable: 'Pepe', boton: 'Crear y registrar visita' });
+    ids.resto = await altaRapida(pBm, { nombre: N.resto, sector: 'Restaurante', localidad: 'Chipiona', servicio: 'Automatizaciones con IA', responsable: B.nombre, boton: 'Crear y registrar visita' });
     comprobar(pBm.url().includes('/contacto?tipo=visita'), 'No ha llevado al registro de la visita');
     await elegirResultado(pBm, 'El dueño o encargado no estaba');
     await pBm.getByLabel('¿A qué hora se le puede encontrar?').fill('17:30');
@@ -186,7 +186,7 @@ try {
   });
 
   await escenario('3. Llamada con interés: necesidad, notas y llamada de seguimiento', async () => {
-    ids.tienda = await altaRapida(pA, { nombre: N.tienda, sector: 'Tienda', localidad: 'Jerez', responsable: 'Pablo' });
+    ids.tienda = await altaRapida(pA, { nombre: N.tienda, sector: 'Tienda', localidad: 'Jerez', responsable: A.nombre });
     await pA.getByRole('link', { name: 'Registrar llamada' }).click();
     await pA.waitForURL(/contacto\?tipo=llamada/);
     await elegirResultado(pA, 'Está interesado, pero necesita más información');
@@ -216,8 +216,8 @@ try {
     const historial = pB.locator('ol article');
     comprobar((await historial.count()) === 2, `Se esperaban 2 contactos en el historial y hay ${await historial.count()}`);
     const textos = await historial.allInnerTexts();
-    comprobar(textos.some((t) => t.includes('Llamada telefónica') && t.includes('Pepe')), 'Falta la llamada de Pepe');
-    comprobar(textos.some((t) => t.includes('Visita presencial') && t.includes('Pablo')), 'Falta la visita de Pablo');
+    comprobar(textos.some((t) => t.includes('Llamada telefónica') && t.includes(B.nombre)), 'Falta la llamada de Pepe');
+    comprobar(textos.some((t) => t.includes('Visita presencial') && t.includes(A.nombre)), 'Falta la visita de Pablo');
     await captura(pB, '04-historial-compartido');
   });
 
@@ -225,7 +225,7 @@ try {
     await pB.goto(`${BASE}/negocios?q=${encodeURIComponent('Costa Sur')}`);
     await pB.locator('table tbody tr', { hasText: N.inmo }).getByRole('link').first().click();
     await pB.waitForURL(new RegExp(`/negocios/${ids.inmo}`));
-    await pB.getByText('por Pablo').first().waitFor();
+    await pB.getByText(`por ${A.nombre}`).first().waitFor();
     const tareaDePablo = pB.locator('li', { hasText: 'Volver a visitar' }).filter({ has: pB.getByRole('button', { name: 'Marcar hecha' }) }).first();
     await tareaDePablo.getByRole('button', { name: 'Marcar hecha' }).click();
     await pB.getByText('Tarea completada', { exact: true }).first().waitFor();
@@ -352,7 +352,7 @@ try {
   // ---------- Dinero ----------
   await escenario('11. Dinero: servicio mensual, cuota pendiente y cobro apuntado (suma al resumen y 50/50)', async () => {
     const antes = await resumenMes(pA);
-    ids.clinica = await altaRapida(pA, { nombre: N.clinica, sector: 'Clínica', localidad: 'Rota', responsable: 'Pablo' });
+    ids.clinica = await altaRapida(pA, { nombre: N.clinica, sector: 'Clínica', localidad: 'Rota', responsable: A.nombre });
     await pA.getByLabel('Estado comercial', { exact: true }).selectOption('cliente_ganado');
     await pA.getByRole('heading', { name: 'Servicios contratados' }).waitFor({ timeout: 30000 });
     await pA.getByRole('button', { name: 'Servicio contratado' }).click();
