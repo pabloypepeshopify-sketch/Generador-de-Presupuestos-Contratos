@@ -210,6 +210,24 @@ export async function borrarProducto(id) {
   actualizar({ productos: store.productos.filter((p) => p.id !== id) });
 }
 
+// ---------- Avisos al móvil (app ntfy) ----------
+// Cada persona tiene su canal privado; la base de datos envía los avisos sola.
+export const AVISOS_KEY = 'visax-equipo-avisos';
+
+export async function miCanalAvisos() {
+  const { data, error } = await sb.from('avisos_canales').select('canal').maybeSingle();
+  if (error) throw error;
+  return data?.canal || null;
+}
+
+export async function probarAviso() {
+  const { error } = await sb.rpc('probar_aviso');
+  if (error) throw error;
+  try {
+    localStorage.setItem(AVISOS_KEY, '1');
+  } catch {}
+}
+
 // ---------- Perfil y equipo ----------
 export async function editarMiPerfil(cambios) {
   const { data, error } = await sb.from('perfiles').update(cambios).eq('id', store.yo.id).select().single();

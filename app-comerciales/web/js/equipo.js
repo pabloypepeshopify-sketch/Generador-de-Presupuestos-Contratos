@@ -1,7 +1,8 @@
 // Informe del equipo, catálogo, ajustes personales y gestión de usuarios (socios).
-import { html, useMemo, useState } from './preact.js';
+import { html, useEffect, useMemo, useState } from './preact.js';
 import {
-  borrarProducto, cambiarMiContrasena, cerrarSesion, editarMiPerfil, esSocio, gestionarEquipo, guardarProducto, useStore,
+  borrarProducto, cambiarMiContrasena, cerrarSesion, editarMiPerfil, esSocio, gestionarEquipo, guardarProducto, miCanalAvisos,
+  probarAviso, useStore,
 } from './datos.js';
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Seccion, Vacio, aviso, nombreDe,
@@ -216,6 +217,54 @@ function FormProducto({ p, alTerminar }) {
 }
 
 // ---------- Ajustes ----------
+const NTFY_ANDROID = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
+const NTFY_IPHONE = 'https://apps.apple.com/app/ntfy/id1625396347';
+
+// Avisos al móvil: instalar ntfy, suscribirse al canal propio y probar.
+function AvisosMovil() {
+  const [canal, setCanal] = useState(undefined);
+  const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    miCanalAvisos().then(setCanal).catch(() => setCanal(null));
+  }, []);
+
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(canal);
+      aviso('Canal copiado');
+    } catch {
+      prompt('Copia tu canal:', canal);
+    }
+  }
+
+  async function probar() {
+    setEnviando(true);
+    try {
+      await probarAviso();
+      aviso('Aviso enviado: mira tu móvil');
+    } catch (e) {
+      aviso(mensajeError(e), 'error');
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return html`<${Grupo} titulo="Avisos al móvil">
+    <p class="ayuda">Te llega un aviso al apuntar una cita o una rellamada tuya, y otro 1 hora antes de cada cita${esSocio() ? '. Como socio, también recibes los de todo el equipo' : ''}.</p>
+    <ol class="pasos-avisos">
+      <li>Instala la app <b>ntfy</b> (gratis): <a href=${NTFY_ANDROID} target="_blank" rel="noopener">Android</a> · <a href=${NTFY_IPHONE} target="_blank" rel="noopener">iPhone</a>.</li>
+      <li>En ntfy pulsa <b>+</b>, pega tu canal y pulsa <b>Suscribirse</b> (deja el servidor que viene, ntfy.sh).</li>
+      <li>Vuelve aquí y pulsa <b>Enviar aviso de prueba</b>.</li>
+    </ol>
+    ${canal === undefined ? html`<p class="tenue">Cargando tu canal…</p>`
+      : canal ? html`<div class="canal-aviso"><code>${canal}</code><button type="button" class="btn sec" onClick=${copiar}>Copiar</button></div>`
+      : html`<p class="error">No encontramos tu canal de avisos. Pídeselo a Pablo o a Pepe.</p>`}
+    <button type="button" class="btn primario bloque" disabled=${!canal || enviando} onClick=${probar}>${enviando ? 'Enviando…' : 'Enviar aviso de prueba'}</button>
+    <p class="ayuda">Tu canal es solo tuyo: no lo compartas.</p>
+  <//>`;
+}
+
 export function Ajustes() {
   const s = useStore();
   const [nombre, setNombre] = useState(s.yo.nombre);
@@ -254,6 +303,8 @@ export function Ajustes() {
     <div class="perfil-cab"><${Avatar} p=${s.yo} t=${56} /><div><b>${s.yo.nombre}</b><small>${s.yo.rol === 'socio' ? 'Socio' : 'Comercial'} · usuario «${s.yo.usuario}»</small></div></div>
 
     <div class="formulario">
+      <${AvisosMovil} />
+
       <${Grupo} titulo="Mi perfil">
         <form class="en-linea" onSubmit=${(e) => { e.preventDefault(); nombre.trim() && guardarPerfil({ nombre: nombre.trim() }, 'Nombre guardado'); }}>
           <${Campo} etiqueta="Mi nombre (lo ve el equipo)"><input value=${nombre} onInput=${(e) => setNombre(e.target.value)} /><//>

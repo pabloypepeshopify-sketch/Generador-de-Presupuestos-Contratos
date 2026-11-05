@@ -1,6 +1,6 @@
 // Pantallas de Inicio (resumen de la semana) y Agenda (visitas y rellamadas).
 import { html, useMemo, useState } from './preact.js';
-import { useStore } from './datos.js';
+import { AVISOS_KEY, useStore } from './datos.js';
 import { TarjetaConcurso } from './concurso.js';
 import {
   Avatar, BotonTel, Cabecera, Chips, Icono, Seccion, TarjetaLocal, Vacio, ir, nombreDe,
@@ -8,6 +8,15 @@ import {
 import {
   capital, diaDe, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hoyISO, hora, inicioPeriodo, isoLocal, porCita, textoResultado,
 } from './util.js';
+
+// Hasta que alguien envía su aviso de prueba, en Inicio le recordamos activarlos.
+function avisosPendientes() {
+  try {
+    return !localStorage.getItem(AVISOS_KEY);
+  } catch {
+    return false;
+  }
+}
 
 function contar(llamadas) {
   const soloLlamadas = llamadas.filter((l) => l.tipo === 'llamada');
@@ -71,6 +80,8 @@ export function Inicio() {
       <button class="btn primario grande" onClick=${() => ir('/llamada')}><${Icono} n="tel" /> Apuntar llamada</button>
       <button class="btn sec grande" onClick=${() => ir('/visita')}><${Icono} n="mapa" /> Apuntar visita</button>
     </div>
+
+    ${avisosPendientes() ? html`<a class="alerta enlace" href="#/ajustes"><${Icono} n="tel" t=${18} /> Activa los avisos al móvil para no perderte ninguna cita. <b>Activar</b></a>` : null}
 
     <${TarjetaConcurso} />
 
