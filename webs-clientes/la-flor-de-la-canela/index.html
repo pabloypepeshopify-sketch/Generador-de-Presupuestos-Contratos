@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>La Flor de la Canela · Restobar peruano y sevillano en Santa Justa, Sevilla</title>
+  <meta name="description" content="Ceviche, lomo saltado y causa limeña junto a serranito, cola de toro y choco frito. Restobar de cocina peruana y española en Av. de El Greco 4, Sevilla. Carta digital, tapas y raciones, terraza.">
+  <meta name="theme-color" content="#6e1320">
+
+  <meta property="og:type" content="restaurant.restaurant">
+  <meta property="og:title" content="La Flor de la Canela · Perú y Sevilla en la misma mesa">
+  <meta property="og:description" content="Cocina peruana y tapeo sevillano en Av. de El Greco 4, Sevilla. Mira la carta y reserva por WhatsApp.">
+  <meta property="og:image" content="img/og.jpg">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="img/flor.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icono-180.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..700&family=Manrope:wght@400;500;600;700;800&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "La Flor de la Canela",
+    "description": "Restobar de cocina peruana y española en Sevilla.",
+    "servesCuisine": ["Peruana", "Española", "Andaluza", "Tapas"],
+    "priceRange": "€€",
+    "telephone": "+34 618 01 22 08",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Av. de El Greco, 4",
+      "postalCode": "41007",
+      "addressLocality": "Sevilla",
+      "addressRegion": "Andalucía",
+      "addressCountry": "ES"
+    },
+    "hasMenu": "#carta",
+    "acceptsReservations": "True",
+    "sameAs": [
+      "https://www.instagram.com/flordelacanela4/",
+      "https://www.thefork.es/restaurante/la-flor-de-la-canela-r848256"
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<!-- Sprite: flor de la canela (la de las esquinas de la carta) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="petalo" d="M0 -46 C 10 -31 10 -17 0 -8 C -10 -17 -10 -31 0 -46 Z"/>
+    <path id="petalo-in" d="M0 -27 C 6 -19 6 -12 0 -7 C -6 -12 -6 -19 0 -27 Z"/>
+  </defs>
+  <symbol id="flor" viewBox="-50 -50 100 100">
+    <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round">
+      <use href="#petalo"/><use href="#petalo" transform="rotate(45)"/><use href="#petalo" transform="rotate(90)"/><use href="#petalo" transform="rotate(135)"/>
+      <use href="#petalo" transform="rotate(180)"/><use href="#petalo" transform="rotate(225)"/><use href="#petalo" transform="rotate(270)"/><use href="#petalo" transform="rotate(315)"/>
+    </g>
+    <g fill="currentColor">
+      <use href="#petalo-in" transform="rotate(22.5)"/><use href="#petalo-in" transform="rotate(67.5)"/><use href="#petalo-in" transform="rotate(112.5)"/><use href="#petalo-in" transform="rotate(157.5)"/>
+      <use href="#petalo-in" transform="rotate(202.5)"/><use href="#petalo-in" transform="rotate(247.5)"/><use href="#petalo-in" transform="rotate(292.5)"/><use href="#petalo-in" transform="rotate(337.5)"/>
+      <circle r="5.5"/>
+    </g>
+  </symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 7 7L16 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></g></symbol>
+  <symbol id="i-tt" viewBox="0 0 24 24"><path fill="currentColor" d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-1.8-2.5V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></g></symbol>
+  <symbol id="i-carta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 3h11l3 3v15H5Z"/><path d="M9 9h6M9 13h6M9 17h4"/></g></symbol>
+  <symbol id="i-buscar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></symbol>
+  <symbol id="i-filtro" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></g></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<div class="banderas" aria-hidden="true"><span class="pe"></span><span class="es"></span></div>
+
+<!-- ───────────── Cabecera ───────────── -->
+<header class="cabecera" id="cabecera">
+  <a class="marca" href="#inicio" aria-label="La Flor de la Canela, inicio">
+    <span class="marca-la">La</span><span class="marca-f">F</span><span class="marca-resto">lor de la Canela</span>
+  </a>
+  <nav class="menu" id="menu" aria-label="Principal">
+    <a href="#carta" data-i18n="nav.carta">La carta</a>
+    <a href="#casa" data-i18n="nav.casa">La casa</a>
+    <a href="#barra" data-i18n="nav.barra">La barra</a>
+    <a href="#visitanos" data-i18n="nav.visita">Dónde estamos</a>
+  </nav>
+  <div class="cabecera-acciones">
+    <button class="idioma" id="idioma" type="button" aria-label="Cambiar idioma / Change language"><span data-l="es">ES</span><span data-l="en">EN</span></button>
+    <a class="boton boton-carmin boton-sm solo-escritorio" href="#reservar" data-i18n="cta.reservar">Reservar mesa</a>
+    <button class="hamburguesa" id="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+<!-- ───────────── Portada ───────────── -->
+<section class="portada" id="inicio">
+  <svg class="flor-esquina fe-1" aria-hidden="true"><use href="#flor"/></svg>
+  <svg class="flor-esquina fe-2" aria-hidden="true"><use href="#flor"/></svg>
+
+  <div class="portada-texto">
+    <p class="antetitulo" data-i18n="hero.ante">Restobar · Santa Justa · Sevilla</p>
+    <h1 class="portada-titulo">
+      <span class="linea" data-i18n="hero.t1">Ceviche y serranito,</span>
+      <span class="linea cursiva" data-i18n="hero.t2">en la misma mesa.</span>
+    </h1>
+    <p class="portada-sub" data-i18n="hero.sub">Cocina criolla peruana y tapeo sevillano de siempre, en la Avenida de El Greco. Terraza a la calle, azulejo dentro y pisco sour bien batido.</p>
+    <div class="portada-ctas">
+      <a class="boton boton-carmin" href="#carta"><svg class="ico"><use href="#i-carta"/></svg><span data-i18n="cta.carta">Ver la carta</span></a>
+      <a class="boton boton-linea" href="#reservar"><span data-i18n="cta.reservar">Reservar mesa</span><svg class="ico"><use href="#i-flecha"/></svg></a>
+    </div>
+    <ul class="portada-datos">
+      <li><strong>4,8 <svg class="estrella-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.8 2.8 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17l-5.7 3.1 1.2-6.3L2.9 9.4l6.3-.8Z"/></svg></strong><span data-i18n="hero.d1">168 reseñas en Google</span></li>
+      <li><strong>50</strong><span data-i18n="hero.d2">platos en carta</span></li>
+      <li><strong data-i18n="hero.d3a">Tapa</strong><span data-i18n="hero.d3">o ración</span></li>
+    </ul>
+  </div>
+
+  <div class="portada-foto">
+    <figure class="arco">
+      <img src="img/ceviche.webp" width="800" height="850" alt="Ceviche con cebolla morada, choclo, cancha y boniato" fetchpriority="high">
+    </figure>
+    <figure class="circulo">
+      <img src="img/pisco-sour.webp" width="800" height="800" alt="Pisco sour con limón en la barra">
+    </figure>
+    <svg class="sello" viewBox="0 0 200 200" aria-hidden="true">
+      <defs><path id="circ" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0"/></defs>
+      <text><textPath href="#circ" startOffset="0" textLength="486" lengthAdjust="spacing">PISCO SOUR · CEVICHE · SERRANITO · </textPath></text>
+      <use href="#flor" x="70" y="70" width="60" height="60"/>
+    </svg>
+  </div>
+</section>
+
+<!-- Cinta de platos -->
+<div class="cinta" aria-hidden="true">
+  <div class="cinta-pista">
+    <span>Ceviche</span><svg><use href="#flor"/></svg><span>Lomo saltado</span><svg><use href="#flor"/></svg><span>Serranito</span><svg><use href="#flor"/></svg><span>Causa limeña</span><svg><use href="#flor"/></svg><span>Cola de toro</span><svg><use href="#flor"/></svg><span>Ají de gallina</span><svg><use href="#flor"/></svg><span>Choco frito</span><svg><use href="#flor"/></svg><span>Pisco sour</span><svg><use href="#flor"/></svg><span>Anticuchos</span><svg><use href="#flor"/></svg><span>Cazón en adobo</span><svg><use href="#flor"/></svg>
+  </div>
+</div>
+
+<!-- ───────────── La casa ───────────── -->
+<section class="seccion casa" id="casa">
+  <div class="casa-fotos revelar">
+    <figure class="casa-f1"><img src="img/fachada.webp" width="800" height="600" loading="lazy" alt="Fachada de La Flor de la Canela en la Avenida de El Greco"></figure>
+    <figure class="casa-f2"><img src="img/salon-azulejo.webp" width="800" height="600" loading="lazy" alt="Salón con azulejo sevillano azul y blanco y mesas de madera"></figure>
+    <p class="casa-pie" data-i18n="casa.pie">Av. de El Greco, 4 · el antiguo Enea</p>
+  </div>
+  <div class="casa-texto revelar">
+    <p class="antetitulo" data-i18n="casa.ante">La casa</p>
+    <h2 class="titulo" data-i18n-html="casa.titulo">Una flor que viene <em>de Lima</em></h2>
+    <p data-i18n="casa.p1">Se llama como el vals de Chabuca Granda que en Perú se sabe todo el mundo. Detrás está Dani Maguiño, que en 2006 abrió en la plaza Pintor Amalio García del Moral lo que él recuerda como el primer restaurante peruano de Sevilla.</p>
+    <p data-i18n="casa.p2">Hoy esa cocina sigue en la Avenida de El Greco: terraza a la calle con rejas de forja, salón de azulejo azul y blanco, mesas de madera y una carta que se parte en dos. A un lado, ceviche, causa y lomo saltado al wok. Al otro, serranito, choco frito y cola de toro.</p>
+    <ul class="cifras">
+      <li><strong>2006</strong><span data-i18n="casa.c1">cocinando Perú en Sevilla</span></li>
+      <li><strong>2</strong><span data-i18n="casa.c2">cocinas, una sola mesa</span></li>
+      <li><strong>14</strong><span data-i18n="casa.c3">alérgenos señalados en carta</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────── Dos cocinas ───────────── -->
+<section class="seccion cocinas" id="cocinas">
+  <header class="cabeza-seccion revelar">
+    <p class="antetitulo" data-i18n="coc.ante">Dos cocinas</p>
+    <h2 class="titulo" data-i18n-html="coc.titulo">Pide de las dos. <em>Al centro.</em></h2>
+  </header>
+  <div class="cocinas-grid">
+    <article class="cocina cocina-peru revelar">
+      <img src="img/lomo-saltado.webp" width="800" height="850" loading="lazy" alt="Lomo saltado con pimientos, cebolla morada y patatas fritas">
+      <div class="cocina-cuerpo">
+        <span class="mini-bandera pe" aria-hidden="true"></span>
+        <h3 data-i18n="coc.pe.t">Cocina peruana</h3>
+        <p data-i18n="coc.pe.p">Ceviche con leche de tigre, causa limeña, anticuchos, ají de gallina y todo lo que sale del wok: lomo saltado, chaufa, tipakay. Criolla y chifa, como en Lima.</p>
+        <a class="enlace" href="#carta" data-abrir-carta="peru"><span data-i18n="coc.pe.cta">Ver cocina peruana</span><svg class="ico"><use href="#i-flecha"/></svg></a>
+      </div>
+    </article>
+    <article class="cocina cocina-sev revelar">
+      <img src="img/terraza-mesa.webp" width="800" height="600" loading="lazy" alt="Terraza de La Flor de la Canela con rejas sevillanas y suelo hidráulico">
+      <div class="cocina-cuerpo">
+        <span class="mini-bandera es" aria-hidden="true"></span>
+        <h3 data-i18n="coc.es.t">Cocina española</h3>
+        <p data-i18n="coc.es.p">El tapeo de toda la vida: serranito, solomillo al whisky, choco frito, cazón en adobo, cola de toro y carrillada. Con una Cruzcampo bien fría.</p>
+        <a class="enlace" href="#carta" data-abrir-carta="sevilla"><span data-i18n="coc.es.cta">Ver cocina española</span><svg class="ico"><use href="#i-flecha"/></svg></a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ───────────── De la casa ───────────── -->
+<section class="seccion estrellas" id="estrellas">
+  <header class="cabeza-seccion cabeza-fila revelar">
+    <div>
+      <p class="antetitulo" data-i18n="est.ante">Para empezar</p>
+      <h2 class="titulo" data-i18n-html="est.titulo">Lo que hay que <em>probar</em></h2>
+    </div>
+    <a class="enlace" href="#carta"><span data-i18n="est.cta">Carta completa</span><svg class="ico"><use href="#i-flecha"/></svg></a>
+  </header>
+  <div class="estrellas-pista" id="estrellas-pista"><!-- lo pinta app.js --></div>
+</section>
+
+<!-- ───────────── CARTA ───────────── -->
+<section class="carta" id="carta" aria-labelledby="carta-titulo">
+  <div class="carta-papel">
+    <svg class="flor-esquina fc-1" aria-hidden="true"><use href="#flor"/></svg>
+    <svg class="flor-esquina fc-2" aria-hidden="true"><use href="#flor"/></svg>
+
+    <header class="carta-cabeza">
+      <p class="antetitulo" data-i18n="carta.ante">Carta digital</p>
+      <h2 class="titulo" id="carta-titulo" data-i18n-html="carta.titulo">La <em>carta</em></h2>
+      <p class="carta-intro" data-i18n="carta.intro">Casi todo se pide en tapa o en ración. Lo suyo es pedir de las dos cocinas y compartir.</p>
+
+      <div class="selector" role="tablist" aria-label="Cocina">
+        <button role="tab" id="tab-peru" aria-controls="panel-carta" aria-selected="true" data-cocina="peru">
+          <span class="mini-bandera pe" aria-hidden="true"></span><span data-i18n="carta.tab.pe">Cocina peruana</span>
+        </button>
+        <button role="tab" id="tab-sevilla" aria-controls="panel-carta" aria-selected="false" data-cocina="sevilla">
+          <span class="mini-bandera es" aria-hidden="true"></span><span data-i18n="carta.tab.es">Cocina española</span>
+        </button>
+        <span class="selector-fondo" aria-hidden="true"></span>
+      </div>
+    </header>
+
+    <div class="carta-barra" id="carta-barra">
+      <nav class="carta-chips" id="carta-chips" aria-label="Secciones de la carta"></nav>
+      <div class="carta-herr">
+        <button class="herr" id="btn-buscar" type="button" aria-label="Buscar plato" aria-expanded="false"><svg><use href="#i-buscar"/></svg></button>
+        <button class="herr" id="btn-alergenos" type="button" aria-expanded="false" aria-controls="panel-alergenos"><svg><use href="#i-filtro"/></svg><span data-i18n="carta.alerg">Alérgenos</span><b class="herr-num" id="alerg-num" hidden>0</b></button>
+      </div>
+      <div class="carta-busqueda" id="carta-busqueda" hidden>
+        <svg><use href="#i-buscar"/></svg>
+        <input id="buscar" type="search" autocomplete="off" placeholder="Busca: ceviche, chaufa, serranito…" data-i18n-ph="carta.ph">
+        <button type="button" id="buscar-cerrar" aria-label="Cerrar búsqueda"><svg><use href="#i-x"/></svg></button>
+      </div>
+    </div>
+
+    <div class="panel-alergenos" id="panel-alergenos" hidden>
+      <p class="pa-titulo" data-i18n="carta.pa.t">Ocultar platos que lleven:</p>
+      <div class="pa-lista" id="pa-lista"></div>
+      <p class="pa-nota" data-i18n="carta.pa.nota">Según la carta del local. Si tienes una alergia, díselo siempre a quien te atienda.</p>
+      <button class="enlace pa-limpiar" type="button" id="pa-limpiar" data-i18n="carta.pa.limpiar">Quitar filtros</button>
+    </div>
+
+    <div id="panel-carta" role="tabpanel" aria-labelledby="tab-peru" class="carta-cuerpo"></div>
+
+    <footer class="carta-pie">
+      <div class="leyenda" id="leyenda"></div>
+      <p data-i18n="carta.legal">Precios en euros, IVA incluido. Si tienes alguna alergia o intolerancia, avísanos: te decimos qué lleva cada plato.</p>
+    </footer>
+  </div>
+</section>
+
+<!-- ───────────── La barra ───────────── -->
+<section class="seccion barra" id="barra">
+  <figure class="barra-foto revelar">
+    <img src="img/pisco-sour.webp" width="800" height="800" loading="lazy" alt="Pisco sour en vaso con limón y pajitas">
+  </figure>
+  <div class="barra-texto revelar">
+    <p class="antetitulo" data-i18n="barra.ante">La barra</p>
+    <h2 class="titulo" data-i18n-html="barra.titulo">Pisco sour <em>de mango, de maracuyá</em> o clásico</h2>
+    <p data-i18n="barra.p">Se empieza con un pisco sour y se sigue con lo que pida la noche. Chicha morada, zumos tropicales, mojitos y caña de Cruzcampo para el tapeo.</p>
+    <ul class="bebidas">
+      <li><span data-i18n="barra.b1">Pisco sour clásico</span></li>
+      <li><span data-i18n="barra.b2">Pisco sour de maracuyá</span></li>
+      <li><span data-i18n="barra.b3">Pisco sour de mango</span></li>
+      <li><span data-i18n="barra.b4">Chicha morada</span></li>
+      <li><span data-i18n="barra.b5">Zumos tropicales</span></li>
+      <li><span data-i18n="barra.b6">Mojito</span></li>
+    </ul>
+    <p class="barra-nota" data-i18n="barra.nota">Pregunta en barra por los postres del día.</p>
+  </div>
+</section>
+
+<!-- ───────────── Galería ───────────── -->
+<section class="seccion galeria" id="galeria" aria-label="Fotos del local">
+  <div class="galeria-grid">
+    <button class="g g1" data-foto="img/terraza-noche.webp"><img src="img/terraza-noche.webp" loading="lazy" width="800" height="600" alt="Terraza de noche en la Avenida de El Greco"></button>
+    <button class="g g2" data-foto="img/ceviche-chicharron.webp"><img src="img/ceviche-chicharron.webp" loading="lazy" width="800" height="850" alt="Ceviche y chicharrón de pescado junto a la letra de La flor de la canela"></button>
+    <button class="g g3" data-foto="img/salon.webp"><img src="img/salon.webp" loading="lazy" width="800" height="600" alt="Salón interior con azulejos"></button>
+    <button class="g g4" data-foto="img/causa-limena.webp"><img src="img/causa-limena.webp" loading="lazy" width="800" height="850" alt="Causa limeña con aguacate, huevo y aceituna"></button>
+    <button class="g g5" data-foto="img/barra.webp"><img src="img/barra.webp" loading="lazy" width="800" height="600" alt="Barra de madera y cocina"></button>
+    <button class="g g6" data-foto="img/arroz-mariscos.webp"><img src="img/arroz-mariscos.webp" loading="lazy" width="800" height="850" alt="Arroz con mariscos, langostinos y calamar"></button>
+    <button class="g g7" data-foto="img/terraza.webp"><img src="img/terraza.webp" loading="lazy" width="800" height="600" alt="Terraza de día con suelo hidráulico y pizarra"></button>
+    <button class="g g8" data-foto="img/guiso.webp"><img src="img/guiso.webp" loading="lazy" width="800" height="850" alt="Guiso de ternera con arroz y alubias"></button>
+  </div>
+</section>
+
+<!-- ───────────── Reservar ───────────── -->
+<section class="seccion reservar" id="reservar">
+  <div class="reservar-texto revelar">
+    <p class="antetitulo" data-i18n="res.ante">Reservar</p>
+    <h2 class="titulo" data-i18n-html="res.titulo">Guárdanos <em>una mesa</em></h2>
+    <p data-i18n="res.p">Rellena esto y se abre WhatsApp con el mensaje ya escrito. Te contestamos por ahí para confirmar.</p>
+    <div class="reservar-alt">
+      <a class="contacto" href="tel:+34618012208"><svg><use href="#i-tel"/></svg><span>618 01 22 08</span></a>
+      <a class="contacto" href="https://www.thefork.es/restaurante/la-flor-de-la-canela-r848256" target="_blank" rel="noopener"><svg><use href="#flor"/></svg><span data-i18n="res.thefork">También en TheFork</span></a>
+    </div>
+  </div>
+  <form class="form-reserva revelar" id="form-reserva" novalidate>
+    <label class="campo campo-ancho">
+      <span data-i18n="res.f.nombre">Nombre</span>
+      <input name="nombre" required autocomplete="name" placeholder="Tu nombre">
+    </label>
+    <label class="campo">
+      <span data-i18n="res.f.personas">Personas</span>
+      <select name="personas" required>
+        <option>2</option><option>1</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option value="más de 8">+8</option>
+      </select>
+    </label>
+    <label class="campo">
+      <span data-i18n="res.f.dia">Día</span>
+      <input name="dia" type="date" required>
+    </label>
+    <label class="campo">
+      <span data-i18n="res.f.hora">Hora</span>
+      <select name="hora" required>
+        <option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+        <option>20:30</option><option selected>21:00</option><option>21:30</option><option>22:00</option><option>22:30</option>
+      </select>
+    </label>
+    <fieldset class="campo">
+      <legend data-i18n="res.f.zona">Dónde</legend>
+      <div class="opciones">
+        <label><input type="radio" name="zona" value="terraza" checked><span data-i18n="res.f.terraza">Terraza</span></label>
+        <label><input type="radio" name="zona" value="dentro"><span data-i18n="res.f.dentro">Dentro</span></label>
+      </div>
+    </fieldset>
+    <label class="campo campo-ancho">
+      <span data-i18n="res.f.notas">Algo que debamos saber (opcional)</span>
+      <input name="notas" placeholder="Cumpleaños, carrito, alergias…" data-i18n-ph="res.f.notas.ph">
+    </label>
+    <button class="boton boton-wa campo-ancho" type="submit"><svg class="ico"><use href="#i-wa"/></svg><span data-i18n="res.f.enviar">Pedir mesa por WhatsApp</span></button>
+    <p class="form-error campo-ancho" id="form-error" role="alert" hidden></p>
+  </form>
+</section>
+
+<!-- ───────────── Dónde ───────────── -->
+<section class="seccion visitanos" id="visitanos">
+  <div class="mapa revelar">
+    <iframe title="Mapa: La Flor de la Canela, Av. de El Greco 4, Sevilla" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      src="https://maps.google.com/maps?q=La%20Flor%20de%20la%20Canela%2C%20Av.%20de%20El%20Greco%204%2C%2041007%20Sevilla&z=16&output=embed"></iframe>
+  </div>
+  <div class="visitanos-texto revelar">
+    <p class="antetitulo" data-i18n="vis.ante">Dónde estamos</p>
+    <h2 class="titulo" data-i18n-html="vis.titulo">Av. de El Greco, 4 <em>Sevilla</em></h2>
+    <p data-i18n="vis.p">En el barrio de San Pablo – Santa Justa, 41007. Terraza a la calle y salón dentro.</p>
+    <dl class="datos">
+      <div><dt data-i18n="vis.horario">Horario</dt><dd data-i18n="vis.horario.v">Llámanos o escríbenos por WhatsApp y te decimos si hay mesa.</dd></div>
+      <div><dt data-i18n="vis.tel">Teléfono y WhatsApp</dt><dd><a href="tel:+34618012208">618 01 22 08</a></dd></div>
+    </dl>
+    <div class="visitanos-ctas">
+      <a class="boton boton-carmin" href="https://maps.app.goo.gl/qfJJDjq2nYCkxXxq8" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg><span data-i18n="vis.como">Cómo llegar</span></a>
+      <a class="boton boton-linea" href="https://wa.me/34618012208" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg><span>WhatsApp</span></a>
+    </div>
+    <div class="redes">
+      <a href="https://www.instagram.com/flordelacanela4/" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg><span>@flordelacanela4</span></a>
+      <a href="https://www.tiktok.com/search?q=La%20Flor%20de%20la%20Canela%204" target="_blank" rel="noopener"><svg><use href="#i-tt"/></svg><span>La Flor de la Canela 4</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="azulejo-banda" aria-hidden="true"></div>
+  <div class="pie-dentro">
+    <a class="marca marca-grande" href="#inicio" aria-label="La Flor de la Canela">
+      <span class="marca-la">La</span><span class="marca-f">F</span><span class="marca-resto">lor de la Canela</span>
+    </a>
+    <p class="pie-lema">Restobar · <span data-i18n="pie.lema">Cocina peruana y española</span></p>
+    <p class="pie-dir">Av. de El Greco, 4 · 41007 Sevilla · <a href="tel:+34618012208">618 01 22 08</a></p>
+    <p class="pie-legal"><span>© <span id="anio">2026</span> La Flor de la Canela</span><span data-i18n="pie.fotos">Fotos del local y sus platos.</span></p>
+  </div>
+</footer>
+
+<!-- Barra fija en móvil: lo que se busca al escanear el QR de la mesa -->
+<nav class="barra-movil" aria-label="Accesos rápidos">
+  <a href="#carta"><svg><use href="#i-carta"/></svg><span data-i18n="bm.carta">Carta</span></a>
+  <a href="tel:+34618012208"><svg><use href="#i-tel"/></svg><span data-i18n="bm.llamar">Llamar</span></a>
+  <a href="#reservar" class="bm-destacado"><svg><use href="#i-wa"/></svg><span data-i18n="bm.reservar">Reservar</span></a>
+  <a href="https://maps.app.goo.gl/qfJJDjq2nYCkxXxq8" target="_blank" rel="noopener"><svg><use href="#i-pin"/></svg><span data-i18n="bm.llegar">Llegar</span></a>
+</nav>
+
+<dialog class="visor" id="visor" aria-label="Foto">
+  <button class="visor-cerrar" type="button" aria-label="Cerrar"><svg><use href="#i-x"/></svg></button>
+  <img alt="">
+</dialog>
+
+<script src="js/carta-datos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
