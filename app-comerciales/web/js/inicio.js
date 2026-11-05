@@ -134,9 +134,31 @@ export function FilaVisita({ l }) {
   </article>`;
 }
 
+// Local que dijo que no: quién llamó, cuándo, con quién habló y lo que apuntó.
+function FilaNo({ l, ll }) {
+  const quien = ll?.comercial_id || l.ultimo_comercial_id;
+  const cuando = ll?.creado_en || l.ultima_llamada_en;
+  const conQuien = { dueno: 'el dueño', empleado: 'un empleado' }[ll?.contacto];
+  return html`<article class="tarjeta-local" onClick=${() => ir(`/local/${l.id}`)} tabindex="0"
+      onKeyDown=${(e) => e.key === 'Enter' && ir(`/local/${l.id}`)}>
+    <div class="tl-main">
+      <div class="tl-fila1"><b class="tl-nombre">${l.nombre}</b></div>
+      ${l.zona || l.tipo ? html`<div class="tl-fila2">${l.zona ? html`<span>${l.zona}</span>` : null}${l.tipo ? html`<span>${l.tipo}</span>` : null}</div>` : null}
+      <div class="tl-dato no">✕ Dijo que no${conQuien ? ` ${conQuien}` : ''}${ll?.tipo === 'visita' ? ' en la visita' : ''}${ll?.dueno_nombre ? ` (${ll.dueno_nombre})` : ''}</div>
+      ${ll?.notas ? html`<div class="tl-dato">«${ll.notas}»</div>` : null}
+      <div class="tl-pie">
+        ${quien ? html`<${Avatar} id=${quien} t=${18} /><span>${nombreDe(quien)}${cuando ? ` · ${haceCuanto(cuando)}` : ''}</span>` : html`<span>Marcado sin llamada</span>`}
+      </div>
+    </div>
+    <${BotonTel} tel=${l.dueno_telefono || l.telefono} />
+  </article>`;
+}
+
+const VISTAS = ['visitas', 'rellamar', 'no'];
+
 export function Agenda({ query }) {
   const s = useStore();
-  const [vista, setVista] = useState(query.vista === 'rellamar' ? 'rellamar' : 'visitas');
+  const [vista, setVista] = useState(VISTAS.includes(query.vista) ? query.vista : 'visitas');
   const [quien, setQuien] = useState('todos');
   const hoy = hoyISO();
 
@@ -163,14 +185,36 @@ export function Agenda({ query }) {
     ].filter(([, ls]) => ls.length);
   }, [s.locales, quien, hoy]);
 
+  // Dijeron que no: la llamada o visita del «no» más reciente de cada local
+  const dijeronNo = useMemo(() => {
+    const ultimoNo = new Map();
+    for (const ll of s.llamadas) {
+      if (ll.resultado === 'no_interesa' && !ultimoNo.has(ll.local_id)) ultimoNo.set(ll.local_id, ll);
+    }
+    const lista = s.locales
+      .filter((l) => l.estado === 'no_interesa')
+      .map((l) => ({ l, ll: ultimoNo.get(l.id) }))
+      .filter(({ l, ll }) => quien === 'todos' || (ll?.comercial_id || l.ultimo_comercial_id) === s.yo.id)
+      .map((x) => ({ ...x, cuando: x.ll?.creado_en || x.l.ultima_llamada_en || x.l.actualizado_en }))
+      .sort((a, b) => (b.cuando || '').localeCompare(a.cuando || ''));
+    const hace = (dias) => new Date(Date.now() - dias * 864e5).toISOString();
+    return [
+      ['Últimos 7 días', lista.filter((x) => x.cuando >= hace(7))],
+      ['Últimos 30 días', lista.filter((x) => x.cuando < hace(7) && x.cuando >= hace(30))],
+      ['Antes', lista.filter((x) => !x.cuando || x.cuando < hace(30))],
+    ].filter(([, ls]) => ls.length);
+  }, [s.locales, s.llamadas, quien]);
+
+  const totalNo = dijeronNo.reduce((n, [, ls]) => n + ls.length, 0);
   const totalVisitas = visitas.pasadas.length + visitas.dias.reduce((n, [, ls]) => n + ls.length, 0);
   const totalRellamar = rellamar.reduce((n, [, ls]) => n + ls.length, 0);
 
   return html`
-    <${Cabecera} titulo="La" acento="agenda" sub="Visitas a dueños y llamadas pendientes" />
+    <${Cabecera} titulo="La" acento="agenda" sub="Visitas, rellamadas y los que dijeron que no" />
     <div class="segmento">
       <button class=${vista === 'visitas' ? 'on' : ''} onClick=${() => setVista('visitas')}>Visitas <small>${totalVisitas}</small></button>
       <button class=${vista === 'rellamar' ? 'on' : ''} onClick=${() => setVista('rellamar')}>Volver a llamar <small>${totalRellamar}</small></button>
+      <button class=${vista === 'no' ? 'on' : ''} onClick=${() => setVista('no')}>Dijeron que no <small>${totalNo}</small></button>
     </div>
     <${Chips} valor=${quien} onCambio=${(v) => setQuien(v || 'todos')}
       opciones=${[{ v: 'todos', txt: 'Todo el equipo' }, { v: 'mias', txt: vista === 'visitas' ? 'Las que voy yo' : 'Las mías' }]} />
@@ -192,6 +236,12 @@ export function Agenda({ query }) {
           </div>`)}</div>
         </${Seccion}>`)}
       ${!totalVisitas ? html`<${Vacio} titulo="No hay visitas" texto="Las citas con dueños que consigáis aparecerán aquí, ordenadas por día y hora." />` : null}
+    ` : vista === 'no' ? html`
+      ${dijeronNo.map(([titulo, ls]) => html`
+        <${Seccion} titulo=${titulo} key=${titulo}>
+          <div class="lista">${ls.map(({ l, ll }) => html`<${FilaNo} l=${l} ll=${ll} key=${l.id} />`)}</div>
+        </${Seccion}>`)}
+      ${!totalNo ? html`<${Vacio} titulo="Nadie ha dicho que no" texto="Cuando al apuntar una llamada o una visita marques «No les interesa», el local aparecerá aquí." />` : null}
     ` : html`
       ${rellamar.map(([titulo, ls]) => html`
         <${Seccion} titulo=${titulo} key=${titulo}>

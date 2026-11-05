@@ -415,7 +415,7 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
 .chips-scroll::-webkit-scrollbar { display: none; }
 .chips-scroll .chips { flex-wrap: nowrap; width: max-content; }
 
-.segmento { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+.segmento { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
 .segmento button { min-height: 42px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; }
 .segmento button.on { background: var(--grad); color: #fff; box-shadow: 0 8px 22px -10px rgba(63, 125, 251, 0.9); }
 .segmento small { margin-left: 4px; opacity: 0.75; }
@@ -534,6 +534,7 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
 .tl-dato b { color: var(--text); font-weight: 600; }
 .tl-dato.cita { color: #86EFAC; font-weight: 600; }
 .tl-dato.rellamar { color: #93B4FF; font-weight: 600; }
+.tl-dato.no { color: var(--st-nointeresa); font-weight: 600; }
 .tl-pie { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--faint); }
 
 /* Visitas */
@@ -855,3 +856,4 @@ input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--viol
 .canal-aviso code { flex: 1; min-width: 0; overflow-wrap: anywhere; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 13px; }
 .alerta.enlace { text-decoration: none; color: inherit; }
 .alerta.enlace b { margin-left: auto; white-space: nowrap; }
+.segmento button { padding: 4px 8px; line-height: 1.15; }
