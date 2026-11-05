@@ -45,7 +45,7 @@ Apuntar el QR a `https://DOMINIO/#carta`. También vale `#carta-sevilla` para ab
 6. **Nombres corregidos** respecto a la carta impresa: "Wanta Frito" → Wantán frito, "Tequeños Frito" → Tequeños fritos, "Tortillas de Camarones" → Tortillitas de camarones. "Sopa García" se ha dejado tal cual.
 7. **Bebidas y postres**: sin precios (no están en la carta). Si quieren, se añaden como una sección más.
 8. **TikTok**: el enlace es una búsqueda de "La Flor de la Canela 4"; poner el usuario exacto cuando lo pasen.
-9. **Dominio**: al tenerlo, poner la URL absoluta en `og:image` y `hasMenu`, y añadir `<link rel="canonical">`.
+9. **Dominio**: ahora está en https://la-flor-de-la-canela.vercel.app (proyecto Vercel `la-flor-de-la-canela`, equipo VISAX AI). Si ponen dominio propio, cambiar esa URL en `og:image`, `og:url`, `canonical` y el JSON-LD de `index.html`.
 10. **Nota de Google** (4,8 · 168 reseñas, noviembre 2026): actualizar de vez en cuando.
 
 ## Probar en local
