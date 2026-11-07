@@ -244,6 +244,13 @@ body.menu-open{overflow:hidden}
 .ftr li a:hover{color:var(--on-dark)}
 .ftr__bot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-top:24px;font-size:.76rem;color:#7F7A72}
 .ftr__bot a:hover{color:var(--on-dark)}
+/* crédito de VISAX NFC (quién ha hecho la web y la carta) */
+.credito-fila{display:flex;justify-content:center;margin-top:32px}
+.credito{display:inline-flex;flex-direction:column;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--line-dark);border-radius:16px;color:var(--on-ink-muted);font-size:.74rem;letter-spacing:.04em;text-align:center;transition:border-color .25s,background-color .25s}
+.credito:hover{border-color:rgba(243,240,234,.35);background:rgba(243,240,234,.05)}
+.credito-marca{display:inline-flex;align-items:center;gap:9px;color:var(--on-dark)}
+.credito-marca img{width:26px;height:auto}
+.credito-marca strong{font-size:.92rem;font-weight:700;letter-spacing:.14em}
 
 /* =====================================================================
    CARTA
@@ -301,6 +308,9 @@ body.menu-open{overflow:hidden}
 .bodega::before{content:"";width:34px;height:1px;background:#8A6A33}
 .menu-foot{padding:clamp(40px,6vw,64px) 0;display:grid;gap:14px;color:var(--on-light-muted);font-size:.9rem;border-top:1px solid var(--line-light)}
 .menu-foot p{display:flex;gap:12px;max-width:70ch}
+.menu-foot .credito-carta{justify-self:start;margin-top:10px;font-size:.8rem;letter-spacing:.02em;color:var(--on-light-muted);border-bottom:1px solid transparent;transition:border-color .25s}
+.menu-foot .credito-carta strong{color:var(--on-light);font-weight:700;letter-spacing:.08em}
+.menu-foot .credito-carta:hover{border-bottom-color:currentColor}
 .menu-foot p::before{content:"";flex:none;width:7px;height:7px;margin-top:9px;background:var(--yellow)}
 
 /* =====================================================================
