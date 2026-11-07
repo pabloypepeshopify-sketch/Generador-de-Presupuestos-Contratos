@@ -17,6 +17,10 @@ export const faqs = [
     a: 'El que nos digas al pagar: tu página de reseñas de Google en el expositor, la dirección de tu carta digital en la tarjeta y tus redes sociales en el NFC de redes. Si no lo tienes a mano, déjalo en blanco: lo buscamos nosotros y te lo confirmamos antes de enviar. Para pedido en mesa, llamar al camarero y WiFi te escribimos después del pago para configurarlo contigo.',
   },
   {
+    q: '¿Y si no tengo carta digital ni web?',
+    a: 'Te las hacemos nosotros: la carta digital con tus platos, precios y alérgenos, y la web de tu local con horario, ubicación y botón para llamar o reservar. Las dejamos enlazadas a tus NFC. Escríbenos por WhatsApp y te damos el precio cerrado antes de empezar.',
+  },
+  {
     q: 'Si cambio mi carta, ¿tengo que comprar otra tarjeta?',
     a: 'No, si tu carta digital sigue en la misma dirección web: la tarjeta abrirá siempre la versión actual. Si cambias de dirección, escríbenos.',
   },

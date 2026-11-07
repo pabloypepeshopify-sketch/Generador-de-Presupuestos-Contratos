@@ -6,6 +6,7 @@ import { Benefits } from '@/components/Benefits';
 import { Calculator } from '@/components/Calculator';
 import { Testimonials } from '@/components/Testimonials';
 import { CrossSell } from '@/components/CrossSell';
+import { WebYCarta } from '@/components/WebYCarta';
 import { FAQ } from '@/components/FAQ';
 import { ContactCTA } from '@/components/ContactCTA';
 import { Founders } from '@/components/Founders';
@@ -30,6 +31,7 @@ export default function HomePage() {
         <HowItWorks />
         <Calculator />
         <Testimonials />
+        <WebYCarta />
         <CrossSell />
         <FAQ />
         <Founders />

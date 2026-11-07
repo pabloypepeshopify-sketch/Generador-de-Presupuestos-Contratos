@@ -36,6 +36,7 @@ export function Footer() {
             <p className="eyebrow mb-5">Ayuda</p>
             <ul className="flex flex-col gap-3 text-sm">
               <li><a href="/#como-funciona" className="text-ink-soft transition hover:text-white">Cómo funciona</a></li>
+              <li><a href="/#webs" className="text-ink-soft transition hover:text-white">Carta digital y webs</a></li>
               <li><a href="/#preguntas" className="text-ink-soft transition hover:text-white">Preguntas frecuentes</a></li>
               <li><Link href="/condiciones" className="text-ink-soft transition hover:text-white">Envíos y devoluciones</Link></li>
             </ul>

@@ -72,6 +72,12 @@ export const products: Product[] = [
       'Te llega programada con el enlace de tu carta',
     ],
     includes: ['Tarjeta NFC adhesiva', 'Programación con el enlace de tu carta'],
+    priceNote: '¿Sin carta digital? Te la hacemos nosotros, aparte.',
+    notice: {
+      title: '¿No tienes carta digital? Te la hacemos',
+      text: 'Si aún no tienes carta digital, te la preparamos nosotros con tus platos, precios, fotos y alérgenos, y la dejamos enlazada a tus tarjetas. La carta se presupuesta aparte; si quieres, también te hacemos la web del local.',
+      quote: 'Hola, quiero las tarjetas NFC de menú y que me hagáis la carta digital.',
+    },
   },
   {
     slug: 'nfc-pedido-en-mesa',

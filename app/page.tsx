@@ -5,6 +5,7 @@ import { Services } from '@/components/Services';
 import { HowItWorks } from '@/components/HowItWorks';
 import { WhyAutomate } from '@/components/WhyAutomate';
 import { UseCases } from '@/components/UseCases';
+import { WebsSection } from '@/components/WebsSection';
 import { Founders } from '@/components/Founders';
 import { NfcSection } from '@/components/NfcSection';
 import { Schedule } from '@/components/Schedule';
@@ -23,6 +24,7 @@ export default function HomePage() {
         <UseCases />
         <HowItWorks />
         <WhyAutomate />
+        <WebsSection />
         <NfcSection />
         <Founders />
         <Schedule />

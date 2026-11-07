@@ -11,6 +11,7 @@ const nav = [
   { label: 'Servicios', href: '/#servicios' },
   { label: 'Todos los servicios', href: '/servicios' },
   { label: 'Ideas por sector', href: '/#ejemplos' },
+  { label: 'Páginas web', href: '/#webs' },
   { label: 'Cómo trabajamos', href: '/#como-funciona' },
   { label: 'Reservar', href: '/#reservar' },
   { label: 'Nosotros', href: '/#nosotros' },
