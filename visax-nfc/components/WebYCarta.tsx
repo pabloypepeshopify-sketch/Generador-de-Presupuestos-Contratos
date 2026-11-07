@@ -8,18 +8,18 @@ const servicios = [
   {
     icon: BookOpenText,
     title: 'Carta digital',
-    text: 'Tu carta en el móvil del cliente: platos, precios, fotos y alérgenos, bien ordenados y fácil de leer. Es la que abre tu NFC de carta o de pedido en mesa.',
+    text: 'Tu carta en el móvil del cliente: platos, precios, fotos y alérgenos, bien ordenados y fácil de leer. Te la hacemos nueva o mejoramos la que ya tienes. Es la que abre tu NFC de carta o de pedido en mesa.',
     puntos: ['Sin imprimir cada vez que cambia algo', 'Se ve bien en cualquier móvil'],
   },
   {
     icon: Globe,
     title: 'Página web del local',
-    text: 'Una web rápida y moderna con tu horario, cómo llegar, tu carta y un botón para llamar o reservar. Con tu dominio y preparada para salir en Google.',
+    text: 'Una web rápida y moderna con tu horario, cómo llegar, tu carta y un botón para llamar o reservar. Con tu dominio y preparada para salir en Google. ¿Ya tienes web? Te la renovamos.',
     puntos: ['Pensada primero para el móvil', 'Enlazada con tu ficha de Google y tus redes'],
   },
 ];
 
-const whatsapp = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent('Hola, me interesa la carta digital y/o la web para mi local.')}`;
+const whatsapp = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent('Hola, me interesa hacer o mejorar la carta digital y/o la web de mi local.')}`;
 
 export function WebYCarta() {
   return (
@@ -29,12 +29,12 @@ export function WebYCarta() {
           eyebrow="También lo hacemos"
           title={
             <>
-              ¿Sin carta digital o sin web?
+              ¿Sin carta digital o web, o no te convencen?
               <br />
-              <span className="text-gradient italic">Te las hacemos</span>
+              <span className="text-gradient italic">Te las hacemos o mejoramos</span>
             </>
           }
-          intro="Si aún no tienes carta digital, o tu local no tiene web, te las preparamos nosotros y las dejamos unidas a tus NFC: el cliente te encuentra en Google, ve la carta en la mesa y te deja la reseña."
+          intro="Si aún no tienes carta digital, o tu local no tiene web, te las preparamos nosotros. Y si ya las tienes, te las mejoramos. Las dejamos unidas a tus NFC: el cliente te encuentra en Google, ve la carta en la mesa y te deja la reseña."
         />
 
         <RevealGroup className="mt-12 grid gap-5 md:grid-cols-2" stagger={0.08}>

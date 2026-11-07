@@ -203,7 +203,7 @@ export const services: Service[] = [
     title: 'Páginas web',
     summary: 'Tu web moderna, rápida y adaptada al móvil, con dominio propio y preparada para salir en Google.',
     description:
-      'Diseñamos y publicamos la web de tu negocio: moderna, rápida y pensada para el móvil, con tu dominio y lista para Google. Si la necesitas, le añadimos reservas, formularios o pagos conectados a tus automatizaciones.',
+      'Diseñamos y publicamos la web de tu negocio, o mejoramos la que ya tienes: moderna, rápida y pensada para el móvil, con tu dominio y lista para Google. Si la necesitas, le añadimos reservas, formularios o pagos conectados a tus automatizaciones.',
     result: 'Una web que trabaja para traerte clientes.',
     tools: ['Dominio propio', 'Google', 'Móvil'],
   },

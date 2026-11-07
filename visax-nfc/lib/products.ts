@@ -76,9 +76,9 @@ export const products: Product[] = [
     includes: ['Tarjeta NFC adhesiva', 'Programación con el enlace de tu carta'],
     extra: {
       title: 'También te hacemos la carta digital',
-      text: '¿No tienes carta digital? Te la diseñamos nosotros y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
+      text: '¿No tienes carta digital? Te la diseñamos nosotros. ¿Ya tienes una? Te la mejoramos. Y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
       points: ['Tus platos, precios, fotos y alérgenos', 'Con tu logo y tus colores', 'Lista para el móvil; y si quieres, también la web del local'],
-      quote: 'Hola, quiero las tarjetas NFC de menú y que me hagáis la carta digital.',
+      quote: 'Hola, quiero las tarjetas NFC de menú y que me hagáis (o me mejoréis) la carta digital.',
     },
   },
   {

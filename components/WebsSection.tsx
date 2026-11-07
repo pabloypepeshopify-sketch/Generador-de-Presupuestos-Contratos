@@ -26,10 +26,10 @@ export function WebsSection() {
               <>
                 ¿Tu negocio necesita web?
                 <br />
-                <span className="text-gradient italic">Te la hacemos</span>
+                <span className="text-gradient italic">Te la hacemos o la mejoramos</span>
               </>
             }
-            intro="Además de automatizar, diseñamos y publicamos webs modernas para negocios. Te damos el precio cerrado antes de empezar."
+            intro="Además de automatizar, diseñamos y publicamos webs modernas para negocios. ¿Ya tienes web? Te la mejoramos. Te damos el precio cerrado antes de empezar."
           />
           <ul className="mt-8 space-y-3">
             {puntos.map((p) => (
