@@ -49,6 +49,7 @@
     'vis.horario': 'Opening hours', 'vis.horario.v': 'Call or WhatsApp us and we’ll tell you if there’s a table.',
     'vis.tel': 'Phone & WhatsApp', 'vis.como': 'Get directions',
     'pie.lema': 'Peruvian & Spanish kitchen', 'pie.fotos': 'Photos of the restaurant and its dishes.',
+    'cred.carta': 'Digital menu made by', 'cred.pie': 'Website and digital menu made by',
     'bm.carta': 'Menu', 'bm.llamar': 'Call', 'bm.reservar': 'Book', 'bm.llegar': 'Directions'
   };
 
