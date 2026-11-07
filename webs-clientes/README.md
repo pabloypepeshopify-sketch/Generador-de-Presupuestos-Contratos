@@ -5,7 +5,7 @@ estática: se publica subiendo la carpeta tal cual (sin build).
 
 | Carpeta | Web publicada | Dónde está |
 |---|---|---|
-| `martinez-bar/` | https://martinezbar.com (martinez-bar.vercel.app) | Vercel, otra cuenta (no el equipo VISAX AI) |
+| `martinez-bar/` | https://martinezbar.com (martinez-bar.vercel.app) | Vercel, cuenta del bar (equipo `bar-martinez`, proyecto `martinez-bar`) |
 | `ribera22/` | https://ribera22.com (ribera22.vercel.app) | Vercel, otra cuenta (no el equipo VISAX AI) |
 
 Todas llevan al final de la web y de la carta el enlace a VISAX NFC
@@ -18,7 +18,7 @@ Todas llevan al final de la web y de la carta el enlace a VISAX NFC
 
 ## Publicar un cambio
 
-Desde la cuenta de Vercel donde están los proyectos `martinez-bar` y `ribera22`:
+Desde la cuenta de Vercel donde está cada proyecto (`vercel.json` va dentro de la carpeta: cabeceras de caché):
 
 ```bash
 cd webs-clientes/martinez-bar && npx vercel --prod
