@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, Info, MessageCircle, PackageCheck, Truck } from 'lucide-react';
+import { ArrowLeft, BookOpenText, Check, Info, MessageCircle, PackageCheck, Truck } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductGallery } from '@/components/ProductGallery';
@@ -58,6 +58,36 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           <div>
             <h1 className="font-display text-4xl leading-tight sm:text-5xl">{p.name}</h1>
             <p className="mt-4 text-lg text-ink-soft">{p.tagline}</p>
+            {p.extra && (
+              <section
+                id="carta-digital"
+                className="mt-8 scroll-mt-28 rounded-[var(--radius)] border border-brand-cyan/50 bg-brand-gradient-soft p-6 shadow-glow"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#06060B]">
+                    <BookOpenText className="h-5 w-5" />
+                  </span>
+                  <h2 className="font-display text-2xl leading-tight">{p.extra.title}</h2>
+                </div>
+                <p className="mt-3 leading-relaxed text-ink-soft">{p.extra.text}</p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {p.extra.points.map((x) => (
+                    <li key={x} className="flex gap-2">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" /> {x}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(p.extra.quote)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-[#06060B] transition hover:bg-brand-silver"
+                >
+                  <MessageCircle className="h-4 w-4" /> Quiero mi carta digital
+                </a>
+                <p className="mt-3 text-xs text-ink-soft">La carta se presupuesta aparte de las tarjetas.</p>
+              </section>
+            )}
             <div className="mt-8">
               <ProductBuy product={p} />
             </div>

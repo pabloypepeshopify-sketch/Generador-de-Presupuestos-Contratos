@@ -28,6 +28,8 @@ export type Product = {
   tiers?: { min: number; price: number }[];
   /** Aclaración corta junto al precio (p. ej. un extra que se contrata aparte). */
   priceNote?: string;
+  /** Servicio que hacemos nosotros junto al NFC: se destaca en la tarjeta de la tienda y arriba en la ficha. */
+  extra?: { title: string; text: string; points: string[]; quote: string };
   /** Animación 3D de la ficha: el móvil se acerca al NFC y se ve lo que abre. */
   scene?: 'review' | 'menu' | 'order';
 };
@@ -72,10 +74,10 @@ export const products: Product[] = [
       'Te llega programada con el enlace de tu carta',
     ],
     includes: ['Tarjeta NFC adhesiva', 'Programación con el enlace de tu carta'],
-    priceNote: '¿Sin carta digital? Te la hacemos nosotros, aparte.',
-    notice: {
-      title: '¿No tienes carta digital? Te la hacemos',
-      text: 'Si aún no tienes carta digital, te la preparamos nosotros con tus platos, precios, fotos y alérgenos, y la dejamos enlazada a tus tarjetas. La carta se presupuesta aparte; si quieres, también te hacemos la web del local.',
+    extra: {
+      title: 'También te hacemos la carta digital',
+      text: '¿No tienes carta digital? Te la diseñamos nosotros y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
+      points: ['Tus platos, precios, fotos y alérgenos', 'Con tu logo y tus colores', 'Lista para el móvil; y si quieres, también la web del local'],
       quote: 'Hola, quiero las tarjetas NFC de menú y que me hagáis la carta digital.',
     },
   },

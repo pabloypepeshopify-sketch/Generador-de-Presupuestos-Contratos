@@ -3,7 +3,7 @@
 import { useRef, type PointerEvent } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowUpRight, Check, ShoppingBag } from 'lucide-react';
+import { ArrowUpRight, BookOpenText, Check, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import { bestTier, eur } from '@/lib/pricing';
 import { useCart } from '@/components/cart/CartProvider';
@@ -50,6 +50,11 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
           className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[radial-gradient(60%_60%_at_50%_45%,rgba(124,92,255,0.28),transparent_70%)]"
           aria-label={`Ver ${product.name}`}
         >
+          {product.extra && (
+            <span className="absolute left-4 top-4 z-10 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#06060B] shadow-glow">
+              + Te hacemos la carta digital
+            </span>
+          )}
           <div className="relative h-[82%] w-[60%]" style={{ transform: 'translateZ(40px)' }}>
             <ProductArt
               product={product}
@@ -64,6 +69,19 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
             <h3 className="font-display text-2xl leading-tight">{product.name}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">{product.tagline}</p>
           </div>
+          {product.extra && (
+            <Link
+              href={`/productos/${product.slug}#carta-digital`}
+              className="flex items-center gap-3 rounded-2xl border border-brand-cyan/40 bg-brand-gradient-soft px-4 py-3 text-sm transition hover:border-brand-cyan"
+            >
+              <BookOpenText className="h-5 w-5 shrink-0 text-brand-cyan" />
+              <span className="flex-1">
+                <strong className="block text-white">{product.extra.title}</strong>
+                <span className="text-ink-soft">¿No tienes? La hacemos nosotros</span>
+              </span>
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-ink-soft" />
+            </Link>
+          )}
           <ul className="space-y-1.5 text-sm text-ink-soft">
             {product.bullets.slice(0, 3).map((b) => (
               <li key={b} className="flex gap-2">
