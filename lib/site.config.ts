@@ -10,7 +10,7 @@ export const site = {
   legalName: 'VISAX AI',
   tagline: 'Automatizamos tu negocio con Inteligencia Artificial',
   description:
-    'VISAX AI automatiza tu negocio con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, presupuestos, facturas y cobros, además de software y páginas web a medida. Menos tareas manuales, más negocio.',
+    'VISAX AI automatiza tu negocio con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, presupuestos, facturas y cobros, además de software y páginas web a medida. En toda la provincia de Cádiz y Sevilla.',
 
   // URL pública (dominio propio conectado en Vercel)
   url: 'https://visaxai.es',
@@ -24,6 +24,21 @@ export const site = {
     holder: 'Pablo Villegas Becerra',
     nif: '49851130X',
     address: 'C/ Juan de Arratia, 5, 11540 Sanlúcar de Barrameda (Cádiz)',
+  },
+
+  // ── ZONA DE TRABAJO (sección "Dónde trabajamos", Google) ───
+  zona: {
+    base: 'Sanlúcar de Barrameda',
+    provincias: [
+      {
+        nombre: 'Cádiz',
+        pueblos: ['Sanlúcar de Barrameda', 'Jerez de la Frontera', 'Cádiz', 'El Puerto de Santa María', 'Chipiona', 'Rota', 'Chiclana', 'San Fernando', 'Algeciras'],
+      },
+      {
+        nombre: 'Sevilla',
+        pueblos: ['Sevilla', 'Dos Hermanas', 'Lebrija', 'Utrera', 'Alcalá de Guadaíra', 'Los Palacios', 'Écija'],
+      },
+    ],
   },
 
   // ── FUNDADORES (sección "Quiénes somos") ───────────────────

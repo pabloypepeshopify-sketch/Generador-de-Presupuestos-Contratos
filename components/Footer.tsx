@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Phone, Mail, MessageCircle, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { ArrowUpRight, Phone, Mail, MapPin, MessageCircle, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { site } from '@/lib/site.config';
@@ -15,6 +15,7 @@ const nav = [
   { label: 'Cómo trabajamos', href: '/#como-funciona' },
   { label: 'Reservar', href: '/#reservar' },
   { label: 'Nosotros', href: '/#nosotros' },
+  { label: 'Dónde trabajamos', href: '/#zona' },
   { label: 'FAQ', href: '/#faq' },
   { label: 'Contacto', href: '/#contacto' },
 ];
@@ -113,6 +114,11 @@ export function Footer() {
                   </a>
                 </li>
               )}
+              <li>
+                <a href="/#zona" className="flex items-center gap-2 transition hover:text-white">
+                  <MapPin className="h-4 w-4 text-brand-cyan" /> Toda la provincia de Cádiz y Sevilla
+                </a>
+              </li>
             </ul>
           </div>
         </div>

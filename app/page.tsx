@@ -7,6 +7,7 @@ import { WhyAutomate } from '@/components/WhyAutomate';
 import { UseCases } from '@/components/UseCases';
 import { WebsSection } from '@/components/WebsSection';
 import { Founders } from '@/components/Founders';
+import { ZonaSection } from '@/components/ZonaSection';
 import { NfcSection } from '@/components/NfcSection';
 import { Schedule } from '@/components/Schedule';
 import { Contact } from '@/components/Contact';
@@ -27,6 +28,7 @@ export default function HomePage() {
         <WebsSection />
         <NfcSection />
         <Founders />
+        <ZonaSection />
         <Schedule />
         <Contact />
         <FAQ />

@@ -5,7 +5,12 @@ import { HeroDemo } from '@/components/HeroDemo';
 // Lo que automatizamos: rota en el titular (solo CSS, ver .word-rotator en globals.css).
 const WORDS = ['tus citas', 'tus llamadas', 'tus presupuestos', 'tus facturas', 'tus cobros'];
 
-const promises = ['Llamada gratis y sin compromiso', 'Precio cerrado antes de empezar', 'Trato directo con los fundadores'];
+const promises = [
+  'Llamada gratis y sin compromiso',
+  'Precio cerrado antes de empezar',
+  'Trato directo con los fundadores',
+  'En toda la provincia de Cádiz y Sevilla',
+];
 
 type Delay = React.CSSProperties & { '--delay'?: string };
 const delay = (sec: number): Delay => ({ '--delay': `${sec}s` });

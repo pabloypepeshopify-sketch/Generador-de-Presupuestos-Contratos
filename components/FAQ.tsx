@@ -11,6 +11,10 @@ const faqs = [
     a: 'Depende del proyecto, pero la mayoría de automatizaciones están operativas en 1 a 3 semanas desde el diagnóstico, y las más sencillas, en pocos días. Una web o un software a medida te lo planificamos por fases antes de empezar.',
   },
   {
+    q: '¿En qué zona trabajáis?',
+    a: 'En toda la provincia de Cádiz y de Sevilla. Estamos en Sanlúcar de Barrameda y trabajamos con negocios de Jerez, Cádiz, El Puerto, Chipiona, Rota, Chiclana, Sevilla, Dos Hermanas, Utrera, Lebrija y el resto de las dos provincias.',
+  },
+  {
     q: '¿También hacéis páginas web y programas a medida?',
     a: 'Sí. Diseñamos webs modernas y rápidas, adaptadas al móvil y preparadas para Google, y creamos software a medida cuando ningún programa encaja con tu negocio. Como con las automatizaciones, empezamos con una llamada gratis y te damos un precio cerrado.',
   },

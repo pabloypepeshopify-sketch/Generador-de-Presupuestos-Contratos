@@ -36,6 +36,10 @@ export const metadata: Metadata = {
     'automatizar negocio',
     'software a medida',
     'páginas web para negocios',
+    'automatizaciones IA Cádiz',
+    'automatizaciones IA Sevilla',
+    'páginas web Cádiz',
+    'páginas web Sevilla',
     'Make',
     'VISAX AI',
   ],
@@ -79,7 +83,13 @@ const jsonLd = {
   url: site.url,
   telephone: site.phoneRaw,
   email: site.email,
-  areaServed: 'ES',
+  areaServed: site.zona.provincias.map((p) => ({ '@type': 'AdministrativeArea', name: `Provincia de ${p.nombre}` })),
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: site.zona.base,
+    addressRegion: 'Cádiz',
+    addressCountry: 'ES',
+  },
   priceRange: '€€',
   openingHoursSpecification: [
     {
