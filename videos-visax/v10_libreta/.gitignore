@@ -1,0 +1,6 @@
+out/
+shots/
+music/*.mp3
+voice.wav
+mix.wav
+ffmpeg2pass*

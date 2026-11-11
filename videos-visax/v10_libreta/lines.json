@@ -1,0 +1,15 @@
+[
+ {"id":"h1","text":"Rocío heredó el chiringuito de su padre, y una libreta con trescientos doce nombres.","gap":0.0},
+ {"id":"h2","text":"Paco, manzanilla, y no le hables de fútbol.","gap":0.2},
+ {"id":"h3","text":"Lola, sin hielo, su marido murió en marzo.","gap":0.2},
+ {"id":"h4","text":"Y en la última página, una frase que no entendió hasta septiembre.","gap":0.3},
+ {"id":"s1","text":"El primer verano, Rocío no se aprende ni un nombre,","gap":0.2},
+ {"id":"s2","text":"la carta, la clave del wifi, el Instagram, la mesa que llama,","gap":0.05},
+ {"id":"s3","text":"y los de siempre, dejan de venir.","gap":0.15},
+ {"id":"s4","text":"En septiembre, cuelga el cartel de se traspasa, y abre la libreta.","gap":0.35},
+ {"id":"s5","text":"La gente no vuelve por la comida, vuelve porque te sabes su nombre.","gap":0.45,"rate":"+16%"},
+ {"id":"s6","text":"Así que deja que las mesas hagan lo demás.","gap":0.4},
+ {"id":"s7","text":"Acercas el móvil, la carta, el wifi, el Instagram, y si necesitas algo, avisas.","gap":0.1},
+ {"id":"s8","text":"Y ella, por fin, tiene tiempo para sentarse con Lola.","gap":0.2},
+ {"id":"s9","text":"La libreta ya va por el nombre trescientos trece.","gap":0.4}
+]
