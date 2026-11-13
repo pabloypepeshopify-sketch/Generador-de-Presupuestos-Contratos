@@ -11,15 +11,16 @@ sin facturación. El bar sigue cobrando con su TPV.
         🔔 suena → el camarero lo pasa al TPV → "✓ Apuntado" → el cliente lo ve
 ```
 
-Es un frontal **separado** de la versión completa (`../web/`, con TPV). Usa **la misma base de datos**
-y las mismas funciones, **sin migraciones nuevas**: un bar sin datos fiscales ya funciona así.
+Es un frontal **separado** de la versión completa (`../web/`, con TPV). Usa **la misma base de datos**.
+Lo propio de esta versión está en `../supabase/009_panel_bar.sql` (mapa, agotados desde el panel, cuenta de la mesa y
+código de mesa); todo viene apagado, así que los bares que ya existen siguen igual.
 
 ## Qué incluye
 
 | Página | Para quién | Qué hace |
 |---|---|---|
 | `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado), **Llamar al camarero** y **Pedir la cuenta**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
-| `cocina.html` | Móvil del bar | Pedidos **nuevos** en letra grande, **timbre fuerte** (se repite cada 20 s mientras haya algo sin atender) y pantalla siempre encendida. Un toque: **✓ Apuntado** (con ↩ para deshacer). Avisos de camarero y cuenta. Pestaña **Mesas**: lo que lleva cada mesa, **🖨 Imprimir ticket** y **Cobrada · liberar mesa**. Botón **📱 QR carta** para enseñar el QR de la carta general. Pausar pedidos. |
+| `cocina.html` | Móvil del bar | **Pedidos**: los nuevos en letra grande, **timbre fuerte** que se repite cada 20 s mientras haya algo sin atender, pantalla siempre encendida, **✓ Apuntado** con ↩ para deshacer, y avisos de camarero y cuenta. **Mesas**: **mapa con colores** (verde, acaba de pedir; naranja, llama o pide la cuenta; con consumo; libre); al tocar una mesa se ve lo que lleva, **🖨 Imprimir ticket**, **Cobrada · liberar mesa** y, si el bar lo usa, el **código de mesa**. **Carta**: **agotado en un toque**. **🖥 Pantalla**: cada aparato puede ver solo unas categorías (cocina sin bebidas, barra solo bebidas) con su "✓ Hecho". **📱 QR carta**, pausar pedidos y, sin internet, "Conectando…" hasta que vuelve, sin pedir la clave. |
 | `admin.html` | Dueño | Carta (productos, precios, fotos, alérgenos, **Agotado** en un toque), Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa), claves e **Informes**. |
 | `demo.html` | Tú, para vender | **Demo en directo**: la carta del cliente y el móvil del bar lado a lado (en el móvil, con pestañas). Haces un pedido y el dueño ve cómo suena y llega. Enlace: `demo.html?r=<slug>&k=<clave del panel>&m=<código de mesa>` (sale en `alta.html`). |
 | `privacidad.html` | Cliente | Qué se guarda (nada personal). Enlazada en el pie de la carta. TODO(gestoría): revisar. |
@@ -27,6 +28,14 @@ y las mismas funciones, **sin migraciones nuevas**: un bar sin datos fiscales ya
 | `alta.html` | Tú | Alta de bares (te da los 3 enlaces) y activar/desactivar (impagos). |
 | `clientes.html` | Tú | **Mis clientes y cobros**: cuota de cada bar (29 €/mes por defecto), quién debe, marcar "Pagado" y desactivar por impago (`supabase/008_cuotas.sql`). |
 | `papeles/` | Tú | Hoja de venta (con QR a la demo), guía del camarero, checklist de instalación y contrato (TODO gestoría). |
+
+**Código de mesa** (opcional, Gestión → Ajustes): el camarero abre la mesa en el panel y le sale un código de 4 cifras
+que da a los clientes. Sin él no se puede pedir, así nadie pide desde fuera del bar con la foto del QR. Al liberar la mesa
+el código deja de valer, y caduca a las 12 horas. Viene apagado: frena un poco al cliente, así que conviene solo en bares
+con terraza abierta o con problemas de bromas.
+
+**La cuenta de la mesa** ("Lo que habéis pedido"): el cliente ve todo lo que lleva pedido su mesa, desde todos los móviles,
+con el total.
 
 **Informes** (Gestión → 📊 Informes): ventas por día y por hora, lo más pedido (con buscador), mesas,
 comparación con el periodo anterior y **Excel** del periodo. Salen de los pedidos que entran por el sistema
@@ -108,6 +117,8 @@ Los NFC llevan grabado el dominio: decide el dominio definitivo **antes** de gra
 ```bash
 cd carta-nfc/tests
 node e2e-lite.mjs     # levanta su BD y su servidor (puerto 8788) → E2E LITE OK
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-panel.sql
+                      # → TODAS LAS PRUEBAS DEL PANEL OK (mapa, agotados, cuenta de la mesa, código de mesa)
 WEB_ROOT=../lite PORT=8789 node e2e-kit.mjs        # kit contra lite → E2E KIT OK
 WEB_ROOT=../lite PORT=8789 node e2e-clientes.mjs   # cuotas contra lite → E2E CLIENTES OK
 WEB_ROOT=../lite PORT=8789 node e2e-papeles.mjs    # papeles contra lite → E2E PAPELES OK

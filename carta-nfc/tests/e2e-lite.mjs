@@ -51,7 +51,7 @@ try {
   await k.click('#k-activar');
   await k.locator('#k-activar').waitFor({ state: 'hidden' });
   ok(true, 'sonido activado con un toque');
-  const fuera = await k.evaluate(() => ['k-pedido', 'k-puesto', 'tab-tickets', 'tab-caja', 'tab-informes', 'dlg-cobrar']
+  const fuera = await k.evaluate(() => ['k-pedido', 'tab-tickets', 'tab-caja', 'tab-informes', 'dlg-cobrar']
     .filter((id) => document.getElementById(id)).concat(/Cobrar|Tickets|Caja|Comandero/.test(document.body.innerText) ? ['texto'] : []));
   ok(fuera.length === 0, 'sin TPV, comandero, cobros, tickets ni caja en el panel');
   ok(await sinScroll(k), 'panel en el móvil: sin scroll lateral');
@@ -103,6 +103,11 @@ try {
   await ped.waitFor({ timeout: 8000 });
   const txt = await ped.innerText();
   ok(txt.includes('2×') && txt.includes('Ensaladilla rusa · Tapa') && txt.includes('sin cebolla') && txt.includes('Rápido, porfa'), 'el pedido llega al panel con notas');
+  await k.getByRole('tab', { name: 'Mesas' }).click();
+  ok(await k.locator('.mesa-tile.pide', { hasText: 'Mesa 2' }).count() === 1 && await k.locator('.mesa-tile.libre').count() === 3,
+    'mapa de mesas: Mesa 2 en verde (acaba de pedir) y las otras 3 libres');
+  await shot(k, 'lite-07-mapa');
+  await k.getByRole('tab', { name: 'Pedidos' }).click();
   ok((await k.title()).startsWith('(1)') && (await k.locator('#n-pedidos').innerText()) === '1', 'contador de pedidos nuevos: 1');
   await shot(k, 'lite-02-panel-nuevo');
   await ped.getByRole('button', { name: '✓ Apuntado' }).click();
@@ -117,6 +122,8 @@ try {
   ok(psql("select estado from carta.pedidos where tipo = 'pedido'") === 'servido', 'apuntado = estado servido en la BD');
   await m.locator('.estado.servido', { hasText: 'Apuntado' }).waitFor({ timeout: 12000 });
   ok(true, 'el cliente ve "✓ Apuntado"');
+  await m.locator('#cuenta-mesa', { hasText: 'Lo que habéis pedido' }).waitFor({ timeout: 12000 });
+  ok((await m.locator('#cuenta-mesa .cm-total').innerText()).includes('17,80'), 'el cliente ve la cuenta de la mesa: 17,80 €');
 
   // ------------------------------------------------------------ AVISOS
   await m.click('#btn-cuenta');
@@ -133,7 +140,9 @@ try {
 
   // ------------------------------------------------------------ MESAS: TICKET Y LIBERAR
   await k.getByRole('tab', { name: 'Mesas' }).click();
-  const card = k.locator('.mesa-card', { hasText: 'Mesa 2' });
+  ok(await k.locator('.mesa-tile.ocupada', { hasText: 'Mesa 2' }).count() === 1, 'mapa: Mesa 2 con consumo tras apuntar');
+  await k.locator('.mesa-tile', { hasText: 'Mesa 2' }).click();
+  const card = k.locator('#dlg-mesa[open] .mesa-card');
   ok((await card.innerText()).includes('17,80'), 'Mesas: Mesa 2 lleva 17,80 €');
   ok(await sinScroll(k), 'Mesas en el móvil: sin scroll lateral');
   await shot(k, 'lite-04-panel-mesas');
@@ -201,6 +210,98 @@ try {
   ok(/^informe_martinez-demo_.*\.csv$/.test(dl.suggestedFilename()), 'Excel del periodo: ' + dl.suggestedFilename());
   ok(await sinScroll(a), 'informe en el móvil: sin scroll lateral');
   await shot(a, 'lite-05-informe');
+
+  // ------------------------------------------------------------ PANTALLAS (cocina / barra)
+  console.log('PANTALLAS');
+  const k2 = await (await browser.newContext({ ...devices['Pixel 7'] })).newPage();
+  vigilar(k2, 'pantalla cocina');
+  await k2.goto(`${BASE}/cocina.html?r=martinez-demo&k=cocina-l`);
+  await k2.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).waitFor();
+  await k2.click('#k-puesto');
+  await k2.locator('#dlg-puesto [value="cats"]').check();
+  await k2.locator('#dlg-puesto label', { hasText: 'Con patatas' }).locator('input').check();
+  await k2.locator('#dlg-puesto button[type="submit"]').click();
+  await k2.getByText('Esperando pedidos…').waitFor();
+  ok(await k2.locator('#k-puesto-chip', { hasText: 'Con patatas' }).isVisible(), 'pantalla de cocina: solo "Con patatas" (la burger de la Mesa 3 no sale aquí)');
+  ok(await k.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).count() === 1, 'el panel completo sigue viendo la Mesa 3');
+  if (await g.locator('#dlg-ok[open]').count()) await g.locator('#dlg-ok [data-cerrar]').click();
+  await g.locator('.prod', { hasText: 'Ensaladilla rusa' }).getByRole('button', { name: 'Añadir Ensaladilla rusa · Media' }).click();
+  await g.getByRole('button', { name: 'Añadir Burger extra 1', exact: true }).click();
+  await g.click('#cart-open'); await g.click('#btn-enviar'); await g.locator('#dlg-ok[open]').waitFor();
+  await g.locator('#dlg-ok [data-cerrar]').click();
+  const pc = k2.locator('#l-nuevos .ped', { hasText: 'Ensaladilla' });
+  await pc.waitFor({ timeout: 8000 });
+  ok(!(await pc.innerText()).includes('Burger extra 1') && (await pc.innerText()).includes('de otra pantalla'), 'cocina ve solo la ensaladilla del pedido');
+  await pc.getByRole('button', { name: '✓ Hecho' }).click();
+  await pc.waitFor({ state: 'detached' });
+  ok(await k.locator('#l-nuevos .ped', { hasText: 'Burger extra 1' }).count() === 1, '"✓ Hecho" en cocina no lo quita del panel del camarero');
+  await shot(k2, 'lite-08-pantalla-cocina');
+
+  // ------------------------------------------------------------ AGOTADO DESDE EL PANEL
+  await k.getByRole('tab', { name: 'Carta' }).click();
+  await k.locator('.ag', { hasText: 'Burger extra 2' }).click();
+  await k.locator('.ag.fuera', { hasText: 'Burger extra 2' }).waitFor();
+  await m.reload();
+  await m.locator('.prod', { hasText: 'Burger extra 2' }).locator('.tag-agotado').waitFor();
+  ok(true, 'agotado desde el panel en un toque → el cliente lo ve agotado');
+  await k.locator('.ag', { hasText: 'Burger extra 2' }).click();
+  await k.locator('.ag:not(.fuera)', { hasText: 'Burger extra 2' }).waitFor();
+  await shot(k, 'lite-09-agotados');
+
+  // ------------------------------------------------------------ CÓDIGO DE MESA
+  console.log('CÓDIGO DE MESA');
+  await a.getByRole('tab', { name: 'Ajustes y claves' }).click();
+  await a.locator('#aj-codigo').check();
+  await a.locator('#form-ajustes button[type="submit"]').click();
+  await a.getByText('Código de mesa activado').waitFor();
+  ok(psql("select codigo_mesa from carta.restaurantes where slug = 'martinez-demo'") === 't', 'Gestión: código de mesa activado');
+  await m.reload();
+  await m.locator('#banner-codigo', { hasText: 'abra tu mesa' }).waitFor();
+  ok(true, 'cliente: "pide al camarero que abra tu mesa"');
+  if (await m.locator('#cart-bar').isHidden()) await m.getByRole('button', { name: 'Añadir Ensaladilla rusa · Tapa', exact: true }).click();
+  await m.click('#cart-open'); await m.click('#btn-enviar');
+  await m.locator('#dlg-codigo[open]').waitFor();
+  ok(true, 'sin código no se puede pedir: pide el código');
+  await k.getByRole('tab', { name: 'Mesas' }).click();
+  await k.locator('.mesa-tile', { hasText: 'Mesa 2' }).click();
+  await k.locator('#dlg-mesa').getByRole('button', { name: /Abrir mesa/ }).click();
+  const cod = (await k.locator('#dlg-mesa .codigo-mesa b').innerText()).trim();
+  ok(/^[0-9]{4}$/.test(cod), 'el camarero abre la Mesa 2: código ' + cod);
+  await shot(k, 'lite-10-codigo');
+  await k.locator('#dlg-mesa [data-cerrar]').click();
+  await m.fill('#codigo-input', cod === '0000' ? '1111' : '0000');
+  await m.locator('#form-codigo button[type="submit"]').click();
+  await m.locator('#codigo-error', { hasText: 'no es el de tu mesa' }).waitFor();
+  ok(true, 'código equivocado: no entra');
+  await m.fill('#codigo-input', cod);
+  await m.locator('#form-codigo button[type="submit"]').click();
+  await m.locator('#dlg-ok[open]').waitFor();
+  await m.locator('#dlg-ok [data-cerrar]').click();
+  await k.getByRole('tab', { name: 'Pedidos' }).click();
+  await k.locator('#l-nuevos .ped', { hasText: 'Mesa 2' }).waitFor({ timeout: 8000 });
+  ok(true, 'con el código correcto el pedido llega');
+  await k.getByRole('tab', { name: 'Mesas' }).click();
+  await k.locator('.mesa-tile', { hasText: 'Mesa 2' }).click();
+  k.once('dialog', (dd) => dd.accept());
+  await k.locator('#dlg-mesa').getByRole('button', { name: /liberar mesa/ }).click();
+  await k.locator('#dlg-mesa').waitFor({ state: 'hidden' });
+  ok(psql("select coalesce(clave_sesion, 'null') from carta.mesas where nombre = 'Mesa 2' and restaurante_id = (select id from carta.restaurantes where slug = 'martinez-demo')") === 'null',
+    'al liberar la mesa el código deja de valer');
+  await a.locator('#aj-codigo').uncheck();
+  await a.locator('#form-ajustes button[type="submit"]').click();
+  await a.getByText('Código de mesa desactivado').waitFor();
+  await k.getByRole('tab', { name: 'Pedidos' }).click();
+
+  // ------------------------------------------------------------ SIN CONEXIÓN: no pide la clave
+  const off = await (await browser.newContext({ ...devices['Pixel 7'] })).newPage();
+  await off.route('**/rest/v1/rpc/carta_cocina', (rt) => rt.abort());
+  await off.goto(`${BASE}/cocina.html?r=martinez-demo&k=cocina-l`);
+  await off.locator('#conectando').waitFor();
+  ok(await off.locator('#login').isHidden(), 'sin conexión: "Conectando…" en vez de pedir la clave');
+  await off.unroute('**/rest/v1/rpc/carta_cocina');
+  await off.click('#reintentar');
+  await off.locator('#k-nombre', { hasText: 'Martínez' }).waitFor();
+  ok(true, 'al volver la conexión entra solo con la clave guardada');
 
   // ------------------------------------------------------------ DEMO EN DIRECTO
   const dm = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();

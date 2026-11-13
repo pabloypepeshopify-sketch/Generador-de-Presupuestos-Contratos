@@ -38,6 +38,7 @@
     $('login').hidden = true;
     $('app').hidden = false;
     pintar();
+    cargarCodigoMesa();
   }
 
   async function op(accion, datos, okMsg) {
@@ -136,6 +137,16 @@
     $('aj-color').value = r.color;
     $('aj-abiertos').checked = r.pedidos_abiertos;
     $('aj-libre').checked = r.mesa_libre;
+    if (codigoMesa !== null) $('aj-codigo').checked = codigoMesa;
+  }
+
+  // Código de mesa (009_panel_bar.sql): se lee y se cambia con carta_panel, con la clave del dueño.
+  let codigoMesa = null;
+  async function cargarCodigoMesa() {
+    try {
+      codigoMesa = !!(await rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: 'datos', p_datos: {} })).codigo_mesa;
+      $('aj-codigo').checked = codigoMesa;
+    } catch { $('aj-codigo').closest('label').hidden = true; }
   }
 
   // ------------------------------------------------------------ productos ----
@@ -278,10 +289,19 @@
   $('form-ajustes').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     document.activeElement.blur();
+    const quiereCodigo = $('aj-codigo').checked;  // se lee antes: al guardar se repintan los ajustes
     await op('ajustes', {
       nombre: $('aj-nombre').value.trim(), mensaje: $('aj-mensaje').value.trim(), color: $('aj-color').value,
       pedidos_abiertos: $('aj-abiertos').checked, mesa_libre: $('aj-libre').checked,
     }, 'Ajustes guardados');
+    if (codigoMesa !== null && quiereCodigo !== codigoMesa) {
+      try {
+        codigoMesa = !!(await rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: 'ajuste_codigo',
+          p_datos: { activo: quiereCodigo } })).codigo_mesa;
+        $('aj-codigo').checked = codigoMesa;
+        toast(codigoMesa ? '🔑 Código de mesa activado' : 'Código de mesa desactivado');
+      } catch (e) { toast(e.humano, 'error'); }
+    }
   });
 
   document.addEventListener('click', async (ev) => {

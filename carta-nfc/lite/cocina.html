@@ -27,21 +27,33 @@
     </form>
   </div>
 
+  <div id="conectando" class="center-page" hidden>
+    <div class="card">
+      <div class="big" aria-hidden="true">📶</div>
+      <h1>Conectando con el bar…</h1>
+      <p class="muted small" id="conectando-txt">Sin conexión con el servidor. Lo intento otra vez sola cada pocos segundos.</p>
+      <button class="btn block" type="button" id="reintentar">Reintentar ahora</button>
+    </div>
+  </div>
+
   <div id="panel" hidden>
     <header class="k-top">
       <div class="k-brand">
         <span id="k-conn" class="dot" title="Conexión"></span>
         <strong id="k-nombre"></strong>
         <span id="k-reloj" class="muted num"></span>
+        <span id="k-puesto-chip" class="chip" hidden></span>
       </div>
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" type="button" data-vista="pedidos" aria-selected="true">Pedidos <span id="n-pedidos" class="badge"></span></button>
         <button class="tab" role="tab" type="button" data-vista="mesas" aria-selected="false">Mesas <span id="n-mesas" class="badge"></span></button>
+        <button class="tab" role="tab" type="button" data-vista="carta" aria-selected="false" id="tab-carta">Carta <span id="n-agotados" class="badge"></span></button>
       </div>
       <div class="k-actions">
         <button id="k-sonido" class="btn sm" type="button"></button>
         <button id="k-pausa" class="btn sm" type="button"></button>
         <button id="k-qr" class="btn sm" type="button">📱 <span class="lbl">QR carta</span></button>
+        <button id="k-puesto" class="btn sm" type="button">🖥 <span class="lbl">Pantalla</span></button>
         <a id="k-admin" class="btn sm" href="/admin.html" hidden>⚙️ <span class="lbl">Gestión</span></a>
         <button id="k-salir" class="btn sm ghost" type="button">Salir</button>
       </div>
@@ -54,12 +66,23 @@
     <main id="v-pedidos" class="pedidos">
       <div id="l-nuevos"></div>
       <section class="apuntados" id="apuntados" hidden>
-        <h2>Apuntados hace poco</h2>
+        <h2 id="apuntados-tit">Apuntados hace poco</h2>
         <div id="l-apuntados"></div>
       </section>
     </main>
 
-    <main id="v-mesas" class="mesas" hidden></main>
+    <main id="v-mesas" class="v-mesas" hidden>
+      <div class="leyenda small">
+        <span><i class="ley pide"></i>Acaba de pedir</span><span><i class="ley espera"></i>Llama / cuenta</span>
+        <span><i class="ley ocupada"></i>Con consumo</span><span><i class="ley libre"></i>Libre</span>
+      </div>
+      <div id="mapa" class="mapa"></div>
+    </main>
+
+    <main id="v-carta" class="v-carta" hidden>
+      <p class="muted small">Toca un plato cuando se acabe: deja de salir en la carta al momento. Vuelve a tocarlo cuando haya.</p>
+      <div id="agotados"></div>
+    </main>
   </div>
 
   <dialog id="dlg-qr" aria-labelledby="qr-titulo">
@@ -69,6 +92,9 @@
       <p>Escanea para ver la carta y pedir.<br><span class="muted">Al enviar el pedido, elige tu mesa.</span></p>
     </div>
   </dialog>
+
+  <dialog id="dlg-mesa" aria-labelledby="mesa-titulo"></dialog>
+  <dialog id="dlg-puesto" aria-labelledby="puesto-titulo"></dialog>
 
   <script src="/assets/config.js"></script>
   <script src="/assets/api.js"></script>

@@ -18,6 +18,7 @@
   let carrito = {};         // id -> { cantidad, nota }
   let enviando = false;
   let pollTimer = null;
+  let cuenta = null;        // carta_mesa: lo que lleva pedido la mesa y si hace falta código
 
   const ses = {
     get(k, d) { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -26,6 +27,7 @@
   const kCarrito = () => 'carta:carrito:' + menu.restaurante.slug;
   const kMesa = () => 'carta:mesa:' + menu.restaurante.slug;
   const kPedidos = () => 'carta:pedidos:' + menu.restaurante.slug;
+  const kCodigo = () => 'carta:codigo:' + (mesa ? mesa.codigo : '');
 
   function mostrarError(titulo, texto) {
     $('cargando').hidden = true;
@@ -75,6 +77,7 @@
     $('app').hidden = false;
     observarCategorias();
     refrescarPedidos();
+    refrescarCuenta();
   }
 
   function puedePedir() {
@@ -234,13 +237,15 @@
   async function enviar() {
     if (enviando) return;
     if (!mesa) { abrirMesas(true); return; }
+    if (cuenta && cuenta.codigo_mesa && !cuenta.valido) { pedirCodigo(true); return; }
     const lineas = Object.entries(carrito).map(([id, l]) => ({ producto_id: id, cantidad: l.cantidad, nota: (l.nota || '').trim() || null }));
     if (!lineas.length) return;
     enviando = true;
     $('btn-enviar').disabled = true;
     $('btn-enviar').textContent = 'Enviando…';
     try {
-      const res = await rpc('carta_pedir', { p_mesa: mesa.codigo, p_lineas: lineas, p_nota: $('carrito-nota').value.trim() || null });
+      const res = await rpc('carta_pedir_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null,
+        p_lineas: lineas, p_nota: $('carrito-nota').value.trim() || null });
       const lista = store.get(kPedidos(), []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
       lista.unshift({ token: res.token, numero: res.numero, creado: res.creado, total: res.total, estado: res.estado,
         lineas: lineas.map((l) => [l.producto_id, l.cantidad]) });
@@ -255,7 +260,15 @@
       $('dlg-ok').showModal();
       renderEstadoPedidos();
       refrescarPedidos();
+      refrescarCuenta();
     } catch (e) {
+      if (e.code === 'codigo_mesa') {
+        ses.set(kCodigo(), '');
+        if (cuenta) cuenta.valido = false;
+        $('dlg-carrito').close();
+        pedirCodigo(true, 'El código no es correcto o la mesa se ha cerrado. Pídeselo otra vez al camarero.');
+        return;
+      }
       toast(e.humano || 'No se pudo enviar el pedido.', 'error');
       if (e.code === 'pedidos_cerrados') { menu.restaurante.pedidos_abiertos = false; actualizarCabecera(); $('dlg-carrito').close(); }
       if (e.code === 'mesa_no_valida') { mesa = null; ses.set(kMesa(), null); actualizarCabecera(); }
@@ -283,6 +296,8 @@
     ses.set(kMesa(), mesa);
     $('dlg-mesa').close();
     actualizarCabecera();
+    cuenta = null;
+    refrescarCuenta();
     Object.keys(productos).forEach(refrescarControl);
     if (enviarTrasElegir) { renderCarrito(); $('dlg-carrito').showModal(); }
   }
@@ -319,6 +334,51 @@
       } catch { /* reintenta en el siguiente ciclo */ }
     }
     pollTimer = setTimeout(refrescarPedidos, 8000);
+  }
+
+  // ------------------------------------------------- cuenta de la mesa ----
+  // "Lo que habéis pedido": todo lo de la mesa (todos los móviles) sin cobrar. Con código de mesa, solo con el código.
+  async function refrescarCuenta() {
+    if (!mesa) return;
+    try {
+      cuenta = await rpc('carta_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null });
+    } catch { return; }
+    pintarCuenta();
+  }
+
+  function pintarCuenta() {
+    const c = cuenta, m = menu.restaurante.moneda;
+    const falta = !!(c && c.codigo_mesa && !c.valido && menu.restaurante.pedidos_abiertos);
+    $('banner-codigo').hidden = !falta;
+    $('banner-codigo').innerHTML = falta ? (c.abierta
+      ? '🔑 Para pedir necesitas el <b>código de tu mesa</b>: pídeselo al camarero. <button type="button" class="btn sm" id="btn-codigo">Tengo el código</button>'
+      : '🔑 Pide al camarero que <b>abra tu mesa</b> para poder pedir desde aquí.') : '';
+    const ver = c && c.lineas && c.lineas.length;
+    $('cuenta-mesa').hidden = !ver;
+    $('cuenta-mesa').innerHTML = ver ? `<h2>Lo que habéis pedido · ${esc(mesa.nombre)}</h2>
+      ${c.lineas.map((l) => `<div class="cm-row"><span>${esc(l.cantidad)}× ${esc(l.nombre)}</span><span class="num">${dinero(l.importe, m)}</span></div>`).join('')}
+      <div class="cm-row cm-total"><span>Total</span><span class="num">${dinero(c.total, m)}</span></div>` : '';
+  }
+
+  let enviarTrasCodigo = false;
+  function pedirCodigo(despuesEnviar, msg) {
+    enviarTrasCodigo = !!despuesEnviar;
+    $('codigo-input').value = '';
+    $('codigo-error').textContent = msg || '';
+    if ($('dlg-carrito').open) $('dlg-carrito').close();
+    $('dlg-codigo').showModal();
+    $('codigo-input').focus();
+  }
+
+  async function comprobarCodigo() {
+    const cod = $('codigo-input').value.trim();
+    if (!/^[0-9]{4}$/.test(cod)) { $('codigo-error').textContent = 'Son 4 cifras.'; return; }
+    ses.set(kCodigo(), cod);
+    await refrescarCuenta();
+    if (!cuenta || !cuenta.valido) { ses.set(kCodigo(), ''); $('codigo-error').textContent = 'Ese código no es el de tu mesa.'; return; }
+    $('dlg-codigo').close();
+    toast('✓ Mesa abierta: ya puedes pedir.');
+    if (enviarTrasCodigo && Object.keys(carrito).length) enviar();
   }
 
   // "Otra ronda": vuelve a poner en el carrito lo de un pedido anterior (lo agotado o retirado se salta).
@@ -407,6 +467,7 @@
     else if (t.id === 'btn-camarero') avisar('camarero');
     else if (t.id === 'btn-cuenta') avisar('cuenta');
     else if (t.dataset.repetir) repetir(t.dataset.repetir);
+    else if (t.id === 'btn-codigo') pedirCodigo(false);
     else if (t.id === 'btn-alerg') {
       const abrir = $('alerg-panel').hidden;
       $('alerg-panel').hidden = !abrir;
@@ -420,6 +481,8 @@
     }
   });
   document.addEventListener('input', (ev) => { if (ev.target.id === 'buscar') filtrar(); });
+  $('form-codigo').addEventListener('submit', (ev) => { ev.preventDefault(); comprobarCodigo(); });
+  setInterval(() => { if (menu && mesa && document.visibilityState === 'visible') refrescarCuenta(); }, 10000);
   document.addEventListener('input', (ev) => {
     const id = ev.target.dataset && ev.target.dataset.nota;
     if (id && carrito[id]) { carrito[id].nota = ev.target.value; ses.set(kCarrito(), carrito); }

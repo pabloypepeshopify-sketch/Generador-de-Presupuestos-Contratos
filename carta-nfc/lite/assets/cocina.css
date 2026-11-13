@@ -82,6 +82,44 @@ body { background: var(--bg); overflow-x: hidden; }
 .qr-body svg { width: min(300px, 100%); height: auto; background: #fff; padding: 10px; border-radius: 12px; }
 .qr-body p { font-size: 17px; }
 
+/* Mapa de mesas: un vistazo a quién pide, quién espera y quién está consumiendo */
+.v-mesas, .v-carta { max-width: 980px; margin: 0 auto; padding: 12px 12px 40px; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); margin-bottom: 10px; }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.ley { width: 14px; height: 14px; border-radius: 4px; display: inline-block; border: 2px solid var(--line); }
+.ley.pide { background: #9be15d; border-color: #9be15d; }
+.ley.espera { background: #ff9f1a; border-color: #ff9f1a; }
+.ley.ocupada { background: var(--surface); border-color: var(--brand); }
+.mapa { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(46%, 150px), 1fr)); gap: 10px; }
+.mesa-tile {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 4px; min-height: 96px;
+  padding: 12px 14px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface-2); color: var(--muted);
+  font: inherit; text-align: left; cursor: pointer; min-width: 0;
+}
+.mesa-tile b { font-size: 20px; color: var(--text); }
+.mesa-tile small { font-size: 14px; font-weight: 600; }
+.mesa-tile .t-total { font-size: 17px; font-weight: 700; color: var(--text); }
+.mesa-tile.ocupada { background: var(--surface); border-color: var(--brand); }
+.mesa-tile.pide { background: #9be15d; border-color: #9be15d; color: #13310a; animation: llega-mesa 1.6s ease-in-out infinite; }
+.mesa-tile.espera { background: #ff9f1a; border-color: #ff9f1a; color: #3a2000; animation: llega-mesa 1.6s ease-in-out infinite; }
+.mesa-tile.pide b, .mesa-tile.pide .t-total, .mesa-tile.espera b, .mesa-tile.espera .t-total { color: #111; }
+@keyframes llega-mesa { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--warn) 25%, transparent); } }
+#dlg-mesa .mesa-card { box-shadow: none; padding: 0; border: 0; }
+.codigo-mesa { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 14px; margin-bottom: 14px; border-radius: 14px; background: var(--surface-2); }
+.codigo-mesa b { font-size: 48px; letter-spacing: .18em; line-height: 1; }
+.p-otros { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.k-brand .chip { font-size: 12px; }
+
+/* Agotados en un toque */
+.ag-cat h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 16px 0 8px; }
+.ag-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 8px; }
+.ag { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 52px; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.ag small { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--ok); flex: none; }
+.ag.fuera { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); border-color: var(--danger); text-decoration: line-through; }
+.ag.fuera small { color: var(--danger); text-decoration: none; }
+.puesto-cats { display: grid; gap: 2px; padding-left: 26px; margin: 4px 0 8px; }
+
 @media (max-width: 560px) {
   .k-actions .lbl { display: none; }
   .k-top .tabs { order: 3; width: 100%; }
@@ -89,4 +127,4 @@ body { background: var(--bg); overflow-x: hidden; }
   .mesa-acc { grid-template-columns: 1fr; }
 }
 
-.nl-badge .pedidos, .nl-badge .mesas { padding-bottom: 100px; }
+.nl-badge .pedidos, .nl-badge .v-mesas, .nl-badge .v-carta { padding-bottom: 100px; }

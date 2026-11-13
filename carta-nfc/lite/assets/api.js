@@ -29,6 +29,7 @@
     rango_no_valido: 'Rango de mesas no válido (máx. 200).',
     filtro_no_valido: 'Revisa las fechas del filtro.',
     pedido_no_encontrado: 'Ese pedido ya no existe.',
+    codigo_mesa: 'Para pedir necesitas el código de tu mesa: pídeselo al camarero.',
     no_encontrado: 'No encontrado. Recarga la página.',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };

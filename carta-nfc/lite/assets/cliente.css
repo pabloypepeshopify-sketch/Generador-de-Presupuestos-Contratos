@@ -92,3 +92,14 @@
 .mp-acc { display: inline-flex; align-items: center; gap: 6px; }
 .mp-acc .btn.sm { min-height: 32px; padding: 4px 10px; font-size: 13px; }
 .pie a { color: inherit; }
+
+/* Cuenta de la mesa y código de mesa */
+.cuenta-mesa { margin-top: 12px; padding: 12px 14px; }
+.cuenta-mesa h2 { font-size: 15px; margin-bottom: 6px; }
+.cm-row { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; font-size: 14px; }
+.cm-total { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 8px; font-weight: 800; font-size: 16px; }
+.banner-codigo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.codigo-body { text-align: center; padding: 24px 22px; }
+.codigo-body input { width: 100%; margin: 12px 0 4px; min-height: 64px; text-align: center; font-size: 34px; letter-spacing: .4em; font-weight: 800;
+  border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); }
+.codigo-body .btn { margin-top: 8px; }

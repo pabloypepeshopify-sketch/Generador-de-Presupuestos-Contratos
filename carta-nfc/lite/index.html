@@ -33,7 +33,9 @@
     <div class="wrap">
       <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y llamar al camarero.</div>
       <div id="banner-sin-mesa" class="banner" hidden>Escanea el NFC (o el QR) de tu mesa para poder pedir desde aquí.</div>
+      <div id="banner-codigo" class="banner banner-codigo" hidden></div>
       <section id="mis-pedidos" class="mis-pedidos card" hidden aria-live="polite"></section>
+      <section id="cuenta-mesa" class="cuenta-mesa card" hidden aria-live="polite"></section>
       <div class="filtros" id="filtros" hidden>
         <input type="search" id="buscar" placeholder="🔍 Buscar en la carta…" aria-label="Buscar en la carta" autocomplete="off">
         <button type="button" class="btn sm" id="btn-alerg" aria-expanded="false" hidden>⚠️ Alergias</button>
@@ -87,6 +89,18 @@
       <button class="x" data-cerrar aria-label="Cerrar">×</button>
     </div>
     <div class="dlg-body"><div id="mesas-grid" class="mesas-grid"></div></div>
+  </dialog>
+
+  <dialog id="dlg-codigo" aria-labelledby="codigo-titulo">
+    <form class="dlg-body codigo-body" id="form-codigo">
+      <div class="tick" aria-hidden="true">🔑</div>
+      <h2 id="codigo-titulo">Código de tu mesa</h2>
+      <p class="muted">Pídeselo al camarero: así solo se pide desde las mesas del bar.</p>
+      <input id="codigo-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required aria-label="Código de 4 cifras" placeholder="····">
+      <p id="codigo-error" class="small" style="color:var(--danger)" role="alert"></p>
+      <button class="btn primary block" type="submit">Entrar y pedir</button>
+      <button class="btn ghost block" type="button" data-cerrar>Ahora no</button>
+    </form>
   </dialog>
 
   <dialog id="dlg-ok" aria-labelledby="ok-titulo">
