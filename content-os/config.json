@@ -1,7 +1,10 @@
 {
   "nicho": "Tarjetas y expositores NFC para hostelería (VISAX NFC)",
 
-  "plataformas": ["tiktok", "instagram"],
+  "plataformas": ["tiktok"],
+
+  "_gasto_nota": "Tope en dólares por cada ejecución de un actor de Apify (se corta al llegar). Plan FREE = 5 $/mes.",
+  "max_usd_por_ejecucion": 2.0,
 
   "_hashtags_nota": "Dos grupos: 'nicho' trae lo que se publica sobre NFC; 'formato' trae virales de curiosidad/tecnología de los que aprender estructura aunque no hablen de NFC.",
   "hashtags": {
@@ -12,9 +15,9 @@
   "_perfiles_nota": "Cuentas concretas a vigilar (sin @). Opcional: si se deja vacío se usan los autores que salgan en los hashtags.",
   "perfiles": [],
 
-  "max_por_hashtag": 150,
-  "max_por_perfil": 30,
-  "autores_para_baseline": 40,
+  "max_por_hashtag": 40,
+  "max_por_perfil": 15,
+  "autores_para_baseline": 20,
 
   "_viral_nota": "Un reel es viral si tiene >= umbral_viral veces las visitas normales (mediana) de su autor y al menos min_visitas.",
   "umbral_viral": 10,
@@ -45,11 +48,15 @@
     "tiktok": {
       "hashtags": {
         "actor": "clockworks~tiktok-scraper",
-        "input": { "hashtags": "$HASHTAGS", "resultsPerPage": "$N", "shouldDownloadVideos": true }
+        "input": { "hashtags": "$HASHTAGS", "resultsPerPage": "$N", "shouldDownloadVideos": false }
       },
       "perfiles": {
         "actor": "clockworks~tiktok-scraper",
-        "input": { "profiles": "$PERFILES", "resultsPerPage": "$N", "shouldDownloadVideos": true }
+        "input": { "profiles": "$PERFILES", "resultsPerPage": "$N", "shouldDownloadVideos": false }
+      },
+      "videos": {
+        "actor": "clockworks~tiktok-scraper",
+        "input": { "postURLs": "$URLS", "shouldDownloadVideos": true }
       }
     }
   }

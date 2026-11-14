@@ -26,7 +26,10 @@ def descargar(url: str, destino: Path) -> bool:
     if destino.exists() and destino.stat().st_size > 10_000:
         return True
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": UA, "Referer": "https://www.tiktok.com/"})
+        cab = {"User-Agent": UA, "Referer": "https://www.tiktok.com/"}
+        if url.startswith("https://api.apify.com/") and os.environ.get("APIFY_TOKEN"):
+            cab = {"Authorization": f"Bearer {os.environ['APIFY_TOKEN']}"}
+        req = urllib.request.Request(url, headers=cab)
         with urllib.request.urlopen(req, timeout=120) as resp, open(destino, "wb") as f:
             while bloque := resp.read(1 << 16):
                 f.write(bloque)
@@ -139,9 +142,20 @@ def desmontar(cfg: dict, solo: list[str] | None = None) -> list[dict]:
     if not virales:
         raise SystemExit("No hay virales. Ejecuta antes `virales`.")
     objetivo = [v for v in virales if not solo or v["clave"] in solo][: cfg["max_virales_a_desmontar"]]
+    carpeta_de = lambda v: DESMONTADOS / v["clave"].replace(":", "_")
+
+    # Plataformas con plantilla "videos" (TikTok): se pide el vídeo descargable solo de los virales pendientes.
+    pendientes = [v for v in objetivo if not (carpeta_de(v) / "info.json").exists()
+                  and cfg["apify"].get(v["plataforma"], {}).get("videos")]
+    if pendientes:
+        from .fuentes import enlaces_de_video
+        enlaces = enlaces_de_video(cfg, pendientes)
+        for v in pendientes:
+            v["video_url"] = enlaces.get(v["clave"]) or v.get("video_url")
+
     hechos = []
     for v in objetivo:
-        carpeta = DESMONTADOS / v["clave"].replace(":", "_")
+        carpeta = carpeta_de(v)
         info_ruta = carpeta / "info.json"
         if info_ruta.exists():
             hechos.append(leer_json(info_ruta))

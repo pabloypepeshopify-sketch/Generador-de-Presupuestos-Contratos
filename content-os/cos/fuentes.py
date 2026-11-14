@@ -123,17 +123,22 @@ def _rellenar(plantilla, valores: dict):
     return plantilla
 
 
-def ejecutar_actor(actor: str, entrada: dict, token: str) -> list[dict]:
+def ejecutar_actor(actor: str, entrada: dict, token: str, max_usd: float | None = None) -> list[dict]:
     log(f"  Apify → {actor} {json.dumps(entrada, ensure_ascii=False)[:160]}")
-    run = _apify("POST", f"/acts/{actor}/runs", token, entrada)["data"]
+    tope = f"?maxTotalChargeUsd={max_usd}" if max_usd else ""
+    run = _apify("POST", f"/acts/{actor}/runs{tope}", token, entrada)["data"]
     run_id, dataset = run["id"], run["defaultDatasetId"]
     while True:
-        estado = _apify("GET", f"/actor-runs/{run_id}", token)["data"]["status"]
+        datos = _apify("GET", f"/actor-runs/{run_id}", token)["data"]
+        estado = datos["status"]
         if estado == "SUCCEEDED":
             break
         if estado in ("FAILED", "ABORTED", "TIMED-OUT"):
             raise SystemExit(f"El actor {actor} terminó en {estado} (run {run_id}).")
         time.sleep(10)
+    gasto = datos.get("usageTotalUsd")
+    if gasto is not None:
+        log(f"  gasto de esta ejecución: {gasto:.2f} $")
     items, offset = [], 0
     while True:
         lote = _apify("GET", f"/datasets/{dataset}/items?clean=true&format=json&offset={offset}&limit=1000", token)
@@ -145,6 +150,7 @@ def ejecutar_actor(actor: str, entrada: dict, token: str) -> list[dict]:
 
 def recolectar_apify(cfg: dict) -> None:
     token = requiere_env("APIFY_TOKEN", "para descargar reels con Apify")
+    tope = cfg.get("max_usd_por_ejecucion")
     hashtags = [h.lstrip("#") for grupo in cfg["hashtags"].values() for h in grupo]
     for plataforma in cfg["plataformas"]:
         plantillas = cfg["apify"][plataforma]
@@ -152,7 +158,7 @@ def recolectar_apify(cfg: dict) -> None:
         crudos = ejecutar_actor(
             plantillas["hashtags"]["actor"],
             _rellenar(plantillas["hashtags"]["input"], {"$HASHTAGS": hashtags, "$N": cfg["max_por_hashtag"]}),
-            token,
+            token, tope,
         )
         reels = [r for r in (normalizar(i, plataforma) for i in crudos) if r]
         log(f"  {len(reels)} reels válidos, {guardar(reels)} nuevos")
@@ -171,10 +177,30 @@ def recolectar_apify(cfg: dict) -> None:
         crudos = ejecutar_actor(
             plantillas["perfiles"]["actor"],
             _rellenar(plantillas["perfiles"]["input"], {"$PERFILES": perfiles, "$N": cfg["max_por_perfil"]}),
-            token,
+            token, tope,
         )
         reels = [r for r in (normalizar(i, plataforma) for i in crudos) if r]
         log(f"  {len(reels)} reels válidos, {guardar(reels)} nuevos")
+
+
+def enlaces_de_video(cfg: dict, reels: list[dict]) -> dict[str, str]:
+    """Pide a Apify el vídeo descargable solo de estos reels (los virales). Devuelve {clave: url}."""
+    token = requiere_env("APIFY_TOKEN", "para descargar los vídeos virales con Apify")
+    enlaces = {}
+    for plataforma in {r["plataforma"] for r in reels}:
+        plantilla = cfg["apify"].get(plataforma, {}).get("videos")
+        lista = [r for r in reels if r["plataforma"] == plataforma and r.get("url")]
+        if not plantilla or not lista:
+            continue
+        log(f"[{plataforma}] pidiendo el vídeo de {len(lista)} virales")
+        crudos = ejecutar_actor(plantilla["actor"],
+                                _rellenar(plantilla["input"], {"$URLS": [r["url"] for r in lista]}),
+                                token, cfg.get("max_usd_por_ejecucion"))
+        for i in crudos:
+            r = normalizar(i, plataforma)
+            if r and r.get("video_url"):
+                enlaces[r["clave"]] = r["video_url"]
+    return enlaces
 
 
 # ---------- Importación manual ----------
