@@ -3,6 +3,8 @@
 import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { aplicarEstilo, dibujar3D } from './estilos.js';
+let ESTILO = null;
 
 const W = 1080, H = 1920;
 const FUENTE = 'Inter, "Inter Display", "DejaVu Sans", Arial, sans-serif';
@@ -758,8 +760,10 @@ function camara2(t, tomas) {
     const pp = new THREE.Vector3().fromArray(P.a2 || P.de), lp = new THREE.Vector3().fromArray(P.mira2 || P.mira);
     p = pp.lerp(p, kb); l = lp.lerp(l, kb); desenfoque = Math.sin(Math.PI * kb) * 14;
   }
+  let fov = T.fov || 38; const tele = ESTILO?.tele || 1;
+  if (tele !== 1) { p = l.clone().add(p.clone().sub(l).multiplyScalar(tele)); fov = 2 * Math.atan(Math.tan(fov * Math.PI / 360) / tele) * 180 / Math.PI; }
   cam.up.fromArray(T.up || [0, 1, 0]); cam.position.copy(p); cam.lookAt(l);
-  if (cam.fov !== (T.fov || 38)) { cam.fov = T.fov || 38; cam.updateProjectionMatrix(); }
+  if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
   return desenfoque;
 }
 
@@ -802,17 +806,21 @@ function golpeIOS(t, X, Y, k, tam = 140, marca = false) {
 }
 function subtitulosIOS(t) {
   const i = trozos.findIndex((tr, k) => t >= tr[0].t - 0.05 && t < (trozos[k + 1] ? trozos[k + 1][0].t - 0.05 : tr[tr.length - 1].fin + 0.6));
-  if (i < 0) return; const tr = trozos[i]; const tam = 66; C.font = `800 ${tam}px Inter, ${FUENTE}`;
-  const pal = tr.map(p => p.p.replace(/[,.…:]$/, ''));
+  if (i < 0) return; const tr = trozos[i];
+  const S = Object.assign({ tam: 66, fuente: (tam) => `800 ${tam}px Inter, ${FUENTE}`, pill: [VX.cian, VX.azul, VX.violeta], texto: '#fff', textoClave: '#fff', sombra: 'rgba(0,0,0,0.75)', borde: 0, mayus: false, giro: 0 }, ESTILO?.subs || {});
+  const tam = S.tam; C.font = S.fuente(tam);
+  const pal = tr.map(p => { const x = p.p.replace(/[,.…:]$/, ''); return S.mayus ? x.toUpperCase() : x; });
   const esp = C.measureText(' ').width; const anchos = pal.map(s => C.measureText(s).width); const total = anchos.reduce((a, b) => a + b, 0) + esp * (pal.length - 1) + 30;
   let X = W / 2 - total / 2; const Y = 300;
   pal.forEach((s, k) => {
     const dicha = t >= tr[k].t - 0.03; const pop = prog(t, tr[k].t - 0.05, tr[k].t + 0.12); const clave = CLAVES.has(norm(s)) && dicha; const w = anchos[k];
-    C.save(); C.translate(X + w / 2, Y); const sc = dicha ? 0.9 + 0.1 * pop : 0.9; C.scale(sc, sc);
-    if (clave) { C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 24; C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]); rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, tam * 0.65); C.fill(); C.shadowBlur = 0; }
+    C.save(); C.translate(X + w / 2, Y); const sc = dicha ? 0.9 + 0.1 * pop : 0.9; C.scale(sc, sc); if (clave && S.giro) C.rotate(S.giro);
+    if (clave) { C.shadowColor = S.brilloPill || 'rgba(0,0,0,0.35)'; C.shadowBlur = 24; C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, S.pill); rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, S.radio ?? tam * 0.65); C.fill(); C.shadowBlur = 0;
+      if (S.bordePill) { C.lineWidth = S.bordePill; C.strokeStyle = '#111'; rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, S.radio ?? tam * 0.65); C.stroke(); } }
     C.textAlign = 'center'; C.textBaseline = 'middle';
-    if (!clave) { C.shadowColor = 'rgba(0,0,0,0.75)'; C.shadowBlur = 22; C.shadowOffsetY = 4; }
-    C.fillStyle = dicha ? '#fff' : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
+    if (!clave) { C.shadowColor = S.sombra; C.shadowBlur = 22; C.shadowOffsetY = 4; }
+    if (S.borde) { C.save(); C.shadowBlur = 0; C.lineJoin = 'round'; C.lineWidth = S.borde; C.strokeStyle = '#111'; C.strokeText(s, 0, 3); C.restore(); }
+    C.fillStyle = clave ? S.textoClave : dicha ? S.texto : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
   });
 }
 function capitulosIOS(nombres, actual) {
@@ -1493,7 +1501,7 @@ V['redes2'] = { ...comunCapa,
 };
 
 // ---------- 5. Carta digital ----------
-V['carta'] = { ...comunCapa,
+V['carta'] = { ...comunCapa, estilo: 'comic',
   async montar() {
     await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie' });
     const c = this.c = { sube: cue('sube'), reimprimir: cue('reimprimir'), otra: cue('otra'), mesas: cue('mesas'), manchadas: cue('manchadas'), problema: cue('problema'), papel: cue('papel'), ahora: cue('ahora'), toque: cue('toque'),
@@ -1537,7 +1545,7 @@ V['carta'] = { ...comunCapa,
 };
 
 // ---------- 6. Una mesa, una noche, cinco toques (todo combinado) ----------
-V['noche'] = { ...comunCapa,
+V['noche'] = { ...comunCapa, estilo: 'neon',
   async montar() {
     await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie' });
     const g7 = this.mesas[7].g;
@@ -1631,7 +1639,7 @@ function tarjetaMenuRayos() {
   g.userData.chipMundo = () => chip.getWorldPosition(new THREE.Vector3());
   return g;
 }
-V['menu'] = { ...comunCapa,
+V['menu'] = { ...comunCapa, estilo: 'holograma',
   async montar() {
     await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie', extraMesa: n => (n === 7 ? tarjetaMenuRayos() : null) });
     const c = this.c = { medio: cue('medio'), congelar: cue('congelar'), campo: cue('campo'), antena: cue('antena'), energia: cue('energia'), chip: cue('chip'), pilas: cue('pilas'), direccion: cue('direccion'),
@@ -1689,14 +1697,17 @@ window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };
   prepararSubtitulos(palabras); actual = V[id]; await actual.montar();
+  const saltar = new Set(); const mete = o => { if (o && o.isObject3D) saltar.add(o); };
+  for (const v of Object.values(actual)) { if (Array.isArray(v)) v.forEach(mete); else mete(v); }
+  for (const m of Object.values(actual.mesas || {})) mete(m.tj);
+  ESTILO = aplicarEstilo(Q.get('estilo') || actual.estilo || 'bar', { scene, mundo, saltar, renderer });
   return { duracion, efectos, musica: actual.musica || null };
 };
 function componer(t) {
   const fx = actual.fx ? actual.fx(t) : {};
   C.clearRect(0, 0, W, H); C.fillStyle = '#000'; C.fillRect(0, 0, W, H);
   const z = fx.zoom || 1, dx = fx.temblor ? Math.sin(t * 97) * fx.temblor : 0, dy = fx.temblor ? Math.cos(t * 83) * fx.temblor : 0;
-  C.save(); if (fx.desenfoque > 0.5) C.filter = `blur(${fx.desenfoque.toFixed(1)}px)`;
-  C.translate(W / 2 + dx, H / 2 + dy); C.scale(z, z); C.drawImage(renderer.domElement, -W / 2, -H / 2, W, H); C.restore(); C.filter = 'none';
+  C.save(); C.translate(W / 2 + dx, H / 2 + dy); C.scale(z, z); dibujar3D(C, renderer.domElement, W, H, ESTILO, fx.desenfoque > 0.5 ? `blur(${fx.desenfoque.toFixed(1)}px)` : ''); C.restore(); C.filter = 'none';
   vineta();
   if (fx.flash) { C.fillStyle = `rgba(255,255,255,${fx.flash})`; C.fillRect(0, 0, W, H); }
   actual.capa(t);
