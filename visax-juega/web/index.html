@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#06060B">
+  <meta name="robots" content="noindex, nofollow">
+  <title>VISAX Juega · Demo</title>
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="visax.css">
+  <link rel="stylesheet" href="inicio.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="barra-in">
+      <a class="logo" href="index.html"><img src="marca.svg" alt="">VISAX Juega <small>· Demo</small></a>
+      <div class="der"><a class="boton sec peq" id="nav-panel" href="panel.html">Panel del dueño</a></div>
+    </div>
+  </header>
+
+  <main class="inicio">
+    <div class="col-texto">
+      <section class="hero">
+        <p class="chip">Placas NFC + juegos + premios en el móvil</p>
+        <h1>Que tus clientes <span class="acento">vuelvan.</span></h1>
+        <p class="tenue lead">El cliente toca la placa de la mesa, juega a rasca y gana o a la ruleta, y el premio se queda guardado en su móvil. Para canjearlo tiene que volver.</p>
+      </section>
+
+      <section class="tarjeta" aria-labelledby="t-pers">
+        <h2 id="t-pers"><span class="paso">1</span>Ponle el nombre del local</h2>
+        <div class="form">
+          <label class="campo">Nombre del local<input class="entrada" id="nombre" maxlength="40" placeholder="Bar La Plaza"></label>
+          <div class="campo"><span>Tipo de local</span>
+            <div class="segmentos" id="tipo">
+              <button type="button" data-v="bar">Bar</button>
+              <button type="button" data-v="cafe">Cafetería</button>
+              <button type="button" data-v="restaurante">Restaurante</button>
+            </div>
+          </div>
+          <div class="campo"><span>Juego</span>
+            <div class="segmentos" id="juego">
+              <button type="button" data-v="rasca">Rasca y gana</button>
+              <button type="button" data-v="ruleta">Ruleta</button>
+            </div>
+          </div>
+          <div class="campo"><span>Color del local</span>
+            <div class="colores" id="colores"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tarjeta" aria-labelledby="t-ens">
+        <h2 id="t-ens"><span class="paso">2</span>Que lo pruebe el dueño</h2>
+        <div class="ensenar">
+          <div class="qr-caja">
+            <div id="qr" aria-label="Código QR de la demo del cliente"></div>
+            <p class="peque tenue">Que lo escanee con su móvil</p>
+          </div>
+          <div class="acciones">
+            <a class="boton" id="abrir-cliente" href="cliente.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Lo que ve el cliente</a>
+            <a class="boton sec" id="abrir-panel" href="panel.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Panel del dueño</a>
+            <button class="boton sec" id="grabar-nfc" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8.5a5 5 0 0 1 0 7M9.5 6a8.5 8.5 0 0 1 0 12M13 3.5a12 12 0 0 1 0 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Grabar en una pegatina NFC</button>
+            <button class="boton sec" id="copiar" type="button">Copiar enlace</button>
+            <p class="peque tenue" id="estado-nfc" role="status"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion" aria-labelledby="t-como">
+        <h2 id="t-como">Cómo funciona</h2>
+        <ol class="pasos">
+          <li><b>Toca</b><span>El cliente acerca el móvil a la placa de la mesa. Sin app y sin QR.</span></li>
+          <li><b>Juega</b><span>Rasca y gana o ruleta. Todos ganan algo. Una partida al día.</span></li>
+          <li><b>Guarda</b><span>El premio se queda en su móvil con un código único. No se pierde como un papel.</span></li>
+          <li><b>Vuelve</b><span>Lo canjea en su próxima visita, y cada visita suma un sello para el premio gordo.</span></li>
+        </ol>
+      </section>
+
+      <section class="seccion" aria-labelledby="t-vs">
+        <h2 id="t-vs">Tarjeta de papel <span class="flojo">vs.</span> <span class="acento">VISAX Juega</span></h2>
+        <div class="tabla-vs" role="table">
+          <div class="fila cab-vs" role="row"><span role="columnheader"></span><span role="columnheader">Papel</span><span role="columnheader">VISAX Juega</span></div>
+          <div class="fila" role="row"><span role="cell">Se pierde u olvida</span><span role="cell" class="no">Sí</span><span role="cell" class="si">No, va en el móvil</span></div>
+          <div class="fila" role="row"><span role="cell">Sabes quién vuelve</span><span role="cell" class="no">No</span><span role="cell" class="si">Sí, en el panel</span></div>
+          <div class="fila" role="row"><span role="cell">Motivo para volver</span><span role="cell" class="no">Un café cada 10</span><span role="cell" class="si">Premio en cada visita</span></div>
+          <div class="fila" role="row"><span role="cell">Más reseñas en Google</span><span role="cell" class="no">No</span><span role="cell" class="si">Botón al terminar de jugar</span></div>
+          <div class="fila" role="row"><span role="cell">Cambiar premios</span><span role="cell" class="no">Reimprimir</span><span role="cell" class="si">Al momento, desde el panel</span></div>
+        </div>
+      </section>
+
+      <section class="seccion" aria-labelledby="t-faq">
+        <h2 id="t-faq">Lo que pregunta el dueño</h2>
+        <details><summary>¿Y si alguien juega veinte veces?</summary><p>Una partida al día por móvil, y el premio solo se canjea una vez, con código único o con el PIN del camarero. En la versión final las placas llevan un chip que genera un enlace distinto en cada toque, así que no sirve con una foto o un enlace copiado: hay que estar en el local.</p></details>
+        <details><summary>¿El cliente tiene que instalar algo?</summary><p>No. Toca la placa y se abre en el navegador. Funciona en iPhone y Android. Si su móvil no tiene NFC, la placa puede llevar también un QR.</p></details>
+        <details><summary>¿Puedo dar premios a cambio de reseñas?</summary><p>No, y nosotros tampoco lo hacemos: Google lo prohíbe y la normativa europea lo considera práctica desleal. El premio es por jugar y por volver. La reseña es un botón voluntario y no cambia el premio.</p></details>
+        <details><summary>¿Quién elige los premios?</summary><p>Tú. Eliges los premios y la probabilidad de cada uno desde el panel, por ejemplo una caña al 30% y un 10% de descuento al 10%. Los cambios se ven al instante.</p></details>
+        <details><summary>¿Cómo sé si me funciona?</summary><p>En el panel ves toques, partidas, premios canjeados, clientes que repiten y lo que estimas que te han dejado esas visitas.</p></details>
+      </section>
+
+      <p class="peque flojo pie">Demo de VISAX NFC · los números del panel son de ejemplo.</p>
+    </div>
+
+    <aside class="col-movil" aria-label="Vista previa en un móvil">
+      <div class="movil">
+        <div class="isla"></div>
+        <iframe id="vista" title="Vista previa de la página del cliente" src="about:blank"></iframe>
+      </div>
+      <p class="peque flojo centro">Vista previa en directo · pruébala con el ratón</p>
+    </aside>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="js/inicio.js"></script>
+</body>
+</html>

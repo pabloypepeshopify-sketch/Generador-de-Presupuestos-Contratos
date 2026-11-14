@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FBF7F2">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Juega y gana</title>
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="cliente.css">
+</head>
+<body>
+  <main class="app">
+    <header class="cabecera">
+      <div class="avatar" id="avatar" aria-hidden="true"></div>
+      <div>
+        <p class="saludo">¡Gracias por venir!</p>
+        <h1 id="nombre-local">…</h1>
+      </div>
+    </header>
+
+    <p class="aviso-nfc"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 8.5a5 5 0 0 1 0 7M9.5 6a8.5 8.5 0 0 1 0 12M13 3.5a12 12 0 0 1 0 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Has tocado la placa de tu mesa</p>
+
+    <section class="tarjeta juego" aria-labelledby="titulo-juego">
+      <div class="juego-cabecera">
+        <h2 id="titulo-juego">Rasca y gana</h2>
+        <span class="pastilla">Todos ganan</span>
+      </div>
+      <p class="tenue" id="sub-juego">Rasca con el dedo y descubre tu premio. 1 jugada al día.</p>
+      <div id="zona-juego"></div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="titulo-sellos">
+      <div class="juego-cabecera">
+        <h2 id="titulo-sellos">Tu tarjeta de visitas</h2>
+        <span class="tenue peque" id="cuenta-sellos"></span>
+      </div>
+      <div class="sellos" id="sellos"></div>
+      <p class="tenue peque" id="texto-sellos"></p>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="titulo-premios">
+      <h2 id="titulo-premios">Mis premios</h2>
+      <div id="lista-premios"></div>
+    </section>
+
+    <nav class="enlaces" aria-label="Del local">
+      <button class="enlace" data-accion="carta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM9 9h6M9 13h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Ver la carta</button>
+      <button class="enlace" data-accion="wifi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0M6 12.5a9 9 0 0 1 12 0M9.5 16a4 4 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="19.2" r="1.3" fill="currentColor"/></svg>WiFi gratis</button>
+      <button class="enlace" data-accion="instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>Instagram</button>
+      <button class="enlace" data-accion="resena"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Reseña en Google</button>
+    </nav>
+    <p class="nota-resena">La reseña es voluntaria y no influye en tus premios.</p>
+
+    <footer class="pie">
+      <p>Funciona con <img src="marca.svg" alt="" width="18" height="12"> <strong>VISAX NFC</strong></p>
+      <div class="demo" aria-label="Controles de la demo">
+        <span>Modo demo</span>
+        <button data-demo="jugar">Jugar otra vez</button>
+        <button data-demo="visita">Simular visita</button>
+        <button data-demo="reiniciar">Reiniciar</button>
+      </div>
+    </footer>
+  </main>
+
+  <div class="velo" id="velo" hidden></div>
+  <div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo" hidden>
+    <div class="hoja-asa"></div>
+    <div id="hoja-contenido"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script type="module" src="js/cliente.js"></script>
+</body>
+</html>

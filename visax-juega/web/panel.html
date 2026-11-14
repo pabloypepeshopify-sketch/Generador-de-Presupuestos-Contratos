@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#06060B">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel del dueño · VISAX Juega</title>
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="visax.css">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="barra-in">
+      <a class="logo" href="index.html"><img src="marca.svg" alt="">VISAX Juega <small>· Panel</small></a>
+      <div class="der"><a class="boton sec peq" id="ver-cliente" href="cliente.html">Ver como cliente</a></div>
+    </div>
+  </header>
+
+  <main class="panel">
+    <section class="intro">
+      <div>
+        <p class="tenue peque">Panel del dueño · últimos 30 días</p>
+        <h1 id="titulo-local">…</h1>
+      </div>
+      <p class="etiqueta-demo">Datos de ejemplo + lo que juegues en este móvil</p>
+    </section>
+
+    <section class="kpis" id="kpis" aria-label="Resumen"></section>
+
+    <section class="tarjeta">
+      <div class="cab">
+        <h2>Toques en las placas NFC por día</h2>
+        <span class="tenue peque" id="total-grafico"></span>
+      </div>
+      <div class="grafico" id="grafico"></div>
+      <details class="tabla-datos"><summary>Ver como tabla</summary><div id="tabla"></div></details>
+    </section>
+
+    <div class="dos">
+      <section class="tarjeta">
+        <div class="cab"><h2>Premios entregados</h2><span class="tenue peque">30 días</span></div>
+        <div id="barras-premios"></div>
+      </section>
+
+      <section class="tarjeta">
+        <div class="cab"><h2>Canjear un premio</h2></div>
+        <p class="tenue peque">El cliente te enseña su código en el móvil y lo canjeas aquí o con el PIN en su pantalla. Cada código vale una sola vez.</p>
+        <form class="canje" id="form-canje" autocomplete="off">
+          <input class="entrada" id="codigo" placeholder="VX-XXXX" aria-label="Código del premio" maxlength="7" autocapitalize="characters">
+          <button class="boton" type="submit">Canjear</button>
+        </form>
+        <p id="resultado-canje" class="peque" role="status"></p>
+        <h3 class="sub">Actividad reciente</h3>
+        <ul class="actividad" id="actividad"></ul>
+      </section>
+    </div>
+
+    <section class="tarjeta" id="config">
+      <div class="cab"><h2>Tus premios y tu juego</h2><span class="tenue peque">Los cambios se ven al momento en la página del cliente</span></div>
+      <form id="form-config" class="config">
+        <div class="config-col">
+          <label class="campo">Nombre del local<input class="entrada" id="cfg-nombre" maxlength="40"></label>
+          <div class="campo"><span>Juego</span>
+            <div class="segmentos" id="cfg-juego">
+              <button type="button" data-v="rasca">Rasca y gana</button>
+              <button type="button" data-v="ruleta">Ruleta</button>
+            </div>
+          </div>
+          <div class="campo"><span>Color del local</span><div class="colores" id="cfg-colores"></div></div>
+          <div class="fila-2">
+            <label class="campo">Visitas para el premio gordo<input class="entrada" id="cfg-sellos" type="number" min="3" max="10"></label>
+            <label class="campo">Premio gordo<input class="entrada" id="cfg-premio-sellos" maxlength="30"></label>
+          </div>
+          <label class="campo">Ticket medio (para estimar lo que traen los premios)<input class="entrada" id="cfg-ticket" type="number" min="1" max="200" step="0.5"></label>
+        </div>
+        <div class="config-col">
+          <div class="campo"><span>Premios del juego y probabilidad</span>
+            <div id="cfg-premios" class="lista-premios"></div>
+            <div class="fila-acc">
+              <button type="button" class="boton sec peq" id="anadir-premio">+ Añadir premio</button>
+              <span class="peque flojo" id="suma-pesos"></span>
+            </div>
+          </div>
+          <p class="peque flojo">Todos los premios tocan: así el cliente siempre se lleva algo y no es un sorteo.</p>
+        </div>
+        <div class="config-pie"><button class="boton" type="submit">Guardar cambios</button></div>
+      </form>
+    </section>
+  </main>
+
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+  <script type="module" src="js/panel.js"></script>
+</body>
+</html>
