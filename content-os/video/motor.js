@@ -1918,7 +1918,7 @@ function telefono2D(X, Y, s, contenido) { C.save(); C.translate(X, Y); C.scale(s
 V['nfc'] = { ...comunCapa, estilo: 'ia',
   async montar() {
     for (const [f, fam, peso, est] of [['SpaceGrotesk.woff2', 'Space Grotesk', '300 700', 'normal'], ['InstrumentSerif-Italic.woff2', 'Instrument Serif', '400', 'italic'], ['Fraunces-SemiBold.ttf', 'Fraunces', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', 'Fraunces', '600', 'italic']]) { const ff = new FontFace(fam, `url(./fuentes/${f})`, { weight: peso, style: est }); await ff.load(); document.fonts.add(ff); }
-    ['campo', 'antena', 'chip', 'pilas', 'bytes', 'direccion', 'servidor', 'mesa', 'siete', 'segundo', 'tiempo', 'corriente', 'arroz', 'centimetros', 'carta', 'internet', 'milisegundo', 'vuelve', 'despierta'].forEach(w => CLAVES.add(w));
+    ['campo', 'antena', 'chip', 'pilas', 'bytes', 'direccion', 'servidor', 'mesa', 'siete', 'segundo', 'tiempo', 'corriente', 'arroz', 'centimetros', 'carta', 'internet', 'milisegundo', 'vuelve', 'despierta'].forEach(w => CLAVES.add(w)); CLAVES.delete('cuenta');
     scene.background = new THREE.Color(IA.fondo); scene.fog = new THREE.Fog(IA.fondo, 6, 30); pared.visible = suelo.visible = bokeh.visible = false;
     foco.intensity = 0; relleno.intensity = 6; lampara.intensity = 0; contra.intensity = 10; hemi.intensity = 0.5; hemi.color.set('#9fb2ff'); hemi.groundColor.set('#1a1030');
     const llave = new THREE.DirectionalLight('#dfe8ff', 1.6); llave.position.set(2, 3, 4); scene.add(llave);
@@ -1940,7 +1940,7 @@ V['nfc'] = { ...comunCapa, estilo: 'ia',
     const c = this.c = { medio: cue('medio'), tarda: cue('tarda'), abrir: cue('abrir'), bar: cue('bar'), vamos: cue('vamos'), congelar: cue('congelar'), tarjeta: cue('tarjeta'), mili: cue('milisegundo'), campo: cue('campo'),
       trece: cue('trece'), seg2: cue('segundo', 2), dentro: cue('dentro'), antena: cue('antena'), chip: cue('chip'), grano: cue('grano'), la2: cue('la', 3), pilas: cue('pilas'), propio: cue('propio'), corriente: cue('corriente'),
       despierta: cue('despierta'), responde: cue('responde'), bytes: cue('bytes'), direccion: cue('direccion'), todo: cue('todo'), cuatro: cue('cuatro'), abre: cue('abre'), viaja: cue('viaja'), servidor: cue('servidor'),
-      vuelve: cue('vuelve'), carta2: cue('carta', 2), como: cue('como'), mesa: cue('mesa'), siete: cue('siete'), medio3: cue('medio', 3), pensando: cue('pensando'), pegatina: cue('pegatina'), sigueme: cue('sigueme'), bares: cue('bares'), vas: cue('vas') };
+      vuelve: cue('vuelve'), carta2: cue('carta', 2), como: cue('como'), mesa: cue('mesa'), siete: cue('siete'), medio3: cue('medio', 3), pensando: cue('pensando'), pegatina: cue('pegatina'), sigueme: cue('sigueme'), tecno: cue('tecnologia'), vas: cue('cuenta') };
     this.musica = 'ambient_b'; this.volMusica = 0.55;
     efectos = [['whoosh', 0.02], ['tick', c.medio], ['tick', c.tarda], ['tick', c.abrir], ['tick', c.bar], ['riser', c.congelar - 0.9], ['hit', c.congelar + 0.15], ['tick', c.mili], ['whoosh', c.campo - 0.1],
       ['whoosh', c.dentro - 0.1], ['pop', c.chip], ['pop', c.grano], ['whoosh', c.pilas - 0.2], ['ding', c.despierta + 0.2], ['whoosh', c.responde], ['pop', c.bytes], ['pop', c.direccion], ['tick', c.cuatro],
@@ -2052,9 +2052,9 @@ V['nfc'] = { ...comunCapa, estilo: 'ia',
         C.fillStyle = grad(C, -250, 0, 250, 0, [IA.turq, IA.azul, IA.violeta]); rr(C, -250, -75, 500, 150, 75); C.fill(); C.shadowBlur = 0;
         C.fillStyle = '#fff'; C.font = `700 64px ${GROT}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('Sígueme', 22, 4);
         C.strokeStyle = '#fff'; C.lineWidth = 7; C.lineCap = 'round'; C.beginPath(); C.moveTo(-178, 4); C.lineTo(-138, 4); C.moveTo(-158, -16); C.lineTo(-158, 24); C.stroke(); C.restore(); }
-      const kt = prog(t, c.sigueme + 0.4, c.sigueme + 0.9); C.save(); C.globalAlpha = kt; C.textAlign = 'center'; C.fillStyle = 'rgba(233,237,245,0.85)'; C.font = `500 44px ${GROT}`; C.fillText('si quieres saber qué tecnología', W / 2, 1110);
-      C.fillText('se esconde en los ', W / 2 - 60, 1170); C.fillStyle = IA.turq; C.font = `italic 400 64px ${ISERIF}`; C.textAlign = 'left'; C.fillText('bares', W / 2 + 130, 1172);
-      C.fillStyle = 'rgba(233,237,245,0.85)'; C.font = `500 44px ${GROT}`; C.textAlign = 'center'; C.fillText('a los que vas.', W / 2, 1230); C.restore();
+      const kt = prog(t, c.sigueme + 0.4, c.sigueme + 0.9); C.save(); C.globalAlpha = kt; C.textAlign = 'center'; C.fillStyle = 'rgba(233,237,245,0.85)'; C.font = `500 44px ${GROT}`; C.fillText('si quieres saber más sobre la', W / 2, 1110);
+      C.fillStyle = IA.turq; C.font = `italic 400 76px ${ISERIF}`; C.shadowColor = IA.turq; C.shadowBlur = 20; C.fillText('tecnología', W / 2, 1185); C.shadowBlur = 0;
+      C.fillStyle = 'rgba(233,237,245,0.85)'; C.font = `500 44px ${GROT}`; C.fillText('que usas cada día sin darte cuenta.', W / 2, 1255); C.restore();
       // cursor que pulsa el botón
       if (t > c.vas) { const kc = prog(t, c.vas, c.vas + 0.5); C.save(); C.translate(lerp(W / 2 + 330, W / 2 + 150, kc), lerp(1120, 960, kc)); C.scale(1 - 0.12 * clamp((t - c.vas - 0.5) / 0.1) * (1 - clamp((t - c.vas - 0.65) / 0.1)), 1); C.fillStyle = '#fff'; C.strokeStyle = '#111'; C.lineWidth = 3;
         C.beginPath(); C.moveTo(0, 0); C.lineTo(0, 64); C.lineTo(16, 50); C.lineTo(28, 76); C.lineTo(40, 70); C.lineTo(28, 46); C.lineTo(48, 44); C.closePath(); C.fill(); C.stroke(); C.restore(); }
