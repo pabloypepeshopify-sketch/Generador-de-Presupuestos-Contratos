@@ -1,0 +1,56 @@
+{
+  "nicho": "Tarjetas y expositores NFC para hostelería (VISAX NFC)",
+
+  "plataformas": ["tiktok", "instagram"],
+
+  "_hashtags_nota": "Dos grupos: 'nicho' trae lo que se publica sobre NFC; 'formato' trae virales de curiosidad/tecnología de los que aprender estructura aunque no hablen de NFC.",
+  "hashtags": {
+    "nicho": ["nfc", "nfctag", "nfcchip", "tarjetanfc", "nfccard", "pegatinanfc"],
+    "formato": ["sabiasque", "curiosidadestecnologicas", "techtok", "experimento", "comofunciona", "tecnologia"]
+  },
+
+  "_perfiles_nota": "Cuentas concretas a vigilar (sin @). Opcional: si se deja vacío se usan los autores que salgan en los hashtags.",
+  "perfiles": [],
+
+  "max_por_hashtag": 150,
+  "max_por_perfil": 30,
+  "autores_para_baseline": 40,
+
+  "_viral_nota": "Un reel es viral si tiene >= umbral_viral veces las visitas normales (mediana) de su autor y al menos min_visitas.",
+  "umbral_viral": 10,
+  "umbral_viral_por_seguidores": 3,
+  "min_posts_baseline": 4,
+  "min_visitas": 50000,
+
+  "max_virales_a_desmontar": 15,
+  "umbral_escena": 0.3,
+  "max_planos_por_reel": 16,
+
+  "guiones_por_tanda": 10,
+
+  "modelo": "claude-opus-5-5",
+  "esfuerzo": "high",
+
+  "apify": {
+    "instagram": {
+      "hashtags": {
+        "actor": "apify~instagram-hashtag-scraper",
+        "input": { "hashtags": "$HASHTAGS", "resultsLimit": "$N", "resultsType": "reels" }
+      },
+      "perfiles": {
+        "actor": "apify~instagram-reel-scraper",
+        "input": { "username": "$PERFILES", "resultsLimit": "$N" }
+      }
+    },
+    "tiktok": {
+      "hashtags": {
+        "actor": "clockworks~tiktok-scraper",
+        "input": { "hashtags": "$HASHTAGS", "resultsPerPage": "$N", "shouldDownloadVideos": true }
+      },
+      "perfiles": {
+        "actor": "clockworks~tiktok-scraper",
+        "input": { "profiles": "$PERFILES", "resultsPerPage": "$N", "shouldDownloadVideos": true }
+      }
+    }
+  }
+}
