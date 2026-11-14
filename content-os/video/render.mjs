@@ -49,7 +49,7 @@ for (const [n, [src, filtro]] of Object.entries(SFX)) {
 }
 
 // servidor estático para el motor
-const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.gltf': 'model/gltf+json', '.glb': 'model/gltf-binary', '.png': 'image/png' };
+const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.gltf': 'model/gltf+json', '.glb': 'model/gltf-binary', '.png': 'image/png', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 const srv = createServer(async (req, res) => {
   try { const p = path.join(DIR, decodeURIComponent(req.url.split('?')[0])); res.writeHead(200, { 'Content-Type': TIPOS[path.extname(p)] || 'application/octet-stream' }); res.end(await readFile(p)); }
   catch { res.writeHead(404); res.end(); }

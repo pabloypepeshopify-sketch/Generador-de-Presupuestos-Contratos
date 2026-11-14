@@ -35,6 +35,9 @@ function luces(scene, fn) { scene.traverse(o => { if (o.isLight) fn(o); }); }
 
 const ESTILOS = {
   bar: { post: null },
+  // estilo explicativo sobrio (como los vídeos de IA): solo cambia subtítulos; la escena la monta el propio vídeo
+  ia: { post: { filtro: 'contrast(1.04)' },
+    subs: { tam: 52, fuente: tam => `700 ${tam}px "Space Grotesk", Inter, sans-serif`, pill: ['rgba(10,26,36,0.85)', 'rgba(10,26,36,0.85)'], bordePill: 3, colorBorde: '#3fe0cf', radio: 10, textoClave: '#ffffff', texto: '#ffffff', textoApagado: 'rgba(255,255,255,0.38)', sombra: 'rgba(0,0,0,0.5)', brilloPill: 'rgba(63,224,207,0.35)', y: 290 } },
 
   holograma: {
     aplicar(scene, mundo, saltar, renderer) {

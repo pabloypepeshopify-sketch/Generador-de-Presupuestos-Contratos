@@ -727,7 +727,7 @@ function subtitulosArriba(t) {
   if (i < 0) return; const tr = trozos[i]; const tam = 70; C.font = `900 ${tam}px ${FUENTE}`;
   const pal = tr.map(p => p.p.replace(/[,.…:]$/, ''));
   const anchos = pal.map(s => C.measureText(s + ' ').width); const total = anchos.reduce((a, b) => a + b, 0);
-  let X = W / 2 - total / 2; const Y = 300;
+  let X = W / 2 - total / 2; const Y = S.y || 300;
   pal.forEach((s, k) => {
     const dicha = t >= tr[k].t - 0.03; const pop = prog(t, tr[k].t - 0.05, tr[k].t + 0.12);
     const clave = CLAVES.has(norm(s)); const w = C.measureText(s).width;
@@ -812,16 +812,16 @@ function subtitulosIOS(t) {
   const tam = S.tam; C.font = S.fuente(tam);
   const pal = tr.map(p => { const x = p.p.replace(/[,.…:]$/, ''); return S.mayus ? x.toUpperCase() : x; });
   const esp = C.measureText(' ').width; const anchos = pal.map(s => C.measureText(s).width); const total = anchos.reduce((a, b) => a + b, 0) + esp * (pal.length - 1) + 30;
-  let X = W / 2 - total / 2; const Y = 300;
+  let X = W / 2 - total / 2; const Y = S.y || 300;
   pal.forEach((s, k) => {
     const dicha = t >= tr[k].t - 0.03; const pop = prog(t, tr[k].t - 0.05, tr[k].t + 0.12); const clave = CLAVES.has(norm(s)) && dicha; const w = anchos[k];
     C.save(); C.translate(X + w / 2, Y); const sc = dicha ? 0.9 + 0.1 * pop : 0.9; C.scale(sc, sc); if (clave && S.giro) C.rotate(S.giro);
     if (clave) { C.shadowColor = S.brilloPill || 'rgba(0,0,0,0.35)'; C.shadowBlur = 24; C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, S.pill); rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, S.radio ?? tam * 0.65); C.fill(); C.shadowBlur = 0;
-      if (S.bordePill) { C.lineWidth = S.bordePill; C.strokeStyle = '#111'; rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, S.radio ?? tam * 0.65); C.stroke(); } }
+      if (S.bordePill) { C.lineWidth = S.bordePill; C.strokeStyle = S.colorBorde || '#111'; rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, S.radio ?? tam * 0.65); C.stroke(); } }
     C.textAlign = 'center'; C.textBaseline = 'middle';
     if (!clave) { C.shadowColor = S.sombra; C.shadowBlur = 22; C.shadowOffsetY = 4; }
     if (S.borde) { C.save(); C.shadowBlur = 0; C.lineJoin = 'round'; C.lineWidth = S.borde; C.strokeStyle = '#111'; C.strokeText(s, 0, 3); C.restore(); }
-    C.fillStyle = clave ? S.textoClave : dicha ? ((S.voces || {})[tr[k].q] || S.texto) : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
+    C.fillStyle = clave ? S.textoClave : dicha ? ((S.voces || {})[tr[k].q] || S.texto) : (S.textoApagado || 'rgba(255,255,255,0.55)'); C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
   });
 }
 function capitulosIOS(nombres, actual) {
@@ -1626,7 +1626,7 @@ function tarjetaMenuRayos() {
   const g = tarjetaMenu(); const card = g.userData.card;
   const pts = []; const w2 = 0.25, h2 = 0.38;
   for (let v = 0; v < 6; v++) { const d = v * 0.028; pts.push(new THREE.Vector3(-w2 + d, h2 - d, 0), new THREE.Vector3(w2 - d, h2 - d, 0), new THREE.Vector3(w2 - d, -h2 + d, 0), new THREE.Vector3(-w2 + d + 0.028, -h2 + d, 0)); }
-  const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.02), 900, 0.0045, 6, false);
+  const curva = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.02); const geo = new THREE.TubeGeometry(curva, 900, 0.0045, 6, false);
   const mat = new THREE.MeshStandardMaterial({ color: '#d98a3a', emissive: '#ff9a3c', emissiveIntensity: 0, metalness: 0.9, roughness: 0.25, transparent: true, opacity: 0 });
   const antena = new THREE.Mesh(geo, mat); antena.position.z = 0.004; card.add(antena);
   const chip = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.012), new THREE.MeshStandardMaterial({ color: '#111', emissive: VX.cian, emissiveIntensity: 0, transparent: true, opacity: 0 })); chip.position.set(0, -0.12, 0.006); card.add(chip);
@@ -1638,6 +1638,9 @@ function tarjetaMenuRayos() {
     chip.material.opacity = k; chip.material.emissiveIntensity = 3 * glow; brillo.material.opacity = 0.9 * glow * k;
   };
   g.userData.chipMundo = () => chip.getWorldPosition(new THREE.Vector3());
+  // pulsos de corriente que recorren la espiral
+  const pul = [0, 1, 2, 3, 4, 5].map(() => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texBokeh.tex, color: '#fff3c0', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })); sp.scale.set(0.07, 0.07, 1); card.add(sp); return sp; });
+  g.userData.pulsos = (t, k) => pul.forEach((sp, i) => { const f = (t * 0.22 + i / pul.length) % 1; sp.position.copy(curva.getPointAt(f)); sp.position.z = 0.012; sp.material.opacity = k * 0.95; });
   return g;
 }
 V['menu'] = { ...comunCapa, estilo: 'holograma',
@@ -1857,6 +1860,190 @@ V['pov'] = { ...comunCapa,
     // bocadillo sobre el camarero cuando le llega el aviso
     if (entre(t, c.placa + 0.5, c.voy + 0.9)) { const p = this.camarero.g.position.clone(); p.y = 2.2; p.project(cam); if (p.z < 1) { const X = (p.x * 0.5 + 0.5) * W, Y = (-p.y * 0.5 + 0.5) * H; pildora('Mesa 7 te llama', X, Y, entra(t, c.placa + 0.5), { icono: 'campana', tono: 'rojo', tam: 40 }); } }
     if (entre(t, c.comenta, 99)) pildora('Comenta MESA', W / 2, 1660, entra(t, c.comenta + 0.2), { icono: 'check', tono: 'marca', tam: 54 });
+  },
+};
+// ---------- 9. ¿Qué pasa en el medio segundo que tarda tu móvil en abrir la carta? (estilo explicativo sobrio) ----------
+const mat0 = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.5, metalness: 0.3 });
+const IA = { fondo: '#05070f', turq: '#3fe0cf', violeta: '#7c5cff', azul: '#3f7dfb', texto: '#e9edf5', gris: 'rgba(233,237,245,0.45)' };
+const GROT = '"Space Grotesk", Inter, sans-serif', ISERIF = '"Instrument Serif", Georgia, serif';
+function fondoIA(t, tono = 0) {
+  C.fillStyle = IA.fondo; C.fillRect(0, 0, W, H);
+  const glow = (x, y, r, c) => { const g = C.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)'); C.fillStyle = g; C.fillRect(0, 0, W, H); };
+  glow(W * 0.15, H * 0.85, 900, 'rgba(110,60,220,0.28)'); glow(W * 0.9, H * 0.25, 800, tono ? 'rgba(63,224,207,0.14)' : 'rgba(63,125,251,0.16)');
+  for (let i = 0; i < 40; i++) { const x = (i * 263.7 + t * 6 * ((i % 3) - 1)) % W, y = (i * 517.3 + t * 4) % H; C.fillStyle = `rgba(160,190,255,${0.05 + (i % 5) * 0.025})`; C.beginPath(); C.arc((x + W) % W, y, 2 + (i % 4) * 3, 0, 7); C.fill(); }
+}
+function vidrio(x, y, w, h, r = 28, borde = 'rgba(255,255,255,0.14)') {
+  C.save(); C.shadowColor = 'rgba(0,0,0,0.5)'; C.shadowBlur = 50; C.shadowOffsetY = 18;
+  C.fillStyle = grad(C, x, y, x, y + h, ['rgba(40,48,70,0.78)', 'rgba(18,22,36,0.82)']); rr(C, x, y, w, h, r); C.fill(); C.restore();
+  C.save(); C.strokeStyle = borde; C.lineWidth = 2; rr(C, x, y, w, h, r); C.stroke(); C.restore();
+}
+function rotulo(txt, X, Y, color = IA.turq, tam = 24, alfa = 1) { C.save(); C.globalAlpha = alfa; C.fillStyle = color; C.font = `700 ${tam}px ${GROT}`; C.letterSpacing = `${Math.round(tam * 0.32)}px`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(txt.toUpperCase(), X, Y); C.restore(); }
+function nota(txt, Y, alfa = 1) { C.save(); C.globalAlpha = alfa * 0.6; C.fillStyle = '#9aa6c4'; C.font = `500 24px ${GROT}`; C.textAlign = 'center'; C.fillText(txt, W / 2, Y); C.restore(); }
+function numGrande(txt, X, Y, tam = 120, color = '#fff') { C.save(); C.fillStyle = color; C.font = `700 ${tam}px ${GROT}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.shadowColor = color === '#fff' ? 'rgba(255,255,255,0.25)' : color; C.shadowBlur = 30; C.fillText(txt, X, Y); C.restore(); }
+function pastillaTiempo(seg, k = 1, color = '#e9edf5', titulo = null) {
+  if (k <= 0) return; C.save(); C.globalAlpha = clamp(k); const Y = 470;
+  if (titulo) rotulo(titulo, W / 2, Y - 52, IA.turq, 18);
+  vidrio(W / 2 - 120, Y - 34, 240, 68, 34); C.fillStyle = color; C.font = `700 34px ${GROT}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(`${seg.toFixed(3).replace('.', ',')} s`, W / 2, Y + 1); C.restore();
+}
+const miles = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+function cajaToken(txt, X, Y, k, { color = '#fff', borde = 'rgba(255,255,255,0.18)', tam = 64, sub = null } = {}) {
+  if (k <= 0) return; C.save(); C.globalAlpha = clamp(k * 1.5); C.font = `700 ${tam}px ${GROT}`; const w = C.measureText(txt).width + tam * 0.9, h = tam * 1.7;
+  C.translate(X, Y); const s = lerp(0.85, 1, rebote(clamp(k))); C.scale(s, s); vidrio(-w / 2, -h / 2, w, h, 20, borde);
+  C.fillStyle = color; C.textAlign = 'center'; C.textBaseline = 'middle'; if (color !== '#fff') { C.shadowColor = color; C.shadowBlur = 24; } C.fillText(txt, 0, 3); C.shadowBlur = 0;
+  if (sub) { C.fillStyle = 'rgba(160,180,210,0.75)'; C.font = `600 22px ${GROT}`; C.fillText(sub, 0, h / 2 + 34); }
+  C.restore(); return w;
+}
+function ciudad(t, dir = 1, k = 1) { // skyline + fibra con pulsos de luz
+  fondoIA(t, 1);
+  C.save(); C.globalAlpha = k; const base = 820;
+  for (let i = 0; i < 14; i++) { const w = 70 + (i * 37) % 60, h = 160 + (i * 97) % 300, x = i * 82 - 20; C.fillStyle = '#0d1428'; C.fillRect(x, base - h, w, h);
+    for (let yy = base - h + 24; yy < base - 20; yy += 46) for (let xx = x + 14; xx < x + w - 16; xx += 30) { const on = ((xx * 7 + yy * 13 + i) % 5) < 2; if (on) { C.fillStyle = (xx + yy) % 3 ? 'rgba(255,214,140,0.75)' : 'rgba(127,220,255,0.55)'; C.fillRect(xx, yy, 12, 14); } } }
+  C.fillStyle = 'rgba(70,90,140,0.5)'; C.fillRect(0, base, W, 3); C.fillStyle = 'rgba(10,14,28,0.95)'; C.fillRect(0, base + 3, W, H - base);
+  const Y = 1160; C.fillStyle = 'rgba(63,125,251,0.10)'; C.fillRect(0, Y - 26, W, 52); C.strokeStyle = 'rgba(127,170,255,0.35)'; C.lineWidth = 2; C.beginPath(); C.moveTo(0, Y - 26); C.lineTo(W, Y - 26); C.moveTo(0, Y + 26); C.lineTo(W, Y + 26); C.stroke();
+  for (let i = 0; i < 5; i++) { const f = ((t * 0.9 + i / 5) % 1); const x = dir > 0 ? f * (W + 400) - 200 : W + 200 - f * (W + 400); const g = C.createLinearGradient(x - dir * 220, 0, x, 0); g.addColorStop(0, 'rgba(124,92,255,0)'); g.addColorStop(1, 'rgba(63,224,207,0.95)');
+    C.fillStyle = g; C.fillRect(Math.min(x, x - dir * 220), Y - 5, 220, 10); C.fillStyle = '#fff'; C.shadowColor = IA.turq; C.shadowBlur = 20; C.beginPath(); C.arc(x, Y, 9, 0, 7); C.fill(); C.shadowBlur = 0; }
+  C.restore();
+}
+function chipMacro(X, Y, s, brillo = 0) {
+  C.save(); C.translate(X, Y); C.scale(s, s);
+  if (brillo > 0) { const g = C.createRadialGradient(0, 0, 0, 0, 0, 260); g.addColorStop(0, `rgba(63,224,207,${0.45 * brillo})`); g.addColorStop(1, 'rgba(63,224,207,0)'); C.fillStyle = g; C.fillRect(-300, -300, 600, 600); }
+  C.strokeStyle = '#c8954a'; C.lineWidth = 6; for (let i = 0; i < 6; i++) { const a = -70 + i * 28; C.beginPath(); C.moveTo(-180, a); C.lineTo(-90, a * 0.6); C.stroke(); C.beginPath(); C.moveTo(180, a); C.lineTo(90, a * 0.6); C.stroke(); }
+  C.fillStyle = '#10131c'; rr(C, -90, -90, 180, 180, 14); C.fill(); C.strokeStyle = 'rgba(255,255,255,0.15)'; C.lineWidth = 2; rr(C, -90, -90, 180, 180, 14); C.stroke();
+  C.fillStyle = 'rgba(63,224,207,0.18)'; for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) C.fillRect(-70 + i * 30, -70 + j * 30, 22, 22);
+  C.restore();
+}
+function telefono2D(X, Y, s, contenido) { C.save(); C.translate(X, Y); C.scale(s, s); C.fillStyle = '#15171f'; rr(C, -60, -120, 120, 240, 22); C.fill(); C.strokeStyle = 'rgba(255,255,255,0.25)'; C.lineWidth = 3; rr(C, -60, -120, 120, 240, 22); C.stroke(); if (contenido) contenido(); C.restore(); }
+
+V['nfc'] = { ...comunCapa, estilo: 'ia',
+  async montar() {
+    for (const [f, fam, peso, est] of [['SpaceGrotesk.woff2', 'Space Grotesk', '300 700', 'normal'], ['InstrumentSerif-Italic.woff2', 'Instrument Serif', '400', 'italic'], ['Fraunces-SemiBold.ttf', 'Fraunces', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', 'Fraunces', '600', 'italic']]) { const ff = new FontFace(fam, `url(./fuentes/${f})`, { weight: peso, style: est }); await ff.load(); document.fonts.add(ff); }
+    ['campo', 'antena', 'chip', 'pilas', 'bytes', 'direccion', 'servidor', 'mesa', 'siete', 'segundo', 'tiempo', 'corriente', 'arroz', 'centimetros', 'carta', 'internet', 'milisegundo', 'vuelve', 'despierta'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color(IA.fondo); scene.fog = new THREE.Fog(IA.fondo, 6, 30); pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = 0; relleno.intensity = 6; lampara.intensity = 0; contra.intensity = 10; hemi.intensity = 0.5; hemi.color.set('#9fb2ff'); hemi.groundColor.set('#1a1030');
+    const llave = new THREE.DirectionalLight('#dfe8ff', 1.6); llave.position.set(2, 3, 4); scene.add(llave);
+    const rimT = new THREE.PointLight(IA.turq, 12, 6, 1.5); rimT.position.set(1.5, 0.8, -1); scene.add(rimT);
+    renderer.shadowMap.enabled = false;
+    const glow = (x, y, z, s, c, o) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texBokeh.tex, color: c, transparent: true, opacity: o, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); sp.position.set(x, y, z); sp.scale.set(s, s, 1); scene.add(sp); return sp; };
+    glow(-2.5, -1.8, -4, 9, IA.violeta, 0.35); glow(2.6, 2.2, -5, 8, IA.azul, 0.25);
+    const n = 260, pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - 0.5) * 8; pos[i * 3 + 1] = (Math.random() - 0.5) * 6; pos[i * 3 + 2] = -Math.random() * 6 + 1; }
+    const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    this.polvo = new THREE.Points(pg, new THREE.PointsMaterial({ map: texBokeh.tex, color: '#8fb0ff', size: 0.05, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(this.polvo);
+    this.tj = tarjetaMenuRayos(); this.tj.position.set(0, -0.53, 0); mundo.add(this.tj);
+    this.mv = movil(); this.mv.scale.setScalar(0.62); mundo.add(this.mv); this.on = ondas();
+    // pasillo de servidores (lejos del resto)
+    const srv = new THREE.Group(); srv.position.set(30, 0, 0); mundo.add(srv); this.srv = srv;
+    const leds = lienzo(256, 512, (x, w, h) => { x.fillStyle = '#0a0f1c'; x.fillRect(0, 0, w, h); for (let yy = 12; yy < h; yy += 34) { x.fillStyle = '#121a2e'; x.fillRect(8, yy, w - 16, 26); for (let i = 0; i < 6; i++) { x.fillStyle = (i + yy) % 5 === 0 ? '#3ddc84' : (i * 7 + yy) % 3 === 0 ? '#3fe0cf' : 'rgba(63,224,207,0.25)'; x.fillRect(18 + i * 14, yy + 9, 7, 7); } } });
+    for (let lado of [-1, 1]) for (let i = 0; i < 14; i++) { const r = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.3, 0.9), [mat0('#0b1120'), mat0('#0b1120'), mat0('#0b1120'), mat0('#0b1120'), mat0('#0b1120'), mat0('#0b1120')]);
+      const fr = new THREE.MeshStandardMaterial({ color: '#ffffff', map: leds.tex, emissiveMap: leds.tex, emissive: '#ffffff', emissiveIntensity: 0.9, roughness: 0.6 }); r.material[lado > 0 ? 1 : 0] = fr; r.position.set(lado * 1.1, 0, -i * 1.0); srv.add(r); }
+    const sueloS = new THREE.Mesh(new THREE.PlaneGeometry(4, 20), new THREE.MeshStandardMaterial({ color: '#0a1020', roughness: 0.3, metalness: 0.4 })); sueloS.rotation.x = -Math.PI / 2; sueloS.position.set(0, -1.15, -7); srv.add(sueloS);
+    const c = this.c = { medio: cue('medio'), tarda: cue('tarda'), abrir: cue('abrir'), bar: cue('bar'), vamos: cue('vamos'), congelar: cue('congelar'), tarjeta: cue('tarjeta'), mili: cue('milisegundo'), campo: cue('campo'),
+      trece: cue('trece'), seg2: cue('segundo', 2), dentro: cue('dentro'), antena: cue('antena'), chip: cue('chip'), grano: cue('grano'), la2: cue('la', 3), pilas: cue('pilas'), propio: cue('propio'), corriente: cue('corriente'),
+      despierta: cue('despierta'), responde: cue('responde'), bytes: cue('bytes'), direccion: cue('direccion'), todo: cue('todo'), cuatro: cue('cuatro'), abre: cue('abre'), viaja: cue('viaja'), servidor: cue('servidor'),
+      vuelve: cue('vuelve'), carta2: cue('carta', 2), como: cue('como'), mesa: cue('mesa'), siete: cue('siete'), medio3: cue('medio', 3), pensando: cue('pensando'), pegatina: cue('pegatina') };
+    this.musica = 'ambient_b'; this.volMusica = 0.55;
+    efectos = [['whoosh', 0.02], ['tick', c.medio], ['tick', c.tarda], ['tick', c.abrir], ['tick', c.bar], ['riser', c.congelar - 0.9], ['hit', c.congelar + 0.15], ['tick', c.mili], ['whoosh', c.campo - 0.1],
+      ['whoosh', c.dentro - 0.1], ['pop', c.chip], ['pop', c.grano], ['whoosh', c.pilas - 0.2], ['ding', c.despierta + 0.2], ['whoosh', c.responde], ['pop', c.bytes], ['pop', c.direccion], ['tick', c.cuatro],
+      ['whoosh', c.abre], ['whoosh', c.servidor - 0.1], ['whoosh', c.vuelve], ['ding', c.carta2], ['ding', c.siete], ['hit', c.medio3], ['pop', c.pegatina + 0.3]];
+    const cc = [0, 0, 0];
+    this.tomas = [
+      { a: 0, de: [1.3, 0.45, 2.7], a2: [1.1, 0.4, 2.4], mira: [0, 0, 0.15], mira2: [0, 0, 0.15], fov: 34, barrido: 0 },
+      { a: c.tarda, de: [30, 0.1, 1.5], a2: [30, 0.1, 0.2], mira: [30, 0, -8], mira2: [30, 0, -8], fov: 50, barrido: 0 },
+      { a: c.bar, de: [0, 0.02, 2.35], a2: [0, 0.02, 2.15], mira: [0, 0, 0.36], mira2: [0, 0, 0.36], fov: 34, barrido: 0 },
+      { a: c.vamos, de: [1.55, 0.45, 2.95], a2: [1.35, 0.4, 2.65], mira: [0, 0, 0.18], mira2: [0, 0, 0.18], fov: 34, barrido: 0.25 },
+      { a: c.campo - 0.1, de: [2.1, 0.4, 1.25], a2: [1.85, 0.35, 1.05], mira: [0, 0, 0.2], mira2: [0, 0, 0.2], fov: 34 },
+      { a: c.dentro - 0.1, de: [0.25, 0.05, 2.4], a2: [0.12, 0.03, 2.05], mira: cc, mira2: cc, fov: 32 },
+      { a: c.responde - 0.1, de: [1.9, 0.45, 1.45], a2: [1.7, 0.4, 1.3], mira: [0, 0, 0.2], mira2: [0, 0, 0.2], fov: 34 },
+      { a: c.servidor - 0.15, de: [30, 0.1, 1.2], a2: [30, 0.1, -1.2], mira: [30, 0, -9], mira2: [30, 0, -9], fov: 50, barrido: 0 },
+      { a: c.carta2 - 0.1, de: [0.05, 0.02, 2.35], a2: [0.0, 0.02, 2.1], mira: [0, 0, 0.36], mira2: [0, 0, 0.36], fov: 34, barrido: 0 },
+    ];
+  },
+  // 2D a pantalla completa (tapan el 3D)
+  plano2D(t) { const c = this.c; return entre(t, c.medio, c.tarda) || entre(t, c.abrir, c.bar) || entre(t, c.responde, c.servidor - 0.15) || entre(t, c.vuelve, c.carta2 - 0.1) || t >= c.medio3; },
+  actualizar(t) {
+    const c = this.c, cen = new THREE.Vector3(0, 0, 0.01);
+    const congelado = entre(t, c.congelar, c.medio3);
+    this.polvo.rotation.y = congelado ? 0.4 + (t - c.congelar) * 0.004 : t * 0.1;
+    // móvil delante de la tarjeta, a unos centímetros
+    const acerca = prog(t, 0, c.congelar); const enCarta = t > c.carta2 - 0.15;
+    this.mv.visible = true; this.mv.position.set(lerp(0.1, -0.24, acerca), lerp(0.4, 0.1, acerca), lerp(0.95, 0.38, acerca)); this.mv.rotation.set(-0.08, 0.2 * (1 - acerca) + 0.35, 0.04);
+    if (entre(t, c.bar, c.vamos) || enCarta) { this.mv.position.set(0, 0, 0.36); this.mv.rotation.set(0, 0, 0); }
+    const xr = (entre(t, c.dentro - 0.2, c.responde + 0.2) ? prog(t, c.dentro - 0.2, c.dentro + 0.4) : 0);
+    this.tj.userData.rayosX(xr, prog(t, c.antena - 0.1, c.antena + 1.2), t > c.despierta ? 0.7 + 0.3 * Math.sin((t - c.despierta) * 10) : t > c.chip ? 0.35 : 0);
+    this.tj.userData.pulsos(t, entre(t, c.propio, c.responde + 0.2) ? prog(t, c.propio, c.corriente) : 0);
+    this.mv.userData.opacidad(1 - 0.9 * xr); this.mv.visible = xr < 0.95;
+    this.mv.userData.pantalla(enCarta || entre(t, c.bar, c.vamos) ? 'cartaV' : 'bloqueo', enCarta ? { sel: 0 } : { hora: '21:30' });
+    const campoOn = entre(t, c.medio, c.tarda + 0.01) || entre(t, c.campo - 0.2, c.dentro) || entre(t, c.responde, c.servidor - 0.2);
+    const tOnda = congelado ? c.congelar + (t - c.congelar) * 0.35 : t;
+    this.on.userData.actualizar(tOnda, campoOn ? 1 : 0, this.mv.userData.detras(), cen);
+    this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { const c = this.c; let flash = 0; for (const g of [c.congelar + 0.15, c.despierta + 0.2, c.medio3]) { const d = t - g; if (d >= 0 && d < 0.3) flash = Math.max(flash, 0.35 * (1 - d / 0.3)); } return { desenfoque: this.plano2D(t) ? 0 : this.desenfoque, flash }; },
+  capa(t) {
+    const c = this.c;
+    // tiempo que marca el contador en cada momento
+    const marcas = [[c.congelar, 0], [c.mili, 0.001], [c.campo, 0.001], [c.dentro, 0.002], [c.chip, 0.003], [c.pilas, 0.004], [c.despierta, 0.006], [c.responde, 0.008], [c.bytes, 0.012], [c.todo, 0.028],
+      [c.abre, 0.035], [c.viaja, 0.06], [c.servidor, 0.24], [c.vuelve, 0.33], [c.carta2, 0.44], [c.mesa, 0.47], [c.medio3, 0.482]];
+    let s = 0; for (let i = 0; i < marcas.length; i++) if (t >= marcas[i][0]) s = i < marcas.length - 1 ? lerp(marcas[i][1], marcas[i + 1][1], clamp((t - marcas[i][0]) / (marcas[i + 1][0] - marcas[i][0]))) : marcas[i][1];
+    // ---- planos 2D ----
+    if (entre(t, c.medio, c.tarda)) { ciudad(t); rotulo('Internet', W / 2, 1240, IA.turq, 22); }
+    if (entre(t, c.abrir, c.bar)) { fondoIA(t); chipMacro(W / 2, 1000, 1.6, 0.8); rotulo('Chip NFC', W / 2, 1300, IA.turq, 22); }
+    if (entre(t, c.responde, c.servidor - 0.15)) this.planoBytes(t);
+    if (entre(t, c.vuelve, c.carta2 - 0.1)) { ciudad(t, -1); rotulo('De vuelta por internet', W / 2, 1240, IA.turq, 22); }
+    if (t >= c.medio3) this.final(t);
+    if (!this.plano2D(t)) { // velo suave arriba/abajo sobre el 3D
+      const g1 = C.createLinearGradient(0, 0, 0, 640); g1.addColorStop(0, 'rgba(5,7,15,0.85)'); g1.addColorStop(1, 'rgba(5,7,15,0)'); C.fillStyle = g1; C.fillRect(0, 0, W, 640);
+      const g2 = C.createLinearGradient(0, H - 700, 0, H); g2.addColorStop(0, 'rgba(5,7,15,0)'); g2.addColorStop(1, 'rgba(5,7,15,0.85)'); C.fillStyle = g2; C.fillRect(0, H - 700, W, 700);
+    }
+    // ---- contador ----
+    if (t < c.vamos) pastillaTiempo(lerp(0.06, 0.5, clamp(t / c.vamos)), 1, t > c.bar ? '#3ddc84' : '#e9edf5', 'Qué pasa en');
+    else if (entre(t, c.vamos, c.mili)) { const k = entra(t, c.congelar, 0.45); C.save(); C.globalAlpha = clamp(k); vidrio(W / 2 - 270, 640, 540, 210, 30); rotulo('Tiempo congelado', W / 2, 690, IA.turq, 20); numGrande('0,000 s', W / 2, 785, 110); C.restore(); }
+    else if (t < c.medio3) pastillaTiempo(s, 1, s >= 0.44 ? '#3ddc84' : '#e9edf5');
+    // ---- rótulos y datos de cada paso ----
+    const ap = (a, b, f) => { if (entre(t, a, b)) { C.save(); C.globalAlpha = clamp((t - a) / 0.3) * clamp((b - t) / 0.25); f(); C.restore(); } };
+    ap(c.mili, c.dentro - 0.1, () => { rotulo(t > c.campo ? 'Campo magnético · 13,56 MHz' : 'Milisegundo 1', W / 2, 1330, IA.turq, 22);
+      if (t > c.trece - 0.2) { vidrio(W / 2 - 290, 1390, 580, 190, 26); numGrande(miles(13560000 * prog(t, c.trece - 0.2, c.seg2)), W / 2, 1468, 84); rotulo('Vibraciones por segundo', W / 2, 1540, 'rgba(233,237,245,0.7)', 18); }
+      nota('El NFC trabaja a 13,56 MHz (norma ISO/IEC 14443)', 1650); });
+    ap(c.dentro, c.pilas - 0.1, () => {
+      rotulo(t > c.chip ? 'Antena + chip' : 'Antena en espiral', W / 2, 1330, IA.turq, 22);
+      if (t > c.grano - 0.15) { vidrio(W / 2 - 300, 1390, 600, 230, 26); chipMacro(W / 2 - 140, 1490, 0.12, 0.6); rotulo('Chip', W / 2 - 140, 1580, 'rgba(233,237,245,0.7)', 16);
+        C.save(); C.translate(W / 2 + 120, 1490); C.rotate(-0.4); C.fillStyle = '#efe6cf'; C.beginPath(); C.ellipse(0, 0, 70, 26, 0, 0, 7); C.fill(); C.restore(); rotulo('Grano de arroz', W / 2 + 120, 1580, 'rgba(233,237,245,0.7)', 16);
+        nota('Tamaño aproximado del chip, sin contar la antena', 1670); } });
+    ap(c.pilas - 0.1, c.responde, () => {
+      if (t < c.despierta) { vidrio(W / 2 - 170, 1370, 340, 110, 24); C.save(); C.translate(W / 2 - 80, 1425); C.strokeStyle = '#fff'; C.lineWidth = 5; rr(C, -36, -20, 66, 40, 6); C.stroke(); C.fillStyle = '#fff'; C.fillRect(32, -8, 8, 16); C.strokeStyle = '#ff4d5e'; C.beginPath(); C.moveTo(-44, 26); C.lineTo(44, -26); C.stroke(); C.restore();
+        C.save(); C.fillStyle = '#fff'; C.font = `700 40px ${GROT}`; C.textAlign = 'left'; C.textBaseline = 'middle'; C.fillText('Sin pilas', W / 2 - 20, 1426); C.restore(); }
+      rotulo(t > c.despierta ? 'Chip despierto' : t > c.corriente - 0.3 ? 'Inducción: el campo crea corriente' : 'Energía del propio móvil', W / 2, 1560, t > c.despierta ? '#3ddc84' : IA.turq, 22);
+      nota('Las etiquetas NFC pasivas se alimentan del campo del lector', 1650); });
+    ap(c.carta2 - 0.1, c.medio3, () => { if (t > c.mesa - 0.2) { const w = cajaToken('/m/7', W / 2 - 150, 1520, prog(t, c.mesa - 0.2, c.mesa + 0.2), { tam: 56 }); C.save(); C.strokeStyle = IA.turq; C.lineWidth = 3; C.beginPath(); C.moveTo(W / 2 - 40, 1520); C.lineTo(W / 2 + 40, 1520); C.stroke(); C.restore();
+      cajaToken('Mesa 7', W / 2 + 170, 1520, prog(t, c.siete - 0.3, c.siete + 0.1), { color: IA.turq, borde: 'rgba(63,224,207,0.6)', tam: 56 }); rotulo('La dirección lleva la mesa (ejemplo)', W / 2, 1640, 'rgba(233,237,245,0.6)', 16); } });
+    if (entre(t, c.servidor - 0.15, c.vuelve)) { rotulo('Servidor', W / 2, 1330, IA.turq, 22); nota('Centro de datos (ilustración)', 1400); }
+  },
+  planoBytes(t) {
+    const c = this.c; fondoIA(t, 1);
+    if (t < c.cuatro - 0.1) {
+      rotulo('El chip responde', W / 2, 640, IA.turq, 22);
+      const k1 = prog(t, c.responde, c.responde + 0.4); cajaToken('0x04', W / 2 - 200, 820, k1, { tam: 60, sub: '1 BYTE' });
+      if (t > c.responde + 0.6) { C.save(); C.strokeStyle = IA.turq; C.lineWidth = 3; C.beginPath(); C.moveTo(W / 2 - 90, 820); C.lineTo(W / 2 - 10, 820); C.stroke(); C.restore(); cajaToken('https://', W / 2 + 160, 820, prog(t, c.responde + 0.6, c.responde + 1.0), { color: IA.turq, borde: 'rgba(63,224,207,0.6)', tam: 60 }); }
+      const trozos = [['https://', '1'], ['visaxnfc.es', '11'], ['/m/7', '4']]; let x = 170;
+      if (t > c.bytes - 0.3) trozos.forEach(([tx, b], i) => { C.save(); C.font = `700 46px ${GROT}`; const w = C.measureText(tx).width + 40; C.restore(); cajaToken(tx, x + w / 2, 1120, prog(t, c.bytes - 0.3 + i * 0.25, c.bytes + i * 0.25), { tam: 46, sub: `${b} B` }); x += w + 36; });
+      if (t > c.direccion - 0.2) { const k = prog(t, c.direccion - 0.2, c.direccion + 0.3); C.save(); C.globalAlpha = k; vidrio(140, 1300, W - 280, 120, 60); C.fillStyle = '#fff'; C.font = `600 44px ${GROT}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('https://visaxnfc.es/m/7', W / 2, 1362); C.restore(); rotulo('Dirección web (ejemplo) · ≈ 20 bytes', W / 2, 1480, 'rgba(233,237,245,0.6)', 18, k); }
+      nota('Formato NDEF: el byte 0x04 significa "https://"', 1650);
+    } else {
+      rotulo('Alcance', W / 2, 640, IA.turq, 22);
+      const k = prog(t, c.cuatro - 0.1, c.cuatro + 0.4);
+      telefono2D(W / 2 - 200, 1000, 1.6); C.save(); C.translate(W / 2 + 200, 1000); C.fillStyle = '#1d1916'; rr(C, -14, -170, 28, 340, 8); C.fill(); C.restore();
+      for (let i = 0; i < 4; i++) { const f = ((t * 0.8 + i / 4) % 1); C.save(); C.strokeStyle = `rgba(63,224,207,${0.8 * (1 - f) * k})`; C.lineWidth = 4; C.beginPath(); C.ellipse(W / 2 - 100 + f * 280, 1000, 30 + f * 40, 120 + f * 70, 0, 0, 7); C.stroke(); C.restore(); }
+      C.save(); C.globalAlpha = k; C.strokeStyle = '#fff'; C.lineWidth = 3; C.beginPath(); C.moveTo(W / 2 - 100, 1260); C.lineTo(W / 2 + 186, 1260); C.moveTo(W / 2 - 100, 1240); C.lineTo(W / 2 - 100, 1280); C.moveTo(W / 2 + 186, 1240); C.lineTo(W / 2 + 186, 1280); C.stroke(); C.restore();
+      cajaToken('≤ 4 cm', W / 2 + 43, 1360, k, { tam: 56 });
+      nota('Alcance típico de una etiqueta NFC: hasta unos 4 cm', 1650);
+    }
+  },
+  final(t) {
+    const c = this.c; fondoIA(t); const k = prog(t, c.medio3, c.medio3 + 0.4);
+    C.save(); C.globalAlpha = k; C.fillStyle = '#3ddc84'; C.font = `700 40px ${GROT}`; C.textAlign = 'center'; C.fillText('0,482 s', W / 2, 820);
+    C.font = `700 110px ${GROT}`; const a = 'Medio ', b = 'segundo.'; const wa = C.measureText(a).width; C.font = `italic 400 124px ${ISERIF}`; const wb = C.measureText(b).width; const x0 = W / 2 - (wa + wb) / 2;
+    C.textAlign = 'left'; C.fillStyle = '#fff'; C.font = `700 110px ${GROT}`; C.fillText(a, x0, 960); C.fillStyle = IA.turq; C.font = `italic 400 124px ${ISERIF}`; C.shadowColor = IA.turq; C.shadowBlur = 24; C.fillText(b, x0 + wa, 960); C.restore();
+    if (t > c.pensando - 0.3) { const k2 = prog(t, c.pensando - 0.3, c.pensando + 0.2); C.save(); C.globalAlpha = k2; C.fillStyle = 'rgba(233,237,245,0.85)'; C.font = `500 46px ${GROT}`; C.textAlign = 'center'; C.fillText('Y tú pensando que solo era', W / 2, 1080); C.fillStyle = '#fff'; C.font = `700 58px ${GROT}`; C.fillText('una pegatina.', W / 2, 1160); C.restore(); }
+    if (t > c.pegatina + 0.9) { const k3 = prog(t, c.pegatina + 0.9, c.pegatina + 1.4); C.save(); C.globalAlpha = k3; C.fillStyle = `rgba(5,7,15,${0.85 * k3})`; C.fillRect(0, 0, W, H); logoVisax(C, W / 2 - 90, 820, 180); C.fillStyle = '#fff'; C.font = `700 40px ${GROT}`; C.textAlign = 'center'; C.letterSpacing = '10px'; C.fillText('VISAX NFC', W / 2 + 5, 1120); C.restore(); }
   },
 };
 
