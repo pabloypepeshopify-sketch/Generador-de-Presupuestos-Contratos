@@ -2077,7 +2077,7 @@ V['versus'] = { ...comunCapa, estilo: 'maquetaDoble',
     this.on = ondas();
     const c = this.c = { abajo1: cue('abajo'), nfc: cue('nfc'), cuatro: cue('cuatro'), arriba1: cue('arriba'), mano1: cue('mano'), espera: cue('espera'), abajo2: cue('abajo', 2), toca1: cue('toca'), tarjeta: cue('tarjeta'), pidiendo: cue('pidiendo'),
       arriba2: cue('arriba', 2), apunta: cue('apunta'), barra1: cue('barra'), cocina1: cue('cocina'), vuelve: cue('vuelve'), abajo3: cue('abajo', 3), llega: cue('llega'), bebidas: cue('bebidas'), comida: cue('comida'),
-      otra: cue('otra'), arriba3: cue('arriba', 3), abajo4: cue('abajo', 4), placa: cue('placa'), vibra: cue('vibra'), mismo: cue('mismo', 2), corriendo: cue('corriendo'), atendiendo: cue('atendiendo'), cual: cue('cual'), sigueme: cue('sigueme') };
+      otra: cue('otra'), arriba3: cue('arriba', 3), abajo4: cue('abajo', 4), placa: cue('placa'), vibra: cue('vibra'), mismo: cue('mismo', 2), corriendo: cue('corriendo'), atendiendo: cue('atendiendo'), cual: cue('cual'), sigueme: cue('sigueme') }; c.comenta = c.cual - 0.15;
     this.musica = 'guitarra_bar'; this.volMusica = 0.45;
     const S = (p) => [p[0] + 0.95, p[1]]; const { B: Bp, K, T1, T2, T3, T4, T5, C: Cc } = P;
     // camarero SIN NFC: va y viene toda la noche
