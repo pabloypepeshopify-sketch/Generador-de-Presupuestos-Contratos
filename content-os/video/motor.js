@@ -1987,7 +1987,8 @@ V['nfc'] = { ...comunCapa, estilo: 'ia',
     // ---- planos 2D ----
     if (entre(t, c.medio, c.tarda)) { ciudad(t); rotulo('Internet', W / 2, 1240, IA.turq, 22); }
     if (entre(t, c.abrir, c.bar)) { fondoIA(t); chipMacro(W / 2, 1000, 1.6, 0.8); rotulo('Chip NFC', W / 2, 1300, IA.turq, 22); }
-    if (entre(t, c.responde, c.servidor - 0.15)) this.planoBytes(t);
+    if (entre(t, c.responde, c.abre - 0.1)) this.planoBytes(t);
+    if (entre(t, c.abre - 0.1, c.servidor - 0.15)) { ciudad(t); rotulo('Viaja por internet', W / 2, 1240, IA.turq, 22); }
     if (entre(t, c.vuelve, c.carta2 - 0.1)) { ciudad(t, -1); rotulo('De vuelta por internet', W / 2, 1240, IA.turq, 22); }
     if (t >= c.medio3) this.final(t);
     if (!this.plano2D(t)) { // velo suave arriba/abajo sobre el 3D
