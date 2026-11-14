@@ -2223,11 +2223,11 @@ V['calle'] = { ...comunCapa, subtitulos: () => {}, estilo: 'nocheIso',
     this.on = ondas();
     const c = this.c = { calle: cue('calle'), dos: cue('dos'), mesas: cue('mesas'), precios: cue('precios'), lleno: cue('lleno'), sabes: cue('sabes'), sistema: cue('sistema'), piden: cue('piden'), tocan: cue('tocan'), carta: cue('carta'),
       descargar: cue('descargar'), pedido: cue('pedido'), bebidas: cue('bebidas'), comida: cue('comida'), cocina: cue('cocina'), necesitan: cue('necesitan'), placa: cue('placa'), vibra: cue('vibra'), irse: cue('irse'),
-      resena: cue('resena'), toques: cue('toques'), mientras: cue('mientras'), enfrente: cue('enfrente'), libreta: cue('libreta'), levantada: cue('levantada') };
+      resena: cue('resena'), toques: cue('toques'), mientras: cue('mientras'), enfrente: cue('enfrente'), libreta: cue('libreta'), levantada: cue('levantada'), comenta: cue('comenta') };
     this.musica = 'ambient_b'; this.volMusica = 0.6;
     efectos = [['whoosh', 0.02], ['pop', c.dos], ['pop', c.mesas], ['pop', c.precios], ['whoosh', c.lleno - 0.2], ['tick', c.sabes], ['riser', c.sistema - 0.8], ['hit', c.sistema], ['whoosh', c.piden - 0.1], ['tap', c.tocan + 0.2], ['ding', c.carta],
       ['pop', c.descargar], ['whoosh', c.pedido - 0.1], ['ding', c.bebidas + 0.2], ['ding', c.comida + 0.2], ['whoosh', c.necesitan - 0.1], ['tap', c.placa], ['buzz', c.vibra], ['whoosh', c.irse - 0.1], ['ding', c.resena + 0.3], ['pop', c.toques],
-      ['whoosh', c.mientras - 0.15], ['tick', c.libreta], ['pop', c.levantada]];
+      ['whoosh', c.mientras - 0.15], ['tick', c.libreta], ['pop', c.levantada], ['whoosh', c.comenta - 0.4], ['pop', c.comenta + 0.5]];
     const T4A = [-6 + 2.9, 0.9, 1.7], T4B = [6 + 2.9, 0.9, 1.7];
     this.tomas = [
       { a: 0, de: [18, 24, 28], a2: [14, 19, 23], mira: [0, 0, 0], mira2: [0, 0, 0], fov: 38, barrido: 0 },
@@ -2301,7 +2301,7 @@ V['calle'] = { ...comunCapa, subtitulos: () => {}, estilo: 'nocheIso',
     if (entre(t, c.resena - 0.3, c.mientras - 0.2)) { const ll = t > c.toques - 0.2 ? Math.min(5, Math.floor((t - c.toques + 0.2) / 0.12) + 1) : 0; movil2D(lerp(W + 420, 800, entra(t, c.resena - 0.3, 0.5)), 1300, 0.62, 0.06, 'resenaG', { llenas: ll }); }
     // enfrente: el bar 2 a oscuras
     if (entre(t, c.mientras + 0.2, 99)) { const [x, y, ok] = this.proy(new THREE.Vector3(6 + 2.9, 2.6, 1.7)); if (ok && t > c.levantada - 0.4) chip(`MESA 4 · ESPERANDO ${relojMS(14 * 60 + (t - c.levantada) * 8)}`, x, Math.max(y - 20, 470), entra(t, c.levantada - 0.4), '#ff4d5e'); }
-    if (t > c.levantada + 0.9) { C.save(); C.globalAlpha = prog(t, c.levantada + 0.9, c.levantada + 1.3); pildora('+ Sígueme', W / 2, 1640, rebote(clamp((t - c.levantada - 0.9) / 0.45)), { tono: 'marca', tam: 50 }); C.restore(); }
+    cierreComenta(t, c.comenta - 0.3, 'SISTEMA', 'y te lo enseñamos en tu bar');
   },
 };
 
