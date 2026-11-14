@@ -1536,6 +1536,83 @@ V['carta'] = { ...comunCapa,
   },
 };
 
+// ---------- 6. Una mesa, una noche, cinco toques (todo combinado) ----------
+V['noche'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie' });
+    const g7 = this.mesas[7].g;
+    const pon = (obj, x, z, ry, s) => { obj.scale.setScalar(s); obj.position.set(x, 1.0, z); obj.rotation.y = ry; g7.add(obj); return obj; };
+    this.oWifi = pon(placaCuadrada('wifi'), -0.42, 0.28, -0.35, 0.26);
+    this.oCamp = pon(placaCuadrada('campana'), 0.5, -0.3, 0.6, 0.26);
+    this.oIG = pon(expositorL('instagram'), -0.45, -0.32, -0.5, 0.28);
+    this.oMenu = this.mesas[7].tj;
+    this.expo = expositorL('google'); this.expo.scale.setScalar(0.5); this.expo.position.set(-1.25, 1.0, -3.95); mundo.add(this.expo);
+    const silla = this.mesas[7].sillas[1].getWorldPosition(new THREE.Vector3());
+    this.otra = await personaGL('Female_Formal', { sentada: true, desfase: 0.9 }); this.otra.sentar(silla.x, silla.z + 0.15, 0); mundo.add(this.otra.holder);
+    const f = (await new GLTFLoader().loadAsync('./modelos/restaurante/food_dinner.gltf')).scene.clone(true); f.scale.setScalar(0.4); f.position.set(0.1, 1.0, 0.35); f.visible = false; g7.add(f); this.comida = f;
+    const c = this.c = { mesa: cue('mesa'), noche: cue('noche'), cinco: cue('cinco'), media: cue('media'), primer: cue('primer'), segundo: cue('segundo'), carta: cue('carta'), piden: cue('piden'), barra: cue('barra'), cocina: cue('cocina'),
+      cuarto: cue('cuarto'), ronda: cue('ronda'), tercer: cue('tercer'), tablet: cue('tablet'), llama: cue('llama'), foto: cue('foto'), cuarto2: cue('cuarto', 2), instagram: cue('instagram'), irse: cue('irse'), caja: cue('caja'),
+      quinto: cue('quinto'), resena: cue('resena'), toques: cue('toques', 2), cero: cue('cero'), comenta: cue('comenta') };
+    const mesa = [-5, 1.1, 3.3];
+    efectos = [['whoosh', 0.05], ['pop', c.mesa + 0.1], ['pop', c.noche], ['pop', c.cinco], ['whoosh', c.media - 0.2], ['tap', c.primer + 0.3], ['ding', c.primer + 0.7], ['tap', c.segundo + 0.3], ['whoosh', c.carta], ['tick', c.carta + 0.5], ['tick', c.carta + 0.8],
+      ['whoosh', c.barra - 0.15], ['ding', c.barra + 0.2], ['whoosh', c.cocina - 0.15], ['ding', c.cocina + 0.3], ['whoosh', c.cuarto - 0.1], ['tap', c.tercer + 0.3], ['whoosh', c.tablet - 0.15], ['ding', c.llama], ['buzz', c.llama + 0.1],
+      ['whoosh', c.foto - 0.1], ['tick', c.foto + 0.15], ['tap', c.cuarto2 + 0.3], ['ding', c.instagram + 0.2], ['whoosh', c.irse - 0.1], ['tap', c.quinto + 0.2], ['ding', c.resena + 0.3], ['riser', c.toques - 1.0], ['hit', c.toques], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    const mesaToma = (a, dx = 0) => ({ a, de: [-3.7 + dx, 3.0, 5.6], a2: [-4.0 + dx, 2.6, 5.1], mira: mesa, mira2: mesa, fov: 38 });
+    this.tomas = [APERTURA, tomaCara(enMesa(this, 7), c.media - 0.2), mesaToma(c.primer - 0.1), mesaToma(c.segundo - 0.1, 0.5), TOMA_BARRA(c.barra - 0.15),
+      { a: c.cocina - 0.15, de: [7.7, 3.95, -2.4], a2: [7.5, 3.8, -2.7], mira: [4.3, 1.7, -4.9], mira2: [4.4, 1.7, -5.0], fov: 52 },
+      tomaCara(enMesa(this, 7), c.cuarto - 0.1), mesaToma(c.tercer - 0.1, 0.8), TOMA_BARRA(c.tablet - 0.15), mesaToma(c.foto - 0.1, -0.4),
+      { a: c.irse - 0.1, de: [0.6, 3.0, 0.5], a2: [0.0, 2.6, -1.2], mira: [-1.3, 1.3, -3.6], mira2: [-1.3, 1.3, -3.8], fov: 38 }, FINAL_ANCHO(c.toques)];
+  },
+  actualizar(t) {
+    const c = this.c;
+    // camarero: corre; tras «llama» va a la mesa 7
+    if (t < c.llama + 0.2) camareroCorre(this, t); else camareroVa(this, t, c.llama + 0.2, 1.8, [-3.8, 2.6], -Math.PI / 2, 'Idle');
+    this.cliente.animar('Idle');
+    // la pareja se levanta y va a la caja al irse
+    [this.cliente, this.otra].forEach((p, i) => { if (t < c.irse) return; p.sentada = false; const k = prog(t, c.irse + i * 0.15, c.quinto - 0.2);
+      const x0 = -5, z0 = i ? 2.4 : 4.2; p.holder.position.set(lerp(x0, -1.6 + i * 0.7, k), 0, lerp(z0, -2.9, k)); p.holder.rotation.y = k < 1 ? Math.atan2(-1.6 + i * 0.7 - x0, -2.9 - z0) : Math.PI; p.animar(k < 1 ? 'Walk' : 'Idle'); });
+    actualizarGente(this, t); this.otra.actualizar(t);
+    this.comida.visible = t > c.ronda;
+    // el móvil toca cada cosa por turnos
+    const turnos = [[this.oWifi, c.primer, c.primer - 0.2, c.segundo - 0.15, 'wifiAndroid', { conectado: true }], [this.oMenu, c.segundo, c.segundo - 0.2, c.barra - 0.15, 'cartaV', {}],
+      [this.oCamp, c.tercer, c.tercer - 0.2, c.tablet - 0.15, 'avisoEnviado', {}], [this.oIG, c.cuarto2, c.cuarto2 - 0.2, c.irse - 0.1, 'instagram', {}], [this.expo, c.quinto, c.quinto - 0.2, c.toques - 0.1, 'resenaG', { llenas: 0 }]];
+    const turno = turnos.find(([, , d, h]) => entre(t, d, h));
+    if (turno) movilEnTarjeta(this, t, turno[0], turno[1], turno[2], turno[3], 'bloqueo', turno[4], turno[5]); else { this.mv.visible = false; this.on.userData.actualizar(t, 0, new THREE.Vector3(), new THREE.Vector3()); }
+    const pulso = Math.round((0.5 + 0.5 * Math.sin(t * 8)) * 4) / 4;
+    if (t < c.cuarto) this.tablet.userData.pintar('barra', t > c.barra ? { nuevo: true, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
+    else this.tablet.userData.pintar('avisos', t > c.llama - 0.3 && t < c.irse ? { mesa: 7, pulso } : {});
+    this.pantCocina.userData.pintar('cocina', t > c.cocina ? { nuevo: true, detalle: '1 × Patatas bravas · 1 × Croquetas', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    halosEn(this, t, c.toques); this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { const f = fxBase(this, t, [this.c.toques, this.c.cero], [[this.c.llama, this.c.llama + 0.8]]); const d = t - this.c.foto - 0.15; if (d > 0 && d < 0.3) f.flash = Math.max(f.flash, 0.7 * (1 - d / 0.3)); return f; },
+  capa(t) {
+    const c = this.c; velos();
+    // gancho: 1 mesa · 1 noche · 5 toques
+    if (t < c.media) { pildora('1 mesa', W / 2, 1300, entra(t, c.mesa), { tono: 'oscuro', tam: 60 }); pildora('1 noche', W / 2, 1440, entra(t, c.noche), { tono: 'oscuro', tam: 60 }); pildora('5 toques', W / 2, 1580, entra(t, c.cinco), { icono: 'nfc', tono: 'marca', tam: 60 }); }
+    // reloj y contador de toques
+    const hora = t < c.cuarto ? '21:30' : t < c.foto ? '22:15' : t < c.irse ? '22:45' : '23:20';
+    if (entre(t, c.media, c.toques)) contadorIOS('reloj', hora, 300, 1620);
+    const n = [c.primer, c.segundo, c.tercer, c.cuarto2, c.quinto].filter(x => t > x + 0.3).length;
+    if (entre(t, c.media, c.toques) && n > 0) contadorIOS('nfc', `Toques: ${n}`, W - 50, 1620, 'marca');
+    const etiqueta1 = (txt, t0, t1, ic, tono = 'marca') => { if (entre(t, t0, t1)) pildora(txt, W / 2, 1460, entra(t, t0), { icono: ic, tono, tam: 50 }); };
+    etiqueta1('1 · WiFi', c.primer + 0.3, c.segundo, 'check');
+    etiqueta1('2 · Carta y pedido', c.segundo + 0.3, c.barra, 'check');
+    etiqueta1('A barra', c.barra, c.cocina, 'check', 'azul'); etiqueta1('A cocina', c.cocina, c.cuarto, 'cocina', 'azul');
+    etiqueta1('3 · Llamar al camarero', c.tercer + 0.3, c.foto, 'campana');
+    etiqueta1('4 · Instagram', c.cuarto2 + 0.3, c.irse, 'check');
+    etiqueta1('5 · Reseña', c.quinto + 0.3, c.toques, 'check');
+    // móviles 2D de cada toque
+    if (entre(t, c.primer + 0.3, c.segundo - 0.1)) movil2D(lerp(W + 400, 760, entra(t, c.primer + 0.3, 0.45)), 1000, 0.5, 0.06, 'wifiAndroid', { conectado: t > c.primer + 0.7 });
+    if (entre(t, c.carta - 0.1, c.barra - 0.15)) { const sel = t > c.carta + 0.4 ? Math.min(2, 1 + Math.floor((t - c.carta - 0.4) / 0.35)) : 0; movil2D(lerp(W + 400, 760, entra(t, c.carta - 0.1, 0.45)), 1000, 0.5, 0.06, 'cartaV', { sel, enviado: t > c.piden + 0.3 }); }
+    if (entre(t, c.foto, c.cuarto2)) movil2D(lerp(W + 400, 760, entra(t, c.foto - 0.1, 0.4)), 1000, 0.5, 0.06, 'fotoPlato', { flash: entre(t, c.foto + 0.15, c.foto + 0.4) ? 0.8 : 0 });
+    if (entre(t, c.instagram - 0.2, c.irse - 0.1)) movil2D(lerp(W + 400, 760, entra(t, c.instagram - 0.2, 0.45)), 1000, 0.5, 0.06, 'instagram', { siguiendo: t > c.instagram + 0.3 });
+    if (entre(t, c.resena - 0.2, c.toques - 0.1)) { const ll = t > c.resena ? Math.min(5, Math.floor((t - c.resena) / 0.12) + 1) : 0; movil2D(lerp(W + 400, 760, entra(t, c.resena - 0.2, 0.45)), 1000, 0.5, 0.06, 'resenaG', { llenas: ll }); }
+    if (entre(t, c.toques, c.cero)) golpeIOS('5 TOQUES', W / 2, 1180, prog(t, c.toques, c.toques + 0.18), 150, true);
+    if (entre(t, c.cero, c.comenta)) golpeIOS('CERO ESPERAS', W / 2, 1180, prog(t, c.cero, c.cero + 0.18), 118, true);
+    cierreComenta(t, c.comenta, 'MESA', 'y te lo enseñamos todo en tu bar');
+  },
+};
+
 // ---------- API para render.mjs ----------
 let actual = null;
 window.init = async (id, pal, dur) => {
