@@ -1,735 +1,632 @@
 [
   {
-    "titulo": "No tiene batería y abre una web",
-    "angulo": "Cómo funciona por dentro: el móvil le da energía a la tarjeta al acercarse.",
-    "por_que_despierta_curiosidad": "Contradice la intuición: algo sin pila ni wifi «hace» algo. El espectador quiere saber el truco.",
+    "titulo": "POV: a los bares les encanta esto",
+    "producto": "reseñas Google",
+    "inspirado_en": "@escalator.esp (4,2 M) + @locup.nfc (545 k): POV de venta real, caja misteriosa en el segundo 1, demo con el móvil del dueño y su decisión al final.",
+    "angulo": "Visita real de un comercial de VISAX a un bar, grabada desde su pecho.",
+    "por_que_despierta_curiosidad": "El espectador quiere ver qué hay en la caja y si el dueño dice que sí.",
     "gancho": {
-      "visual": "Mano con una tarjeta blanca lisa; el móvil se acerca y la web se abre sola. Sin intro.",
-      "texto_pantalla": "No tiene batería. Ni wifi. ¿Cómo hace esto?",
-      "voz": "Esto no tiene batería."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Toque: se abre la carta de un bar en el móvil.",
-        "voz": "Esto no tiene batería.",
-        "texto_pantalla": "SIN BATERÍA"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 4,
-        "visual": "Doblar la tarjeta a contraluz: se ve el hilo de cobre.",
-        "voz": "Ni wifi, ni chip de móvil. Solo este hilo.",
-        "texto_pantalla": "solo un HILO"
-      },
-      {
-        "seg_inicio": 4,
-        "seg_fin": 8,
-        "visual": "Animación sencilla o dibujo: ondas saliendo del móvil hacia la tarjeta.",
-        "voz": "Cuando acercas el móvil, crea un campo que le da energía.",
-        "texto_pantalla": "tu MÓVIL la enciende"
-      },
-      {
-        "seg_inicio": 8,
-        "seg_fin": 12,
-        "visual": "Plano detalle del chip (punto negro) en una pegatina transparente.",
-        "voz": "Con esa chispa el chip despierta y le dice al móvil una dirección.",
-        "texto_pantalla": "le CHIVA una dirección"
-      },
-      {
-        "seg_inicio": 12,
-        "seg_fin": 16,
-        "visual": "Alejar el móvil 10 cm: no pasa nada. Acercar: funciona.",
-        "voz": "Por eso solo funciona a unos centímetros.",
-        "texto_pantalla": "a 10 cm… NADA"
-      },
-      {
-        "seg_inicio": 16,
-        "seg_fin": 19,
-        "visual": "Vuelta al plano inicial: misma mano, mismo toque.",
-        "voz": "Y por eso no se gasta nunca.",
-        "texto_pantalla": "NO SE GASTA"
-      }
-    ],
-    "payoff": "La energía la pone tu móvil; la tarjeta puede durar años.",
-    "cta": "¿Sabías que tu DNI hace lo mismo? Comenta MESA y te cuento cuál es la otra que llevas encima.",
-    "pie": "No tiene pila y aun así abre una web 🤯 Así funciona el NFC.",
-    "hashtags": [
-      "nfc",
-      "sabiasque",
-      "comofunciona",
-      "tecnologia",
-      "curiosidades"
-    ],
-    "duracion_s": 19,
-    "reglas_aplicadas": [
-      "S01",
-      "S02",
-      "S03",
-      "S09",
-      "S10",
-      "S21"
-    ],
-    "material_a_grabar": [
-      "Tarjeta NFC de menú configurada con una carta real",
-      "Pegatina NFC transparente para ver el chip",
-      "Linterna o ventana para el contraluz"
-    ],
-    "riesgos": "Comprobar que la antena se ve a contraluz con la tarjeta que se use; si no, usar una pegatina transparente.",
-    "curiosidad_1_10": 8,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "¿A través de qué funciona una tarjeta NFC?",
-    "angulo": "Experimento en serie: la misma tarjeta detrás de distintos materiales.",
-    "por_que_despierta_curiosidad": "El espectador apuesta en cada intento; el fallo llega cuando ya cree que todo funciona.",
-    "gancho": {
-      "visual": "Tarjeta debajo de un libro gordo; el móvil encima… y se abre la web.",
-      "texto_pantalla": "¿Funciona a través de esto?",
-      "voz": "¿Funciona a través de un libro?"
+      "visual": "Cámara en el pecho entrando a la barra; en el segundo 1 sale una caja cerrada y se pone sobre la barra delante del camarero.",
+      "texto_pantalla": "POV: a los bares de [CIUDAD] les encanta esto",
+      "voz": "¡Buenas! ¿Está el encargado?"
     },
     "planos": [
       {
         "seg_inicio": 0,
         "seg_fin": 2,
-        "visual": "Libro encima de la tarjeta, móvil encima del libro.",
-        "voz": "¿A través de un libro?",
-        "texto_pantalla": "LIBRO ¿?"
-      },
-      {
-        "seg_inicio": 2,
-        "seg_fin": 4.5,
-        "visual": "Prueba con tabla de madera fina del bar.",
-        "voz": "¿Y de la mesa?",
-        "texto_pantalla": "MADERA ✅/❌"
-      },
-      {
-        "seg_inicio": 4.5,
-        "seg_fin": 7,
-        "visual": "Prueba con vaso de cristal encima.",
-        "voz": "¿De un vaso?",
-        "texto_pantalla": "CRISTAL ✅/❌"
-      },
-      {
-        "seg_inicio": 7,
-        "seg_fin": 9.5,
-        "visual": "Prueba con la mano encima.",
-        "voz": "¿De tu mano?",
-        "texto_pantalla": "MANO ✅/❌"
-      },
-      {
-        "seg_inicio": 9.5,
-        "seg_fin": 13,
-        "visual": "Envolver en papel de aluminio. El móvil no reacciona.",
-        "voz": "Y esto… nada.",
-        "texto_pantalla": "ALUMINIO ❌"
-      },
-      {
-        "seg_inicio": 13,
-        "seg_fin": 18,
-        "visual": "Plano de la tarjeta pegada bajo una mesa de bar.",
-        "voz": "El metal bloquea la señal. Para una mesa de metal hace falta una etiqueta especial.",
-        "texto_pantalla": "el METAL la mata"
-      }
-    ],
-    "payoff": "Atraviesa casi todo menos el metal (salvo con etiqueta antimetal).",
-    "cta": "¿Qué pruebo en la parte 2? Lo más votado en comentarios.",
-    "pie": "Probé la misma tarjeta a través de 5 cosas. La última me sorprendió.",
-    "hashtags": [
-      "nfc",
-      "experimento",
-      "sabiasque",
-      "techtok",
-      "curiosidades"
-    ],
-    "duracion_s": 18,
-    "reglas_aplicadas": [
-      "S01",
-      "S07",
-      "S10",
-      "S18",
-      "S22",
-      "S08"
-    ],
-    "material_a_grabar": [
-      "Tarjeta NFC",
-      "Libro, tabla de madera fina, vaso, papel de aluminio",
-      "Probar cada material antes y grabar solo resultados reales"
-    ],
-    "riesgos": "Los ✅/❌ dependen del móvil y del grosor: poner en pantalla lo que salga de verdad en la prueba, no lo esperado.",
-    "curiosidad_1_10": 9,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "La carta no está dentro de la pegatina",
-    "angulo": "Corregir una idea equivocada: en la pegatina cabe muy poco, solo un enlace.",
-    "por_que_despierta_curiosidad": "Todo el mundo da por hecho que la carta va dentro; descubrir que caben 144 bytes sorprende.",
-    "gancho": {
-      "visual": "Pegatina NFC en la yema del dedo junto a una carta de bar de 8 páginas.",
-      "texto_pantalla": "¿Esta carta cabe aquí?",
-      "voz": "¿Esta carta entera cabe aquí dentro?"
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Pegatina en el dedo, carta gorda detrás.",
-        "voz": "¿Cabe aquí dentro?",
-        "texto_pantalla": "¿CABE?"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 4,
-        "visual": "Primer plano de la pegatina.",
-        "voz": "Spoiler: no cabe ni una página.",
-        "texto_pantalla": "NI UNA PÁGINA"
-      },
-      {
-        "seg_inicio": 4,
-        "seg_fin": 8,
-        "visual": "En pantalla, escribir un mensaje que se corta a los 144 caracteres.",
-        "voz": "Una de estas guarda unos 144 caracteres. Menos que un tuit.",
-        "texto_pantalla": "144 bytes"
-      },
-      {
-        "seg_inicio": 8,
-        "seg_fin": 12,
-        "visual": "Toque: se abre la carta en el móvil.",
-        "voz": "Entonces, ¿qué guarda? Solo una dirección.",
-        "texto_pantalla": "solo una DIRECCIÓN"
-      },
-      {
-        "seg_inicio": 12,
-        "seg_fin": 16,
-        "visual": "Cambiar un precio en la carta web y volver a tocar: sale actualizado.",
-        "voz": "Por eso el bar cambia los precios sin cambiar la pegatina.",
-        "texto_pantalla": "la carta vive en INTERNET"
-      }
-    ],
-    "payoff": "La pegatina es una llave a la carta, no la carta.",
-    "cta": "¿Cuántas cosas crees que llevas encima que funcionan igual?",
-    "pie": "Lo que de verdad hay dentro de una pegatina NFC.",
-    "hashtags": [
-      "nfc",
-      "sabiasque",
-      "tecnologia",
-      "hosteleria",
-      "curiosidades"
-    ],
-    "duracion_s": 16,
-    "reglas_aplicadas": [
-      "S02",
-      "S05",
-      "S10",
-      "S15",
-      "S18",
-      "S21"
-    ],
-    "material_a_grabar": [
-      "Pegatina NFC (NTAG213)",
-      "Carta de bar impresa",
-      "Carta web editable para el cambio de precio"
-    ],
-    "riesgos": "El dato de 144 bytes es de la NTAG213; si se usa otro chip, ajustar la cifra.",
-    "curiosidad_1_10": 7,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Así es una tarjeta NFC por dentro",
-    "angulo": "Contraluz y corte: se ve la antena y se prueba qué pasa al cortarla.",
-    "por_que_despierta_curiosidad": "«Por dentro» y «romper cosas» son dos de los formatos que más retienen.",
-    "gancho": {
-      "visual": "Tijeras abiertas sobre una tarjeta NFC.",
-      "texto_pantalla": "Si la corto… ¿sigue funcionando?",
-      "voz": "¿Si la corto sigue funcionando?"
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Tijeras sobre la tarjeta.",
-        "voz": "¿Si la corto, sigue funcionando?",
-        "texto_pantalla": "¿LA CORTO?"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 5,
-        "visual": "Tarjeta contra una linterna: aparece el hilo en espiral y el chip.",
-        "voz": "Primero mira lo que hay dentro: una antena en espiral y un chip.",
-        "texto_pantalla": "ANTENA + CHIP"
-      },
-      {
-        "seg_inicio": 5,
-        "seg_fin": 8,
-        "visual": "Cortar una esquina sin tocar la antena. Tocar: funciona.",
-        "voz": "Corto una esquina… funciona.",
-        "texto_pantalla": "esquina ✅"
-      },
-      {
-        "seg_inicio": 8,
-        "seg_fin": 11,
-        "visual": "Cortar por el medio atravesando la espiral. Tocar: nada.",
-        "voz": "Corto la antena… muerta.",
-        "texto_pantalla": "antena ❌"
-      },
-      {
-        "seg_inicio": 11,
-        "seg_fin": 15,
-        "visual": "Primer plano del hilo cortado.",
-        "voz": "Sin antena no recoge la energía del móvil, y sin energía no hay chip.",
-        "texto_pantalla": "sin antena = sin energía"
-      }
-    ],
-    "payoff": "Todo depende de un hilo de cobre que no ves.",
-    "cta": "¿Qué rompo la semana que viene?",
-    "pie": "Corté una tarjeta NFC para ver hasta dónde aguanta ✂️",
-    "hashtags": [
-      "nfc",
-      "pordentro",
-      "experimento",
-      "comofunciona",
-      "techtok"
-    ],
-    "duracion_s": 15,
-    "reglas_aplicadas": [
-      "S01",
-      "S03",
-      "S07",
-      "S10",
-      "S22",
-      "S25"
-    ],
-    "material_a_grabar": [
-      "2 tarjetas NFC de prueba (no de cliente)",
-      "Tijeras fuertes",
-      "Linterna"
-    ],
-    "riesgos": "Comprobar antes dónde va la espiral en la tarjeta elegida para que el corte de la esquina no la toque.",
-    "curiosidad_1_10": 8,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Si no te funciona, lo estás poniendo mal",
-    "angulo": "Truco útil: la antena del iPhone y la de Android están en sitios distintos.",
-    "por_que_despierta_curiosidad": "Casi todo el mundo ha fallado alguna vez al pagar o leer algo; el dato sirve al momento.",
-    "gancho": {
-      "visual": "Alguien frota el centro del iPhone contra una tarjeta y no pasa nada.",
-      "texto_pantalla": "¿No te lee? Mira dónde lo pones",
-      "voz": "Si no te lee, lo estás poniendo mal."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Intento fallido con el iPhone por el centro.",
-        "voz": "Si no te lee, lo estás poniendo mal.",
-        "texto_pantalla": "❌"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 4.5,
-        "visual": "Girar el iPhone y acercar la parte de arriba: lee al instante.",
-        "voz": "En iPhone la antena está arriba, junto a la cámara.",
-        "texto_pantalla": "iPhone: ARRIBA"
-      },
-      {
-        "seg_inicio": 4.5,
-        "seg_fin": 7.5,
-        "visual": "Android: acercar el centro de la espalda: lee.",
-        "voz": "En casi todos los Android, en el centro.",
-        "texto_pantalla": "Android: CENTRO"
-      },
-      {
-        "seg_inicio": 7.5,
-        "seg_fin": 11,
-        "visual": "Pago con datáfono usando el sitio bueno.",
-        "voz": "Y vale igual para pagar con el móvil.",
-        "texto_pantalla": "también para PAGAR"
-      }
-    ],
-    "payoff": "No es que falle: es que la antena no está donde crees.",
-    "cta": "¿iPhone o Android? Te leo.",
-    "pie": "El fallo que comete casi todo el mundo al acercar el móvil.",
-    "hashtags": [
-      "trucos",
-      "iphone",
-      "android",
-      "nfc",
-      "sabiasque"
-    ],
-    "duracion_s": 11,
-    "reglas_aplicadas": [
-      "S01",
-      "S05",
-      "S10",
-      "S16",
-      "S19"
-    ],
-    "material_a_grabar": [
-      "Un iPhone y un Android",
-      "Tarjeta NFC de menú",
-      "Datáfono (opcional)"
-    ],
-    "riesgos": "La posición en Android varía según modelo: decir «en casi todos» y comprobar con el móvil que salga.",
-    "curiosidad_1_10": 7,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Toco la mesilla y mi móvil se va a dormir",
-    "angulo": "Automatización casera con una pegatina NFC y Atajos.",
-    "por_que_despierta_curiosidad": "Parece magia doméstica y cualquiera puede copiarlo esa misma noche.",
-    "gancho": {
-      "visual": "Móvil se apoya en la mesilla: se apaga la luz, salta el modo No molestar y suena una alarma programada.",
-      "texto_pantalla": "Lo apoyo aquí y pasa ESTO",
-      "voz": "Lo apoyo aquí y mira."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 2,
-        "visual": "Apoyar el móvil; cambios en pantalla.",
-        "voz": "Lo apoyo aquí y mira.",
-        "texto_pantalla": "🌙"
-      },
-      {
-        "seg_inicio": 2,
-        "seg_fin": 5,
-        "visual": "Levantar el móvil: pegatina NFC en la mesilla.",
-        "voz": "Debajo hay una pegatina.",
-        "texto_pantalla": "una PEGATINA"
-      },
-      {
-        "seg_inicio": 5,
-        "seg_fin": 10,
-        "visual": "Grabación de pantalla: Atajos → Automatización → NFC → escanear pegatina.",
-        "voz": "En Atajos, automatización, NFC, y le dices qué hacer.",
-        "texto_pantalla": "Atajos → NFC"
-      },
-      {
-        "seg_inicio": 10,
-        "seg_fin": 14,
-        "visual": "Elegir acciones: No molestar, alarma, brillo.",
-        "voz": "Yo le pongo no molestar, alarma y brillo al mínimo.",
-        "texto_pantalla": "tú eliges qué hace"
-      },
-      {
-        "seg_inicio": 14,
-        "seg_fin": 17,
-        "visual": "Pegatina en la puerta del coche y en la mesa del despacho (ideas rápidas).",
-        "voz": "Y otra en el coche, y otra en la oficina.",
-        "texto_pantalla": "coche · oficina · gym"
-      }
-    ],
-    "payoff": "Una pegatina convierte un gesto en una rutina entera.",
-    "cta": "Comenta MESA y te mando la lista de automatizaciones que uso.",
-    "pie": "La automatización más tonta y más útil de mi móvil.",
-    "hashtags": [
-      "iphone",
-      "atajos",
-      "trucos",
-      "productividad",
-      "nfc"
-    ],
-    "duracion_s": 17,
-    "reglas_aplicadas": [
-      "S01",
-      "S03",
-      "S10",
-      "S20",
-      "S21"
-    ],
-    "material_a_grabar": [
-      "iPhone con Atajos",
-      "Pegatina NFC",
-      "Grabación de pantalla de la configuración"
-    ],
-    "riesgos": "Grabar la configuración real en la versión de iOS actual; los menús cambian entre versiones.",
-    "curiosidad_1_10": 8,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Cambié a dónde lleva una tarjeta que ya estaba pegada",
-    "angulo": "Misma tarjeta física, destino distinto: redirección.",
-    "por_que_despierta_curiosidad": "Rompe la idea de que lo que hay en un objeto físico es fijo.",
-    "gancho": {
-      "visual": "Toque en una mesa: se abre la carta. Corte. Mismo toque: se abre un vídeo de bienvenida.",
-      "texto_pantalla": "Misma tarjeta. Otro sitio.",
-      "voz": "Misma tarjeta, y ahora lleva a otro sitio."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 2,
-        "visual": "Toque 1 → carta. Toque 2 → otro destino.",
-        "voz": "Misma tarjeta, y ahora lleva a otro sitio.",
-        "texto_pantalla": "¿CÓMO?"
-      },
-      {
-        "seg_inicio": 2,
-        "seg_fin": 5,
-        "visual": "Mano señalando que la tarjeta sigue pegada, sin tocar.",
-        "voz": "No la he despegado ni reprogramado.",
-        "texto_pantalla": "sin TOCARLA"
-      },
-      {
-        "seg_inicio": 5,
-        "seg_fin": 9,
-        "visual": "Pantalla del panel donde se cambia el destino.",
-        "voz": "La tarjeta guarda una dirección que manda a donde yo diga.",
-        "texto_pantalla": "el destino se cambia DESDE AQUÍ"
-      },
-      {
-        "seg_inicio": 9,
-        "seg_fin": 13,
-        "visual": "Ejemplos rápidos: carta de mediodía, carta de noche, partido del domingo.",
-        "voz": "Menú de día por la mañana, de noche por la noche.",
-        "texto_pantalla": "☀️ día / 🌙 noche"
-      }
-    ],
-    "payoff": "Lo que cambia no es la tarjeta, es a dónde apunta.",
-    "cta": "¿Para qué la usarías tú?",
-    "pie": "La tarjeta es la misma. Lo que abre, no.",
-    "hashtags": [
-      "nfc",
-      "hosteleria",
-      "sabiasque",
-      "tecnologia",
-      "bares"
-    ],
-    "duracion_s": 13,
-    "reglas_aplicadas": [
-      "S02",
-      "S03",
-      "S10",
-      "S15",
-      "S19"
-    ],
-    "material_a_grabar": [
-      "Tarjeta NFC con enlace a una redirección propia",
-      "Dos destinos preparados",
-      "Grabación de pantalla del cambio"
-    ],
-    "riesgos": "Solo vale si la tarjeta apunta a una redirección que controlamos; comprobar que es así en las que se usen.",
-    "curiosidad_1_10": 7,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Cuántos toques cuesta dejar una reseña",
-    "angulo": "Detrás de la barra: contar la fricción de dejar una reseña en Google, con y sin NFC.",
-    "por_que_despierta_curiosidad": "Contador en pantalla y comparación lado a lado: el espectador cuenta con el vídeo.",
-    "gancho": {
-      "visual": "Pantalla partida: a la izquierda alguien busca el bar en Maps, a la derecha un toque en la mesa.",
-      "texto_pantalla": "[Nº REAL] toques vs 1",
-      "voz": "Dejar una reseña cuesta [Nº REAL] toques."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Pantalla partida con contador.",
-        "voz": "Dejar una reseña cuesta [Nº REAL] toques.",
-        "texto_pantalla": "[Nº REAL] vs 1"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 7,
-        "visual": "Grabación de pantalla real: abrir Maps, buscar, entrar, bajar, escribir reseña. Contador sube.",
-        "voz": "Abrir Maps, buscar el bar, bajar, buscar el botón…",
-        "texto_pantalla": "1… 2… 3…"
-      },
-      {
-        "seg_inicio": 7,
-        "seg_fin": 9,
-        "visual": "Lado derecho: toque en el expositor, se abre directamente la ficha.",
-        "voz": "O un toque.",
-        "texto_pantalla": "1"
-      },
-      {
-        "seg_inicio": 9,
-        "seg_fin": 14,
-        "visual": "Plano del expositor en una barra real.",
-        "voz": "Por eso en algunos bares ves esto en la mesa: no te piden nada, te ahorran pasos.",
-        "texto_pantalla": "menos PASOS"
-      }
-    ],
-    "payoff": "La diferencia no es pedir reseñas, es quitar pasos.",
-    "cta": "¿Cuándo fue la última vez que dejaste una reseña?",
-    "pie": "Conté los toques que hacen falta para dejar una reseña. Spoiler: demasiados.",
-    "hashtags": [
-      "hosteleria",
-      "bares",
-      "google",
-      "sabiasque",
-      "restaurantes"
-    ],
-    "duracion_s": 14,
-    "reglas_aplicadas": [
-      "S02",
-      "S07",
-      "S10",
-      "S13",
-      "S19"
-    ],
-    "material_a_grabar": [
-      "Grabación de pantalla contando los toques reales en Maps",
-      "Expositor NFC de reseñas en un bar",
-      "Contador en edición"
-    ],
-    "riesgos": "Contar los toques de verdad y poner esa cifra. No decir que el expositor consigue más reseñas ni mejores: solo que hay menos pasos.",
-    "curiosidad_1_10": 6,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Tu móvil tiene un lector que usas cada día sin saberlo",
-    "angulo": "Lo que ya llevas encima: pago, DNI, abono, llave de hotel.",
-    "por_que_despierta_curiosidad": "Hace que el espectador mire su cartera con otros ojos.",
-    "gancho": {
-      "visual": "Cartera abierta sobre la mesa; el móvil pasa por encima de cada cosa.",
-      "texto_pantalla": "Llevas 4 chips en la cartera",
-      "voz": "En tu cartera hay al menos cuatro chips como este."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 1.5,
-        "visual": "Cartera abierta, móvil encima.",
-        "voz": "En tu cartera hay cuatro chips como este.",
-        "texto_pantalla": "4 CHIPS"
-      },
-      {
-        "seg_inicio": 1.5,
-        "seg_fin": 4,
-        "visual": "Tarjeta bancaria: símbolo contactless.",
-        "voz": "La del banco, para pagar sin meterla.",
-        "texto_pantalla": "💳 PAGO"
-      },
-      {
-        "seg_inicio": 4,
-        "seg_fin": 6.5,
-        "visual": "DNI (tapar los datos): señalar el logo del chip.",
-        "voz": "Tu DNI, desde el 3.0.",
-        "texto_pantalla": "🪪 DNI"
-      },
-      {
-        "seg_inicio": 6.5,
-        "seg_fin": 9,
-        "visual": "Abono de transporte en el torno.",
-        "voz": "El abono del metro.",
-        "texto_pantalla": "🚇 ABONO"
-      },
-      {
-        "seg_inicio": 9,
-        "seg_fin": 11.5,
-        "visual": "Llave de hotel.",
-        "voz": "La llave del hotel.",
-        "texto_pantalla": "🏨 HOTEL"
-      },
-      {
-        "seg_inicio": 11.5,
-        "seg_fin": 15,
-        "visual": "Tarjeta de menú en una mesa de bar: toque.",
-        "voz": "Y ya, hasta la carta del bar.",
-        "texto_pantalla": "🍺 ¿Y ESTO?"
-      }
-    ],
-    "payoff": "Es la misma tecnología en todo: NFC.",
-    "cta": "¿Cuál no sabías? Te leo.",
-    "pie": "Cuatro cosas de tu cartera que tienen el mismo chip.",
-    "hashtags": [
-      "sabiasque",
-      "nfc",
-      "curiosidades",
-      "tecnologia",
-      "dni"
-    ],
-    "duracion_s": 15,
-    "reglas_aplicadas": [
-      "S01",
-      "S10",
-      "S16",
-      "S21",
-      "S19"
-    ],
-    "material_a_grabar": [
-      "Cartera con tarjeta bancaria, DNI, abono, llave de hotel",
-      "Tapar todos los datos personales",
-      "Tarjeta NFC de menú"
-    ],
-    "riesgos": "Ocultar números y datos del DNI y la tarjeta. No mostrar ni explicar cómo leer estos chips con el móvil.",
-    "curiosidad_1_10": 7,
-    "fecha": "2026-11-14"
-  },
-  {
-    "titulo": "Dejé una tarjeta misteriosa en 10 mesas",
-    "angulo": "Experimento social medido: cuánta gente toca una tarjeta que solo pone «Acerca tu móvil».",
-    "por_que_despierta_curiosidad": "Resultado incierto y humano; el espectador apuesta un número antes del final.",
-    "gancho": {
-      "visual": "Tarjeta negra en una mesa con el texto «Acerca tu móvil». Plano de alguien dudando.",
-      "texto_pantalla": "¿Cuánta gente la tocará?",
-      "voz": "Dejé esto en diez mesas. Adivina cuántos la tocaron."
-    },
-    "planos": [
-      {
-        "seg_inicio": 0,
-        "seg_fin": 2,
-        "visual": "Tarjeta misteriosa en la mesa.",
-        "voz": "Dejé esto en diez mesas.",
-        "texto_pantalla": "¿CUÁNTOS?"
+        "visual": "Barra, camarero delante, caja cerrada sobre la barra.",
+        "voz": "¡Buenas! ¿Está el encargado?",
+        "texto_pantalla": "POV: a los bares de [CIUDAD] les encanta esto"
       },
       {
         "seg_inicio": 2,
         "seg_fin": 6,
-        "visual": "Montaje de clientes mirándola (con permiso, caras pixeladas si hace falta).",
-        "voz": "Sin explicación. Solo pone: acerca tu móvil.",
-        "texto_pantalla": "sin explicación"
+        "visual": "Se abre la caja: expositor NFC de reseñas.",
+        "voz": "Te enseño una cosa en diez segundos.",
+        "texto_pantalla": "(fijo arriba)"
+      },
+      {
+        "seg_inicio": 6,
+        "seg_fin": 12,
+        "visual": "«¿Me dejas tu móvil?» El dueño lo acerca y se abre la ficha de Google de SU bar. Su cara.",
+        "voz": "Acércalo aquí… ¿Ves? Tu bar, listo para la reseña.",
+        "texto_pantalla": "su PROPIO móvil"
+      },
+      {
+        "seg_inicio": 12,
+        "seg_fin": 18,
+        "visual": "Plano de las manos: cliente imaginario toca y ya está.",
+        "voz": "El cliente no busca nada ni descarga nada. Toca y ya está en vuestra ficha.",
+        "texto_pantalla": "sin buscar, sin descargar"
+      },
+      {
+        "seg_inicio": 18,
+        "seg_fin": 24,
+        "visual": "Se configura en el momento con el móvil del comercial.",
+        "voz": "Te lo dejo configurado ahora mismo. [PRECIO REAL si se dice]",
+        "texto_pantalla": "configurado en 1 minuto"
+      },
+      {
+        "seg_inicio": 24,
+        "seg_fin": 30,
+        "visual": "La decisión del dueño, sin cortar: sí o no.",
+        "voz": "[RESPUESTA REAL DEL DUEÑO]",
+        "texto_pantalla": "¿sí o no?"
+      },
+      {
+        "seg_inicio": 30,
+        "seg_fin": 33,
+        "visual": "El expositor en la barra (si compra) o salida del bar (si no).",
+        "voz": "",
+        "texto_pantalla": "Comenta RESEÑA y te cuento"
+      }
+    ],
+    "payoff": "La reacción del dueño al ver su propio bar en su móvil y su decisión real.",
+    "cta": "Comenta RESEÑA y te cuento cómo funciona.",
+    "pie": "Le enseño esto a un bar y mira su cara 👀 (caso real)",
+    "hashtags": [
+      "hosteleria",
+      "bares",
+      "nfc",
+      "reseñasgoogle",
+      "pov"
+    ],
+    "duracion_s": 33,
+    "reglas_aplicadas": [
+      "R01",
+      "R05",
+      "R06",
+      "R11",
+      "R16",
+      "R18",
+      "R19"
+    ],
+    "material_a_grabar": [
+      "Cámara o móvil en soporte de pecho",
+      "Caja cerrada con el expositor",
+      "Permiso del dueño para grabar y publicar (por escrito o grabado)",
+      "Un vídeo por visita: repetir el formato con bares distintos"
+    ],
+    "riesgos": "Permiso del dueño y de quien salga. No prometer más reseñas ni reseñas buenas (normas de Google). Si dice que no, se publica igual. Precio solo si es el real.",
+    "curiosidad_1_10": 9,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "Sábado 21:30. La mesa 4 toca la tarjeta",
+    "producto": "pedir desde la mesa",
+    "inspirado_en": "@menu4d (102 k): historia de una mesa con el reloj avanzando y pasos numerados en una animación tipo prototipo.",
+    "angulo": "Lo que pasa en el bar, minuto a minuto, cuando una mesa pide sin llamar a nadie.",
+    "por_que_despierta_curiosidad": "Enseña lo que el cliente nunca ve: el viaje del pedido hasta la cocina con el número de mesa.",
+    "gancho": {
+      "visual": "Animación tipo prototipo: una mesa vista desde arriba con «MESA 4» y un reloj «SÁB 21:30»; un móvil toca la tarjeta y se ilumina.",
+      "texto_pantalla": "Sábado 21:30. La mesa 4 toca la tarjeta.",
+      "voz": "Sábado, 21:30. La mesa 4 toca la tarjeta."
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 3,
+        "visual": "Animación: toque en la tarjeta de la mesa 4, reloj 21:30.",
+        "voz": "Sábado, 21:30. La mesa 4 toca la tarjeta.",
+        "texto_pantalla": "Mira lo que pasa en tu bar."
+      },
+      {
+        "seg_inicio": 3,
+        "seg_fin": 7,
+        "visual": "Se abre la carta en el móvil; etiqueta «Mesa 4» arriba.",
+        "voz": "Se abre la carta. Y la tarjeta ya sabe que es la mesa 4.",
+        "texto_pantalla": "① La carta ya sabe qué mesa es"
+      },
+      {
+        "seg_inicio": 7,
+        "seg_fin": 11,
+        "visual": "Eligen dos platos; el pedido vuela hasta una pantalla de cocina: «Mesa 4». Reloj 21:32.",
+        "voz": "Piden desde el móvil y llega a cocina con el número de mesa.",
+        "texto_pantalla": "② Llega a cocina: MESA 4 · 21:32"
+      },
+      {
+        "seg_inicio": 11,
+        "seg_fin": 15,
+        "visual": "Plano real: la cocina o la barra recibe el pedido.",
+        "voz": "Nadie lo ha apuntado. Nadie se ha equivocado de mesa.",
+        "texto_pantalla": "nadie lo apuntó"
+      },
+      {
+        "seg_inicio": 15,
+        "seg_fin": 19,
+        "visual": "Animación: toque de nuevo, «Pedir la cuenta» (22:38).",
+        "voz": "Y cuando terminan, la cuenta, igual.",
+        "texto_pantalla": "③ La cuenta · 22:38"
+      },
+      {
+        "seg_inicio": 19,
+        "seg_fin": 23,
+        "visual": "Vista del salón entero con todas las mesas iluminándose.",
+        "voz": "Todo el bar, con un toque en cada mesa.",
+        "texto_pantalla": "un toque por mesa"
+      }
+    ],
+    "payoff": "El pedido llega a cocina con el número de mesa sin que nadie lo apunte.",
+    "cta": "¿Cuántas veces se equivocan de mesa en tu bar? Te leo.",
+    "pie": "Lo que pasa en un bar cuando la mesa 4 pide sin llamar a nadie 🍽️",
+    "hashtags": [
+      "hosteleria",
+      "restaurantes",
+      "nfc",
+      "bares",
+      "comofunciona"
+    ],
+    "duracion_s": 23,
+    "reglas_aplicadas": [
+      "R07",
+      "R08",
+      "R17",
+      "R02",
+      "R11",
+      "R10"
+    ],
+    "material_a_grabar": [
+      "Animación tipo interfaz hecha con IA (mesa, móvil, cocina, reloj)",
+      "2 planos reales: toque en la tarjeta y pedido llegando a barra o cocina",
+      "Capturas reales del sistema de pedidos"
+    ],
+    "riesgos": "Enseñar el sistema de pedidos tal como funciona de verdad (pantalla, ticket o móvil del camarero). Si alguna parte aún no existe, no se enseña.",
+    "curiosidad_1_10": 8,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "¿Qué pasa cuando tocas la tarjeta de la mesa?",
+    "producto": "carta",
+    "inspirado_en": "@sagecadence_ (249 k) y @worksdsefs7 (422 k) en contenido (sin batería, la energía la pone el móvil) con el recorrido animado de @menu4d.",
+    "angulo": "El viaje invisible de menos de un segundo entre tu móvil y la carta.",
+    "por_que_despierta_curiosidad": "Todo el mundo lo ha hecho y nadie sabe qué pasa dentro; el giro es que la tarjeta no tiene pilas.",
+    "gancho": {
+      "visual": "Plano real: un dedo acerca el móvil a la tarjeta de la mesa y la imagen se congela justo antes de tocar.",
+      "texto_pantalla": "¿Qué pasa en este segundo?",
+      "voz": "¿Qué pasa en este segundo?"
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 2,
+        "visual": "Imagen congelada: el móvil a 1 cm de la tarjeta.",
+        "voz": "¿Qué pasa en este segundo?",
+        "texto_pantalla": "¿Qué pasa aquí?"
+      },
+      {
+        "seg_inicio": 2,
+        "seg_fin": 6,
+        "visual": "Animación: del móvil salen ondas hacia la tarjeta.",
+        "voz": "Tu móvil crea un pequeño campo.",
+        "texto_pantalla": "① tu móvil crea un campo"
       },
       {
         "seg_inicio": 6,
         "seg_fin": 10,
-        "visual": "Qué ve quien la toca: un mensaje gracioso del bar.",
-        "voz": "Quien la tocaba se encontraba esto.",
-        "texto_pantalla": "😂"
+        "visual": "Macro real de la antena en espiral a contraluz; la animación la ilumina.",
+        "voz": "Esta espiral lo recoge… y así se enciende el chip. Porque la tarjeta no tiene pilas.",
+        "texto_pantalla": "② SIN PILAS: la enciende tu móvil"
       },
       {
         "seg_inicio": 10,
         "seg_fin": 14,
-        "visual": "Panel con el contador de visitas real.",
-        "voz": "Resultado: [RESULTADO REAL] de [Nº REAL] personas.",
-        "texto_pantalla": "[RESULTADO REAL]"
+        "visual": "Animación: el chip devuelve una dirección con «mesa 4» dentro.",
+        "voz": "El chip le dice al móvil una dirección. Y en esa dirección va el número de tu mesa.",
+        "texto_pantalla": "③ te dice: carta + MESA 4"
       },
       {
         "seg_inicio": 14,
-        "seg_fin": 17,
-        "visual": "Reacción en cámara.",
-        "voz": "[COMENTARIO SEGÚN RESULTADO]",
-        "texto_pantalla": "¿lo esperabas?"
+        "seg_fin": 18,
+        "visual": "Vuelve al plano real: se abre la carta.",
+        "voz": "Y se abre la carta. Todo en menos de un segundo.",
+        "texto_pantalla": "menos de 1 segundo"
+      },
+      {
+        "seg_inicio": 18,
+        "seg_fin": 21,
+        "visual": "Alejar el móvil 10 cm: no pasa nada.",
+        "voz": "Por eso solo funciona si lo acercas.",
+        "texto_pantalla": "a 10 cm… nada"
       }
     ],
-    "payoff": "Dato real de curiosidad humana medido con la tarjeta.",
-    "cta": "Di tu número antes de ver el final.",
-    "pie": "Experimento: una tarjeta, diez mesas, cero explicaciones.",
+    "payoff": "La tarjeta no tiene batería: la enciende tu propio móvil al acercarlo.",
+    "cta": "¿Sabías que no tenía pilas? Comenta MESA.",
+    "pie": "Esto pasa en menos de un segundo cada vez que tocas la tarjeta de una mesa 🤯",
     "hashtags": [
-      "experimentosocial",
-      "bares",
       "nfc",
-      "curiosidades",
-      "hosteleria"
+      "comofunciona",
+      "sabiasque",
+      "tecnologia",
+      "bares"
     ],
-    "duracion_s": 17,
+    "duracion_s": 21,
     "reglas_aplicadas": [
-      "S01",
-      "S06",
-      "S18",
-      "S22"
+      "R13",
+      "R14",
+      "R17",
+      "R07",
+      "R11",
+      "R10"
     ],
     "material_a_grabar": [
-      "10 tarjetas NFC que apunten a una redirección con contador de visitas",
-      "Permiso del bar y de los clientes que salgan",
-      "Página de destino con mensaje divertido"
+      "Tarjeta de carta VISAX en una mesa real",
+      "Contraluz o pegatina transparente para la antena",
+      "Animación con IA de las ondas, el chip y la dirección"
     ],
-    "riesgos": "No publicar sin datos reales medidos. Pedir permiso a quien salga en el vídeo o no mostrar caras.",
-    "curiosidad_1_10": 9,
+    "riesgos": "Comprobar que la dirección de la tarjeta lleva de verdad el número de mesa en el producto que se enseña.",
+    "curiosidad_1_10": 8,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "¿Sabes para qué sirve este botón de tu móvil?",
+    "producto": "carta",
+    "inspirado_en": "@eliannyanez3 (8,2 M): el botón NFC del panel de control rodeado en rojo y una pregunta directa. Y de @tecnoclips (1 M): «probablemente estás desaprovechando…».",
+    "angulo": "Del botón que todo el mundo tiene a la carta de un bar.",
+    "por_que_despierta_curiosidad": "Todo el mundo tiene ese botón y casi nadie sabe qué hace.",
+    "gancho": {
+      "visual": "Panel de control de un Android con el botón NFC rodeado por un círculo rojo; un dedo encima.",
+      "texto_pantalla": "¿Sabes para qué sirve este BOTÓN?",
+      "voz": "¿Sabes para qué sirve este botón de tu móvil?"
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 2.5,
+        "visual": "Botón NFC rodeado en rojo.",
+        "voz": "¿Sabes para qué sirve este botón de tu móvil?",
+        "texto_pantalla": "¿Sabes para qué sirve este BOTÓN?"
+      },
+      {
+        "seg_inicio": 2.5,
+        "seg_fin": 6,
+        "visual": "Pago con el móvil en un datáfono.",
+        "voz": "Lo usas cada vez que pagas con el móvil… y seguramente no lo sabías.",
+        "texto_pantalla": "ya lo usas para PAGAR"
+      },
+      {
+        "seg_inicio": 6,
+        "seg_fin": 9,
+        "visual": "Un iPhone: no hay botón.",
+        "voz": "Si tienes iPhone, no lo busques: va siempre encendido.",
+        "texto_pantalla": "iPhone: siempre ON"
+      },
+      {
+        "seg_inicio": 9,
+        "seg_fin": 14,
+        "visual": "En un bar: acercar el móvil a la tarjeta de la mesa y se abre la carta.",
+        "voz": "Y sirve para más cosas. Por ejemplo, esto.",
+        "texto_pantalla": "y para ESTO"
+      },
+      {
+        "seg_inicio": 14,
+        "seg_fin": 18,
+        "visual": "Misma mesa: otro toque y se abre el Instagram del bar.",
+        "voz": "La carta, las reseñas, el Instagram del bar… con un toque.",
+        "texto_pantalla": "carta · reseñas · Instagram"
+      },
+      {
+        "seg_inicio": 18,
+        "seg_fin": 21,
+        "visual": "Vuelta al botón con el círculo rojo.",
+        "voz": "¿Lo tienes activado? Dime qué móvil tienes y te digo dónde está.",
+        "texto_pantalla": "¿qué móvil tienes?"
+      }
+    ],
+    "payoff": "Ese botón que nadie usa es el que abre la carta del bar con un toque.",
+    "cta": "¿Qué móvil tienes? Te digo dónde está el botón.",
+    "pie": "El botón de tu móvil que usas sin saberlo 👀",
+    "hashtags": [
+      "trucos",
+      "android",
+      "iphone",
+      "nfc",
+      "sabiasque"
+    ],
+    "duracion_s": 21,
+    "reglas_aplicadas": [
+      "R03",
+      "R02",
+      "R10",
+      "R11"
+    ],
+    "material_a_grabar": [
+      "Grabación de pantalla del panel de control con el círculo rojo en edición",
+      "Un iPhone y un Android",
+      "Tarjetas VISAX de carta y de redes en una mesa real"
+    ],
+    "riesgos": "En Android el sitio del botón cambia según la marca: decir «en muchos Android». iPhone XS y posteriores leen NFC sin activar nada.",
+    "curiosidad_1_10": 8,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "Así se ve cuando tocas la tarjeta de este bar",
+    "producto": "redes sociales",
+    "inspirado_en": "@boostdailyfinds (1,1 M, 10 s, sin voz) y @33.hats (1,7 M, 18 s): solo enseñar qué aparece al tocar, corto y en bucle.",
+    "angulo": "Demo pura: tocar la mesa y que se abra el Instagram del bar.",
+    "por_que_despierta_curiosidad": "Ver la pantalla cambiar sola con un toque es satisfactorio y se entiende sin sonido.",
+    "gancho": {
+      "visual": "Primer plano: el móvil ya está tocando la tarjeta de la mesa y la pantalla empieza a cambiar.",
+      "texto_pantalla": "Así se ve cuando tocas la tarjeta de este bar",
+      "voz": ""
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 3,
+        "visual": "Toque: se abre el Instagram del bar.",
+        "voz": "",
+        "texto_pantalla": "Así se ve cuando tocas la tarjeta de este bar"
+      },
+      {
+        "seg_inicio": 3,
+        "seg_fin": 6,
+        "visual": "El dedo pulsa «Seguir».",
+        "voz": "",
+        "texto_pantalla": "1 toque = 1 seguidor"
+      },
+      {
+        "seg_inicio": 6,
+        "seg_fin": 10,
+        "visual": "El móvil se aparta y vuelve a la posición del principio (bucle).",
+        "voz": "",
+        "texto_pantalla": "sin buscar el nombre del bar"
+      }
+    ],
+    "payoff": "Sin buscar el nombre: un toque y estás en el Instagram del bar.",
+    "cta": "¿Lo pondrías en tu bar? Sí o no.",
+    "pie": "Ni buscar el nombre del bar ni nada 📲",
+    "hashtags": [
+      "nfc",
+      "instagram",
+      "bares",
+      "hosteleria",
+      "satisfying"
+    ],
+    "duracion_s": 10,
+    "reglas_aplicadas": [
+      "R02",
+      "R12",
+      "R16"
+    ],
+    "material_a_grabar": [
+      "Tarjeta VISAX de redes en una mesa real",
+      "Instagram real del bar (con permiso)",
+      "Hacer también la versión TikTok y la versión Facebook"
+    ],
+    "riesgos": "Que el perfil sea del bar donde se graba y con su permiso.",
+    "curiosidad_1_10": 6,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "Nadie levanta la mano en este bar",
+    "producto": "llamar al camarero",
+    "inspirado_en": "@apiworking (359 k): llamadores NFC en un restaurante real, funciones numeradas en pantalla y clientes tocando el cartel. Y de @menu4d: la mesa con su número.",
+    "angulo": "La escena de siempre (cliente con la mano levantada y el camarero sin verle) resuelta con un toque.",
+    "por_que_despierta_curiosidad": "A todo el mundo le ha pasado; el cambio se ve en 3 segundos.",
+    "gancho": {
+      "visual": "Cliente con la mano levantada; el camarero pasa de espaldas sin verle.",
+      "texto_pantalla": "Nadie levanta la mano en este bar",
+      "voz": "¿Cuánto llevas así?"
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 2,
+        "visual": "Mano levantada, camarero de espaldas.",
+        "voz": "¿Cuánto llevas así?",
+        "texto_pantalla": "Nadie levanta la mano en este bar"
+      },
+      {
+        "seg_inicio": 2,
+        "seg_fin": 4,
+        "visual": "La mano baja y el cliente acerca el móvil a la tarjeta de su mesa.",
+        "voz": "En este bar, no.",
+        "texto_pantalla": "① toca la tarjeta"
+      },
+      {
+        "seg_inicio": 4,
+        "seg_fin": 8,
+        "visual": "El aviso le llega al personal con el número de mesa (pantalla real).",
+        "voz": "Al camarero le llega el aviso con el número de mesa.",
+        "texto_pantalla": "② aviso: MESA 7"
+      },
+      {
+        "seg_inicio": 8,
+        "seg_fin": 12,
+        "visual": "El camarero se gira y va directo a la mesa 7.",
+        "voz": "Sin gritar, sin hacer señas.",
+        "texto_pantalla": "③ va directo"
+      },
+      {
+        "seg_inicio": 12,
+        "seg_fin": 17,
+        "visual": "Plano de la tarjeta con las opciones: llamar, pedir la cuenta.",
+        "voz": "Para pedir algo o para la cuenta.",
+        "texto_pantalla": "llamar · la cuenta"
+      },
+      {
+        "seg_inicio": 17,
+        "seg_fin": 20,
+        "visual": "Vuelta al plano inicial: otro cliente levanta la mano en otro bar (bucle).",
+        "voz": "¿En tu bar cuánto tardan en verte?",
+        "texto_pantalla": "¿y en tu bar?"
+      }
+    ],
+    "payoff": "El camarero sabe qué mesa le llama sin que nadie levante la mano.",
+    "cta": "¿Cuánto tardan en verte en tu bar? Te leo.",
+    "pie": "Se acabó lo de levantar la mano 🙋",
+    "hashtags": [
+      "hosteleria",
+      "camareros",
+      "bares",
+      "nfc",
+      "restaurantes"
+    ],
+    "duracion_s": 20,
+    "reglas_aplicadas": [
+      "R02",
+      "R07",
+      "R05",
+      "R11",
+      "R10"
+    ],
+    "material_a_grabar": [
+      "Bar real con la tarjeta de llamar al camarero",
+      "Dos actores o clientes y un camarero con permiso",
+      "Grabación real de cómo le llega el aviso al personal"
+    ],
+    "riesgos": "Confirmar cómo le llega el aviso al personal en el producto real (móvil, reloj o pantalla) y enseñar exactamente eso.",
+    "curiosidad_1_10": 7,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "Respuesta: «¿y eso no lleva pilas?»",
+    "producto": "carta",
+    "inspirado_en": "@worksdsefs7 (422 k): la pregunta de la gente entre comillas como gancho, y la respuesta «la energía la pone el móvil». Formato de respuesta a comentario de @33.hats (1,7 M).",
+    "angulo": "La pregunta que más hacen los dueños de bar al ver la tarjeta, respondida en 20 segundos.",
+    "por_que_despierta_curiosidad": "Responde una duda real; la respuesta sorprende.",
+    "gancho": {
+      "visual": "Burbuja de comentario en pantalla con la pregunta; debajo, una tarjeta de mesa en la mano.",
+      "texto_pantalla": "«¿Y eso no lleva pilas?»",
+      "voz": "Es lo que más nos preguntan los dueños de bar."
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 2.5,
+        "visual": "Burbuja de comentario y la tarjeta.",
+        "voz": "«¿Y eso no lleva pilas?» Es lo que más nos preguntan.",
+        "texto_pantalla": "«¿Y eso no lleva pilas?»"
+      },
+      {
+        "seg_inicio": 2.5,
+        "seg_fin": 5,
+        "visual": "Tarjeta a contraluz: se ve la espiral.",
+        "voz": "No. Mira lo que hay dentro: una espiral y un chip.",
+        "texto_pantalla": "una ESPIRAL y un CHIP"
+      },
+      {
+        "seg_inicio": 5,
+        "seg_fin": 10,
+        "visual": "Animación sencilla de ondas del móvil a la espiral.",
+        "voz": "La energía se la da tu móvil al acercarlo. Como una carga inalámbrica, pero mínima.",
+        "texto_pantalla": "la enciende TU MÓVIL"
+      },
+      {
+        "seg_inicio": 10,
+        "seg_fin": 14,
+        "visual": "Toque: se abre la carta.",
+        "voz": "Con eso le basta para decirle al móvil qué abrir.",
+        "texto_pantalla": "y abre la carta"
+      },
+      {
+        "seg_inicio": 14,
+        "seg_fin": 18,
+        "visual": "Tarjeta en la mesa del bar.",
+        "voz": "Por eso no hay que cargarla ni cambiarle nada.",
+        "texto_pantalla": "nada que cargar"
+      }
+    ],
+    "payoff": "Sin pilas: la enciende el móvil del cliente.",
+    "cta": "¿Qué otra pregunta nos hacen? Déjala en comentarios y la respondo.",
+    "pie": "Lo que más nos preguntan los bares 😅",
+    "hashtags": [
+      "nfc",
+      "sabiasque",
+      "bares",
+      "comofunciona",
+      "hosteleria"
+    ],
+    "duracion_s": 18,
+    "reglas_aplicadas": [
+      "R04",
+      "R13",
+      "R14",
+      "R09",
+      "R11"
+    ],
+    "material_a_grabar": [
+      "Tarjeta de carta VISAX",
+      "Linterna para el contraluz",
+      "Hacer uno por cada pregunta real de los dueños: «¿y si el cliente no tiene NFC?», «¿se puede cambiar la carta?»"
+    ],
+    "riesgos": "Usar preguntas que de verdad hacen los dueños (las apuntan los comerciales).",
+    "curiosidad_1_10": 7,
+    "fecha": "2026-11-14"
+  },
+  {
+    "titulo": "¿Por qué este bar tiene [NOTA REAL] estrellas?",
+    "producto": "reseñas Google",
+    "inspirado_en": "@_lufatech_ (416 k): curiosidad por el éxito de un local real («¿este restaurante factura…?»), «no hacen lo que dicen los expertos» y luego el truco.",
+    "angulo": "Delante de un bar cliente con muy buena nota: qué hacen para que la gente deje reseña.",
+    "por_que_despierta_curiosidad": "Todos miramos las estrellas antes de entrar; el porqué de un local concreto engancha.",
+    "gancho": {
+      "visual": "Delante de la fachada de un bar con mucha gente; en pantalla, su ficha de Google con la nota y el número de reseñas.",
+      "texto_pantalla": "¿Por qué este bar tiene [NOTA REAL] ⭐ con [Nº REAL] reseñas?",
+      "voz": "¿Por qué este bar tiene [NOTA REAL] estrellas?"
+    },
+    "planos": [
+      {
+        "seg_inicio": 0,
+        "seg_fin": 3,
+        "visual": "Fachada + ficha de Google superpuesta.",
+        "voz": "¿Por qué este bar tiene [NOTA REAL] estrellas?",
+        "texto_pantalla": "[NOTA REAL] ⭐ · [Nº REAL] reseñas"
+      },
+      {
+        "seg_inicio": 3,
+        "seg_fin": 7,
+        "visual": "Entrando al bar.",
+        "voz": "No hacen anuncios. Se lo he preguntado al dueño.",
+        "texto_pantalla": "se lo pregunto al dueño"
+      },
+      {
+        "seg_inicio": 7,
+        "seg_fin": 14,
+        "visual": "El dueño responde a cámara.",
+        "voz": "[RESPUESTA REAL DEL DUEÑO]",
+        "texto_pantalla": "(lo que diga)"
+      },
+      {
+        "seg_inicio": 14,
+        "seg_fin": 19,
+        "visual": "Plano del expositor en la barra; un cliente lo toca y se abre la ficha.",
+        "voz": "Y una cosa más: dejar la reseña cuesta un toque.",
+        "texto_pantalla": "1 toque = la reseña"
+      },
+      {
+        "seg_inicio": 19,
+        "seg_fin": 23,
+        "visual": "Vuelta a la fachada.",
+        "voz": "¿Tú miras las estrellas antes de entrar en un bar?",
+        "texto_pantalla": "¿miras las estrellas?"
+      }
+    ],
+    "payoff": "Lo que cuenta el propio dueño, y el detalle del expositor.",
+    "cta": "¿Miras las estrellas antes de entrar? Sí o no.",
+    "pie": "Le pregunté al dueño por qué tiene tan buena nota ⭐",
+    "hashtags": [
+      "bares",
+      "hosteleria",
+      "google",
+      "reseñas",
+      "restaurantes"
+    ],
+    "duracion_s": 23,
+    "reglas_aplicadas": [
+      "R09",
+      "R05",
+      "R02",
+      "R10",
+      "R11"
+    ],
+    "material_a_grabar": [
+      "Un bar cliente con buena nota y su permiso",
+      "Captura de su ficha de Google el día de la grabación",
+      "Entrevista corta al dueño"
+    ],
+    "riesgos": "No atribuir la nota al expositor: se cuenta lo que dice el dueño. Cifras de la ficha del día real. Nada de reseñas a cambio de algo.",
+    "curiosidad_1_10": 7,
     "fecha": "2026-11-14"
   }
 ]

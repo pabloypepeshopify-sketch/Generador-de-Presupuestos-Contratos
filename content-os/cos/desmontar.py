@@ -187,6 +187,11 @@ def desmontar(cfg: dict, solo: list[str] | None = None) -> list[dict]:
     if not virales:
         raise SystemExit("No hay virales. Ejecuta antes `virales`.")
     objetivo = [v for v in virales if not solo or v["clave"] in solo][: cfg["max_virales_a_desmontar"]]
+    if solo:  # un reel pedido por clave se desmonta aunque no haya pasado el filtro de virales
+        from .util import REELS, leer_jsonl
+        ya = {v["clave"] for v in objetivo}
+        objetivo += [{**r, "base": None, "ratio": None, "metodo": "forzado"} for r in leer_jsonl(REELS)
+                     if r["clave"] in solo and r["clave"] not in ya]
     carpeta_de = lambda v: DESMONTADOS / v["clave"].replace(":", "_")
 
     # Plataformas con plantilla "videos" (TikTok): se pide el vídeo descargable solo de los virales pendientes.

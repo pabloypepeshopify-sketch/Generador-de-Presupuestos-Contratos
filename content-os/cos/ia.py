@@ -5,7 +5,8 @@ from pathlib import Path
 
 import anthropic
 
-from .util import ANALISIS, DESMONTADOS, MARCA, REGLAS_JSON, REGLAS_SEMILLA, leer_json, escribir_json, log
+from .util import (ANALISIS, DESMONTADOS, MARCA, REGLAS_JSON, REGLAS_SEMILLA, SALIDA, leer_json, escribir_json,
+                   log)
 
 
 # ---------- Esquemas (salida estructurada) ----------
@@ -54,6 +55,9 @@ ESQ_REGLAS = obj(
 ESQ_GUIONES = obj(
     guiones=lista(obj(
         titulo=S,
+        producto={"type": "string", "enum": ["reseñas Google", "carta", "pedir desde la mesa", "redes sociales",
+                                             "llamar al camarero", "varios"]},
+        inspirado_en=S,
         angulo=S,
         por_que_despierta_curiosidad=S,
         gancho=obj(visual=S, texto_pantalla=S, voz=S),
@@ -178,10 +182,11 @@ def extraer_reglas(cfg: dict, analisis: list[dict]) -> list[dict]:
 
 # ---------- 3. Guiones ----------
 
-SISTEMA_GUIONES = """Eres guionista de vídeo corto para la marca descrita abajo. Escribe guiones pensados para \
-hacerse virales por curiosidad, no para vender: quien lo ve debe quedarse por lo que aprende o por lo que pasa, y la \
-marca aparece de forma natural (el producto es el protagonista del experimento o del dato, nunca un anuncio). \
-Aplica las reglas virales que se te dan y cita sus id en reglas_aplicadas. Cada guion debe poder grabarse con un móvil \
+SISTEMA_GUIONES = """Eres guionista de vídeo corto para la marca descrita abajo. Cada guion trata de UNO de sus \
+productos (reseñas de Google, carta, pedir desde la mesa, redes sociales, llamar al camarero) y copia la estructura \
+de un vídeo viral concreto del aprendizaje: su gancho, sus pasos y su final, adaptados al producto. Indica en \
+inspirado_en qué viral copias (autor y qué le copias). Busca curiosidad, no anuncio: quien lo ve debe quedarse por lo \
+que pasa o lo que aprende. Aplica las reglas virales que se te dan y cita sus id en reglas_aplicadas. Cada guion debe poder grabarse con un móvil \
 y el producto real; lista en material_a_grabar lo que hace falta. Todo dato técnico tiene que ser cierto; si un \
 resultado depende de un experimento real (por ejemplo cuánta gente escaneó algo), deja el hueco indicado como \
 [RESULTADO REAL] en vez de inventar la cifra. Nada de instrucciones para clonar o leer tarjetas ajenas (pago, hotel, \
@@ -206,8 +211,11 @@ def generar_guiones(cfg: dict, n: int, tema: str | None, evitar: list[str]) -> l
         pedido += f" Tema o idea de partida: {tema}."
     if evitar:
         pedido += "\nYa existen estos títulos; no los repitas ni hagas variaciones obvias:\n- " + "\n- ".join(evitar)
+    aprendizaje = SALIDA / "aprendizaje.md"
     c = [
         {"type": "text", "text": "MARCA\n" + MARCA.read_text(encoding="utf-8")},
+        {"type": "text", "text": "APRENDIZAJE DE LOS VIRALES\n" + (aprendizaje.read_text(encoding="utf-8")
+                                  if aprendizaje.exists() else "(todavía no hay)")},
         {"type": "text", "text": reglas_texto()},
         {"type": "text", "text": pedido},
     ]

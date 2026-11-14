@@ -1,62 +1,108 @@
 {
   "nicho": "Tarjetas y expositores NFC para hostelería (VISAX NFC)",
-
-  "plataformas": ["tiktok"],
-
+  "plataformas": [
+    "tiktok"
+  ],
   "_gasto_nota": "Tope en dólares por cada ejecución de un actor de Apify (se corta al llegar). Plan FREE = 5 $/mes.",
-  "max_usd_por_ejecucion": 2.0,
-
-  "_hashtags_nota": "Dos grupos: 'nicho' trae lo que se publica sobre NFC; 'formato' trae virales de curiosidad/tecnología de los que aprender estructura aunque no hablen de NFC.",
-  "hashtags": {
-    "nicho": ["nfc", "nfctag", "nfcchip", "tarjetanfc", "nfccard", "pegatinanfc"],
-    "formato": ["sabiasque", "curiosidadestecnologicas", "techtok", "experimento", "comofunciona", "tecnologia"]
+  "max_usd_por_ejecucion": 1.6,
+  "_busquedas_nota": "Frases que se buscan en TikTok (más precisas que los hashtags). Una lista por producto o formato.",
+  "busquedas": {
+    "resenas_google": [
+      "tarjeta nfc reseñas google",
+      "google review nfc card",
+      "nfc google review stand restaurant"
+    ],
+    "carta_y_pedido": [
+      "menu nfc restaurante",
+      "carta nfc mesa",
+      "nfc menu restaurant",
+      "order from table nfc",
+      "pedir desde la mesa con el movil"
+    ],
+    "redes": [
+      "nfc instagram tarjeta",
+      "nfc tag instagram follow",
+      "nfc tiktok card"
+    ],
+    "camarero": [
+      "boton llamar al camarero",
+      "call waiter button restaurant",
+      "nfc llamar camarero"
+    ],
+    "que_pasa_cuando": [
+      "que pasa cuando escaneas nfc",
+      "how nfc works animation",
+      "como funciona el nfc"
+    ]
   },
-
+  "_hashtags_nota": "Opcional: hashtags además de las búsquedas.",
+  "hashtags": {},
   "_perfiles_nota": "Cuentas concretas a vigilar (sin @). Opcional: si se deja vacío se usan los autores que salgan en los hashtags.",
   "perfiles": [],
-
-  "max_por_hashtag": 40,
+  "max_por_hashtag": 20,
   "max_por_perfil": 15,
-  "autores_para_baseline": 20,
-
+  "_baseline_nota": "Autores de los que se baja el histórico para saber su 'normal'. 0 = no gastar en eso (se compara con seguidores).",
+  "autores_para_baseline": 0,
   "_viral_nota": "Un reel es viral si tiene >= umbral_viral veces las visitas normales (mediana) de su autor y al menos min_visitas.",
   "umbral_viral": 10,
   "umbral_viral_por_seguidores": 3,
   "min_posts_baseline": 4,
   "min_visitas": 50000,
-
   "max_virales_a_desmontar": 15,
   "umbral_escena": 0.3,
   "max_planos_por_reel": 16,
-
   "guiones_por_tanda": 10,
-
   "modelo": "claude-opus-5-5",
   "esfuerzo": "high",
-
   "apify": {
     "instagram": {
       "hashtags": {
         "actor": "apify~instagram-hashtag-scraper",
-        "input": { "hashtags": "$HASHTAGS", "resultsLimit": "$N", "resultsType": "reels" }
+        "input": {
+          "hashtags": "$HASHTAGS",
+          "resultsLimit": "$N",
+          "resultsType": "reels"
+        }
       },
       "perfiles": {
         "actor": "apify~instagram-reel-scraper",
-        "input": { "username": "$PERFILES", "resultsLimit": "$N" }
+        "input": {
+          "username": "$PERFILES",
+          "resultsLimit": "$N"
+        }
       }
     },
     "tiktok": {
       "hashtags": {
         "actor": "clockworks~tiktok-scraper",
-        "input": { "hashtags": "$HASHTAGS", "resultsPerPage": "$N", "shouldDownloadVideos": false }
+        "input": {
+          "hashtags": "$HASHTAGS",
+          "resultsPerPage": "$N",
+          "shouldDownloadVideos": false
+        }
+      },
+      "busquedas": {
+        "actor": "clockworks~tiktok-scraper",
+        "input": {
+          "searchQueries": "$BUSQUEDAS",
+          "resultsPerPage": "$N",
+          "shouldDownloadVideos": false
+        }
       },
       "perfiles": {
         "actor": "clockworks~tiktok-scraper",
-        "input": { "profiles": "$PERFILES", "resultsPerPage": "$N", "shouldDownloadVideos": false }
+        "input": {
+          "profiles": "$PERFILES",
+          "resultsPerPage": "$N",
+          "shouldDownloadVideos": false
+        }
       },
       "videos": {
         "actor": "clockworks~tiktok-scraper",
-        "input": { "postURLs": "$URLS", "shouldDownloadVideos": true }
+        "input": {
+          "postURLs": "$URLS",
+          "shouldDownloadVideos": true
+        }
       }
     }
   }

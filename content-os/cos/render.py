@@ -23,6 +23,8 @@ def guion_md(g: dict) -> str:
     l = [
         f"# {g['titulo']}",
         "",
+        *([f"**Producto:** {g['producto']}  "] if g.get("producto") else []),
+        *([f"**Copia el formato de:** {g['inspirado_en']}  "] if g.get("inspirado_en") else []),
         f"**Ángulo:** {g['angulo']}  ",
         f"**Por qué engancha:** {g['por_que_despierta_curiosidad']}  ",
         f"**Duración:** {_seg(g['duracion_s'])} s · **Curiosidad:** {_seg(g['curiosidad_1_10'])}/10 · "

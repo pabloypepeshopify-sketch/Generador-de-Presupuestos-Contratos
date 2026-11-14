@@ -1,4 +1,7 @@
 datos/
 salida/virales.md
+salida/videos/*.jpg
 __pycache__/
 .env
+video/vendor/
+video/.sfx/

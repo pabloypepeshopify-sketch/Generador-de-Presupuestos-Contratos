@@ -1,8 +1,12 @@
 # VISAX NFC — contexto de marca para los guiones
 
-## Qué vendemos
-- **Tarjeta NFC «Toca para ver menú»**: se pega en la mesa; el cliente acerca el móvil y se abre la carta. 15 € (12,50 €/ud desde 40).
-- **Expositor NFC de reseñas Google**: un toque y el cliente está en la ficha de Google del local, listo para dejar la reseña. 29,99 € (10 €/ud desde 50, 6 €/ud desde 100).
+## Qué vendemos (todo NFC, para bares y restaurantes)
+Los guiones tratan **solo** de estos productos:
+- **Reseñas de Google**: expositor o tarjeta; un toque y el cliente está en la ficha de Google del local, listo para dejar la reseña. Expositor 29,99 € (10 €/ud desde 50, 6 €/ud desde 100).
+- **Carta / menú**: tarjeta en la mesa; un toque y se abre la carta. 15 € (12,50 €/ud desde 40).
+- **Pedir desde la mesa**: la tarjeta de cada mesa sabe **qué mesa es**, así que el pedido llega a cocina/barra con el número de mesa sin que nadie lo apunte.
+- **Redes sociales**: un toque y se abre el Instagram, Facebook o TikTok del local para seguirle.
+- **Llamar al camarero**: un toque desde la mesa avisa al personal de qué mesa necesita algo (pedir, la cuenta…).
 - Web: visaxnfc.es. Clientes: bares y restaurantes de España. Venta en persona, al dueño.
 
 ## Línea de contenido
@@ -11,6 +15,9 @@
 - Público del vídeo: cualquiera con un móvil. Público que convierte: dueños y camareros que lo ven y piensan «esto en mi bar».
 - Tono: cercano, rápido, con gracia; español de España. Nada de jerga técnica sin explicar en la misma frase.
 - Firma recurrente opcional: palabra clave en comentarios (p. ej. **MESA**) para mandar más info por DM.
+
+## Formato preferido
+- Explicativos de **«qué pasa cuando…»** («qué pasa cuando escaneas un NFC», «qué viaja desde tu mesa hasta la cocina»), con animación hecha con IA, estilo prototipo / esquema del recorrido. Se combinan con planos reales del producto en un bar.
 
 ## Territorios que despiertan curiosidad
 1. **Cómo funciona por dentro**: sin batería, la antena se ve a contraluz, el móvil le da energía al acercarse.

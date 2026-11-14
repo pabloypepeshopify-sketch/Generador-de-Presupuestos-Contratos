@@ -151,16 +151,33 @@ def ejecutar_actor(actor: str, entrada: dict, token: str, max_usd: float | None 
 def recolectar_apify(cfg: dict) -> None:
     token = requiere_env("APIFY_TOKEN", "para descargar reels con Apify")
     tope = cfg.get("max_usd_por_ejecucion")
-    hashtags = [h.lstrip("#") for grupo in cfg["hashtags"].values() for h in grupo]
+    hashtags = [h.lstrip("#") for grupo in (cfg.get("hashtags") or {}).values() for h in grupo]
+    # Cada búsqueda recuerda a qué grupo pertenece (producto o formato) para luego filtrar por tema.
+    grupo_de = {q.lower(): g for g, qs in (cfg.get("busquedas") or {}).items() for q in qs}
     for plataforma in cfg["plataformas"]:
         plantillas = cfg["apify"][plataforma]
-        log(f"[{plataforma}] hashtags: {', '.join(hashtags)}")
-        crudos = ejecutar_actor(
-            plantillas["hashtags"]["actor"],
-            _rellenar(plantillas["hashtags"]["input"], {"$HASHTAGS": hashtags, "$N": cfg["max_por_hashtag"]}),
-            token, tope,
-        )
-        reels = [r for r in (normalizar(i, plataforma) for i in crudos) if r]
+        reels = []
+        if hashtags:
+            log(f"[{plataforma}] hashtags: {', '.join(hashtags)}")
+            crudos = ejecutar_actor(
+                plantillas["hashtags"]["actor"],
+                _rellenar(plantillas["hashtags"]["input"], {"$HASHTAGS": hashtags, "$N": cfg["max_por_hashtag"]}),
+                token, tope,
+            )
+            reels += [r for r in (normalizar(i, plataforma) for i in crudos) if r]
+        if grupo_de and plantillas.get("busquedas"):
+            log(f"[{plataforma}] {len(grupo_de)} búsquedas")
+            crudos = ejecutar_actor(
+                plantillas["busquedas"]["actor"],
+                _rellenar(plantillas["busquedas"]["input"], {"$BUSQUEDAS": list(grupo_de), "$N": cfg["max_por_hashtag"]}),
+                token, tope,
+            )
+            for i in crudos:
+                r = normalizar(i, plataforma)
+                if r:
+                    q = str(i.get("searchQuery") or "").lower()
+                    r["busqueda"], r["grupo"] = q or None, grupo_de.get(q)
+                    reels.append(r)
         log(f"  {len(reels)} reels válidos, {guardar(reels)} nuevos")
 
         # Para saber "lo normal" de cada autor hacen falta más vídeos suyos.
