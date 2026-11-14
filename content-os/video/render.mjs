@@ -1,7 +1,7 @@
 // Renderiza un vídeo 3D de VISAX: node video/render.mjs <id> [--fps 30] [--muestras 0.5,3,8]
 // Necesita: voces/<id>.mp3 + voces/<id>.json (python video/alinear.py), salvo vídeos sin voz (redes).
 import { createServer } from 'node:http';
-import { readFile, mkdir, writeFile, access } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, access, rename } from 'node:fs/promises';
 import { spawn, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -82,7 +82,7 @@ info.efectos.forEach(([n, t], i) => {
 });
 filtros.push(`${etiquetas.join('')}amix=inputs=${etiquetas.length}:normalize=0:duration=first,apad,atrim=0:${dur}[a]`);
 
-const mp4 = path.join(SALIDA, `${id}.mp4`);
+const mp4 = path.join(SALIDA, `${id}.parcial.mp4`); // se renombra al terminar
 const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
   ...entradas, '-filter_complex', filtros.join(';'), '-map', '0:v', '-map', '[a]',
   '-c:v', 'libx264', '-preset', 'medium', '-crf', '19', '-pix_fmt', 'yuv420p', '-r', String(FPS),
@@ -99,4 +99,5 @@ for (let f = 0; f < total; f++) {
 ff.stdin.end();
 await new Promise(r => ff.on('close', r));
 await navegador.close(); srv.close();
-console.error(`\n→ ${mp4}`);
+const final = path.join(SALIDA, `${id}.mp4`); await rename(mp4, final);
+console.error(`\n→ ${final}`);

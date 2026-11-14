@@ -5,3 +5,4 @@ __pycache__/
 .env
 video/vendor/
 video/.sfx/
+salida/videos/*.parcial.mp4
