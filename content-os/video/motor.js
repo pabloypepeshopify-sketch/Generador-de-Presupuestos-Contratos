@@ -937,8 +937,8 @@ PANT.pedidoCamarero = (x, w, h, s) => {
   x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.textAlign = 'left'; x.fillText('VISAX · Pedidos', 34, 70);
   x.fillStyle = '#fff'; x.font = `600 50px ${SERIF}`; x.fillText(s.confirmado ? 'Pedido confirmado' : 'Nuevo pedido', 34, 150);
   x.fillStyle = grad(x, 34, 0, 300, 0, [VX.cian, VX.violeta]); rr(x, 34, 190, 230, 90, 26); x.fill(); x.fillStyle = '#fff'; x.font = `900 48px ${SANS}`; x.textAlign = 'center'; x.fillText('Mesa 7', 149, 252);
-  x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.fillText('hace 5 s · 3 productos · 17,00 €', 34, 330);
-  x.fillStyle = 'rgba(255,255,255,0.05)'; rr(x, 24, 370, w - 48, 260, 26); x.fill(); lineasPedido(x, 50, 440, w - 100, null, 30, 72);
+  x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.fillText(s.resumen || 'hace 5 s · 3 productos · 17,00 €', 34, 330);
+  x.fillStyle = 'rgba(255,255,255,0.05)'; rr(x, 24, 370, w - 48, 260, 26); x.fill(); if (s.lineas) s.lineas.forEach(([n, tipo], i) => { const y = 440 + i * 72; x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.fillText(n, 50, y); const et = tipo === 'bebida' ? 'Barra' : 'Cocina'; x.font = `800 22px ${SANS}`; const ew = x.measureText(et).width + 28; x.fillStyle = tipo === 'bebida' ? 'rgba(51,198,244,0.2)' : 'rgba(255,122,26,0.22)'; rr(x, w - 50 - ew, y - 26, ew, 36, 18); x.fill(); x.fillStyle = tipo === 'bebida' ? '#7fdcff' : '#ffb27a'; x.textAlign = 'center'; x.fillText(et, w - 50 - ew / 2, y - 4); }); else lineasPedido(x, 50, 440, w - 100, null, 30, 72);
   const on = s.confirmado; x.fillStyle = on ? '#16a34a' : grad(x, 30, 0, w - 30, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, 30, h - 170, w - 60, 112, 56); x.fill();
   x.fillStyle = '#fff'; x.font = `800 36px ${SANS}`; x.textAlign = 'center'; if (on) { check(x, w / 2 - 110, h - 114, 1.5); x.fillText('Confirmado', w / 2 + 20, h - 101); } else x.fillText('Confirmar', w / 2, h - 101);
   if (s.onda) { x.fillStyle = `rgba(255,255,255,${0.45 * (1 - s.onda)})`; x.beginPath(); x.arc(w / 2, h - 114, 40 + s.onda * 260, 0, 7); x.fill(); }
@@ -1785,7 +1785,7 @@ V['pov'] = { ...comunCapa,
     this.pantBarra.userData.pintar('barra', t > c.canas2 - 0.3 ? { nuevo: true, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
     this.pantCoc.userData.pintar('cocina', t > c.bravas2 - 0.2 ? { nuevo: true, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
     if (t > c.placa + 0.3 && t < c.cero) this.movCam.userData.pantalla('avisos', { mesa: 7, pulso });
-    else if (t > c.corte1 - 0.2 && t < c.quiero) this.movCam.userData.pantalla('pedidoCamarero', { confirmado: t > c.confirma + 0.25, onda: entre(t, c.confirma, c.confirma + 0.5) ? (t - c.confirma) / 0.5 : 0 });
+    else if (t > c.corte1 - 0.2 && t < c.quiero) this.movCam.userData.pantalla('pedidoCamarero', { lineas: [['2 × Caña', 'bebida'], ['1 × Patatas bravas', 'comida']], resumen: 'hace 5 s · 3 productos · 11,50 €', confirmado: t > c.confirma + 0.25, onda: entre(t, c.confirma, c.confirma + 0.5) ? (t - c.confirma) / 0.5 : 0 });
     else this.movCam.userData.pantalla('bloqueo', { hora: '22:40' });
     const enBarra = entre(t, c.corte1, c.corte2);
     this.D.visible = this.I.visible = !enBarra; if (enBarra) this.colocarBrazo();
