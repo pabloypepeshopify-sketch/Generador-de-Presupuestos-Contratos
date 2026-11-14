@@ -2,6 +2,7 @@
 // Se renderiza fotograma a fotograma (window.frame(t)) desde render.mjs. 1080×1920, vertical.
 import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const W = 1080, H = 1920;
 const FUENTE = 'Inter, "Inter Display", "DejaVu Sans", Arial, sans-serif';
@@ -1104,6 +1105,435 @@ V['mesa7'] = {
     }
   },
   subtitulos: subtitulosIOS,
+};
+
+// =====================================================================
+// BASE COMÚN para los vídeos del bar (mismo bar, gente, sistema y cierre)
+// =====================================================================
+function placaCuadrada(icono) {
+  const g = new THREE.Group();
+  const cara = lienzo(620, 620, (x, w, h) => {
+    x.fillStyle = grad(x, 0, 0, w, h, ['#24356a', '#2c2a6e', '#3a2f86']); rr(x, 0, 0, w, h, 120); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,0.18)'; x.lineWidth = 6; rr(x, 6, 6, w - 12, h - 12, 116); x.stroke();
+    x.strokeStyle = '#5fd6ff'; x.lineCap = 'round'; x.lineWidth = 26;
+    if (icono === 'wifi') { for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(w / 2, h * 0.66, 60 + i * 70, Math.PI * 1.22, Math.PI * 1.78); x.stroke(); } x.fillStyle = '#5fd6ff'; x.beginPath(); x.arc(w / 2, h * 0.66, 20, 0, 7); x.fill(); }
+    else { x.lineWidth = 22; x.beginPath(); x.moveTo(w / 2 - 120, h * 0.66); x.lineTo(w / 2 - 120, h * 0.42); x.quadraticCurveTo(w / 2 - 120, h * 0.22, w / 2, h * 0.22); x.quadraticCurveTo(w / 2 + 120, h * 0.22, w / 2 + 120, h * 0.42); x.lineTo(w / 2 + 120, h * 0.66); x.lineTo(w / 2 + 150, h * 0.72); x.lineTo(w / 2 - 150, h * 0.72); x.closePath(); x.stroke();
+      x.beginPath(); x.arc(w / 2, h * 0.8, 26, 0, Math.PI); x.stroke(); x.beginPath(); x.arc(w / 2 - 175, h * 0.36, 60, Math.PI * 0.85, Math.PI * 1.25); x.stroke(); x.beginPath(); x.arc(w / 2 + 175, h * 0.36, 60, -Math.PI * 0.25, Math.PI * 0.15); x.stroke(); }
+    x.lineWidth = 10; x.strokeStyle = '#8fd8ff'; for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(w - 150, 130, 22 + i * 22, -0.75, 0.75); x.stroke(); }
+  });
+  const lado = new THREE.MeshStandardMaterial({ color: '#1e2552', roughness: 0.4 });
+  const frente = new THREE.MeshStandardMaterial({ map: cara.tex, roughness: 0.35 });
+  const card = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.62, 0.025), [lado, lado, lado, lado, frente, lado]); card.position.y = 0.38; card.rotation.x = -0.12; card.castShadow = true; g.add(card);
+  const peana = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.07, 0.26), new THREE.MeshStandardMaterial({ color: '#d7ecff', roughness: 0.1, transparent: true, opacity: 0.55 })); peana.position.y = 0.035; g.add(peana);
+  g.userData = { card, centro() { return card.localToWorld(new THREE.Vector3(0, 0, 0.02)); }, rayosX() {} }; return g;
+}
+function expositorL(tipo) {
+  const g = new THREE.Group();
+  const cara = lienzo(620, 920, (x, w, h) => {
+    if (tipo === 'instagram') {
+      x.fillStyle = grad(x, 0, 0, w * 0.4, h, ['#6a2cc0', '#c1357e', '#e8483f', '#f57b2c']); rr(x, 0, 0, w, h, 34); x.fill();
+      x.strokeStyle = '#fff'; x.lineWidth = 30; rr(x, w / 2 - 125, 120, 250, 250, 72); x.stroke(); x.beginPath(); x.arc(w / 2, 245, 62, 0, 7); x.stroke(); x.fillStyle = '#fff'; x.beginPath(); x.arc(w / 2 + 80, 170, 17, 0, 7); x.fill();
+      x.textAlign = 'center'; x.font = `600 52px ${SANS}`; x.fillText('Follow us on', w / 2, 500); x.font = `italic 800 92px ${SERIF}`; x.fillText('Instagram', w / 2, 610);
+      manoMovil(x, w / 2 + 30, 770, 1.0);
+    } else {
+      x.fillStyle = '#1b1d22'; rr(x, 0, 0, w, h, 34); x.fill(); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `700 62px ${SANS}`; x.fillText('Review Us On', w / 2, 120);
+      const cols = ['#4285F4', '#EA4335', '#FBBC05', '#34A853']; for (let i = 0; i < 4; i++) { x.strokeStyle = cols[i]; x.lineWidth = 18; x.beginPath(); x.arc(w / 2, 380, 190, i * Math.PI / 2 - 0.2, (i + 1) * Math.PI / 2 - 0.25); x.stroke(); }
+      manoMovil(x, w / 2 + 20, 330, 0.9); x.font = `800 34px ${SANS}`; x.fillStyle = '#fff'; x.fillText('TAP HERE', w / 2, 420);
+      const letras = 'Google'.split(''), cl = ['#4285F4', '#EA4335', '#FBBC05', '#4285F4', '#34A853', '#EA4335']; x.font = `700 84px ${SANS}`; let tw = x.measureText('Google').width, xx = w / 2 - tw / 2;
+      letras.forEach((l, i) => { x.fillStyle = cl[i]; x.textAlign = 'left'; x.fillText(l, xx, 520); xx += x.measureText(l).width; });
+      estrellas(x, w / 2, 700, 92, 5, 5, '#FBBC05'); for (let i = 0; i < 4; i++) { x.fillStyle = cols[i]; x.fillRect(60 + i * (w - 120) / 4, 820, (w - 120) / 4, 14); }
+    }
+  });
+  const lado = new THREE.MeshStandardMaterial({ color: tipo === 'instagram' ? '#d84a3a' : '#16181d', roughness: 0.3 });
+  const frente = new THREE.MeshStandardMaterial({ map: cara.tex, roughness: 0.3 });
+  const card = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.92, 0.02), [lado, lado, lado, lado, frente, lado]); card.position.set(0, 0.47, -0.04); card.rotation.x = -0.18; card.castShadow = true; g.add(card);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.02, 0.32), lado); base.position.set(0, 0.01, 0.06); g.add(base);
+  g.userData = { card, centro() { return card.localToWorld(new THREE.Vector3(0, 0, 0.02)); }, rayosX() {} }; return g;
+}
+// pantallas nuevas
+PANT.wifiAndroid = (x, w, h, s) => {
+  x.fillStyle = '#101317'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.font = `500 44px ${SANS}`; x.textAlign = 'left'; x.fillText('Wi-Fi', 40, 130);
+  [['BarLaEsquina_WiFi', s.conectado ? 'Conectado' : 'Conectando…', true], ['MOVISTAR_8A21', 'Guardada', false], ['vodafone4F2C', '', false]].forEach(([n, e, top], i) => {
+    const y = 200 + i * 130; x.fillStyle = top ? 'rgba(77,163,255,0.16)' : 'rgba(255,255,255,0.04)'; rr(x, 24, y, w - 48, 112, 24); x.fill();
+    x.strokeStyle = top ? '#4da3ff' : '#9aa0a6'; x.lineWidth = 6; x.lineCap = 'round'; for (let k = 0; k < 3; k++) { x.beginPath(); x.arc(78, y + 76, 10 + k * 13, Math.PI * 1.25, Math.PI * 1.75); x.stroke(); }
+    x.fillStyle = '#fff'; x.font = `600 30px ${SANS}`; x.fillText(n, 130, y + 52); x.fillStyle = top ? '#4da3ff' : '#9aa0a6'; x.font = `500 24px ${SANS}`; x.fillText(e, 130, y + 88);
+  });
+  if (s.conectado) { x.fillStyle = '#2b2f36'; rr(x, 40, h - 200, w - 80, 110, 55); x.fill(); check(x, 100, h - 145, 1.4, '#4ade80'); x.fillStyle = '#fff'; x.font = `600 28px ${SANS}`; x.fillText('Conectado a BarLaEsquina_WiFi', 140, h - 134); }
+};
+PANT.wifiIphone = (x, w, h, s) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = `600 46px ${SERIF}`; x.fillText('WiFi de', 40, 150); x.fillText('Bar La Esquina', 40, 206);
+  x.fillStyle = 'rgba(255,255,255,0.06)'; rr(x, 30, 260, w - 60, 230, 26); x.fill(); x.fillStyle = 'rgba(255,255,255,0.6)'; x.font = `600 24px ${SANS}`; x.fillText('Red', 60, 310); x.fillText('Contraseña', 60, 410);
+  x.fillStyle = '#fff'; x.font = `700 32px ${SANS}`; x.fillText('BarLaEsquina_WiFi', 60, 352); x.fillText('••••••••••', 60, 452);
+  const ok = s.copiada; x.fillStyle = ok ? '#16a34a' : grad(x, 30, 0, w - 30, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, 30, 540, w - 60, 104, 52); x.fill(); x.fillStyle = '#fff'; x.font = `800 32px ${SANS}`; x.textAlign = 'center';
+  if (ok) { check(x, w / 2 - 120, 592, 1.4); x.fillText('Contraseña copiada', w / 2 + 20, 603); } else x.fillText('Copiar contraseña', w / 2, 603);
+  x.fillStyle = 'rgba(255,255,255,0.5)'; x.font = `500 24px ${SANS}`; x.fillText('Pégala en Ajustes › Wi-Fi', w / 2, 700);
+};
+PANT.avisos = (x, w, h, s) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffb27a'; x.font = `900 46px ${SANS}`; x.textAlign = 'left'; x.fillText('AVISOS', 40, 74);
+  x.fillStyle = 'rgba(255,255,255,0.45)'; x.font = `600 26px ${SANS}`; x.textAlign = 'right'; x.fillText('VISAX · sala', w - 40, 72);
+  if (s.mesa) { x.fillStyle = `rgba(255,122,26,${0.8 + 0.2 * (s.pulso || 0)})`; rr(x, 30, 120, w - 60, 300, 30); x.fill(); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `900 120px ${SANS}`; x.fillText(`Mesa ${s.mesa}`, w / 2, 280); x.font = `800 56px ${SANS}`; x.fillText('LLAMA', w / 2, 370); }
+  else { x.fillStyle = 'rgba(255,255,255,0.35)'; x.textAlign = 'center'; x.font = `600 40px ${SANS}`; x.fillText('Sin avisos', w / 2, 300); }
+  x.fillStyle = 'rgba(255,255,255,0.06)'; rr(x, 30, 450, w - 60, 150, 24); x.fill(); x.fillStyle = 'rgba(255,255,255,0.6)'; x.textAlign = 'left'; x.font = `600 32px ${SANS}`; x.fillText('Mesa 2 · atendida', 60, 540);
+};
+PANT.resenaG = (x, w, h, s) => {
+  x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); const cl = ['#4285F4', '#EA4335', '#FBBC05', '#4285F4', '#34A853', '#EA4335']; let xx = 40; x.font = `700 36px ${SANS}`; x.textAlign = 'left';
+  'Google'.split('').forEach((l, i) => { x.fillStyle = cl[i]; x.fillText(l, xx, 100); xx += x.measureText(l).width; });
+  x.fillStyle = '#111'; x.font = `700 40px ${SANS}`; x.fillText('Bar La Esquina', 40, 200); x.fillStyle = '#5f6368'; x.font = `500 26px ${SANS}`; x.fillText('Publicar con tu cuenta', 40, 244);
+  estrellas(x, w / 2, 360, 82, 5, s.llenas ?? 0, '#FBBC05'); x.strokeStyle = '#dadce0'; x.lineWidth = 3; rr(x, 40, 460, w - 80, 240, 20); x.stroke();
+  x.fillStyle = s.texto ? '#111' : '#80868b'; x.font = `500 28px ${SANS}`; x.fillText(s.texto || 'Comparte detalles de tu experiencia', 70, 510);
+  x.fillStyle = '#1a73e8'; rr(x, w - 250, 760, 210, 84, 42); x.fill(); x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.textAlign = 'center'; x.fillText('Publicar', w - 145, 812);
+};
+PANT.buscarIG = (x, w, h, s) => {
+  x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#efefef'; rr(x, 30, 90, w - 60, 76, 18); x.fill(); x.fillStyle = '#111'; x.font = `500 32px ${SANS}`; x.textAlign = 'left'; x.fillText((s.txt || '') + '|', 70, 140);
+  x.fillStyle = '#8e8e8e'; x.font = `500 28px ${SANS}`; x.fillText('Sin resultados', 40, 260); x.fillText('Prueba con otro nombre', 40, 304);
+};
+PANT.cartaCafe = (x, w, h, s) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'left'; x.font = `600 46px ${SERIF}`; x.fillText('Bar La Esquina', 34, 120); x.font = `italic 600 30px ${SERIF}`; x.fillStyle = '#7fb2ff'; x.fillText('desayunos', 34, 162);
+  [['Café con leche', s.precio || '1,30 €', ['#c89b6d', '#7a4b2a'], 'Lactosa'], ['Tostada con tomate', '2,50 €', ['#e0a24a', '#b9481f'], 'Gluten'], ['Zumo de naranja', '3,00 €', ['#ffb347', '#f57b2c'], ''], ['Croissant', '1,80 €', ['#e8c27a', '#b9822e'], 'Gluten · Huevo']].forEach(([n, p, cols, al], i) => {
+    const y = 210 + i * 170; x.fillStyle = 'rgba(255,255,255,0.05)'; rr(x, 24, y, w - 48, 150, 26); x.fill(); x.fillStyle = grad(x, 40, y + 18, 150, y + 128, cols); rr(x, 40, y + 18, 112, 112, 20); x.fill();
+    x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.fillText(n, 172, y + 56); const nuevo = i === 0 && s.nuevo; x.fillStyle = nuevo ? '#7fdcff' : 'rgba(255,255,255,0.7)'; x.font = `${nuevo ? 800 : 500} 28px ${SANS}`; x.fillText(p, 172, y + 96);
+    if (al) { x.fillStyle = 'rgba(255,255,255,0.4)'; x.font = `500 22px ${SANS}`; x.fillText(`Alérgenos: ${al}`, 172, y + 130); }
+  });
+};
+
+async function montarBarBase(v, { mesaCliente = 7, ropaCliente = 'Male_Casual_Hoodie', tarjeta = () => tarjetaMenu(), extraMesa = null } = {}) {
+  for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-ExtraBold.ttf', '800', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) {
+    const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff);
+  }
+  scene.background = new THREE.Color('#2b2118'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+  foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+  hemi.color.set('#fff3e3'); hemi.groundColor.set('#9c7b5c'); hemi.intensity = 1.55;
+  const sol = new THREE.DirectionalLight('#ffe0b5', 2.3); sol.position.set(-7, 15, 10); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 45 }); sol.shadow.bias = -0.0006; scene.add(sol);
+  const calida = new THREE.PointLight('#ffb36b', 25, 14, 1.6); calida.position.set(-1, 4.2, 2.5); scene.add(calida);
+  renderer.toneMappingExposure = 1.1;
+  const { mesas } = await construirBar(mundo, n => (extraMesa && extraMesa(n)) || tarjeta(n)); v.mesas = mesas;
+  const ropa = ['Male_Casual_2', 'Female_Casual', 'Female_Formal', 'Male_Beach', 'Female_Casual', 'Male_Casual_2', 'Female_Formal'];
+  v.gente = []; let k = 0;
+  for (const n of [1, 2, 3, 4, 5, 6, 7, 8]) for (const [j, silla] of mesas[n].sillas.entries()) {
+    if (n === mesaCliente && j === 1) continue;
+    const p = await personaGL(n === mesaCliente ? ropaCliente : ropa[k++ % ropa.length], { sentada: true, anim: 'Idle', desfase: k * 0.41 });
+    const wp = silla.getWorldPosition(new THREE.Vector3()); p.sentar(wp.x, wp.z + (j === 0 ? -0.15 : 0.15), j === 0 ? Math.PI : 0);
+    mundo.add(p.holder); v.gente.push(p); if (n === mesaCliente) v.cliente = p;
+  }
+  for (const [x, nom] of [[-5.0, 'Female_Formal'], [-3.4, 'Male_Casual_2']]) { const p = await personaGL(nom, { sentada: true, desfase: x }); p.sentar(x, -2.75, Math.PI, 0.5); mundo.add(p.holder); v.gente.push(p); }
+  v.camarero = await personaGL('Male_Suit', { anim: 'Run' }); mundo.add(v.camarero.holder);
+  v.cocinero = await personaGL('Female_Casual', { anim: 'Interact' }); v.cocinero.holder.position.set(3, 0, -3.85); v.cocinero.holder.rotation.y = Math.PI; mundo.add(v.cocinero.holder);
+  v.barman = await personaGL('Male_Casual_2', { anim: 'Idle', desfase: 1.3 }); v.barman.holder.position.set(-5.2, 0, -5.4); mundo.add(v.barman.holder);
+  v.gente.push(v.cocinero, v.barman);
+  v.tablet = pantalla3D(0.9, 0.56); v.tablet.position.set(-3.0, 1.55, -4.15); v.tablet.rotation.x = -0.35; mundo.add(v.tablet);
+  const soporte = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.08), new THREE.MeshStandardMaterial({ color: '#cfd3dc' })); soporte.position.set(-3.0, 1.2, -4.25); mundo.add(soporte);
+  v.caja = tpv(); v.caja.position.set(-1.9, 1.0, -4.15); mundo.add(v.caja);
+  v.pantCocina = pantalla3D(1.6, 1.0); v.pantCocina.position.set(5.6, 2.75, -5.55); mundo.add(v.pantCocina);
+  v.mv = movil(); v.mv.scale.setScalar(0.38); mundo.add(v.mv); v.on = ondas();
+  const pc = mesas[mesaCliente].g.position;
+  v.anillo = new THREE.Mesh(new THREE.RingGeometry(1.25, 1.42, 64), new THREE.MeshBasicMaterial({ color: '#ff3b5c', transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false }));
+  v.anillo.rotation.x = -Math.PI / 2; v.anillo.position.set(pc.x, 0.03, pc.z); mundo.add(v.anillo);
+  v.halos = [1, 2, 3, 4, 5, 6, 7, 8].map(n => { const h = v.anillo.clone(); h.material = v.anillo.material.clone(); h.material.color.set(VX.cian); const p = mesas[n].g.position; h.position.set(p.x, 0.03, p.z); mundo.add(h); return h; });
+  v.tablet.userData.pintar('barra', { nuevo: false }); v.pantCocina.userData.pintar('cocina', { nuevo: false });
+  v.musica = 'beat';
+}
+// el camarero corre de un lado a otro por el pasillo central
+function camareroCorre(v, t) { const f = (t * 0.22) % 2, ida = f < 1 ? f : 2 - f; v.camarero.holder.position.set(lerp(5.5, -0.5, ease(ida)), 0, 1.55); v.camarero.holder.rotation.y = f < 1 ? -Math.PI / 2 : Math.PI / 2; v.camarero.animar('Run'); return v.camarero.holder.position.x; }
+function camareroVa(v, t, t0, dur, destino, rotFinal = Math.PI, animFinal = 'Idle') {
+  const f = (t0 * 0.22) % 2, x0 = lerp(5.5, -0.5, ease(f < 1 ? f : 2 - f)); const k = prog(t, t0, t0 + dur);
+  v.camarero.holder.position.set(lerp(x0, destino[0], k), 0, lerp(1.55, destino[1], k)); v.camarero.holder.rotation.y = k < 1 ? Math.atan2(destino[0] - x0, destino[1] - 1.55) : rotFinal; v.camarero.animar(k < 1 ? 'Walk' : animFinal);
+}
+function actualizarGente(v, t) { for (const p of v.gente) p.actualizar(t); v.camarero.actualizar(t); }
+function movilEnTarjeta(v, t, tj, tToque, visibleDesde, visibleHasta, pantallaAntes, pantallaDespues, est = {}) {
+  const cen = tj.userData.centro(); const k = prog(t, tToque - 0.1, tToque + 0.3);
+  v.mv.visible = entre(t, visibleDesde, visibleHasta);
+  v.mv.position.set(cen.x + 0.03, cen.y + 0.03, cen.z + lerp(0.45, 0.06, k)); v.mv.rotation.set(-0.1, 0.35, 0); v.mv.userData.pantalla(t > tToque + 0.3 ? pantallaDespues : pantallaAntes, est);
+  v.on.userData.actualizar(t, entre(t, tToque + 0.15, visibleHasta) ? 1 : 0, v.mv.userData.detras(), cen);
+}
+function fxBase(v, t, golpes, vibra = []) {
+  let temblor = 0, flash = 0;
+  for (const g of golpes) { const d = t - g; if (d >= 0 && d < 0.45) { temblor = Math.max(temblor, (1 - d / 0.45) * 18); flash = Math.max(flash, 1 - d / 0.25); } }
+  for (const [a, b] of vibra) if (entre(t, a, b)) temblor = Math.max(temblor, 4);
+  return { desenfoque: v.desenfoque, temblor, flash: clamp(flash) * 0.3 };
+}
+function velos() {
+  const g1 = C.createLinearGradient(0, 0, 0, 520); g1.addColorStop(0, 'rgba(0,0,0,0.55)'); g1.addColorStop(1, 'rgba(0,0,0,0)'); C.fillStyle = g1; C.fillRect(0, 0, W, 520);
+  const g2 = C.createLinearGradient(0, H - 560, 0, H); g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(1, 'rgba(0,0,0,0.5)'); C.fillStyle = g2; C.fillRect(0, H - 560, W, 560);
+}
+function cierreComenta(t, t0, palabra, sub = 'y te lo enseñamos en tu bar') {
+  if (t < t0) return;
+  const k = prog(t, t0 - 0.2, t0 + 0.3); C.fillStyle = `rgba(8,10,20,${0.88 * k})`; C.fillRect(0, 0, W, H);
+  logoVisax(C, W / 2 - 70, 540, 140);
+  C.save(); C.globalAlpha = k; C.fillStyle = '#fff'; C.textAlign = 'center'; C.font = `600 92px ${SERIF}`; C.fillText('Comenta', W / 2, 880); C.restore();
+  if (t > t0 + 0.25) { C.save(); const s = rebote(clamp((t - t0 - 0.25) / 0.4)); C.translate(W / 2, 1030); C.scale(s, s);
+    const tam = palabra.length > 7 ? 104 : 140; C.font = `900 ${tam}px ${SANS}`; const w = C.measureText(palabra).width + 90; C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 40;
+    C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]); rr(C, -w / 2, -100, w, 200, 100); C.fill(); C.shadowBlur = 0;
+    C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(palabra, 0, 8); C.restore(); }
+  C.save(); C.font = `italic 600 50px ${SERIF}`; C.fillStyle = '#7fb2ff'; C.textAlign = 'center'; C.globalAlpha = k; C.fillText(sub, W / 2, 1240); C.restore();
+  const letras = Math.floor(clamp((t - t0 - 0.6) / 0.7) * palabra.length);
+  cajaComentario(palabra.slice(0, letras), prog(t, t0 + 0.3, t0 + 0.6), Math.floor(t * 3) % 2 === 0);
+}
+function bocadillo(txt, X, Y, k, cola = 'abajo') {
+  if (k <= 0) return; const s = rebote(clamp(k)); C.save(); C.translate(X, Y); C.scale(s, s); C.font = `700 40px ${SANS}`;
+  const w = C.measureText(txt).width + 70, h = 96; C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 28; C.fillStyle = '#fff'; rr(C, -w / 2, -h / 2, w, h, 48); C.fill();
+  C.beginPath(); C.moveTo(-20, h / 2 - 4); C.lineTo(0, h / 2 + 26); C.lineTo(20, h / 2 - 4); C.fill(); C.shadowBlur = 0;
+  C.fillStyle = '#111'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(txt, 0, 2); C.restore();
+}
+
+// =====================================================================
+// 5 VÍDEOS MÁS en el mismo bar: camarero, WiFi, reseñas, redes y carta
+// =====================================================================
+PANT.avisoEnviado = (x, w, h) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = grad(x, w / 2 - 110, 300, w / 2 + 110, 520, [VX.cian, VX.violeta]); x.beginPath(); x.arc(w / 2, 420, 110, 0, 7); x.fill(); check(x, w / 2, 420, 4);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `600 48px ${SERIF}`; x.fillText('Aviso enviado', w / 2, 640); x.font = `500 30px ${SANS}`; x.fillStyle = 'rgba(255,255,255,0.7)'; x.fillText('El camarero viene a tu mesa', w / 2, 700);
+};
+PANT.fotoPlato = (x, w, h, s) => {
+  x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#6b4a35'; x.fillRect(0, 140, w, 760);
+  x.fillStyle = '#f4f1ea'; x.beginPath(); x.arc(w / 2, 520, 230, 0, 7); x.fill(); x.fillStyle = '#e09a2b'; for (let i = 0; i < 9; i++) { x.beginPath(); x.ellipse(w / 2 - 110 + (i % 3) * 110, 440 + Math.floor(i / 3) * 80, 48, 30, i, 0, 7); x.fill(); }
+  x.fillStyle = '#c0392b'; x.beginPath(); x.arc(w / 2 + 40, 470, 26, 0, 7); x.fill();
+  x.fillStyle = '#fff'; x.beginPath(); x.arc(w / 2, h - 120, 52, 0, 7); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 6; x.beginPath(); x.arc(w / 2, h - 120, 64, 0, 7); x.stroke();
+  if (s.flash) { x.fillStyle = `rgba(255,255,255,${s.flash})`; x.fillRect(0, 0, w, h); }
+};
+PANT.editor = (x, w, h, s) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.textAlign = 'left'; x.fillText('Carta digital · editar', 34, 80);
+  x.fillStyle = '#fff'; x.font = `600 48px ${SERIF}`; x.fillText('Café con leche', 34, 170);
+  x.fillStyle = 'rgba(255,255,255,0.06)'; rr(x, 30, 220, w - 60, 140, 24); x.fill(); x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.fillText('Precio', 60, 266);
+  x.fillStyle = '#fff'; x.font = `800 52px ${SANS}`; x.fillText(s.precio || '1,30 €', 60, 330);
+  const ok = s.guardado; x.fillStyle = ok ? '#16a34a' : grad(x, 30, 0, w - 30, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, 30, 420, w - 60, 104, 52); x.fill(); x.fillStyle = '#fff'; x.font = `800 32px ${SANS}`; x.textAlign = 'center';
+  if (ok) { check(x, w / 2 - 170, 472, 1.4); x.fillText('Guardado en todas las mesas', w / 2 + 20, 483); } else x.fillText('Guardar', w / 2, 483);
+};
+function pasos(lista, t, tiempos, X = W / 2, Y = 1000) {
+  const k0 = prog(t, tiempos[0] - 0.2, tiempos[0] + 0.1); if (k0 <= 0) return; C.save(); C.globalAlpha = k0;
+  const w = 820, h = 120 + lista.length * 110; C.shadowColor = 'rgba(0,0,0,0.45)'; C.shadowBlur = 50; C.fillStyle = 'rgba(255,255,255,0.97)'; rr(C, X - w / 2, Y - h / 2, w, h, 44); C.fill(); C.shadowBlur = 0;
+  lista.forEach((l, i) => { const k = prog(t, tiempos[i], tiempos[i] + 0.15); if (k <= 0) return; const y = Y - h / 2 + 100 + i * 110; C.globalAlpha = k * k0;
+    C.fillStyle = '#ff3b5c'; C.beginPath(); C.arc(X - w / 2 + 80, y, 34, 0, 7); C.fill(); C.fillStyle = '#fff'; C.font = `900 34px ${SANS}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(String(i + 1), X - w / 2 + 80, y + 2);
+    C.fillStyle = '#111'; C.textAlign = 'left'; C.font = `700 44px ${SANS}`; C.fillText(l, X - w / 2 + 140, y + 2); });
+  C.restore();
+}
+function cartaPapel(X, Y, rot, k, { precioViejo = '1,30 €', precioNuevo = null, manchas = 0 } = {}) {
+  if (k <= 0) return; C.save(); C.translate(X, Y); C.rotate(rot); C.scale(lerp(0.6, 1, ease(clamp(k))), lerp(0.6, 1, ease(clamp(k)))); C.globalAlpha = clamp(k * 2);
+  const w = 420, h = 600; C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 30; C.fillStyle = '#f7f1e3'; C.fillRect(-w / 2, -h / 2, w, h); C.shadowBlur = 0;
+  C.fillStyle = '#2b2118'; C.textAlign = 'center'; C.font = `600 50px ${SERIF}`; C.fillText('Carta', 0, -h / 2 + 80);
+  [['Café con leche', precioViejo], ['Tostada', '2,50 €'], ['Zumo', '3,00 €'], ['Croissant', '1,80 €']].forEach(([n, p], i) => { const y = -h / 2 + 170 + i * 90; C.textAlign = 'left'; C.font = `500 30px ${SERIF}`; C.fillText(n, -w / 2 + 40, y); C.textAlign = 'right'; C.fillText(p, w / 2 - 40, y);
+    if (i === 0 && precioNuevo) { C.strokeStyle = '#d6283a'; C.lineWidth = 5; C.beginPath(); C.moveTo(w / 2 - 140, y - 10); C.lineTo(w / 2 - 34, y - 10); C.stroke(); C.fillStyle = '#d6283a'; C.font = `italic 600 36px ${SERIF}`; C.fillText(precioNuevo, w / 2 - 30, y + 44); C.fillStyle = '#2b2118'; } });
+  for (let i = 0; i < manchas; i++) { C.fillStyle = 'rgba(176,124,32,0.35)'; C.beginPath(); C.ellipse(-80 + i * 90, 120 - i * 60, 70 - i * 10, 50 - i * 6, i, 0, 7); C.fill(); }
+  C.restore();
+}
+function enMesa(v, n) { const p = v.mesas[n].g.position; return { x: p.x, z: p.z, tj: v.mesas[n].tj }; }
+function tomaTarjeta(tj, a) { const c = tj.userData.centro().toArray(); return { a, de: [c[0] + 1.3, c[1] + 1.2, c[2] + 1.9], a2: [c[0] + 1.0, c[1] + 0.9, c[2] + 1.45], mira: c, mira2: c, fov: 34 }; }
+function tomaCara(m, a) { return { a, de: [m.x + 1.6, 3.4, m.z - 3.1], a2: [m.x + 0.9, 2.9, m.z - 2.3], mira: [m.x, 1.5, m.z + 0.9], mira2: [m.x, 1.6, m.z + 1.0] }; }
+function tomaCaraCerca(m, a) { return { a, de: [m.x + 1.0, 2.4, m.z - 1.4], a2: [m.x + 0.7, 2.25, m.z - 1.0], mira: [m.x, 2.0, m.z + 0.9], mira2: [m.x, 2.05, m.z + 0.9], fov: 36 }; }
+const APERTURA = { a: 0, de: [0.3, 30, 0.01], a2: [9, 13, 14], mira: [0, 0, 0], mira2: [-0.5, 0, 0.6], fov: 40 };
+const FINAL_ANCHO = a => ({ a, de: [10, 11, 13], a2: [11.5, 15, 15.5], mira: [0, 0, 0], mira2: [0, 0, 0], fov: 38 });
+const TOMA_BARRA = a => ({ a, de: [-1.8, 2.3, -2.4], a2: [-2.2, 2.1, -2.8], mira: [-3.0, 1.55, -4.15], mira2: [-3.0, 1.55, -4.15], fov: 34 });
+const halosEn = (v, t, t0) => v.halos.forEach((h, i) => { h.material.opacity = t > t0 ? 0.85 * prog(t, t0 + i * 0.1, t0 + i * 0.1 + 0.25) : 0; });
+const comunCapa = { arriba: true, subtitulos: subtitulosIOS };
+
+// ---------- 1. Llamar al camarero ----------
+V['camarero2'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 8, ropaCliente: 'Male_Casual_Hoodie', tarjeta: () => placaCuadrada('campana') });
+    const c = this.c = { mesa: cue('mesa'), espaldas: cue('espaldas'), brazo: cue('brazo'), problema: cue('problema'), ve: cue('ve'), ahora: cue('ahora'), toque: cue('toque'), tablet: cue('tablet'), llama: cue('llama'),
+      ve2: cue('ve', 2), directo: cue('directo'), sin: cue('sin'), mismo: cue('mismo'), cero: cue('cero'), comenta: cue('comenta') };
+    this.m = enMesa(this, 8);
+    efectos = [['whoosh', 0.05], ['whoosh', c.espaldas - 0.6], ['whoosh', c.brazo - 0.1], ['tick', c.brazo + 0.8], ['tick', c.brazo + 1.6], ['hit', c.problema], ['pop', c.ve], ['whoosh', c.ahora - 0.1], ['tap', c.toque + 0.3],
+      ['whoosh', c.tablet - 0.2], ['ding', c.llama], ['ding', c.llama + 0.35], ['whoosh', c.ve2 - 0.1], ['pop', c.sin], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [APERTURA, { a: c.espaldas - 0.6, de: [1.6, 3.4, -1.2], a2: [2.4, 3.1, -0.6], mira: [5.2, 1.4, 3.6], mira2: [5.0, 1.4, 3.4] }, tomaCara(this.m, c.brazo - 0.1), tomaCaraCerca(this.m, c.problema),
+      tomaTarjeta(this.m.tj, c.ahora - 0.1), TOMA_BARRA(c.tablet - 0.2), { a: c.ve2 - 0.1, de: [1.0, 4.8, -2.0], a2: [2.2, 4.3, -1.2], mira: [4.4, 1.2, 2.6], mira2: [4.6, 1.2, 2.8] }, FINAL_ANCHO(c.mismo)];
+  },
+  actualizar(t) {
+    const c = this.c; this.cliente.animar(t > c.mesa - 0.3 && t < c.ahora + 0.2 ? 'Wave' : 'Idle');
+    if (t < c.llama + 0.2) camareroCorre(this, t); else camareroVa(this, t, c.llama + 0.2, 1.8, [4.2, 2.6], Math.PI / 2, 'Idle');
+    actualizarGente(this, t);
+    movilEnTarjeta(this, t, this.m.tj, c.toque, c.ahora, c.tablet - 0.2, 'bloqueo', 'avisoEnviado');
+    this.tablet.userData.pintar('avisos', t > c.llama - 0.3 && t < c.mismo ? { mesa: 4, pulso: Math.round((0.5 + 0.5 * Math.sin(t * 9)) * 4) / 4 } : {});
+    this.anillo.material.opacity = t < c.ahora ? (0.55 + 0.45 * Math.sin(t * 8)) * prog(t, c.brazo - 0.2, c.brazo + 0.3) : 0;
+    halosEn(this, t, c.mismo); this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { return fxBase(this, t, [this.c.problema, this.c.cero], [[this.c.llama, this.c.llama + 0.8]]); },
+  capa(t) {
+    const c = this.c; velos();
+    if (entre(t, 0.2, c.brazo)) contadorIOS('reloj', 'Vie · 23:00', W - 50, 1620);
+    if (entre(t, c.brazo, c.ahora)) { const s = Math.floor(lerp(60, 300, prog(t, c.brazo, c.ahora))); contadorIOS('crono', `0${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} con la mano arriba`, W - 50, 1620, 'rojo'); }
+    if (entre(t, c.espaldas, c.brazo)) pildora('De espaldas', W / 2, 1460, entra(t, c.espaldas), { icono: 'usuario', tono: 'rojo' });
+    if (entre(t, c.problema, c.ahora)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.ve, c.ahora)) pildora('No te ve', W / 2, 1380, entra(t, c.ve), { icono: 'mano', tono: 'rojo', tam: 60 });
+    if (entre(t, c.ahora, c.tablet - 0.2)) pildora('En cada mesa', W / 2, 1460, entra(t, c.ahora), { icono: 'campana', tono: 'marca', tam: 48 });
+    if (entre(t, c.llama, c.ve2)) pildora('Mesa 4 llama', W / 2, 1460, entra(t, c.llama), { icono: 'campana', tono: 'marca', tam: 56 });
+    if (entre(t, c.ve2, c.sin)) pildora('Va directo', W / 2, 1460, entra(t, c.ve2), { icono: 'check', tono: 'verde', tam: 52 });
+    if (entre(t, c.sin, c.mismo)) pildora('Sin levantar la mano', W / 2, 1460, entra(t, c.sin), { icono: 'mano', tono: 'azul', tam: 46 });
+    if (entre(t, c.mismo, c.comenta)) contadorIOS('mano', `Manos en el aire: ${t < c.cero ? 1 : 0}`, W - 50, 1620, t < c.cero ? 'oscuro' : 'verde');
+    if (t >= c.cero && t < c.comenta) golpeIOS('CERO', W / 2, 1180, prog(t, c.cero, c.cero + 0.18), 200, true);
+    cierreComenta(t, c.comenta, 'CAMARERO');
+  },
+};
+
+// ---------- 2. WiFi ----------
+V['wifi'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 2, ropaCliente: 'Female_Casual', tarjeta: () => placaCuadrada('wifi') });
+    const c = this.c = { lleno: cue('lleno'), cual: cue('cual'), otra: cue('otra'), otra2: cue('otra', 2), problema: cue('problema'), contrasena: cue('contrasena', 2), ahora: cue('ahora'), acercan: cue('acercan'),
+      android: cue('android'), iphone: cue('iphone'), copiar: cue('copiar'), nadie: cue('nadie'), nadie2: cue('nadie', 2), mismo: cue('mismo'), cero: cue('cero'), comenta: cue('comenta') };
+    this.m = enMesa(this, 2); this.m6 = enMesa(this, 6); this.m1 = enMesa(this, 1);
+    efectos = [['whoosh', 0.05], ['whoosh', c.lleno - 0.1], ['whoosh', c.cual - 0.1], ['pop', c.cual + 0.2], ['whoosh', c.otra - 0.1], ['pop', c.otra + 0.1], ['whoosh', c.otra2 - 0.1], ['pop', c.otra2 + 0.05], ['hit', c.problema], ['pop', c.contrasena],
+      ['whoosh', c.ahora - 0.1], ['tap', c.acercan + 0.3], ['whoosh', c.android - 0.1], ['ding', c.android + 0.6], ['whoosh', c.iphone - 0.1], ['tap', c.copiar + 0.3], ['ding', c.copiar + 0.4], ['pop', c.nadie], ['pop', c.nadie2], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [APERTURA, { a: c.lleno - 0.1, de: [3, 5.5, 9], a2: [2, 5, 8], mira: [0, 1, 1], mira2: [-0.4, 1, 1], fov: 40 }, tomaCara(this.m, c.cual - 0.1),
+      { a: c.otra - 0.1, de: [3.2, 3.2, 0.2], a2: [2.6, 2.9, 0.9], mira: [1.8, 1.6, 4.5], mira2: [1.8, 1.6, 4.5] }, tomaCara(this.m1, c.otra2 - 0.05), tomaCaraCerca(this.m, c.problema),
+      tomaTarjeta(this.m.tj, c.ahora - 0.1), { a: c.nadie - 0.1, de: [6, 4.5, 6], a2: [4, 4, 6], mira: [0, 1, 1], mira2: [0, 1, 1] }, FINAL_ANCHO(c.mismo)];
+  },
+  actualizar(t) {
+    const c = this.c; camareroCorre(this, t); actualizarGente(this, t);
+    movilEnTarjeta(this, t, this.m.tj, c.acercan, c.ahora, c.nadie - 0.1, 'bloqueo', 'wifiAndroid', { conectado: t > c.acercan + 0.6 });
+    halosEn(this, t, c.mismo); this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { return fxBase(this, t, [this.c.problema, this.c.cero]); },
+  capa(t) {
+    const c = this.c; velos();
+    if (entre(t, 0.2, c.cual)) contadorIOS('reloj', 'Sáb · 14:00', W - 50, 1620);
+    if (entre(t, c.cual, c.ahora)) contadorIOS('usuario', `Veces preguntada: ${t < c.otra ? 1 : t < c.otra2 ? 2 : 3}`, W - 50, 1620, 'rojo');
+    const bur = (n, t0) => { const p = proyectar(new THREE.Vector3(n.x, 3.0, n.z + 0.9)); bocadillo('¿Contraseña del WiFi?', clamp(p[0], 300, W - 300), clamp(p[1], 600, 1250), entra(t, t0)); };
+    if (entre(t, c.cual, c.otra - 0.1)) bur(this.m, c.cual + 0.15);
+    if (entre(t, c.otra, c.otra2 - 0.05)) { const p = proyectar(new THREE.Vector3(1.8, 3.0, 4.2)); bocadillo('¿Y la del WiFi?', clamp(p[0], 300, W - 300), clamp(p[1], 600, 1250), entra(t, c.otra + 0.05)); }
+    if (entre(t, c.otra2, c.problema)) bur(this.m1, c.otra2 + 0.05);
+    if (entre(t, c.problema, c.ahora)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.contrasena, c.ahora)) pildora('La contraseña', W / 2, 1380, entra(t, c.contrasena), { icono: 'usuario', tono: 'rojo', tam: 58 });
+    if (entre(t, c.ahora, c.acercan)) pildora('En cada mesa', W / 2, 1460, entra(t, c.ahora), { icono: 'nfc', tono: 'marca', tam: 48 });
+    if (entre(t, c.android - 0.1, c.nadie)) {
+      const kin = entra(t, c.android - 0.1, 0.45);
+      movil2D(lerp(-400, 300, kin), 1020, 0.5, -0.07, 'wifiAndroid', { conectado: t > c.android + 0.5 });
+      pildora('Android: se conecta solo', 300, 1440, entra(t, c.android + 0.3), { icono: 'check', tono: 'verde', tam: 32 });
+      if (t > c.iphone - 0.1) { const k2 = entra(t, c.iphone - 0.1, 0.45); movil2D(lerp(W + 400, 780, k2), 1020, 0.5, 0.07, 'wifiIphone', { copiada: t > c.copiar + 0.35 });
+        pildora('iPhone: botón para copiar', 780, 1440, entra(t, c.iphone + 0.3), { icono: 'check', tono: 'azul', tam: 32 }); }
+    }
+    if (entre(t, c.nadie, c.nadie2)) pildora('Nadie pregunta', W / 2, 1460, entra(t, c.nadie), { icono: 'check', tono: 'verde', tam: 52 });
+    if (entre(t, c.nadie2, c.mismo)) pildora('Nadie teclea', W / 2, 1460, entra(t, c.nadie2), { icono: 'check', tono: 'verde', tam: 52 });
+    if (entre(t, c.mismo, c.comenta)) contadorIOS('usuario', `Veces preguntada: ${t < c.cero ? 3 : 0}`, W - 50, 1620, t < c.cero ? 'oscuro' : 'verde');
+    if (t >= c.cero && t < c.comenta) golpeIOS('CERO', W / 2, 1180, prog(t, c.cero, c.cero + 0.18), 200, true);
+    cierreComenta(t, c.comenta, 'WIFI', 'y te lo dejamos listo');
+  },
+};
+
+// ---------- 3. Reseñas de Google ----------
+V['resenas'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 2, ropaCliente: 'Female_Formal' });
+    // la pareja de la mesa 2 se levanta y se va; comida en la mesa
+    this.pareja = [this.cliente]; const silla2 = this.mesas[2].sillas[1].getWorldPosition(new THREE.Vector3());
+    const otro = await personaGL('Male_Casual_2', { sentada: true, desfase: 0.7 }); otro.sentar(silla2.x, silla2.z + 0.15, 0); mundo.add(otro.holder); this.pareja.push(otro);
+    this.mesas[2].g.add(await (async () => { const g = new THREE.Group(); const f = (await new GLTFLoader().loadAsync('./modelos/restaurante/food_dinner.gltf')).scene.clone(true); f.scale.setScalar(0.45); f.position.set(-0.25, 1.0, -0.2); g.add(f); return g; })());
+    this.expo = expositorL('google'); this.expo.scale.setScalar(0.5); this.expo.position.set(-1.25, 1.0, -3.95); mundo.add(this.expo);
+    this.pagadora = await personaGL('Female_Casual', { anim: 'Idle', desfase: 2 }); this.pagadora.holder.position.set(-1.25, 0, -2.95); this.pagadora.holder.rotation.y = Math.PI; mundo.add(this.pagadora.holder);
+    const c = this.c = { comido: cue('comido'), van: cue('van'), resena: cue('resena'), problema: cue('problema'), cuesta: cue('cuesta'), abrir: cue('abrir'), buscar: cue('buscar'), bajar: cue('bajar'), encontrar: cue('encontrar'),
+      calle: cue('calle'), ahora: cue('ahora'), toque: cue('toque'), ficha: cue('ficha'), valorar: cue('valorar'), sin: cue('sin', 2), sin2: cue('sin', 3), mismo: cue('mismo'), toque2: cue('toque', 2), comenta: cue('comenta') };
+    this.m = enMesa(this, 2);
+    efectos = [['pop', 0.3], ['whoosh', c.van - 0.1], ['hit', c.problema], ['tick', c.abrir], ['tick', c.buscar], ['tick', c.bajar], ['tick', c.encontrar], ['whoosh', c.calle - 0.1], ['whoosh', c.ahora - 0.1], ['tap', c.toque + 0.3],
+      ['whoosh', c.ficha - 0.1], ['tick', c.valorar + 0.1], ['tick', c.valorar + 0.25], ['tick', c.valorar + 0.4], ['tick', c.valorar + 0.55], ['ding', c.valorar + 0.7], ['pop', c.sin], ['pop', c.sin2], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.toque2], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [{ a: 0, de: [0.2, 3.2, -3.0], a2: [-0.6, 2.7, -2.3], mira: [-1.6, 1.2, 0.2], mira2: [-1.6, 1.2, 0.2] }, { a: c.van - 0.1, de: [-1.5, 4.2, 4.5], a2: [-3.0, 3.8, 4.2], mira: [-3.5, 1.4, 0.8], mira2: [-6.0, 1.4, 0.8] },
+      { a: c.problema, de: [4, 7, 9], a2: [3.5, 6.5, 8.5], mira: [0, 1, 0], mira2: [0, 1, 0] }, { a: c.calle - 0.1, de: [-2.5, 3.6, 4.5], a2: [-3.2, 3.3, 3.8], mira: [-7, 1.4, 0.8], mira2: [-7.2, 1.4, 0.8] },
+      { a: c.ahora - 0.1, de: [0.6, 2.7, -0.9], a2: [0.0, 2.4, -1.5], mira: [-1.3, 1.4, -4.0], mira2: [-1.3, 1.4, -4.0], fov: 36 }, FINAL_ANCHO(c.mismo)];
+  },
+  actualizar(t) {
+    const c = this.c; camareroCorre(this, t);
+    // la pareja: sentada hasta «van», luego anda hacia la puerta (x=-8, z=0.8)
+    this.pareja.forEach((p, i) => { if (t < c.van) return; p.sentada = false; const k = prog(t, c.van + i * 0.2, c.calle);
+      const x0 = -1.6, z0 = i ? -1.2 : 0.6; p.holder.position.set(lerp(x0, -7.6, k), 0, lerp(z0, 0.8 + i * 0.6, k)); p.holder.rotation.y = -Math.PI / 2; p.animar(k < 1 ? 'Walk' : 'Idle'); p.holder.visible = k < 1; });
+    actualizarGente(this, t); this.pareja[1].actualizar(t); this.pagadora.actualizar(t);
+    movilEnTarjeta(this, t, this.expo, c.toque, c.ahora, c.ficha - 0.1, 'bloqueo', 'resenaG', { llenas: 0 });
+    halosEn(this, t, c.mismo); this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { return fxBase(this, t, [this.c.problema, this.c.toque2]); },
+  capa(t) {
+    const c = this.c; velos();
+    if (entre(t, c.comido, c.van)) pildora('Han comido de lujo', W / 2, 1460, entra(t, c.comido), { icono: 'check', tono: 'verde', tam: 48 });
+    if (entre(t, c.resena, c.problema)) pildora('Sin dejar reseña', W / 2, 1460, entra(t, c.resena), { icono: 'usuario', tono: 'rojo', tam: 50 });
+    if (entre(t, c.problema, c.abrir)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.abrir - 0.2, c.ahora)) pasos(['Abrir Google', 'Buscar el bar', 'Bajar…', 'Encontrar el botón'], t, [c.abrir, c.buscar, c.bajar, c.encontrar], W / 2, 1060);
+    if (entre(t, c.calle, c.ahora)) pildora('Y ya están en la calle', W / 2, 1560, entra(t, c.calle), { icono: 'usuario', tono: 'rojo', tam: 44 });
+    if (entre(t, c.ahora, c.toque)) pildora('Junto a la caja', W / 2, 1460, entra(t, c.ahora), { icono: 'nfc', tono: 'marca', tam: 48 });
+    if (entre(t, c.ficha - 0.1, c.mismo)) { const kin = entra(t, c.ficha - 0.1, 0.5); const ll = t > c.valorar ? Math.min(5, Math.floor((t - c.valorar) / 0.15) + 1) : 0;
+      movil2D(lerp(W + 400, 700, kin), 1040, 0.6, lerp(0.2, 0.05, clamp(kin)), 'resenaG', { llenas: ll, texto: t > c.sin ? '¡Todo buenísimo!' : '' }); }
+    if (entre(t, c.sin, c.sin2)) pildora('Sin buscar nada', 330, 1640, entra(t, c.sin), { icono: 'check', tono: 'azul', tam: 40 });
+    if (entre(t, c.sin2, c.mismo)) { pildora('Sin buscar nada', 330, 1640, 1, { icono: 'check', tono: 'azul', tam: 40 }); pildora('Sin apps', 330, 1520, entra(t, c.sin2), { icono: 'check', tono: 'azul', tam: 40 }); }
+    if (entre(t, c.mismo, c.comenta)) contadorIOS('check', `Pasos: ${t < c.toque2 ? 4 : 1}`, W - 50, 1620, t < c.toque2 ? 'oscuro' : 'verde');
+    if (t >= c.toque2 && t < c.comenta) golpeIOS('A UN TOQUE', W / 2, 1180, prog(t, c.toque2, c.toque2 + 0.18), 130, true);
+    cierreComenta(t, c.comenta, 'RESEÑAS');
+  },
+};
+
+// ---------- 4. Redes sociales ----------
+V['redes2'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 5, ropaCliente: 'Female_Casual', tarjeta: () => expositorL('instagram') });
+    const f = (await new GLTFLoader().loadAsync('./modelos/restaurante/food_dinner.gltf')).scene.clone(true); f.scale.setScalar(0.45); f.position.set(-0.25, 1.0, 0.35); this.mesas[5].g.add(f);
+    const c = this.c = { foto: cue('foto'), suben: cue('suben'), etiquetan: cue('etiquetan'), buscar: cue('buscar'), letra: cue('letra'), problema: cue('problema'), encontraros: cue('encontraros'), ahora: cue('ahora'), toque: cue('toque'),
+      perfil: cue('perfil'), seguir: cue('seguir'), listo: cue('listo'), instagram: cue('instagram', 2), mismo: cue('mismo'), seguiros: cue('seguiros'), comenta: cue('comenta') };
+    this.m = enMesa(this, 5);
+    efectos = [['tick', c.foto + 0.1], ['pop', c.suben], ['whoosh', c.etiquetan - 0.1], ['tick', c.buscar + 0.1], ['tick', c.buscar + 0.3], ['tick', c.buscar + 0.5], ['hit', c.problema], ['pop', c.encontraros], ['whoosh', c.ahora - 0.1], ['tap', c.toque + 0.3],
+      ['whoosh', c.perfil - 0.1], ['tap', c.seguir + 0.1], ['ding', c.seguir + 0.2], ['pop', c.listo], ['pop', c.instagram], ['pop', c.instagram + 0.3], ['pop', c.instagram + 0.6], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.seguiros], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [{ a: 0, de: [-0.4, 3.2, 1.0], a2: [-0.9, 2.8, 1.6], mira: [-1.6, 1.1, 3.4], mira2: [-1.6, 1.1, 3.4] }, { a: c.etiquetan - 0.1, de: [-0.2, 3.2, 0.6], a2: [-0.8, 2.9, 1.2], mira: [-1.6, 1.6, 4.3], mira2: [-1.6, 1.6, 4.3] },
+      { a: c.problema, de: [-0.6, 2.4, 1.9], a2: [-0.9, 2.25, 2.3], mira: [-1.6, 2.0, 4.2], mira2: [-1.6, 2.05, 4.2], fov: 36 }, tomaTarjeta(this.m.tj, c.ahora - 0.1), FINAL_ANCHO(c.mismo)];
+  },
+  actualizar(t) {
+    const c = this.c; camareroCorre(this, t); actualizarGente(this, t);
+    movilEnTarjeta(this, t, this.m.tj, c.toque, c.ahora, c.perfil - 0.1, 'bloqueo', 'instagram', {});
+    halosEn(this, t, c.mismo); this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { const f = fxBase(this, t, [this.c.problema, this.c.seguiros]); const d = t - this.c.foto; if (d > 0 && d < 0.3) f.flash = Math.max(f.flash, 0.7 * (1 - d / 0.3)); return f; },
+  capa(t) {
+    const c = this.c; velos();
+    if (t < c.etiquetan) { const kin = entra(t, 0, 0.4); movil2D(lerp(W + 400, 720, kin), 1050, 0.55, 0.06, 'fotoPlato', { flash: entre(t, c.foto, c.foto + 0.3) ? 0.8 : 0 }); }
+    if (entre(t, c.suben, c.etiquetan)) pildora('Subida', 300, 1500, entra(t, c.suben), { icono: 'check', tono: 'verde', tam: 44 });
+    if (entre(t, c.buscar - 0.2, c.problema)) { const kin = entra(t, c.buscar - 0.2, 0.4); const txt = 'bar la esq'.slice(0, Math.floor(clamp((t - c.buscar) / 0.9) * 10)); movil2D(lerp(W + 400, 720, kin), 1050, 0.55, 0.06, 'buscarIG', { txt }); }
+    if (entre(t, c.letra, c.problema)) pildora('Letra a letra…', 330, 1500, entra(t, c.letra), { icono: 'usuario', tono: 'rojo', tam: 44 });
+    if (entre(t, c.problema, c.ahora)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.encontraros, c.ahora)) pildora('Encontraros', W / 2, 1380, entra(t, c.encontraros), { icono: 'usuario', tono: 'rojo', tam: 58 });
+    if (entre(t, c.ahora, c.toque)) pildora('En cada mesa', W / 2, 1460, entra(t, c.ahora), { icono: 'nfc', tono: 'marca', tam: 48 });
+    if (entre(t, c.perfil - 0.1, c.mismo)) { const kin = entra(t, c.perfil - 0.1, 0.5); movil2D(lerp(W + 400, 700, kin), 1040, 0.6, lerp(0.2, 0.05, clamp(kin)), 'instagram', { siguiendo: t > c.seguir + 0.15, onda: entre(t, c.seguir, c.seguir + 0.5) ? Math.round(prog(t, c.seguir, c.seguir + 0.5) * 8) / 8 : 0 }); }
+    if (entre(t, c.listo, c.instagram)) pildora('Listo', 280, 1500, entra(t, c.listo), { icono: 'check', tono: 'verde', tam: 54 });
+    if (entre(t, c.instagram, c.mismo)) ['Instagram', 'TikTok', 'Facebook'].forEach((n, i) => pildora(n, 260, 760 + i * 140, entra(t, c.instagram + i * 0.3), { tono: 'marca', tam: 42 }));
+    if (t >= c.seguiros && t < c.comenta) golpeIOS('A UN TOQUE', W / 2, 1180, prog(t, c.seguiros, c.seguiros + 0.18), 130, true);
+    cierreComenta(t, c.comenta, 'REDES');
+  },
+};
+
+// ---------- 5. Carta digital ----------
+V['carta'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie' });
+    const c = this.c = { sube: cue('sube'), reimprimir: cue('reimprimir'), otra: cue('otra'), mesas: cue('mesas'), manchadas: cue('manchadas'), problema: cue('problema'), papel: cue('papel'), ahora: cue('ahora'), toque: cue('toque'),
+      alergenos: cue('alergenos'), cambia: cue('cambia'), digital: cue('digital'), todas: cue('todas', 2), mismo: cue('mismo'), cero: cue('cero'), comenta: cue('comenta') };
+    this.m = enMesa(this, 7);
+    efectos = [['whoosh', 0.05], ['pop', c.sube + 0.2], ['pop', c.reimprimir], ['pop', c.reimprimir + 0.25], ['pop', c.reimprimir + 0.5], ['hit', c.otra], ['pop', c.manchadas], ['hit', c.problema], ['pop', c.papel], ['whoosh', c.ahora - 0.1], ['tap', c.toque + 0.3],
+      ['whoosh', c.toque + 0.6], ['whoosh', c.cambia - 0.1], ['tick', c.cambia + 0.4], ['tap', c.digital], ['ding', c.digital + 0.2], ['whoosh', c.todas - 0.2], ['ding', c.todas + 0.4], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [{ a: 0, de: [6, 5, 8], a2: [4.5, 4.4, 7], mira: [0, 1, 1], mira2: [-0.5, 1, 1], fov: 40 }, { a: c.mesas - 0.1, de: [-2.8, 3.4, 0.6], a2: [-3.4, 3.0, 1.2], mira: [-5, 1.2, 3.3], mira2: [-5, 1.2, 3.3] },
+      tomaCaraCerca(this.m, c.problema), tomaTarjeta(this.m.tj, c.ahora - 0.1), TOMA_BARRA(c.cambia - 0.1),
+      { a: c.todas - 0.25, de: [0, 36, 0.01], a2: [0, 33, 0.01], mira: [0, 0, 0], mira2: [0, 0, 0], up: [1, 0, 0], fov: 38, barrido: 0.35 }, FINAL_ANCHO(c.mismo)];
+  },
+  actualizar(t) {
+    const c = this.c; camareroCorre(this, t); actualizarGente(this, t);
+    movilEnTarjeta(this, t, this.m.tj, c.toque, c.ahora, c.cambia - 0.1, 'bloqueo', 'cartaCafe', {});
+    this.halos.forEach((h, i) => { h.material.opacity = entre(t, c.todas, c.comenta) ? 0.85 * prog(t, c.todas + i * 0.08, c.todas + i * 0.08 + 0.2) : 0; });
+    this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { return fxBase(this, t, [this.c.otra, this.c.problema, this.c.cero]); },
+  capa(t) {
+    const c = this.c; velos();
+    if (entre(t, 0.1, c.sube)) contadorIOS('reloj', 'Lun · 08:30', W - 50, 1620);
+    if (entre(t, c.sube, c.problema)) {
+      cartaPapel(W / 2 - 120, 1000, -0.12, entra(t, c.reimprimir + 0.5, 0.4)); cartaPapel(W / 2 + 120, 990, 0.1, entra(t, c.reimprimir + 0.25, 0.4));
+      cartaPapel(W / 2, 980, -0.02, entra(t, c.sube, 0.4), { precioNuevo: t > c.sube + 0.3 ? '1,50 €' : null, manchas: t > c.manchadas ? Math.min(3, 1 + Math.floor((t - c.manchadas) / 0.2)) : 0 });
+    }
+    if (entre(t, c.reimprimir, c.otra)) pildora('Reimprimir todas', W / 2, 1460, entra(t, c.reimprimir), { icono: 'recibo', tono: 'rojo', tam: 50 });
+    if (entre(t, c.otra, c.manchadas)) golpeIOS('OTRA VEZ', W / 2, 1460, prog(t, c.otra, c.otra + 0.18), 120);
+    if (entre(t, c.manchadas, c.problema)) pildora('Manchadas de aceite', W / 2, 1460, entra(t, c.manchadas), { icono: 'usuario', tono: 'rojo', tam: 46 });
+    if (entre(t, c.problema, c.ahora)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.papel, c.ahora)) pildora('El papel', W / 2, 1380, entra(t, c.papel), { icono: 'recibo', tono: 'rojo', tam: 60 });
+    if (entre(t, c.ahora, c.toque)) pildora('En cada mesa', W / 2, 1460, entra(t, c.ahora), { icono: 'nfc', tono: 'marca', tam: 48 });
+    if (entre(t, c.toque + 0.4, c.cambia)) { const kin = entra(t, c.toque + 0.4, 0.5); movil2D(lerp(W + 400, 720, kin), 1040, 0.6, lerp(0.2, 0.05, clamp(kin)), 'cartaCafe', {});
+      if (t > c.alergenos - 0.4) pildora('Con fotos y alérgenos', 330, 1660, entra(t, c.alergenos - 0.4), { icono: 'check', tono: 'azul', tam: 38 }); }
+    if (entre(t, c.cambia - 0.1, c.todas - 0.2)) { const kin = entra(t, c.cambia - 0.1, 0.45); movil2D(lerp(-400, 340, kin), 1040, 0.6, -0.06, 'editor', { precio: t > c.cambia + 0.4 ? '1,50 €' : '1,30 €', guardado: t > c.digital + 0.1 }); }
+    if (entre(t, c.todas, c.mismo)) { etiquetaPlano('Todas las mesas', new THREE.Vector3(0, 2, 1.5), entra(t, c.todas + 0.2), 'marca', 'check');
+      movil2D(lerp(W + 400, 760, entra(t, c.todas + 0.3, 0.45)), 1150, 0.42, 0.06, 'cartaCafe', { precio: '1,50 €', nuevo: true }); }
+    if (entre(t, c.mismo, c.comenta)) contadorIOS('recibo', `Reimpresiones: ${t < c.cero ? '…' : 0}`, W - 50, 1620, t < c.cero ? 'oscuro' : 'verde');
+    if (t >= c.cero && t < c.comenta) golpeIOS('CERO', W / 2, 1180, prog(t, c.cero, c.cero + 0.18), 200, true);
+    cierreComenta(t, c.comenta, 'CARTA', 'y te la hacemos');
+  },
 };
 
 // ---------- API para render.mjs ----------
