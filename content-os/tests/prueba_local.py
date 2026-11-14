@@ -9,7 +9,7 @@ tmp = Path(tempfile.mkdtemp())
 for nombre, valor in {"DATOS": tmp / "datos", "SALIDA": tmp / "salida"}.items():
     setattr(u, nombre, valor)
 u.REELS, u.VIRALES = u.DATOS / "reels.jsonl", u.DATOS / "virales.json"
-u.DESMONTADOS, u.ANALISIS, u.REGLAS_JSON = u.DATOS / "desmontados", u.DATOS / "analisis", u.DATOS / "reglas.json"
+u.DESMONTADOS, u.ANALISIS, u.REGLAS_JSON = u.DATOS / "desmontados", u.DATOS / "analisis", u.SALIDA / "reglas.json"
 from cos import fuentes, virales, desmontar, render
 for m in (fuentes, virales, desmontar, render):
     for k in ("REELS", "VIRALES", "SALIDA", "DESMONTADOS"):

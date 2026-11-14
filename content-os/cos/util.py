@@ -14,7 +14,7 @@ REELS = DATOS / "reels.jsonl"
 VIRALES = DATOS / "virales.json"
 DESMONTADOS = DATOS / "desmontados"
 ANALISIS = DATOS / "analisis"
-REGLAS_JSON = DATOS / "reglas.json"
+REGLAS_JSON = SALIDA / "reglas.json"
 REGLAS_SEMILLA = RAIZ / "reglas-semilla.md"
 MARCA = RAIZ / "marca.md"
 

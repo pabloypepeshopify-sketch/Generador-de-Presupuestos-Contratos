@@ -102,15 +102,44 @@ def fotograma(video: Path, t: float, destino: Path) -> None:
         "-frames:v", "1", "-vf", "scale=480:-2", "-q:v", "4", str(destino))
 
 
-def transcribir(video: Path, carpeta: Path) -> dict | None:
-    """ElevenLabs Speech-to-Text (scribe_v1). Sin ELEVENLABS_API_KEY se omite."""
-    clave = os.environ.get("ELEVENLABS_API_KEY", "").strip()
-    if not clave:
+_whisper = None
+
+
+def _transcribir_local(audio: Path) -> dict | None:
+    """Whisper en local (faster-whisper), gratis. Modelo en WHISPER_MODELO (por defecto 'small')."""
+    global _whisper
+    try:
+        from faster_whisper import WhisperModel
+    except ImportError:
         return None
+    if _whisper is None:
+        log("    cargando Whisper local (la primera vez descarga el modelo)…")
+        _whisper = WhisperModel(os.environ.get("WHISPER_MODELO", "small"), device="cpu", compute_type="int8")
+    import numpy as np  # viene con faster-whisper
+    # Se decodifica con ffmpeg (evita depender de la versión de PyAV).
+    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", str(audio), "-f", "f32le", "-ac", "1", "-ar", "16000", "-"],
+                         capture_output=True).stdout
+    if not pcm:
+        return None
+    segmentos, info = _whisper.transcribe(np.frombuffer(pcm, dtype=np.float32), word_timestamps=True,
+                                          vad_filter=True)
+    palabras = [w for s in segmentos for w in (s.words or [])]
+    return {
+        "idioma": info.language,
+        "texto": "".join(w.word for w in palabras).strip(),
+        "palabras": [{"t": round(w.start, 2), "p": w.word.strip()} for w in palabras],
+    }
+
+
+def transcribir(video: Path, carpeta: Path) -> dict | None:
+    """ElevenLabs Speech-to-Text (scribe_v1) si hay ELEVENLABS_API_KEY; si no, Whisper local si está instalado."""
     audio = carpeta / "audio.mp3"
     _ff("ffmpeg", "-v", "error", "-y", "-i", str(video), "-vn", "-ac", "1", "-ar", "16000", "-b:a", "48k", str(audio))
     if not audio.exists():
-        return None
+        return None  # vídeo sin pista de audio
+    clave = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+    if not clave:
+        return _transcribir_local(audio)
     limite = "----cos" + uuid.uuid4().hex
     cuerpo = b"".join([
         f"--{limite}\r\nContent-Disposition: form-data; name=\"model_id\"\r\n\r\nscribe_v1\r\n".encode(),
@@ -135,6 +164,22 @@ def transcribir(video: Path, carpeta: Path) -> dict | None:
         "texto": datos.get("text", ""),
         "palabras": [{"t": round(w.get("start", 0), 2), "p": w.get("text", "")} for w in palabras],
     }
+
+
+def completar_transcripciones() -> int:
+    """Transcribe los ya desmontados que se quedaron sin transcripción."""
+    hechas = 0
+    for info_ruta in sorted(DESMONTADOS.glob("*/info.json")):
+        info = leer_json(info_ruta)
+        video = info_ruta.parent / "video.mp4"
+        if info.get("transcripcion") or not video.exists():
+            continue
+        log(f"  transcribiendo @{info['reel']['autor']}")
+        info["transcripcion"] = transcribir(video, info_ruta.parent)
+        if info["transcripcion"]:
+            escribir_json(info_ruta, info)
+            hechas += 1
+    return hechas
 
 
 def desmontar(cfg: dict, solo: list[str] | None = None) -> list[dict]:

@@ -27,6 +27,8 @@ def main() -> None:
     sub.add_parser("virales")
     des = sub.add_parser("desmontar")
     des.add_argument("--clave", action="append", help="solo este reel (plataforma:id); repetible")
+    sub.add_parser("transcribir", help="transcribe los desmontados que no tienen transcripción")
+    sub.add_parser("hojas", help="una imagen por viral con todos sus fotogramas y tiempos")
     sub.add_parser("analizar")
     sub.add_parser("reglas")
     gui = sub.add_parser("guiones")
@@ -46,6 +48,13 @@ def main() -> None:
     if a.cmd in ("desmontar", "todo"):
         from .desmontar import desmontar
         desmontar(cfg, a.clave if a.cmd == "desmontar" else None)
+    if a.cmd == "hojas":
+        from .hoja import hojas
+        for h in hojas():
+            log(f"→ {h}")
+    if a.cmd == "transcribir":
+        from .desmontar import completar_transcripciones
+        log(f"{completar_transcripciones()} transcripciones nuevas")
     if a.cmd in ("analizar", "reglas", "todo"):
         from . import ia
         analisis = ia.analizar(cfg)
