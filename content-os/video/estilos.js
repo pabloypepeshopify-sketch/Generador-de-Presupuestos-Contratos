@@ -106,6 +106,7 @@ const ESTILOS = {
     subs: { tam: 74, fuente: tam => `900 ${tam}px Inter, sans-serif`, mayus: true, texto: '#ffe14d', textoClave: '#fff', borde: 12, pill: ['#ff3b3b', '#ff3b3b'], bordePill: 7, radio: 14, giro: -0.06, sombra: 'rgba(0,0,0,0)' },
   },
 
+  nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
       scene.background = fondoDegradado(['#a9d8ff', '#eaf5ff']); scene.fog = null; renderer.toneMappingExposure = 1.15;
