@@ -1,6 +1,7 @@
 // Motor 3D de los vídeos VISAX NFC: escena de bar, tarjetas, móvil, ondas NFC, antena, cocina y personajes.
 // Se renderiza fotograma a fotograma (window.frame(t)) desde render.mjs. 1080×1920, vertical.
 import * as THREE from 'three';
+import { construirBar, persona as personaGL } from './bar.js';
 
 const W = 1080, H = 1920;
 const FUENTE = 'Inter, "Inter Display", "DejaVu Sans", Arial, sans-serif';
@@ -756,140 +757,248 @@ function camara2(t, tomas) {
     const pp = new THREE.Vector3().fromArray(P.a2 || P.de), lp = new THREE.Vector3().fromArray(P.mira2 || P.mira);
     p = pp.lerp(p, kb); l = lp.lerp(l, kb); desenfoque = Math.sin(Math.PI * kb) * 14;
   }
-  cam.position.copy(p); cam.lookAt(l);
+  cam.up.fromArray(T.up || [0, 1, 0]); cam.position.copy(p); cam.lookAt(l);
   if (cam.fov !== (T.fov || 38)) { cam.fov = T.fov || 38; cam.updateProjectionMatrix(); }
   return desenfoque;
 }
 
+// ---------- estilo iOS: iconos vectoriales, pastillas de cristal, subtítulos limpios ----------
+function icono(n, x, y, s, color = '#fff') {
+  C.save(); C.translate(x, y); C.scale(s / 24, s / 24); C.strokeStyle = color; C.fillStyle = color; C.lineWidth = 2.2; C.lineCap = 'round'; C.lineJoin = 'round';
+  const P = d => C.stroke(new Path2D(d)), F = d => C.fill(new Path2D(d));
+  switch (n) {
+    case 'reloj': C.beginPath(); C.arc(0, 0, 10, 0, 7); C.stroke(); P('M0 -6 L0 0 L4.5 3'); break;
+    case 'crono': C.beginPath(); C.arc(0, 2, 9, 0, 7); C.stroke(); P('M0 2 L0 -3 M-3 -10 L3 -10 M7 -5 L9 -7'); break;
+    case 'recibo': P('M-7 -10 L7 -10 L7 10 L4.5 8 L2 10 L-0.5 8 L-3 10 L-5 8 L-7 10 Z M-3.5 -5 L3.5 -5 M-3.5 -1 L3.5 -1 M-3.5 3 L1 3'); break;
+    case 'mano': P('M-4 9 Q-8 6 -8 0 L-8 -3 Q-8 -5 -6 -5 Q-4 -5 -4 -3 L-4 -9 Q-4 -11 -2 -11 Q0 -11 0 -9 L0 -10 Q0 -12 2 -12 Q4 -12 4 -10 L4 -8 Q4 -10 6 -10 Q8 -10 8 -8 L8 2 Q8 9 1 10 Z'); break;
+    case 'campana': P('M-7 5 L-7 -1 Q-7 -8 0 -8 Q7 -8 7 -1 L7 5 L9 7 L-9 7 Z M-2 10 Q0 12 2 10 M0 -8 L0 -10'); break;
+    case 'vibra': C.beginPath(); rr(C, -5, -9, 10, 18, 2.5); C.stroke(); P('M-9 -4 L-11 -2 L-9 0 L-11 2 L-9 4 M9 -4 L11 -2 L9 0 L11 2 L9 4'); break;
+    case 'check': P('M-7 0 L-2 5 L8 -6'); break;
+    case 'cocina': P('M-7 4 L7 4 L7 9 L-7 9 Z M-7 4 Q-11 -2 -6 -5 Q-4 -11 0 -9 Q4 -11 6 -5 Q11 -2 7 4'); break;
+    case 'nfc': for (let i = 0; i < 3; i++) { C.beginPath(); C.arc(-4, 0, 4 + i * 4, -0.8, 0.8); C.stroke(); } break;
+    case 'usuario': C.beginPath(); C.arc(0, -4, 4.5, 0, 7); C.stroke(); P('M-8 10 Q-8 2 0 2 Q8 2 8 10'); break;
+  }
+  C.restore();
+}
+const TONOS = { oscuro: ['rgba(16,18,30,0.78)', 'rgba(255,255,255,0.16)'], rojo: ['rgba(214,40,57,0.92)', 'rgba(255,255,255,0.25)'], verde: ['rgba(22,163,74,0.92)', 'rgba(255,255,255,0.25)'], azul: ['rgba(63,125,251,0.92)', 'rgba(255,255,255,0.25)'], marca: ['marca', 'rgba(255,255,255,0.3)'], claro: ['rgba(255,255,255,0.92)', 'rgba(0,0,0,0.06)'] };
+function pildora(txt, X, Y, k, { icono: ic = null, tono = 'oscuro', tam = 42 } = {}) {
+  if (k <= 0) return; const [fondo, borde] = TONOS[tono]; const tx = tono === 'claro' ? '#111' : '#fff';
+  C.save(); C.font = `700 ${tam}px Inter, ${FUENTE}`; const tw = C.measureText(txt).width; const pad = tam * 0.62, isz = ic ? tam * 0.95 : 0, gap = ic ? tam * 0.35 : 0;
+  const w = tw + pad * 2 + isz + gap, h = tam * 1.75;
+  C.translate(X, Y); C.scale(k, k); C.globalAlpha = clamp(k * 1.4);
+  C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 30; C.shadowOffsetY = 8;
+  C.fillStyle = fondo === 'marca' ? grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]) : fondo; rr(C, -w / 2, -h / 2, w, h, h / 2); C.fill();
+  C.shadowBlur = 0; C.shadowOffsetY = 0; C.strokeStyle = borde; C.lineWidth = 2; rr(C, -w / 2, -h / 2, w, h, h / 2); C.stroke();
+  let x0 = -w / 2 + pad; if (ic) { icono(ic, x0 + isz / 2, 0, isz, tx); x0 += isz + gap; }
+  C.fillStyle = tx; C.textAlign = 'left'; C.textBaseline = 'middle'; C.fillText(txt, x0, 2); C.restore();
+}
+function contadorIOS(ic, txt, Xder, Y, tono = 'oscuro') { C.save(); C.font = `700 40px Inter, ${FUENTE}`; const w = C.measureText(txt).width + 40 * 0.62 * 2 + 38 + 14; C.restore(); pildora(txt, Xder - w / 2, Y, 1, { icono: ic, tono, tam: 40 }); }
+function golpeIOS(t, X, Y, k, tam = 140, marca = false) {
+  if (k <= 0) return; const s = k < 1 ? lerp(1.9, 1, ease(k)) : 1; C.save(); C.globalAlpha = clamp(k * 3); C.translate(X, Y); C.scale(s, s);
+  C.font = `900 ${tam}px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const w = C.measureText(t).width;
+  C.shadowColor = 'rgba(0,0,0,0.55)'; C.shadowBlur = 40; C.shadowOffsetY = 10;
+  C.fillStyle = marca ? grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]) : '#fff'; C.fillText(t, 0, 0); C.restore();
+}
+function subtitulosIOS(t) {
+  const i = trozos.findIndex((tr, k) => t >= tr[0].t - 0.05 && t < (trozos[k + 1] ? trozos[k + 1][0].t - 0.05 : tr[tr.length - 1].fin + 0.6));
+  if (i < 0) return; const tr = trozos[i]; const tam = 66; C.font = `800 ${tam}px Inter, ${FUENTE}`;
+  const pal = tr.map(p => p.p.replace(/[,.…:]$/, ''));
+  const esp = C.measureText(' ').width; const anchos = pal.map(s => C.measureText(s).width); const total = anchos.reduce((a, b) => a + b, 0) + esp * (pal.length - 1) + 30;
+  let X = W / 2 - total / 2; const Y = 300;
+  pal.forEach((s, k) => {
+    const dicha = t >= tr[k].t - 0.03; const pop = prog(t, tr[k].t - 0.05, tr[k].t + 0.12); const clave = CLAVES.has(norm(s)) && dicha; const w = anchos[k];
+    C.save(); C.translate(X + w / 2, Y); const sc = dicha ? 0.9 + 0.1 * pop : 0.9; C.scale(sc, sc);
+    if (clave) { C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 24; C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]); rr(C, -w / 2 - 16, -tam * 0.66, w + 32, tam * 1.3, tam * 0.65); C.fill(); C.shadowBlur = 0; }
+    C.textAlign = 'center'; C.textBaseline = 'middle';
+    if (!clave) { C.shadowColor = 'rgba(0,0,0,0.75)'; C.shadowBlur = 22; C.shadowOffsetY = 4; }
+    C.fillStyle = dicha ? '#fff' : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
+  });
+}
+function capitulosIOS(nombres, actual) {
+  const Y = 104, total = 940, x0 = (W - total) / 2, seg = total / nombres.length;
+  C.save(); C.shadowColor = 'rgba(0,0,0,0.5)'; C.shadowBlur = 12;
+  nombres.forEach((n, i) => { const X = x0 + i * seg; const on = i === actual, hecho = i < actual;
+    C.fillStyle = on ? grad(C, X, 0, X + seg, 0, [VX.cian, VX.violeta]) : hecho ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.3)'; rr(C, X + 5, Y, seg - 10, 8, 4); C.fill();
+    C.font = `${on ? 800 : 600} 25px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillStyle = on ? '#fff' : 'rgba(255,255,255,0.7)'; C.fillText(n, X + seg / 2, Y + 36); });
+  C.restore();
+}
+const proyectar = v => { const p = v.clone().project(cam); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H, p.z < 1]; };
+function etiquetaPlano(txt, v, k, tono = 'oscuro', ic = null) { const [x, y, vis] = proyectar(v); if (vis) pildora(txt, x, y, k, { tono, tam: 34, icono: ic }); }
+function rutaPlano(puntos, k, color = VX.cian) {
+  if (k <= 0) return; const pts = puntos.map(proyectar); let largo = 0; const tramos = [];
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); tramos.push(d); largo += d; }
+  let resta = largo * k; C.save(); C.lineCap = 'round'; C.lineJoin = 'round';
+  for (const [ancho, alfa] of [[26, 0.25], [10, 1]]) {
+    C.strokeStyle = color; C.globalAlpha = alfa; C.lineWidth = ancho; C.setLineDash(ancho > 20 ? [] : [26, 16]); C.lineDashOffset = -k * 200;
+    C.beginPath(); C.moveTo(pts[0][0], pts[0][1]); let r = resta; let fin = pts[0];
+    for (let i = 1; i < pts.length && r > 0; i++) { const f = Math.min(1, r / tramos[i - 1]); fin = [lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f)]; C.lineTo(fin[0], fin[1]); r -= tramos[i - 1]; }
+    C.stroke(); if (ancho < 20) { C.setLineDash([]); C.globalAlpha = 1; C.fillStyle = '#fff'; C.beginPath(); C.arc(fin[0], fin[1], 16, 0, 7); C.fill(); C.fillStyle = color; C.beginPath(); C.arc(fin[0], fin[1], 9, 0, 7); C.fill(); }
+  }
+  C.restore();
+}
+function ticketCocina(k, t) {
+  if (k <= 0) return; const s = rebote(clamp(k)); C.save(); C.translate(W / 2, 1080); C.scale(s, s); C.globalAlpha = clamp(k * 2);
+  const w = 760, h = 380; C.shadowColor = 'rgba(0,0,0,0.45)'; C.shadowBlur = 50; C.shadowOffsetY = 16; C.fillStyle = 'rgba(255,255,255,0.97)'; rr(C, -w / 2, -h / 2, w, h, 44); C.fill(); C.shadowBlur = 0; C.shadowOffsetY = 0;
+  C.fillStyle = '#111'; C.textAlign = 'left'; C.textBaseline = 'middle'; icono('cocina', -w / 2 + 70, -h / 2 + 70, 52, '#111');
+  C.font = `800 40px Inter, ${FUENTE}`; C.fillText('Nuevo pedido', -w / 2 + 120, -h / 2 + 72);
+  C.fillStyle = VX.naranja; rr(C, w / 2 - 230, -h / 2 + 40, 190, 64, 32); C.fill(); C.fillStyle = '#fff'; C.font = `900 34px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillText('MESA 7', w / 2 - 135, -h / 2 + 74);
+  C.textAlign = 'left'; C.font = `600 36px Inter, ${FUENTE}`; C.fillStyle = '#333';
+  ['1 × Caña', '1 × Patatas bravas', '1 × Croquetas'].forEach((l, i) => { const a = clamp((t - i * 0.15) * 3); C.globalAlpha = a; C.fillText(l, -w / 2 + 70, -h / 2 + 160 + i * 62); });
+  C.globalAlpha = 1; C.restore();
+}
+
+// ---------- vídeo: bar de verdad, plano, cocina y barra ----------
 V['mesa7'] = {
   arriba: true,
-  montar() {
+  async montar() {
     duracion = duracion || 28;
-    this.mesas = {}; let n = 1;
-    for (const z of [-2.6, 0, 2.6]) for (const x of [-2.6, 0, 2.6]) {
-      const m = mesaRedonda(n); m.position.set(x, 0, z); m.scale.setScalar(1.15);
-      const tj = tarjeta('carta', n); tj.scale.setScalar(0.4); tj.position.set(0, 0, 0.15); m.add(tj); m.userData.tj = tj;
-      const gente = [];
-      [[0, 0.95, Math.PI], [0, -0.95, 0]].forEach(([px, pz, ry], j) => {
-        if (n === 7 && j === 1) return;
-        const p = persona(['#ff7a59', '#3F7DFB', '#22c55e', '#f2c94c', '#7C5CFF', '#e74c3c'][(n + j) % 6], ['#e0ac69', '#c68642', '#8d5524', '#f1c27d'][(n * 2 + j) % 4]);
-        p.position.set(px, -0.78, pz); p.rotation.y = ry; p.traverse(o => { o.castShadow = false; }); m.add(p); gente.push(p);
-      });
-      m.userData.gente = gente; mundo.add(m); this.mesas[n] = m; n++;
+    // luz de bar de día/tarde, cálida y clara (nada de discoteca)
+    scene.background = new THREE.Color('#2b2118'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+    hemi.color.set('#fff3e3'); hemi.groundColor.set('#9c7b5c'); hemi.intensity = 1.55;
+    const sol = new THREE.DirectionalLight('#ffe0b5', 2.3); sol.position.set(-7, 15, 10); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+    Object.assign(sol.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 45 }); sol.shadow.bias = -0.0006; scene.add(sol);
+    const calida = new THREE.PointLight('#ffb36b', 25, 14, 1.6); calida.position.set(-5, 4.2, 3.5); scene.add(calida);
+    renderer.toneMappingExposure = 1.1;
+
+    const { mesas } = await construirBar(mundo, n => tarjeta('carta', n));
+    this.mesas = mesas;
+    const ropa = ['Male_Casual_2', 'Female_Casual', 'Female_Formal', 'Male_Beach', 'Female_Casual', 'Male_Casual_2', 'Female_Formal'];
+    this.gente = []; let k = 0;
+    for (const n of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const m = mesas[n];
+      for (const [j, silla] of m.sillas.entries()) {
+        if (n === 7 && j === 1) continue;
+        const nombre = n === 7 ? 'Male_Casual_Hoodie' : ropa[k++ % ropa.length];
+        const p = await personaGL(nombre, { sentada: true, anim: n === 7 ? 'Wave' : 'Idle', desfase: k * 0.41 });
+        const wp = silla.getWorldPosition(new THREE.Vector3()); p.sentar(wp.x, wp.z + (j === 0 ? -0.15 : 0.15), j === 0 ? Math.PI : 0);
+        mundo.add(p.holder); this.gente.push(p); if (n === 7) this.cliente = p;
+      }
     }
-    this.cli = this.mesas[7].userData.gente[0];
-    this.coc = cocina(); this.coc.position.set(0, 0, -5.2); mundo.add(this.coc);
-    this.cam = persona('#1d2333', '#c68642', true); mundo.add(this.cam);
-    this.mv = movil(); mundo.add(this.mv); this.on = ondas(); this.pk = paquete('MESA 7 · pedido');
-    this.anillo = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.0, 64), new THREE.MeshBasicMaterial({ color: '#ff3b5c', transparent: true, opacity: 0, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
-    this.anillo.rotation.x = -Math.PI / 2; this.anillo.position.set(-2.6, 0.01, 2.6); mundo.add(this.anillo);
-    renderer.toneMappingExposure = 1.45; hemi.intensity = 1.7; scene.fog = new THREE.Fog('#0a0f1f', 16, 40);
+    for (const [x, ry, nom] of [[-5.0, Math.PI, 'Female_Formal'], [-3.4, Math.PI, 'Male_Casual_2']]) {
+      const p = await personaGL(nom, { sentada: true, desfase: x }); p.sentar(x, -2.75, ry, 0.5); mundo.add(p.holder); this.gente.push(p);
+    }
+    this.camarero = await personaGL('Male_Suit', { anim: 'Run' }); mundo.add(this.camarero.holder);
+    this.cocinero = await personaGL('Female_Casual', { anim: 'Interact' }); this.cocinero.holder.position.set(3, 0, -3.85); this.cocinero.holder.rotation.y = Math.PI; mundo.add(this.cocinero.holder);
+    this.barman = await personaGL('Male_Casual_2', { anim: 'Idle', desfase: 1.3 }); this.barman.holder.position.set(-4.4, 0, -5.4); mundo.add(this.barman.holder);
+    this.gente.push(this.cocinero, this.barman);
+
+    this.mv = movil(); this.mv.scale.setScalar(0.38); mundo.add(this.mv); this.on = ondas();
+    this.anillo = new THREE.Mesh(new THREE.RingGeometry(1.25, 1.42, 64), new THREE.MeshBasicMaterial({ color: '#ff3b5c', transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false }));
+    this.anillo.rotation.x = -Math.PI / 2; this.anillo.position.set(-5, 0.03, 3.3); mundo.add(this.anillo);
+    this.halos = [1, 2, 3, 4, 5, 6, 7, 8].map(n => { const h = this.anillo.clone(); h.material = this.anillo.material.clone(); h.material.color.set(VX.cian); const p = mesas[n].g.position; h.position.set(p.x, 0.03, p.z); mundo.add(h); return h; });
+
     const c = this.c = {
       viernes: cue('viernes'), lleno: cue('lleno'), mesa: cue('mesa'), problema: cue('problema'), mano: cue('mano', 2), ahora: cue('ahora'),
       tocan: cue('tocan'), carta: cue('carta'), descargar: cue('descargar'), piden: cue('piden'), cocina: cue('cocina'), necesitan: cue('necesitan'),
       vibra: cue('vibra'), cuenta: cue('cuenta'), mismo: cue('mismo'), cero: cue('cero'), comenta: cue('comenta'),
     };
-    if (c.mano > 900) c.mano = cue('mano');
-    efectos = [['whoosh', 0.05], ['whoosh', c.lleno], ['whoosh', c.mesa - 0.1], ['hit', c.problema], ['pop', c.mano], ['whoosh', c.ahora - 0.1], ['tap', c.tocan + 0.3], ['whoosh', c.carta - 0.15],
-      ['pop', c.descargar], ['pop', c.descargar + 0.35], ['tick', c.piden + 0.3], ['tick', c.piden + 0.65], ['whoosh', c.cocina - 0.2], ['ding', c.cocina + 0.6], ['tap', c.necesitan + 0.6],
+    efectos = [['whoosh', 0.05], ['whoosh', c.lleno - 0.1], ['whoosh', c.mesa - 0.1], ['hit', c.problema], ['pop', c.mano], ['whoosh', c.ahora - 0.1], ['tap', c.tocan + 0.3], ['whoosh', c.carta - 0.15],
+      ['pop', c.descargar], ['pop', c.descargar + 0.35], ['whoosh', c.piden - 0.1], ['tick', c.piden + 0.4], ['riser', c.piden + 0.2], ['ding', c.cocina + 0.2], ['whoosh', c.necesitan - 0.1], ['tap', c.necesitan + 0.6],
       ['whoosh', c.vibra - 0.25], ['buzz', c.vibra + 0.1], ['tap', c.cuenta + 0.2], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
     this.musica = 'beat';
-    const m7 = [-2.6, 0.35, 2.6], tj7 = [-2.6, 0.32, 2.75];
+    const cli = [-5, 1.6, 4.2], tj = mesas[7].tj.userData.centro().toArray();
     this.tomas = [
-      { a: 0, de: [0, 9.5, 9.5], a2: [0.8, 5.2, 7.2], mira: [0, 0, 0], mira2: [-0.6, 0, 0.6] },
-      { a: c.lleno, de: [3.5, 2.6, 2.5], a2: [2.6, 2.2, 1.4], mira: [0.5, 0.6, -2.5], mira2: [0, 0.6, -3] },
-      { a: c.mesa - 0.1, de: [-0.9, 2.3, 0.4], a2: [-1.4, 2.0, 0.9], mira: [-2.6, 0.8, 3.2], mira2: [-2.6, 0.9, 3.3] },
-      { a: c.problema, de: [-1.7, 1.75, 1.5], a2: [-1.9, 1.65, 1.85], mira: [-2.6, 1.15, 3.5], mira2: [-2.6, 1.2, 3.5], fov: 34 },
-      { a: c.ahora - 0.1, de: [-1.6, 1.0, 4.1], a2: [-2.1, 0.75, 3.75], mira: tj7, mira2: tj7, fov: 34 },
-      { a: c.piden + 0.6, de: [-1.5, 2.6, 3.8], a2: [0.6, 1.8, -2.4], mira: [-1.5, 0.6, 0], mira2: [0, 1.0, -5.2], barrido: 0.2 },
-      { a: c.necesitan, de: [-0.9, 2.2, 0.6], a2: [-1.3, 1.9, 1.0], mira: [-2.6, 0.7, 3.0], mira2: [-2.6, 0.7, 3.0] },
-      { a: c.vibra - 0.15, de: [1.4, 1.9, 0.8], a2: [1.1, 1.75, 0.3], mira: [0.4, 1.3, -1.6], mira2: [0.2, 1.25, -1.4] },
-      { a: c.cuenta, de: [-0.4, 2.4, 0.9], a2: [-0.9, 2.1, 1.3], mira: [-2.4, 0.7, 2.8], mira2: [-2.4, 0.7, 2.8] },
-      { a: c.mismo, de: [0, 4.8, 8.2], a2: [0, 9.5, 10.5], mira: [0, 0, 0], mira2: [0, 0, 0] },
+      { a: 0, de: [0.3, 30, 0.01], a2: [9, 13, 14], mira: [0, 0, 0], mira2: [-0.5, 0, 0.6], up: [0, 1, 0], fov: 40 },
+      { a: c.lleno - 0.1, de: [7.5, 4.2, 6.8], a2: [6.0, 3.8, 6.2], mira: [2.0, 1.3, 1.5], mira2: [0.5, 1.3, 1.5], fov: 40 },
+      { a: c.mesa - 0.1, de: [-2.4, 3.4, 0.4], a2: [-3.2, 2.9, 1.1], mira: [-5, 1.5, 3.9], mira2: [-5, 1.6, 4.0] },
+      { a: c.problema, de: [-3.6, 2.4, 1.9], a2: [-3.9, 2.2, 2.3], mira: [-5, 2.0, 4.2], mira2: [-5, 2.05, 4.2], fov: 36 },
+      { a: c.ahora - 0.1, de: [tj[0] + 0.9, tj[1] + 1.1, tj[2] + 1.9], a2: [tj[0] + 0.55, tj[1] + 0.75, tj[2] + 1.35], mira: tj, mira2: tj, fov: 34 },
+      { a: c.piden - 0.1, de: [0, 36, 0.01], a2: [0, 33, 0.01], mira: [0, 0, 0], mira2: [0, 0, 0], up: [1, 0, 0], fov: 38, barrido: 0.35 },
+      { a: c.cocina - 0.05, de: [6.0, 3.3, -2.5], a2: [5.4, 3.0, -2.7], mira: [3, 1.3, -4.6], mira2: [3, 1.3, -4.6] },
+      { a: c.necesitan - 0.1, de: [-2.6, 3.2, 0.6], a2: [-3.1, 2.9, 1.1], mira: [-5, 1.5, 3.9], mira2: [-5, 1.5, 3.9] },
+      { a: c.vibra - 0.15, de: [3.6, 3.0, 4.4], a2: [2.6, 2.7, 3.9], mira: [0.8, 1.7, 1.5], mira2: [0.2, 1.7, 1.8] },
+      { a: c.cuenta, de: [-1.6, 3.6, 0.4], a2: [-2.4, 3.2, 1.0], mira: [-4.6, 1.4, 3.4], mira2: [-4.6, 1.4, 3.4] },
+      { a: c.mismo, de: [10, 11, 13], a2: [11.5, 15, 15.5], mira: [0, 0, 0], mira2: [0, 0, 0], fov: 38 },
     ];
   },
   actualizar(t) {
     const c = this.c;
-    // gente viva: balanceo suave, la mesa 7 con la mano levantada hasta «ahora»
-    for (const n in this.mesas) this.mesas[n].userData.gente.forEach((p, j) => { p.position.y = -0.78 + Math.sin(t * 2 + n * 1.3 + j) * 0.015; p.userData.pose({ brazoD: 0.25 + 0.15 * Math.sin(t * 1.7 + n + j), brazoI: 0.2, sentado: true }); });
-    const mano = t < c.ahora ? 2.85 + 0.12 * Math.sin(t * 6) : lerp(2.85, 0.3, prog(t, c.ahora, c.ahora + 0.5));
-    this.cli.userData.pose({ brazoD: mano, brazoI: 0.2, sentado: true });
+    this.cliente.animar(t < c.ahora + 0.2 ? 'Wave' : 'Idle');
+    // camarero: corre entre mesas (no ve la mano); tras «vibra» va andando a la mesa 7
+    let x, z, ry;
+    if (t < c.vibra + 0.3) { const f = (t * 0.22) % 2, ida = f < 1 ? f : 2 - f; x = lerp(5.5, -0.5, ease(ida)); z = 1.55; ry = f < 1 ? -Math.PI / 2 : Math.PI / 2; this.camarero.animar('Run'); }
+    else { const k = prog(t, c.vibra + 0.3, c.cuenta + 0.3); const x0 = lerp(5.5, -0.5, ease(((c.vibra + 0.3) * 0.22) % 2 < 1 ? ((c.vibra + 0.3) * 0.22) % 1 : 2 - ((c.vibra + 0.3) * 0.22) % 2));
+      x = lerp(x0, -3.7, k); z = lerp(1.55, 3.0, k); ry = Math.atan2(-3.7 - x0, 1.45); this.camarero.animar(k < 1 ? 'Walk' : 'Idle'); }
+    this.camarero.holder.position.set(x, 0, z); this.camarero.holder.rotation.y = ry;
+    for (const p of this.gente) p.actualizar(t); this.camarero.actualizar(t); this.cliente.actualizar(t);
+    // móvil 3D del cliente tocando la tarjeta
+    const cen = this.mesas[7].tj.userData.centro(); const k = prog(t, c.tocan - 0.1, c.tocan + 0.3);
+    this.mv.visible = entre(t, c.ahora, c.carta + 0.25);
+    this.mv.position.set(cen.x + 0.03, cen.y + 0.03, cen.z + lerp(0.45, 0.06, k)); this.mv.rotation.set(-0.1, 0.35, 0); this.mv.userData.pantalla(t > c.tocan + 0.3 ? 'carta2' : 'bloqueo', { mesa: 7 });
+    this.on.userData.actualizar(t, entre(t, c.tocan + 0.15, c.carta + 0.2) ? 1 : 0, this.mv.userData.detras(), cen);
     this.anillo.material.opacity = t < c.ahora ? (0.55 + 0.45 * Math.sin(t * 8)) * prog(t, c.mesa - 0.2, c.mesa + 0.3) : 0;
-    // camarero: corre de mesa en mesa de espaldas; tras «vibra» va a la 7
-    let px, pz, ry, paso = t * 9;
-    if (t < c.vibra + 0.4) { const f = (t * 0.35) % 2; const ida = f < 1 ? f : 2 - f; px = lerp(2.2, -0.2, ease(ida)); pz = -1.3; ry = f < 1 ? -Math.PI / 2 : Math.PI / 2; }
-    else { const k = prog(t, c.vibra + 0.4, c.cuenta + 0.4); px = lerp(0.4, -1.7, k); pz = lerp(-1.3, 2.0, k); ry = Math.atan2(-2.1, 3.3); if (k >= 1) paso = null; }
-    this.cam.position.set(px, -0.78, pz); this.cam.rotation.y = ry; this.cam.userData.pose({ brazoD: 0.2, brazoI: 0.2, paso });
-    // móvil 3D tocando la tarjeta de la mesa 7
-    const tj = this.mesas[7].userData.tj, cen = tj.userData.centro();
-    const k = prog(t, c.tocan - 0.1, c.tocan + 0.3); this.mv.visible = entre(t, c.ahora, c.carta + 0.25); this.mv.scale.setScalar(0.45);
-    this.mv.position.set(cen.x + 0.05, cen.y + 0.04, cen.z + lerp(0.35, 0.03, k)); this.mv.rotation.set(-0.1, 0, 0); this.mv.userData.pantalla(t > c.tocan + 0.3 ? 'carta' : 'bloqueo', { mesa: 7 });
-    this.on.userData.actualizar(t, entre(t, c.tocan + 0.15, c.piden) ? 1 : 0, this.mv.userData.detras(), cen);
-    const pantCoc = this.coc.localToWorld(new THREE.Vector3(0, 0.75, 0.15));
-    this.pk.userData.mover(clamp((t - c.piden - 0.6) / 1.2), cen, pantCoc, 1.6);
-    this.coc.userData.pantalla(t > c.piden + 1.7, t > c.piden + 1.7 ? 0.5 + 0.5 * Math.sin(t * 8) : 0, 'MESA 7', '1× Caña · 1× Bravas · 1× Croquetas');
-    for (const n in this.mesas) { const h = this.mesas[n].userData.halo; h.material.opacity = t > c.mismo ? 0.9 * prog(t, c.mismo + n * 0.12, c.mismo + n * 0.12 + 0.25) : 0; }
+    this.halos.forEach((h, i) => { h.material.opacity = t > c.mismo ? 0.85 * prog(t, c.mismo + i * 0.1, c.mismo + i * 0.1 + 0.25) : 0; });
     this.desenfoque = camara2(t, this.tomas);
   },
   fx(t) {
     const c = this.c; let temblor = 0, flash = 0;
-    for (const g of [c.problema, c.cero]) { const d = t - g; if (d >= 0 && d < 0.45) { temblor = Math.max(temblor, (1 - d / 0.45) * 22); flash = Math.max(flash, (1 - d / 0.25)); } }
-    const d = t - c.vibra; if (d > 0 && d < 1.2) temblor = Math.max(temblor, 6);
-    return { desenfoque: this.desenfoque, temblor, flash: clamp(flash) * 0.35, zoom: 1 + 0.04 * prog(t, c.problema, c.problema + 0.2) * (1 - prog(t, c.ahora - 0.3, c.ahora)) };
+    for (const g of [c.problema, c.cero]) { const d = t - g; if (d >= 0 && d < 0.45) { temblor = Math.max(temblor, (1 - d / 0.45) * 18); flash = Math.max(flash, 1 - d / 0.25); } }
+    if (entre(t, c.vibra, c.vibra + 1.1)) temblor = Math.max(temblor, 5);
+    return { desenfoque: this.desenfoque, temblor, flash: clamp(flash) * 0.3 };
   },
   capa(t) {
     const c = this.c;
-    const cap = t < c.ahora ? 0 : t < c.necesitan ? 1 : t < c.mismo ? 2 : 3;
-    if (t < c.comenta) capitulos(['EL PROBLEMA', 'LA CARTA', 'EL CAMARERO', 'RESULTADO'], cap);
+    // velo oscuro arriba y abajo para que se lean textos sobre el bar claro
+    const g1 = C.createLinearGradient(0, 0, 0, 520); g1.addColorStop(0, 'rgba(0,0,0,0.55)'); g1.addColorStop(1, 'rgba(0,0,0,0)'); C.fillStyle = g1; C.fillRect(0, 0, W, 520);
+    const g2 = C.createLinearGradient(0, H - 560, 0, H); g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(1, 'rgba(0,0,0,0.5)'); C.fillStyle = g2; C.fillRect(0, H - 560, W, 560);
+    if (t < c.comenta) capitulosIOS(['El problema', 'La carta', 'El camarero', 'Resultado'], t < c.ahora ? 0 : t < c.necesitan ? 1 : t < c.mismo ? 2 : 3);
     // contadores
-    if (entre(t, 0.2, c.problema)) contador('🕙', 'VIE 22:00', W - 50, 1590);
-    if (entre(t, c.mesa, c.ahora)) { const s = Math.floor(lerp(9 * 60 + 52, 10 * 60 + 4, prog(t, c.mesa, c.ahora))); contador('⏱', `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')} esperando`, W - 50, 1590, '#ff6b81', '#ff3b5c'); }
-    if (entre(t, c.piden, c.mismo)) { const tot = t < c.piden + 0.3 ? '2,50 €' : t < c.piden + 0.65 ? '9,00 €' : '17,00 €'; contador('🧾', `Mesa 7 · ${tot}`, W - 50, 1590, '#fff', VX.azul); }
-    if (entre(t, c.mismo, c.comenta)) contador('✋', `manos levantadas: ${t < c.cero ? 1 : 0}`, W - 50, 1590, t < c.cero ? '#fff' : '#22c55e', '#22c55e');
+    if (entre(t, 0.2, c.mesa)) contadorIOS('reloj', 'Vie · 22:00', W - 50, 1620);
+    if (entre(t, c.mesa, c.ahora)) { const s = Math.floor(lerp(9 * 60 + 52, 10 * 60 + 4, prog(t, c.mesa, c.ahora))); contadorIOS('crono', `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')} esperando`, W - 50, 1620, 'rojo'); }
+    if (entre(t, c.piden, c.mismo)) contadorIOS('recibo', `Mesa 7 · ${t < c.piden + 0.4 ? '2,50' : t < c.piden + 0.8 ? '9,00' : '17,00'} €`, W - 50, 1620);
+    if (entre(t, c.mismo, c.comenta)) contadorIOS('mano', `Manos levantadas: ${t < c.cero ? 1 : 0}`, W - 50, 1620, t < c.cero ? 'oscuro' : 'verde');
     // pastillas y golpes
-    if (entre(t, c.lleno, c.mesa)) pastilla('1 solo camarero 😰', W / 2, 1460, entra(t, c.lleno + 0.2), '#ff3b5c');
-    if (entre(t, c.problema, c.ahora)) golpe('¿EL PROBLEMA?', W / 2, 1150, prog(t, c.problema, c.problema + 0.18), 110);
-    if (entre(t, c.mano, c.ahora)) pastilla('LA MANO ✋', W / 2, 1360, entra(t, c.mano), '#ff3b5c', 64);
-    if (entre(t, c.ahora, c.tocan)) pastilla('cada mesa tiene esto 👇', W / 2, 1460, entra(t, c.ahora), 'degradado', 48);
-    if (entre(t, c.descargar, c.piden)) { pastilla('SIN APP', 300, 1600, entra(t, c.descargar), VX.azul); pastilla('SIN DESCARGAR NADA', 680, 1600, entra(t, c.descargar + 0.35), VX.violeta); }
-    if (entre(t, c.cocina, c.necesitan)) pastilla('llega con su nº de mesa ✓', W / 2, 1460, entra(t, c.cocina + 0.4), '#22c55e', 46);
-    // móvil 2D del cliente: entra deslizando desde la derecha
-    if (entre(t, c.carta - 0.1, c.cocina + 0.3) || entre(t, c.necesitan, c.vibra) || entre(t, c.cuenta, c.mismo)) {
-      const ini = t < c.cocina + 0.3 ? c.carta - 0.1 : t < c.vibra ? c.necesitan : c.cuenta;
-      const fin = t < c.cocina + 0.3 ? c.cocina + 0.3 : t < c.vibra ? c.vibra : c.mismo;
+    if (entre(t, c.lleno, c.mesa)) pildora('Un solo camarero', W / 2, 1460, entra(t, c.lleno + 0.15), { icono: 'usuario', tono: 'rojo' });
+    if (entre(t, c.problema, c.ahora)) golpeIOS('¿El problema?', W / 2, 1180, prog(t, c.problema, c.problema + 0.18), 118);
+    if (entre(t, c.mano, c.ahora)) pildora('La mano', W / 2, 1380, entra(t, c.mano), { icono: 'mano', tono: 'rojo', tam: 60 });
+    if (entre(t, c.ahora, c.tocan)) pildora('En cada mesa', W / 2, 1460, entra(t, c.ahora), { icono: 'nfc', tono: 'marca', tam: 48 });
+    if (entre(t, c.descargar, c.piden)) { pildora('Sin app', 330, 1620, entra(t, c.descargar), { icono: 'check', tono: 'azul' }); pildora('Sin descargar nada', 720, 1620, entra(t, c.descargar + 0.3), { icono: 'check', tono: 'azul' }); }
+    // plano del bar con etiquetas y ruta de la comanda
+    if (entre(t, c.piden, c.cocina)) {
+      const k = prog(t, c.piden + 0.1, c.piden + 0.4);
+      etiquetaPlano('Cocina', new THREE.Vector3(5, 1, -4), k, 'claro', 'cocina'); etiquetaPlano('Barra', new THREE.Vector3(-4, 1.5, -4.2), k, 'claro');
+      etiquetaPlano('Sala', new THREE.Vector3(0, 1, 5.3), k, 'claro'); etiquetaPlano('Mesa 7', new THREE.Vector3(-5, 2.2, 3.3), k, 'marca');
+      rutaPlano([[-5, 1.2, 3.3], [-3, 1.2, 1.55], [2.2, 1.2, 1.55], [4, 1.2, -2], [3, 1.2, -3.6]].map(a => new THREE.Vector3(...a)), prog(t, c.piden + 0.2, c.cocina - 0.1));
+    }
+    if (entre(t, c.cocina, c.necesitan)) ticketCocina(prog(t, c.cocina, c.cocina + 0.35), t - c.cocina);
+    // móvil 2D del cliente
+    if (entre(t, c.carta - 0.1, c.piden) || entre(t, c.necesitan, c.vibra) || entre(t, c.cuenta, c.mismo)) {
+      const ini = t < c.piden ? c.carta - 0.1 : t < c.vibra ? c.necesitan : c.cuenta, fin = t < c.piden ? c.piden : t < c.vibra ? c.vibra : c.mismo;
       const kin = entra(t, ini, 0.5), kout = prog(t, fin - 0.3, fin);
-      const sel = t > c.piden ? Math.min(3, 1 + Math.floor((t - c.piden) / 0.35)) : 0;
-      const est = { mesa: 7, sel, total: ['', '2,50 €', '9,00 €', '17,00 €'][sel], enviado: t > c.cocina, pulsado: t > c.necesitan + 0.6 && t < c.cuenta ? 'camarero' : t > c.cuenta + 0.2 ? 'cuenta' : null };
-      movil2D(lerp(W + 400, 720, kin) + kout * 700, 1000, 0.62, lerp(0.25, 0.06, clamp(kin)), 'carta2', est);
+      const est = { mesa: 7, sel: t > c.necesitan ? 3 : 0, enviado: t > c.necesitan, pulsado: t > c.necesitan + 0.6 && t < c.cuenta ? 'camarero' : t > c.cuenta + 0.2 ? 'cuenta' : null };
+      movil2D(lerp(W + 400, 730, kin) + kout * 700, 1040, 0.6, lerp(0.22, 0.05, clamp(kin)), 'carta2', est);
     }
-    // móvil 2D del camarero: aviso con vibración
+    // móvil 2D del camarero vibrando
     if (entre(t, c.vibra - 0.1, c.cuenta)) {
-      const kin = entra(t, c.vibra - 0.1, 0.4), vib = t - c.vibra < 1.2 ? Math.sin(t * 90) * 0.035 : 0;
-      movil2D(lerp(-400, 360, kin), 1020, 0.6, -0.08 + vib, 'aviso', { k: Math.round(prog(t, c.vibra, c.vibra + 0.3) * 10) / 10 });
-      pastilla('📳 MESA 7', 760, 760, entra(t, c.vibra + 0.2), '#ff7a1a', 56);
+      const kin = entra(t, c.vibra - 0.1, 0.4), vib = t - c.vibra < 1.1 ? Math.sin(t * 90) * 0.03 : 0;
+      movil2D(lerp(-400, 350, kin), 1060, 0.58, -0.07 + vib, 'aviso', { k: Math.round(prog(t, c.vibra, c.vibra + 0.3) * 10) / 10 });
+      pildora('Mesa 7 te llama', 740, 720, entra(t, c.vibra + 0.2), { icono: 'vibra', tono: 'marca', tam: 46 });
     }
-    if (t >= c.cero && t < c.comenta) golpe('CERO ✋', W / 2, 1150, prog(t, c.cero, c.cero + 0.18), 170, VX.amarillo);
-    // final: comentario
+    if (t >= c.cero && t < c.comenta) golpeIOS('CERO', W / 2, 1180, prog(t, c.cero, c.cero + 0.18), 200, true);
+    // final
     if (t >= c.comenta) {
-      const k = prog(t, c.comenta - 0.2, c.comenta + 0.3); C.fillStyle = `rgba(6,8,20,${0.82 * k})`; C.fillRect(0, 0, W, H);
+      const k = prog(t, c.comenta - 0.2, c.comenta + 0.3); C.fillStyle = `rgba(8,10,20,${0.86 * k})`; C.fillRect(0, 0, W, H);
       logoVisax(C, W / 2 - 70, 560, 140);
-      golpe('COMENTA', W / 2, 860, prog(t, c.comenta, c.comenta + 0.2), 120);
+      golpeIOS('Comenta', W / 2, 860, prog(t, c.comenta, c.comenta + 0.2), 110);
       if (t > c.comenta + 0.25) { C.save(); const s = rebote(clamp((t - c.comenta - 0.25) / 0.4)); C.translate(W / 2, 1030); C.scale(s, s);
-        C.font = `900 150px ${FUENTE}`; const w = C.measureText('MESA').width + 80; C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]); rr(C, -w / 2, -100, w, 200, 40); C.fill();
+        C.font = `900 150px Inter, ${FUENTE}`; const w = C.measureText('MESA').width + 90; C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 40;
+        C.fillStyle = grad(C, -w / 2, 0, w / 2, 0, [VX.cian, VX.azul, VX.violeta]); rr(C, -w / 2, -100, w, 200, 100); C.fill(); C.shadowBlur = 0;
         C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('MESA', 0, 8); C.restore(); }
-      contorno('y te lo enseñamos en tu bar', W / 2, 1230, 46, 'rgba(255,255,255,0.9)', 700, 8);
+      C.save(); C.font = `600 44px Inter, ${FUENTE}`; C.fillStyle = 'rgba(255,255,255,0.85)'; C.textAlign = 'center'; C.fillText('y te lo enseñamos en tu bar', W / 2, 1240); C.restore();
       const letras = Math.floor(clamp((t - c.comenta - 0.6) / 0.6) * 4);
       cajaComentario('MESA'.slice(0, letras), prog(t, c.comenta + 0.3, c.comenta + 0.6), Math.floor(t * 3) % 2 === 0);
     }
   },
+  subtitulos: subtitulosIOS,
 };
 
 // ---------- API para render.mjs ----------
 let actual = null;
-window.init = (id, pal, dur) => {
+window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };
-  prepararSubtitulos(palabras); actual = V[id]; actual.montar();
+  prepararSubtitulos(palabras); actual = V[id]; await actual.montar();
   return { duracion, efectos, musica: actual.musica || null };
 };
 function componer(t) {
@@ -901,7 +1010,7 @@ function componer(t) {
   vineta();
   if (fx.flash) { C.fillStyle = `rgba(255,255,255,${fx.flash})`; C.fillRect(0, 0, W, H); }
   actual.capa(t);
-  if (actual.arriba) { if (t < (actual.c?.comenta ?? 1e9)) subtitulosArriba(t); } else subtitulos(t);
+  if (actual.arriba) { if (t < (actual.c?.comenta ?? 1e9)) (actual.subtitulos || subtitulosArriba)(t); } else subtitulos(t);
   marcaAgua();
 }
 window.frame = (t) => {

@@ -26,6 +26,10 @@ if (!(await existe(three))) {
   await mkdir(path.dirname(three), { recursive: true });
   execFileSync('curl', ['-sSfL', '-o', three, 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js']);
 }
+for (const f of ['loaders/GLTFLoader.js', 'utils/BufferGeometryUtils.js', 'utils/SkeletonUtils.js']) {
+  const d = path.join(DIR, 'vendor', 'addons', f);
+  if (!(await existe(d))) { await mkdir(path.dirname(d), { recursive: true }); execFileSync('curl', ['-sSfL', '-o', d, `https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/${f}`]); }
+}
 
 // efectos de sonido generados con ffmpeg (sin licencias)
 const SFX = {
@@ -45,7 +49,7 @@ for (const [n, [src, filtro]] of Object.entries(SFX)) {
 }
 
 // servidor estático para el motor
-const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json' };
+const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.gltf': 'model/gltf+json', '.glb': 'model/gltf-binary', '.png': 'image/png' };
 const srv = createServer(async (req, res) => {
   try { const p = path.join(DIR, decodeURIComponent(req.url.split('?')[0])); res.writeHead(200, { 'Content-Type': TIPOS[path.extname(p)] || 'application/octet-stream' }); res.end(await readFile(p)); }
   catch { res.writeHead(404); res.end(); }
@@ -62,7 +66,7 @@ const pag = await navegador.newPage();
 pag.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.error('[motor]', m.text()); });
 pag.on('pageerror', e => console.error('[motor]', e.message));
 await pag.goto(`http://127.0.0.1:${puerto}/motor.html?escala=${opt('--escala', '0.667')}`);
-await pag.waitForFunction(() => window.listo === true, null, { timeout: 60000 });
+await pag.waitForFunction(() => window.listo === true, null, { timeout: 120000 });
 const info = await pag.evaluate(([i, p, d]) => window.init(i, p, d), [id, palabras, durVoz ? durVoz + 0.8 : 0]);
 const dur = info.duracion;
 await mkdir(SALIDA, { recursive: true });

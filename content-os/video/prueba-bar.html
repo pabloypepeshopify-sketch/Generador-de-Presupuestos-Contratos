@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script></head><body>
+<script type="module">
+import * as THREE from 'three'; import { construirBar, persona } from './bar.js';
+const W=720,H=1280; const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); r.setSize(W,H,false); r.shadowMap.enabled=true; r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.1;
+const s=new THREE.Scene(); s.background=new THREE.Color('#f3e7d6');
+s.add(new THREE.HemisphereLight('#fff4e6','#b08a68',1.6));
+const sol=new THREE.DirectionalLight('#ffe2b8',2.2); sol.position.set(-6,14,9); sol.castShadow=true; sol.shadow.mapSize.set(2048,2048); Object.assign(sol.shadow.camera,{left:-12,right:12,top:12,bottom:-12,far:40}); s.add(sol);
+const cam=new THREE.PerspectiveCamera(35,W/H,0.1,200);
+const tj=n=>{const g=new THREE.Group(); const m=new THREE.Mesh(new THREE.BoxGeometry(0.62,0.92,0.03),new THREE.MeshStandardMaterial({color:'#3F7DFB'})); m.position.y=0.5; g.add(m); return g;};
+const {mesas}=await construirBar(s,tj);
+const nombres=['Male_Casual_2','Female_Casual','Male_Casual_Hoodie','Female_Formal','Male_Beach','Female_Worker','Male_Suit'];
+const gente=[]; let k=0;
+for (const n of [1,2,3,4,5,6,7,8]) { const m=mesas[n]; for (const [j,silla] of m.sillas.entries()) { if (n===7&&j===1) continue;
+  const p=await persona(nombres[k++%nombres.length],{sentada:true,anim:n===7?'Wave':'Idle',desfase:k*0.37});
+  const wp=silla.getWorldPosition(new THREE.Vector3()); const ry=j===0?Math.PI:0; p.sentar(wp.x, wp.z+(j===0?-0.15:0.15), ry); s.add(p.holder); gente.push(p);} }
+const cam1=await persona('Male_Worker',{anim:'Walk'}); cam1.holder.position.set(0.5,0,1.5); cam1.holder.rotation.y=Math.PI/2; s.add(cam1.holder); gente.push(cam1);
+const coc=await persona('Female_Worker',{anim:'Interact'}); coc.holder.position.set(3,0,-3.8); coc.holder.rotation.y=Math.PI; s.add(coc.holder); gente.push(coc);
+window.vista=(i,t=1)=>{ gente.forEach(p=>p.actualizar(t)); const v=[[0,26,0.01,0,0,0,30],[9,11,15,0,0,0,40],[-2.6,3.2,7.2,-5,1.2,3.3,35],[2,3.5,2.5,5,1.5,-4.5,40]][i];
+  cam.position.set(v[0],v[1],v[2]); cam.lookAt(v[3],v[4],v[5]); cam.fov=v[6]; cam.updateProjectionMatrix(); r.render(s,cam); return r.domElement.toDataURL('image/jpeg',0.85); };
+window.listo=true;
+</script></body></html>
