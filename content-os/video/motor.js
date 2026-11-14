@@ -1742,7 +1742,7 @@ V['pov'] = { ...comunCapa,
     efectos = [['whoosh', 2.4], ['pop', c.ahora], ['whoosh', c.vale + 0.1], ['tap', c.movil + 0.1], ['ding', c.carta - 0.1], ['tick', c.canas], ['tick', c.bravas], ['pop', c.pedir + 0.1],
       ['whoosh', c.corte1 - 0.1], ['ding', c.corte1 + 0.15], ['buzz', c.corte1 + 0.2], ['tap', c.confirma + 0.1], ['ding', c.canas2], ['ding', c.bravas2 + 0.1], ['whoosh', c.cocina - 0.3],
       ['whoosh', c.corte2 - 0.1], ['tap', c.placa + 0.1], ['buzz', c.placa + 0.4], ['ding', c.placa + 0.4], ['whoosh', c.voy + 0.3], ['pop', c.cero + 0.3], ['whoosh', c.mandaselo - 0.2], ['pop', c.dueno + 0.3], ['hit', c.comenta]];
-    this.ojo = new THREE.Vector3(0, 1.3, 0.42); this.musica = 'beat';
+    this.ojo = new THREE.Vector3(0, 1.3, 0.42); this.musica = 'guitarra_bar'; this.volMusica = 0.42;
     this.tomasBarra = [
       { a: c.corte1, de: [-0.9, 1.85, -3.2], a2: [-1.3, 1.75, -3.7], mira: [-2.2, 1.35, -5.6], mira2: [-2.1, 1.35, -5.6], fov: 46, barrido: 0 },
       { a: c.llega - 0.1, de: [-1.55, 1.55, -4.45], a2: [-1.65, 1.5, -4.62], mira: [-1.85, 1.3, -5.2], mira2: [-1.85, 1.3, -5.2], fov: 40 },
@@ -1870,7 +1870,7 @@ window.init = async (id, pal, dur) => {
   for (const v of Object.values(actual)) { if (Array.isArray(v)) v.forEach(mete); else mete(v); }
   for (const m of Object.values(actual.mesas || {})) mete(m.tj);
   ESTILO = aplicarEstilo(Q.get('estilo') || actual.estilo || 'bar', { scene, mundo, saltar, renderer });
-  return { duracion, efectos, musica: actual.musica || null };
+  return { duracion, efectos, musica: actual.musica || null, ambiente: actual.ambiente || null, volMusica: actual.volMusica, volAmbiente: actual.volAmbiente };
 };
 function componer(t) {
   const fx = actual.fx ? actual.fx(t) : {};

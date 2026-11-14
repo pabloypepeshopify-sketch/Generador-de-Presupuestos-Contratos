@@ -87,10 +87,16 @@ const etiquetas = ['[voz]']; let idx = 2;
 const musica = info.musica ? path.join(DIR, 'musica', `${info.musica}.mp3`) : null;
 if (musica && await existe(musica)) {
   entradas.push('-stream_loop', '-1', '-t', String(dur), '-i', musica);
-  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.5,afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
+  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volMusica ?? 0.5},afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
     '[mus0][vozsc]sidechaincompress=threshold=0.04:ratio=5:attack=15:release=350[mus]');
   etiquetas.push('[mus]'); idx = 3;
 } else filtros[0] = '[1:a]aformat=sample_rates=44100:channel_layouts=stereo[voz]';
+// ambiente de fondo (sala, gente) en bucle, constante y bajo
+const ambiente = info.ambiente ? path.join(DIR, 'musica', `${info.ambiente}.mp3`) : null;
+if (ambiente && await existe(ambiente)) {
+  entradas.push('-stream_loop', '-1', '-t', String(dur), '-i', ambiente);
+  filtros.push(`[${idx}:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volAmbiente ?? 0.3},afade=t=in:d=0.3,afade=t=out:st=${(dur - 1.0).toFixed(2)}:d=1.0[amb]`); etiquetas.push('[amb]'); idx++;
+}
 info.efectos.forEach(([n, t], i) => {
   if (!(t >= 0 && t < dur)) return;
   entradas.push('-i', path.join(dirSfx, `${n}.wav`)); const ms = Math.round(t * 1000);
