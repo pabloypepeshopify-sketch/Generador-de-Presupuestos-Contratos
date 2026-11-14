@@ -106,6 +106,13 @@ const ESTILOS = {
     subs: { tam: 74, fuente: tam => `900 ${tam}px Inter, sans-serif`, mayus: true, texto: '#ffe14d', textoClave: '#fff', borde: 12, pill: ['#ff3b3b', '#ff3b3b'], bordePill: 7, radio: 14, giro: -0.06, sombra: 'rgba(0,0,0,0)' },
   },
 
+  maquetaDoble: {
+    aplicar(scene, mundo, saltar, renderer) {
+      scene.background = fondoDegradado(['#a9d8ff', '#eaf5ff']); scene.fog = null; renderer.toneMappingExposure = 1.15;
+    },
+    post: { filtro: 'saturate(1.35) contrast(1.06)', tiltShift: 6, tiltStops: [[0, 1], [0.1, 0], [0.4, 0], [0.5, 0.7], [0.6, 0], [0.9, 0], [1, 1]] },
+    subs: { tam: 66, fuente: tam => `800 ${tam}px Fraunces, serif`, pill: ['#ffd84d', '#ff9f1c'], textoClave: '#2a1600', sombra: 'rgba(0,0,0,0.75)', y: 960 },
+  },
   maqueta: {
     tele: 1.9,
     aplicar(scene, mundo, saltar, renderer) {
@@ -133,7 +140,7 @@ export function dibujar3D(C, src, W, H, e, extraFiltro = '') {
   if (p.tiltShift) {
     if (aux.width !== W) { aux.width = W; aux.height = H; }
     A.globalCompositeOperation = 'source-over'; A.clearRect(0, 0, W, H); A.filter = `blur(${p.tiltShift}px) ${p.filtro || ''}`; A.drawImage(src, 0, 0, W, H); A.filter = 'none';
-    const g = A.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.3, 'rgba(0,0,0,0)'); g.addColorStop(0.62, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+    const g = A.createLinearGradient(0, 0, 0, H); (p.tiltStops || [[0, 1], [0.3, 0], [0.62, 0], [1, 1]]).forEach(([o, v]) => g.addColorStop(o, `rgba(0,0,0,${v})`));
     A.globalCompositeOperation = 'destination-in'; A.fillStyle = g; A.fillRect(0, 0, W, H); A.globalCompositeOperation = 'source-over';
     C.drawImage(aux, -W / 2, -H / 2, W, H);
   }
