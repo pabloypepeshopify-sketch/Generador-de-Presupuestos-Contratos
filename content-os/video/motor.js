@@ -1612,6 +1612,76 @@ V['noche'] = { ...comunCapa,
     cierreComenta(t, c.comenta, 'MESA', 'y te lo enseñamos todo en tu bar');
   },
 };
+// ---------- 7. ¿Qué pasa en el medio segundo que tocas la tarjeta MENÚ? ----------
+function tarjetaMenuRayos() {
+  const g = tarjetaMenu(); const card = g.userData.card;
+  const pts = []; const w2 = 0.25, h2 = 0.38;
+  for (let v = 0; v < 6; v++) { const d = v * 0.028; pts.push(new THREE.Vector3(-w2 + d, h2 - d, 0), new THREE.Vector3(w2 - d, h2 - d, 0), new THREE.Vector3(w2 - d, -h2 + d, 0), new THREE.Vector3(-w2 + d + 0.028, -h2 + d, 0)); }
+  const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.02), 900, 0.0045, 6, false);
+  const mat = new THREE.MeshStandardMaterial({ color: '#d98a3a', emissive: '#ff9a3c', emissiveIntensity: 0, metalness: 0.9, roughness: 0.25, transparent: true, opacity: 0 });
+  const antena = new THREE.Mesh(geo, mat); antena.position.z = 0.004; card.add(antena);
+  const chip = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.012), new THREE.MeshStandardMaterial({ color: '#111', emissive: VX.cian, emissiveIntensity: 0, transparent: true, opacity: 0 })); chip.position.set(0, -0.12, 0.006); card.add(chip);
+  const brillo = new THREE.Sprite(new THREE.SpriteMaterial({ map: texBokeh.tex, color: VX.cian, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); brillo.scale.set(0.45, 0.45, 1); chip.add(brillo);
+  const n = geo.index.count;
+  g.userData.rayosX = (k, dibujo = 1, glow = 0) => {
+    card.material.forEach((m, i) => { m.transparent = k > 0; m.opacity = 1 - (i === 4 ? 0.55 : 0.75) * k; m.depthWrite = k < 0.5; }); antena.visible = chip.visible = k > 0;
+    mat.opacity = k; mat.emissiveIntensity = 0.4 + 2.2 * glow; geo.setDrawRange(0, Math.floor(n * dibujo / 6) * 6);
+    chip.material.opacity = k; chip.material.emissiveIntensity = 3 * glow; brillo.material.opacity = 0.9 * glow * k;
+  };
+  g.userData.chipMundo = () => chip.getWorldPosition(new THREE.Vector3());
+  return g;
+}
+V['menu'] = { ...comunCapa,
+  async montar() {
+    await montarBarBase(this, { mesaCliente: 7, ropaCliente: 'Male_Casual_Hoodie', extraMesa: n => (n === 7 ? tarjetaMenuRayos() : null) });
+    const c = this.c = { medio: cue('medio'), congelar: cue('congelar'), campo: cue('campo'), antena: cue('antena'), energia: cue('energia'), chip: cue('chip'), pilas: cue('pilas'), direccion: cue('direccion'),
+      mesa: cue('mesa'), carta: cue('carta'), siete: cue('siete'), segundo: cue('segundo', 2), pegatina: cue('pegatina'), comenta: cue('comenta') };
+    this.m = enMesa(this, 7); this.pk = paquete('carta · mesa 7'); this.pk.scale.setScalar(0.6);
+    const cc = this.m.tj.userData.centro().toArray();
+    efectos = [['whoosh', 0.05], ['tap', c.medio + 0.5], ['riser', c.congelar - 0.6], ['hit', c.congelar + 0.2], ['whoosh', c.campo - 0.1], ['whoosh', c.antena - 0.15], ['tick', c.energia], ['ding', c.chip + 0.1], ['pop', c.pilas],
+      ['whoosh', c.direccion - 0.1], ['pop', c.mesa], ['whoosh', c.carta - 0.1], ['ding', c.siete], ['hit', c.segundo], ['pop', c.pegatina], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
+    this.tomas = [{ a: 0, de: [-2.0, 3.6, 0.6], a2: [-2.8, 3.0, 1.4], mira: [-5, 1.3, 3.6], mira2: [-5, 1.2, 3.5] }, tomaTarjeta(this.m.tj, c.medio + 0.2),
+      { a: c.campo - 0.1, de: [cc[0] + 0.75, cc[1] + 0.35, cc[2] + 1.05], a2: [cc[0] + 0.55, cc[1] + 0.25, cc[2] + 0.85], mira: cc, mira2: cc, fov: 30 },
+      { a: c.antena - 0.1, de: [cc[0] + 0.25, cc[1] + 0.1, cc[2] + 0.8], a2: [cc[0] + 0.12, cc[1] + 0.05, cc[2] + 0.62], mira: cc, mira2: cc, fov: 28 },
+      { a: c.direccion - 0.1, de: [cc[0] + 0.9, cc[1] + 0.5, cc[2] + 1.3], a2: [cc[0] + 0.7, cc[1] + 0.4, cc[2] + 1.1], mira: [cc[0], cc[1] + 0.05, cc[2] + 0.1], mira2: [cc[0], cc[1] + 0.05, cc[2] + 0.1], fov: 32 },
+      tomaTarjeta(this.m.tj, c.carta - 0.1), tomaCara(this.m, c.pegatina - 0.2)];
+  },
+  actualizar(t) {
+    const c = this.c; camareroCorre(this, t); actualizarGente(this, t);
+    const tj = this.m.tj, cen = tj.userData.centro();
+    // el móvil se acerca y se queda «congelado» a 1 cm hasta que se abre la carta
+    const k = ease(prog(t, c.medio + 0.4, c.congelar));
+    const xr = prog(t, c.antena - 0.2, c.antena + 0.4) * (1 - prog(t, c.carta - 0.4, c.carta));
+    this.mv.visible = t > c.medio + 0.4 && t < c.carta && xr < 0.6; this.mv.position.set(cen.x + lerp(0.1, -0.1, k), cen.y + lerp(0.3, 0.04, k), cen.z + lerp(0.7, 0.24, k)); this.mv.rotation.set(-0.1, 0.35, 0);
+    tj.userData.rayosX(xr, prog(t, c.antena, c.energia + 0.3), t > c.chip ? 0.6 + 0.4 * Math.sin((t - c.chip) * 9) : 0);
+    this.mv.userData.opacidad(1 - 0.85 * xr); this.mv.userData.pantalla('bloqueo', {});
+    const lento = entre(t, c.congelar, c.carta) ? 0.25 : 1; // cámara lenta: las ondas van más despacio
+    this.on.userData.actualizar(c.congelar + (t - c.congelar) * lento, entre(t, c.campo - 0.2, c.carta) ? 1 : 0, this.mv.userData.detras(), cen);
+    this.pk.userData.mover(clamp((t - c.direccion) / 1.2), tj.userData.chipMundo(), this.mv.localToWorld(new THREE.Vector3(0, 0, 0.03)), 0.08);
+    this.desenfoque = camara2(t, this.tomas);
+  },
+  fx(t) { return fxBase(this, t, [this.c.congelar + 0.2, this.c.segundo]); },
+  capa(t) {
+    const c = this.c; velos();
+    // contador de tiempo congelado (arriba, como un cronómetro)
+    const marcas = [[c.congelar, 0], [c.campo, 0.012], [c.antena, 0.05], [c.chip, 0.12], [c.direccion, 0.2], [c.carta, 0.48], [c.segundo, 0.5]];
+    let s = 0; for (let i = 0; i < marcas.length - 1; i++) if (t >= marcas[i][0]) s = lerp(marcas[i][1], marcas[i + 1][1], clamp((t - marcas[i][0]) / (marcas[i + 1][0] - marcas[i][0])));
+    if (entre(t, c.congelar, c.pegatina)) { C.save(); const kk = entra(t, c.congelar, 0.4); C.translate(W / 2, 470); C.scale(kk, kk); C.fillStyle = 'rgba(10,12,22,0.82)'; rr(C, -230, -70, 460, 140, 36); C.fill();
+      C.strokeStyle = 'rgba(127,220,255,0.5)'; C.lineWidth = 3; rr(C, -230, -70, 460, 140, 36); C.stroke(); C.fillStyle = 'rgba(255,255,255,0.6)'; C.font = `700 22px ${SANS}`; C.textAlign = 'center'; C.fillText('TIEMPO CONGELADO', 0, -32);
+      C.fillStyle = '#fff'; C.font = `900 74px ${SANS}`; C.fillText(`${s.toFixed(3).replace('.', ',')} s`, 0, 40); C.restore(); }
+    if (entre(t, 0.3, c.congelar)) pildora('Toca para ver MENÚ', W / 2, 1460, entra(t, 0.3), { icono: 'nfc', tono: 'oscuro', tam: 46 });
+    const paso = (txt, a, b, ic, tono = 'marca') => { if (entre(t, a, b)) pildora(txt, W / 2, 1480, entra(t, a), { icono: ic, tono, tam: 46 }); };
+    paso('1 · Tu móvil crea un campo', c.campo, c.antena, 'nfc');
+    paso('2 · Una antena en espiral', c.antena, c.chip, 'nfc');
+    paso('3 · Enciende el chip', c.chip, c.pilas, 'check');
+    paso('Sin pilas', c.pilas, c.direccion, 'check', 'rojo');
+    paso('4 · Dirección + tu mesa', c.direccion, c.carta, 'recibo');
+    if (entre(t, c.carta - 0.1, c.segundo)) { movil2D(lerp(W + 400, 730, entra(t, c.carta - 0.1, 0.5)) + lerp(0, 900, ease(prog(t, c.segundo - 0.35, c.segundo))), 1040, 0.6, 0.05, 'cartaV', {}); if (t > c.siete) pildora('Mesa 7', 330, 1500, entra(t, c.siete), { icono: 'check', tono: 'marca', tam: 56 }); }
+    if (entre(t, c.segundo, c.pegatina)) golpeIOS('0,5 s', W / 2, 1420, prog(t, c.segundo, c.segundo + 0.18), 170, true);
+    if (entre(t, c.pegatina, c.comenta)) golpeIOS('¿Una pegatina?', W / 2, 1180, prog(t, c.pegatina, c.pegatina + 0.18), 110);
+    cierreComenta(t, c.comenta, 'MENÚ', 'y te la ponemos en tu bar');
+  },
+};
 
 // ---------- API para render.mjs ----------
 let actual = null;
