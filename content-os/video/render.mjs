@@ -33,6 +33,10 @@ const SFX = {
   pop: ['aevalsrc=0.55*sin(2*PI*(500+1400*t)*t)*exp(-22*t):d=0.25'],
   ding: ['aevalsrc=0.32*(sin(2*PI*1320*t)+0.5*sin(2*PI*1980*t)+0.25*sin(2*PI*2640*t))*exp(-5*t):d=0.9'],
   whoosh: ['anoisesrc=c=pink:d=0.55:a=0.5', 'bandpass=f=1800:w=1600,afade=t=in:d=0.28,afade=t=out:st=0.28:d=0.27,volume=0.45'],
+  tick: ['aevalsrc=0.5*sin(2*PI*2600*t)*exp(-120*t):d=0.06'],
+  buzz: ['aevalsrc=0.45*sin(2*PI*160*t)*(0.5+0.5*sgn(sin(2*PI*9*t))):d=0.9', 'afade=t=out:st=0.7:d=0.2'],
+  hit: ['aevalsrc=0.9*sin(2*PI*(42+90*exp(-14*t))*t)*exp(-4.5*t):d=0.9'],
+  riser: ['anoisesrc=c=white:d=1.0:a=0.35', 'highpass=f=600,afade=t=in:d=0.95:curve=exp,afade=t=out:st=0.95:d=0.05,volume=0.6'],
 };
 const dirSfx = path.join(DIR, '.sfx'); await mkdir(dirSfx, { recursive: true });
 for (const [n, [src, filtro]] of Object.entries(SFX)) {
@@ -71,16 +75,24 @@ if (muestras) {
   await navegador.close(); srv.close(); process.exit(0);
 }
 
-// audio: voz + efectos colocados en su segundo
+// audio: voz + música (baja cuando habla la voz) + efectos colocados en su segundo, todo normalizado a -14 LUFS
+// entrada 0 = fotogramas; 1 = voz (o silencio); 2 = música (si hay); luego efectos
 const entradas = conVoz ? ['-i', voz] : ['-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=stereo'];
-// entrada 0 = fotogramas; 1 = voz (o silencio); 2… = efectos
-const filtros = []; const etiquetas = ['[1:a]'];
+const filtros = ['[1:a]aformat=sample_rates=44100:channel_layouts=stereo,asplit=2[voz][vozsc]'];
+const etiquetas = ['[voz]']; let idx = 2;
+const musica = info.musica ? path.join(DIR, 'musica', `${info.musica}.mp3`) : null;
+if (musica && await existe(musica)) {
+  entradas.push('-stream_loop', '-1', '-t', String(dur), '-i', musica);
+  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.5,afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
+    '[mus0][vozsc]sidechaincompress=threshold=0.04:ratio=5:attack=15:release=350[mus]');
+  etiquetas.push('[mus]'); idx = 3;
+} else filtros[0] = '[1:a]aformat=sample_rates=44100:channel_layouts=stereo[voz]';
 info.efectos.forEach(([n, t], i) => {
   if (!(t >= 0 && t < dur)) return;
   entradas.push('-i', path.join(dirSfx, `${n}.wav`)); const ms = Math.round(t * 1000);
-  filtros.push(`[${etiquetas.length + 1}:a]adelay=${ms}|${ms}[s${i}]`); etiquetas.push(`[s${i}]`);
+  filtros.push(`[${idx}:a]adelay=${ms}|${ms}[s${i}]`); etiquetas.push(`[s${i}]`); idx++;
 });
-filtros.push(`${etiquetas.join('')}amix=inputs=${etiquetas.length}:normalize=0:duration=first,apad,atrim=0:${dur}[a]`);
+filtros.push(`${etiquetas.join('')}amix=inputs=${etiquetas.length}:normalize=0:duration=first,apad,atrim=0:${dur},loudnorm=I=-14:TP=-1.5:LRA=11[a]`);
 
 const mp4 = path.join(SALIDA, `${id}.parcial.mp4`); // se renombra al terminar
 const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
