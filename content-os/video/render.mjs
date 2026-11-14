@@ -26,7 +26,7 @@ if (!(await existe(three))) {
   await mkdir(path.dirname(three), { recursive: true });
   execFileSync('curl', ['-sSfL', '-o', three, 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js']);
 }
-for (const f of ['loaders/GLTFLoader.js', 'utils/BufferGeometryUtils.js', 'utils/SkeletonUtils.js']) {
+for (const f of ['loaders/GLTFLoader.js', 'utils/BufferGeometryUtils.js', 'utils/SkeletonUtils.js', 'geometries/RoundedBoxGeometry.js']) {
   const d = path.join(DIR, 'vendor', 'addons', f);
   if (!(await existe(d))) { await mkdir(path.dirname(d), { recursive: true }); execFileSync('curl', ['-sSfL', '-o', d, `https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/${f}`]); }
 }

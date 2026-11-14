@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { aplicarEstilo, dibujar3D } from './estilos.js';
+import { construirRestaurante, poblar, manosPOV, cana, bravas } from './juguete.js';
 let ESTILO = null;
 
 const W = 1080, H = 1920;
@@ -372,7 +373,7 @@ function prepararSubtitulos(palabras) {
   trozos = []; let a = [];
   palabras.forEach((p, i) => {
     a.push(p); const sig = palabras[i + 1];
-    if (/[.,?!…:]$/.test(p.p) || a.length >= 3 || !sig || sig.t - p.fin > 0.35) { trozos.push(a); a = []; }
+    if (/[.,?!…:]$/.test(p.p) || a.length >= 3 || !sig || sig.t - p.fin > 0.35 || sig.q !== p.q) { trozos.push(a); a = []; }
   });
 }
 function subtitulos(t) {
@@ -807,7 +808,7 @@ function golpeIOS(t, X, Y, k, tam = 140, marca = false) {
 function subtitulosIOS(t) {
   const i = trozos.findIndex((tr, k) => t >= tr[0].t - 0.05 && t < (trozos[k + 1] ? trozos[k + 1][0].t - 0.05 : tr[tr.length - 1].fin + 0.6));
   if (i < 0) return; const tr = trozos[i];
-  const S = Object.assign({ tam: 66, fuente: (tam) => `800 ${tam}px Inter, ${FUENTE}`, pill: [VX.cian, VX.azul, VX.violeta], texto: '#fff', textoClave: '#fff', sombra: 'rgba(0,0,0,0.75)', borde: 0, mayus: false, giro: 0 }, ESTILO?.subs || {});
+  const S = Object.assign({ voces: { k: '#FFD84D' }, tam: 66, fuente: (tam) => `800 ${tam}px Inter, ${FUENTE}`, pill: [VX.cian, VX.azul, VX.violeta], texto: '#fff', textoClave: '#fff', sombra: 'rgba(0,0,0,0.75)', borde: 0, mayus: false, giro: 0 }, ESTILO?.subs || {});
   const tam = S.tam; C.font = S.fuente(tam);
   const pal = tr.map(p => { const x = p.p.replace(/[,.…:]$/, ''); return S.mayus ? x.toUpperCase() : x; });
   const esp = C.measureText(' ').width; const anchos = pal.map(s => C.measureText(s).width); const total = anchos.reduce((a, b) => a + b, 0) + esp * (pal.length - 1) + 30;
@@ -820,7 +821,7 @@ function subtitulosIOS(t) {
     C.textAlign = 'center'; C.textBaseline = 'middle';
     if (!clave) { C.shadowColor = S.sombra; C.shadowBlur = 22; C.shadowOffsetY = 4; }
     if (S.borde) { C.save(); C.shadowBlur = 0; C.lineJoin = 'round'; C.lineWidth = S.borde; C.strokeStyle = '#111'; C.strokeText(s, 0, 3); C.restore(); }
-    C.fillStyle = clave ? S.textoClave : dicha ? S.texto : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
+    C.fillStyle = clave ? S.textoClave : dicha ? ((S.voces || {})[tr[k].q] || S.texto) : 'rgba(255,255,255,0.55)'; C.fillText(s, 0, 3); C.restore(); X += w + esp + (clave ? 10 : 0);
   });
 }
 function capitulosIOS(nombres, actual) {
@@ -1688,6 +1689,174 @@ V['menu'] = { ...comunCapa, estilo: 'holograma',
     if (entre(t, c.segundo, c.pegatina)) golpeIOS('0,5 s', W / 2, 1420, prog(t, c.segundo, c.segundo + 0.18), 170, true);
     if (entre(t, c.pegatina, c.comenta)) golpeIOS('¿Una pegatina?', W / 2, 1180, prog(t, c.pegatina, c.pegatina + 0.18), 110);
     cierreComenta(t, c.comenta, 'MENÚ', 'y te la ponemos en tu bar');
+  },
+};
+// ---------- 8. POV: eres el cliente (mundo juguete, primera persona, dos voces) ----------
+PANT.chatBar = (x, w, h, s) => {
+  x.fillStyle = '#0b141a'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#1f2c34'; x.fillRect(0, 0, w, 150); x.fillStyle = '#e0a826'; x.beginPath(); x.arc(70, 92, 34, 0, 7); x.fill();
+  x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.textAlign = 'left'; x.fillText('Manolo (Bar La Esquina)', 120, 86); x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `500 22px ${SANS}`; x.fillText('en línea', 120, 118);
+  if (s.enviado) {
+    const y0 = 420; x.fillStyle = '#005c4b'; rr(x, 130, y0, w - 160, 420, 22); x.fill();
+    x.fillStyle = grad(x, 150, y0 + 20, w - 50, y0 + 300, ['#1b2a6b', '#4a2a8a']); rr(x, 150, y0 + 18, w - 200, 280, 16); x.fill();
+    logoVisax(x, w / 2 - 20, y0 + 70, 90); x.fillStyle = 'rgba(255,255,255,0.9)'; x.beginPath(); x.moveTo(w / 2 + 25, y0 + 190); x.lineTo(w / 2 + 25, y0 + 250); x.lineTo(w / 2 + 75, y0 + 220); x.fill();
+    x.fillStyle = '#fff'; x.font = `600 28px ${SANS}`; x.fillText('Tío, mira esto', 156, y0 + 340); x.fillText('para el bar', 156, y0 + 378);
+    x.fillStyle = '#53bdeb'; x.font = `700 22px ${SANS}`; x.textAlign = 'right'; x.fillText('22:41 ✓✓', w - 46, y0 + 404);
+  }
+  x.fillStyle = '#1f2c34'; rr(x, 20, h - 110, w - 40, 80, 40); x.fill(); x.fillStyle = 'rgba(255,255,255,0.4)'; x.font = `500 26px ${SANS}`; x.textAlign = 'left'; x.fillText('Mensaje', 60, h - 60);
+};
+PANT.comentaMesa = (x, w, h, s) => {
+  x.fillStyle = grad(x, 0, 0, w, h, ['#0d1238', '#2a1460', '#0a0c16']); x.fillRect(0, 0, w, h);
+  logoVisax(x, w / 2 - 60, 200, 120);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `600 64px ${SERIF}`; x.fillText('Comenta', w / 2, 470);
+  const k = s.k ?? 1; x.save(); x.translate(w / 2, 590); x.scale(k, k); x.fillStyle = grad(x, -180, 0, 180, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, -180, -75, 360, 150, 75); x.fill();
+  x.fillStyle = '#fff'; x.font = `900 100px ${SANS}`; x.textBaseline = 'middle'; x.fillText('MESA', 0, 6); x.restore(); x.textBaseline = 'alphabetic';
+  x.font = `italic 600 36px ${SERIF}`; x.fillStyle = '#7fb2ff'; x.fillText('y te lo enseñamos', w / 2, 760); x.fillText('en tu bar', w / 2, 806);
+};
+function relojMS(s) { s = Math.max(0, Math.floor(s)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
+function marcador(etiqueta, valor, color, k = 1) {
+  C.save(); C.translate(W / 2, 168); C.scale(k, k); C.fillStyle = 'rgba(14,10,8,0.82)'; rr(C, -190, -64, 380, 128, 26); C.fill(); C.lineWidth = 5; C.strokeStyle = color; rr(C, -190, -64, 380, 128, 26); C.stroke();
+  C.fillStyle = color; C.font = `800 24px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(etiqueta, 0, -32);
+  C.fillStyle = '#fff'; C.font = `900 66px Inter, ${FUENTE}`; C.fillText(valor, 0, 20); C.restore();
+}
+V['pov'] = { ...comunCapa,
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-ExtraBold.ttf', '800', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    scene.background = new THREE.Color('#1a120c'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+    hemi.color.set('#fff1dc'); hemi.groundColor.set('#7a4a2a'); hemi.intensity = 1.25;
+    const sol = new THREE.DirectionalLight('#ffe2b8', 1.5); sol.position.set(3, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+    Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.05; scene.add(cam); cam.rotation.order = 'YXZ';
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada }); Object.assign(this, r);
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
+    this.mv = movil('#20232c'); const h = manosPOV(cam, this.mv); this.D = h.D; this.I = h.I; this.colocarBrazo = h.colocarBrazo;
+    this.on = ondas();
+    this.canasMesa = [cana(), cana()]; this.canasMesa.forEach((c, i) => { c.position.set(-0.05 + i * 0.16, 0.79, -0.05 - i * 0.05); c.visible = false; r.mundo.add(c); });
+    this.bravasMesa = bravas(); this.bravasMesa.position.set(0.05, 0.79, -0.6); this.bravasMesa.visible = false; r.mundo.add(this.bravasMesa);
+    const c = this.c = { mano: cue('mano'), ahora: cue('ahora'), eso: cue('eso'), vale: cue('vale'), toco: cue('toco'), movil: cue('movil'), carta: cue('carta'), siete: cue('siete'), dos: cue('dos'),
+      canas: cue('canas'), bravas: cue('bravas'), pedir: cue('pedir'), mesaK: cue('mesa', 3), marchando: cue('marchando'), llega: cue('llega'), caja: cue('caja'), confirma: cue('confirma'),
+      canas2: cue('canas', 2), barra: cue('barra'), bravas2: cue('bravas', 2), cocina: cue('cocina'), quiero: cue('quiero'), toco2: cue('toco', 2), placa: cue('placa'), voy: cue('voy', 2),
+      cero: cue('cero'), mandaselo: cue('mandaselo'), dueno: cue('dueno'), comenta: cue('comenta') };
+    c.corte1 = c.pedir + 0.75; c.corte2 = c.quiero - 0.25;
+    efectos = [['whoosh', 2.4], ['pop', c.ahora], ['whoosh', c.vale + 0.1], ['tap', c.movil + 0.1], ['ding', c.carta - 0.1], ['tick', c.canas], ['tick', c.bravas], ['pop', c.pedir + 0.1],
+      ['whoosh', c.corte1 - 0.1], ['ding', c.corte1 + 0.15], ['buzz', c.corte1 + 0.2], ['tap', c.confirma + 0.1], ['ding', c.canas2], ['ding', c.bravas2 + 0.1], ['whoosh', c.cocina - 0.3],
+      ['whoosh', c.corte2 - 0.1], ['tap', c.placa + 0.1], ['buzz', c.placa + 0.4], ['ding', c.placa + 0.4], ['whoosh', c.voy + 0.3], ['pop', c.cero + 0.3], ['whoosh', c.mandaselo - 0.2], ['pop', c.dueno + 0.3], ['hit', c.comenta]];
+    this.ojo = new THREE.Vector3(0, 1.3, 0.42); this.musica = 'beat';
+    this.tomasBarra = [
+      { a: c.corte1, de: [-0.9, 1.85, -3.2], a2: [-1.3, 1.75, -3.7], mira: [-2.2, 1.35, -5.6], mira2: [-2.1, 1.35, -5.6], fov: 46, barrido: 0 },
+      { a: c.llega - 0.1, de: [-1.55, 1.55, -4.45], a2: [-1.65, 1.5, -4.62], mira: [-1.85, 1.3, -5.2], mira2: [-1.85, 1.3, -5.2], fov: 40 },
+      { a: c.canas2 - 0.2, de: [-3.9, 1.85, -4.05], a2: [-4.15, 1.8, -4.3], mira: [-4.7, 1.62, -5.25], mira2: [-4.7, 1.62, -5.25], fov: 44 },
+      { a: c.bravas2 - 0.15, de: [1.9, 2.0, -4.2], a2: [2.2, 1.95, -4.6], mira: [2.8, 2.15, -6.6], mira2: [2.8, 2.1, -6.7], fov: 46 }];
+  },
+  moverCamarero(t) {
+    const c = this.c, k = this.camarero; k.reset(); k.bandeja.visible = t < c.cero + 0.4; k.g.visible = true;
+    const andarA = (de, a, t0, t1, vel = 1.6) => { const kk = clamp((t - t0) / (t1 - t0)); k.g.position.set(lerp(de[0], a[0], kk), 0, lerp(de[1], a[1], kk)); if (kk < 1 && kk > 0) { k.g.rotation.y = Math.atan2(a[0] - de[0], a[1] - de[1]); k.andar(t * vel, 1); } return kk; };
+    if (t < c.eso + 0.9) { // cruza corriendo por delante
+      andarA([4.8, -1.75], [-4.8, -1.75], 2.4, 6.9, 2.3); if (t < 2.4) k.g.visible = false;
+      const mira = prog(t, c.ahora - 0.3, c.ahora) * (1 - prog(t, c.ahora + 0.9, c.ahora + 1.3)); k.cabeza.rotation.y = mira * 1.2;
+      if (entre(t, c.ahora - 0.2, c.ahora + 1.0)) { k.bD.hombro.rotation.x = -2.6 * prog(t, c.ahora - 0.2, c.ahora + 0.1); k.bD.hombro.rotation.z = -0.3; k.hablar(t); }
+    } else if (t < c.corte1 - 0.3) { k.g.visible = false;
+    } else if (t < c.voy + 0.3) { // en la barra, detrás del mostrador
+      k.g.position.set(-2.0, 0, -6.05); k.g.rotation.y = 0; k.respirar(t, 1);
+      k.cabeza.rotation.x = entre(t, c.corte1, c.confirma + 0.6) ? 0.45 : 0; k.cabeza.rotation.y = entre(t, c.corte1, c.confirma + 0.6) ? -0.25 : 0;
+      if (entre(t, c.mesaK, c.marchando + 0.8) || entre(t, c.voy - 0.05, c.voy + 0.9)) k.hablar(t);
+      if (entre(t, c.confirma - 0.15, c.confirma + 0.5)) { k.bD.hombro.rotation.x = -1.2; k.bD.codo.rotation.x = -0.6; }
+      if (t > c.placa + 0.4) { k.cabeza.rotation.y = 0.35; k.bD.hombro.rotation.x = -2.8 * prog(t, c.voy - 0.2, c.voy + 0.1); }
+    } else { // va a nuestra mesa
+      const k1 = andarA([-2.0, -6.05], [-0.75, -6.05], c.voy + 0.3, c.voy + 0.9, 1.8);
+      if (k1 >= 1) andarA([-0.75, -6.05], [-0.42, -1.05], c.voy + 0.9, c.cero - 0.1, 1.8);
+      if (t > c.cero - 0.1) { k.g.rotation.y = Math.atan2(this.ojo.x - k.g.position.x, this.ojo.z - k.g.position.z) - 0.2; k.respirar(t, 2);
+        if (entre(t, c.cero - 0.1, c.cero + 0.5)) { k.bI.hombro.rotation.x = -1.1; k.bI.codo.rotation.x = -0.5; }
+        if (t > c.cero + 0.6) { k.bD.hombro.rotation.x = -0.5; k.bD.hombro.rotation.z = -0.9; k.bD.codo.rotation.x = -1.3; k.hablar(t, 0.4); } }
+      if (entre(t, c.voy, c.voy + 0.9)) k.hablar(t);
+    }
+    if (k.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
+  },
+  actualizar(t) {
+    const c = this.c;
+    for (const p of this.gente) { p.reset(); p.respirar(t, p.g.position.x); if (Math.sin(t * 0.9 + p.g.position.x * 3) > 0.55) p.hablar(t + p.g.position.z); if (Math.sin(t * 0.5 + p.g.position.z) > 0.8) { p.bD.hombro.rotation.x = -1.0; p.bD.codo.rotation.x = -1.0; } }
+    this.cocinero.reset(); this.cocinero.andar(t * 0.4, 0.3); this.cocinero.g.position.x = 2.6 + Math.sin(t * 0.6) * 0.9; this.cocinero.g.rotation.y = Math.sin(t * 0.6) > 0 ? 0.3 : -0.3;
+    if (entre(t, c.bravas2, c.bravas2 + 2.5)) { this.cocinero.bD.hombro.rotation.x = -1.3; this.cocinero.bI.hombro.rotation.x = -1.3; }
+    this.moverCamarero(t);
+    this.canasMesa.forEach(x => (x.visible = t > c.cero + 0.4));
+    // pantallas
+    const pulso = Math.round((0.5 + 0.5 * Math.sin(t * 8)) * 4) / 4;
+    this.pantBarra.userData.pintar('barra', t > c.canas2 - 0.3 ? { nuevo: true, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', t > c.bravas2 - 0.2 ? { nuevo: true, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    if (t > c.placa + 0.3 && t < c.cero) this.movCam.userData.pantalla('avisos', { mesa: 7, pulso });
+    else if (t > c.corte1 - 0.2 && t < c.quiero) this.movCam.userData.pantalla('pedidoCamarero', { confirmado: t > c.confirma + 0.25, onda: entre(t, c.confirma, c.confirma + 0.5) ? (t - c.confirma) / 0.5 : 0 });
+    else this.movCam.userData.pantalla('bloqueo', { hora: '22:40' });
+    const enBarra = entre(t, c.corte1, c.corte2);
+    this.D.visible = this.I.visible = !enBarra; if (enBarra) this.colocarBrazo();
+    if (enBarra) { this.desenfoque = camara2(t, this.tomasBarra); if (t - c.corte1 < 0.25) this.desenfoque = Math.max(this.desenfoque, 14 * (1 - (t - c.corte1) / 0.25)); this.on.userData.actualizar(t, 0, new THREE.Vector3(), new THREE.Vector3()); return; }
+    // ---- primera persona: la cabeza mira a la sala / a la mesa / al camarero ----
+    const kp = this.camarero.g.position; const yawCam = (x, z) => Math.atan2(-(x - this.ojo.x), -(z - this.ojo.z));
+    let yaw, pitch;
+    if (t < 2.6) { yaw = lerp(-0.1, -0.35, prog(t, 0, 2.6)); pitch = -0.06; }
+    else if (t < c.vale) { yaw = lerp(-0.35, clamp(yawCam(kp.x, kp.z), -0.75, 0.75), prog(t, 2.6, 3.4)); pitch = -0.1; }
+    else if (t < c.carta - 0.4) { const k = prog(t, c.vale, c.vale + 0.9); yaw = lerp(0.75, 0.05, k); pitch = lerp(-0.1, -0.62, k); }
+    else if (t < c.corte1) { yaw = 0.05; pitch = lerp(-0.62, -0.42, prog(t, c.carta - 0.4, c.carta + 0.2)); }
+    else if (t < c.placa + 0.35) { yaw = -0.08; pitch = -0.6; }
+    else if (t < c.mandaselo - 0.3) { const tx = kp.x, tz = kp.z; const k = prog(t, c.placa + 0.35, c.placa + 1.0); yaw = lerp(-0.08, clamp(yawCam(tx, tz), -0.6, 0.6), k); pitch = lerp(-0.6, -0.1, k) + 0.16 * prog(t, c.cero - 0.6, c.cero); }
+    else { const k = prog(t, c.mandaselo - 0.3, c.mandaselo + 0.4); yaw = lerp(this._yaw ?? 0.2, 0.0, k); pitch = lerp(0.06, -0.32, k); }
+    if (t < c.mandaselo - 0.3) this._yaw = yaw;
+    const temb = (a, b, c2) => Math.sin(t * a) * 0.006 + Math.sin(t * b + 1) * 0.004 + Math.sin(t * c2 + 2) * 0.003;
+    cam.position.copy(this.ojo).add(new THREE.Vector3(temb(1.3, 2.1, 3.7), temb(1.7, 2.9, 4.1) + Math.sin(t * 1.9) * 0.008, 0));
+    cam.rotation.set(pitch + temb(0.9, 1.6, 2.3), yaw + temb(0.7, 1.3, 2.9), 0); cam.up.set(0, 1, 0);
+    if (cam.fov !== 64) { cam.fov = 64; cam.updateProjectionMatrix(); }
+    cam.updateMatrixWorld(true);
+    let desen = 0; if (t - c.corte2 < 0.25 && t > c.corte2) desen = 14 * (1 - (t - c.corte2) / 0.25); this.desenfoque = desen;
+    // ---- mano izquierda levantada al principio ----
+    const subeI = prog(t, 0.2, 0.9) * (1 - prog(t, c.eso + 0.3, c.eso + 1.0));
+    this.I.position.set(-0.16, lerp(-0.75, 0.13, subeI), -0.72); this.I.rotation.set(0, 0, 0.12 + Math.sin(t * 7) * 0.18 * subeI);
+    // ---- mano derecha con el móvil ----
+    const oculto = new THREE.Vector3(0.24, -0.62, -0.42), vista = new THREE.Vector3(0.02, -0.06, -0.37);
+    const local = o => cam.worldToLocal(o.clone());
+    let pos = oculto.clone(), rot = new THREE.Euler(0, 0, 0), pantalla = 'bloqueo', est = { hora: '22:40' };
+    const toque = (obj, t0, t1, t2) => { // t0 empieza a ir, t1 toca, t2 vuelve
+      const cen = obj.userData.centro(); const dest = local(cen).add(new THREE.Vector3(0.03, 0.05, 0.06));
+      const ida = prog(t, t0, t1), vuelta = prog(t, t2, t2 + 0.5); const p0 = vista.clone().lerp(dest, ida); return p0.lerp(vista, vuelta);
+    };
+    if (entre(t, c.vale, c.corte1)) {
+      pos = oculto.clone().lerp(vista, prog(t, c.vale + 0.3, c.toco));
+      if (t > c.toco - 0.05) pos = toque(this.tj, c.toco + 0.2, c.movil + 0.1, c.carta - 0.45);
+      rot.x = -0.25 * prog(t, c.toco + 0.2, c.movil + 0.1) * (1 - prog(t, c.carta - 0.45, c.carta));
+      if (t > c.carta - 0.3) { pantalla = 'cartaV'; est = { sel: t > c.bravas ? 2 : t > c.canas ? 1 : 0, enviado: t > c.pedir + 0.1 }; }
+      pos.y += Math.sin(t * 2.3) * 0.004;
+    } else if (entre(t, c.corte2, c.mandaselo - 0.3)) {
+      pos = oculto.clone().lerp(vista, prog(t, c.corte2, c.toco2)); if (t > c.toco2 - 0.1) pos = toque(this.placa, c.toco2 + 0.1, c.placa + 0.1, c.placa + 0.9);
+      if (t > c.placa + 1.2) pos = pos.lerp(oculto, prog(t, c.placa + 1.2, c.placa + 1.8));
+      if (t > c.placa + 0.2) pantalla = 'avisoEnviado';
+    } else if (t >= c.mandaselo - 0.3) {
+      pos = oculto.clone().lerp(new THREE.Vector3(0.0, -0.03, -0.34), prog(t, c.mandaselo - 0.3, c.mandaselo + 0.3));
+      pantalla = t > c.comenta - 0.15 ? 'comentaMesa' : 'chatBar'; est = pantalla === 'chatBar' ? { enviado: t > c.dueno + 0.3 } : { k: rebote(clamp((t - c.comenta) / 0.4)) };
+    }
+    this.D.position.copy(pos); this.D.rotation.copy(rot); this.D.updateMatrixWorld(true); this.colocarBrazo(); this.mv.userData.pantalla(pantalla, est);
+    // ondas NFC al tocar
+    const tocandoMenu = entre(t, c.movil, c.carta - 0.3), tocandoPlaca = entre(t, c.placa, c.placa + 0.8);
+    const objetivo = tocandoMenu ? this.tj : tocandoPlaca ? this.placa : null;
+    this.on.userData.actualizar(t, objetivo ? 1 : 0, this.mv.localToWorld(new THREE.Vector3(0, 0, -0.05)), objetivo ? objetivo.userData.centro() : new THREE.Vector3());
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.ahora, c.pedir + 0.1, c.comenta]) { const d = t - g; if (d >= 0 && d < 0.35) temblor = Math.max(temblor, (1 - d / 0.35) * 12); } return { desenfoque: this.desenfoque, temblor }; },
+  capa(t) {
+    const c = this.c; velos();
+    // marcador superior
+    if (t < c.pedir + 0.2) marcador('ESPERANDO', relojMS(14 * 60 + 52 + t), '#ff4d5e');
+    else if (t < c.corte2) marcador('PEDIDO ENVIADO', relojMS(t - c.pedir - 0.2), '#3ddc84', rebote(clamp((t - c.pedir - 0.2) / 0.35)));
+    else if (t < c.cero) marcador('AVISO AL CAMARERO', t > c.placa + 0.2 ? relojMS(t - c.placa - 0.2) : '··', '#33C6F4');
+    else marcador('MANOS LEVANTADAS', '0', '#3ddc84', rebote(clamp((t - c.cero) / 0.35)));
+    if (t < c.ahora) { C.save(); C.globalAlpha = 1 - prog(t, c.ahora - 0.5, c.ahora); C.fillStyle = '#fff'; C.font = `800 30px Inter, ${FUENTE}`; C.textAlign = 'left'; C.fillText('SÁBADO · 22:40 · MESA 7', 48, 72); C.restore(); }
+    const pill = (txt, a, b, ic, tono = 'marca', y = 1520) => { if (entre(t, a, b)) pildora(txt, W / 2, y, entra(t, a), { icono: ic, tono, tam: 48 }); };
+    pill('Mesa 7', c.siete - 0.1, c.dos, 'check');
+    pill('Pedido enviado', c.pedir + 0.15, c.corte1, 'check');
+    pill('Móvil del camarero · junto a la caja', c.llega, c.canas2 - 0.2, 'nfc', 'oscuro', 1480);
+    pill('Bebidas → barra', c.canas2, c.bravas2 - 0.15, 'check', 'azul', 1480);
+    pill('Comida → cocina', c.bravas2, c.corte2, 'cocina', 'azul', 1480);
+    pill('Llamar al camarero', c.placa + 0.15, c.voy, 'campana');
+    // bocadillo sobre el camarero cuando le llega el aviso
+    if (entre(t, c.placa + 0.5, c.voy + 0.9)) { const p = this.camarero.g.position.clone(); p.y = 2.2; p.project(cam); if (p.z < 1) { const X = (p.x * 0.5 + 0.5) * W, Y = (-p.y * 0.5 + 0.5) * H; pildora('Mesa 7 te llama', X, Y, entra(t, c.placa + 0.5), { icono: 'campana', tono: 'rojo', tam: 40 }); } }
+    if (entre(t, c.comenta, 99)) pildora('Comenta MESA', W / 2, 1660, entra(t, c.comenta + 0.2), { icono: 'check', tono: 'marca', tam: 54 });
   },
 };
 
