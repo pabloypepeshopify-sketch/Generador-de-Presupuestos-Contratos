@@ -115,6 +115,9 @@ const ESTILOS = {
   // chiringuito: atardecer cálido; subtítulos naranja/coral
   chiringuito: { post: { filtro: 'saturate(1.12) contrast(1.04)' },
     subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff8a3d', '#ff5e62'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(80,30,10,0.7)', radio: 34 } },
+  // ahorro: bar de azulejo verde visto desde arriba; subtítulos verde/menta
+  ahorro: { post: { filtro: 'saturate(1.1) contrast(1.05)' },
+    subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#1f7a5a', '#2fbf8a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.7)', radio: 30 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
