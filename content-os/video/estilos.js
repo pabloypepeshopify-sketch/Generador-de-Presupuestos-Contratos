@@ -106,6 +106,12 @@ const ESTILOS = {
     subs: { tam: 74, fuente: tam => `900 ${tam}px Inter, sans-serif`, mayus: true, texto: '#ffe14d', textoClave: '#fff', borde: 12, pill: ['#ff3b3b', '#ff3b3b'], bordePill: 7, radio: 14, giro: -0.06, sombra: 'rgba(0,0,0,0)' },
   },
 
+  // plastilina: casa de muñecas de arcilla, pastel y mate; subtítulos redondos rosa
+  plastilina: {
+    aplicar(scene, mundo, saltar, renderer) { renderer.toneMappingExposure = 1.08; },
+    post: { filtro: 'saturate(1.12) contrast(1.03)' },
+    subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff7aa8', '#ff9a6b'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(70,20,50,0.7)', radio: 40 },
+  },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

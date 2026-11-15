@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { aplicarEstilo, dibujar3D } from './estilos.js';
-import { construirRestaurante, poblar, manosPOV, cana, bravas, caja } from './juguete.js';
+import { construirRestaurante, poblar, manosPOV, cana, bravas, caja, muneco } from './juguete.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { construirMaqueta, recorrido, distanciaRecorrida, P } from './diorama.js';
 let ESTILO = null;
@@ -2442,6 +2442,298 @@ V['usos'] = { ...comunCapa,
       C.save(); C.globalAlpha = k; logoVisax(C, W / 2 - 70, 560, 140); C.restore();
       const kb = rebote(clamp((t - c.sigueme) / 0.45)); if (kb > 0) { C.save(); C.translate(W / 2, 930); C.scale(kb, kb); C.fillStyle = grad(C, -250, 0, 250, 0, [VX.cian, VX.azul, VX.violeta]); C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 40; rr(C, -250, -75, 500, 150, 75); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('+ Sígueme', 0, 4); C.restore(); }
       C.save(); C.globalAlpha = prog(t, c.sigueme + 0.4, c.sigueme + 0.8); C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.85)'; C.font = `600 44px Inter, ${FUENTE}`; C.fillText('si quieres saber más sobre la', W / 2, 1110); C.fillStyle = VX.cian; C.font = `italic 600 80px Fraunces, serif`; C.fillText('tecnología NFC.', W / 2, 1200); C.restore(); }
+  },
+};
+// ---------- 13. Mismo NFC, cuatro locales: calle de casitas abiertas (low-poly), un muñeco que va de local en local ----------
+const enP = (o, x, y, z) => { o.position.set(x, y, z); return o; };
+function lp(c) { return new THREE.MeshLambertMaterial({ color: c, flatShading: true }); }
+function cajaLP(w, h, d, c) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lp(c)); m.castShadow = m.receiveShadow = true; return m; }
+function cilLP(r1, r2, h, c, s = 10) { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, s), lp(c)); m.castShadow = m.receiveShadow = true; return m; }
+function rotuloLP(txt, color) { const t = lienzo(512, 128, (x, w, h) => { x.fillStyle = color; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.font = `900 66px Inter, ${FUENTE}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, w / 2, h / 2 + 3); }).tex;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 0.15), [lp(color), lp(color), lp(color), lp(color), new THREE.MeshBasicMaterial({ map: t }), lp(color)]); m.castShadow = true; return m; }
+function local(x0, nombre, color, pared, suelo) {
+  const g = new THREE.Group(); g.position.x = x0;
+  const base = cajaLP(6, 0.3, 5, suelo); base.position.set(0, -0.15, 0); g.add(base);
+  const fondo = cajaLP(6, 3.4, 0.2, pared); fondo.position.set(0, 1.7, -2.4); g.add(fondo);
+  [-1, 1].forEach(s => { const lado = cajaLP(0.2, 3.4, 5, pared); lado.position.set(s * 2.9, 1.7, 0); g.add(lado); });
+  const techo = cajaLP(6.2, 0.25, 5.2, '#efe7da'); techo.position.set(0, 3.5, 0); g.add(techo);
+  const tol = cajaLP(6.2, 0.15, 1.0, color); tol.position.set(0, 3.0, 2.9); tol.rotation.x = 0.35; g.add(tol);
+  const rot = rotuloLP(nombre, color); rot.position.set(0.6, 3.95, 2.55); g.add(rot);
+  return g;
+}
+V['locales'] = { ...comunCapa,
+  async montar() {
+    for (const [f, peso, est] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: est }); await ff.load(); document.fonts.add(ff); }
+    ['peluqueria', 'gimnasio', 'tienda', 'cafeteria', 'resena', 'google', 'wifi', 'instagram', 'carta', 'nfc', 'local'].forEach(w => CLAVES.add(w));
+    pared.visible = suelo.visible = bokeh.visible = false; scene.fog = null; scene.background = new THREE.Color('#bfe4ff');
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#ffffff'); hemi.groundColor.set('#d8c4a8'); hemi.intensity = 1.6;
+    const sol = new THREE.DirectionalLight('#fff3dc', 2.3); sol.position.set(6, 12, 10); sol.target.position.set(10, 0, 0); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -20, right: 20, top: 12, bottom: -12, near: 1, far: 50 }); scene.add(sol, sol.target);
+    // acera y calzada
+    const acera = cajaLP(40, 0.2, 2.2, '#e3dccf'); acera.position.set(10.5, -0.1, 3.6); mundo.add(acera);
+    const calz = cajaLP(40, 0.1, 6, '#5b6170'); calz.position.set(10.5, -0.25, 7.7); mundo.add(calz);
+    for (let x = -8; x < 30; x += 2.5) { const l = cajaLP(1.2, 0.02, 0.15, '#f2f2f2'); l.position.set(x, -0.19, 7.7); mundo.add(l); }
+    for (const x of [-4.2, 3.5, 10.5, 17.5, 25]) { const a = new THREE.Group(); a.position.set(x, 0, 4.3); a.add(enP(cilLP(0.08, 0.1, 1.2, '#7a4a2a', 6), 0, 0.6, 0)); const copa = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 0), lp('#5cb85c')); copa.position.y = 1.5; copa.castShadow = true; a.add(copa); mundo.add(a); }
+    const X = this.X = [0, 7, 14, 21];
+    const L = [local(X[0], 'PELUQUERÍA', '#e8558e', '#ffe3ee', '#f4d7a8'), local(X[1], 'GIMNASIO', '#3f7dfb', '#e3ecff', '#9aa3b5'), local(X[2], 'TIENDA', '#8b5cf6', '#efe7ff', '#e9dcc4'), local(X[3], 'CAFETERÍA', '#e07a2a', '#fff0dd', '#c98a52')];
+    L.forEach(g => mundo.add(g));
+    // peluquería: sillón, espejo, mostrador con expositor de Google
+    const p = L[0]; const sillon = new THREE.Group(); sillon.add(enP(cilLP(0.35, 0.45, 0.4, '#333'), 0, 0.2, 0)); sillon.add(enP(cajaLP(0.8, 0.25, 0.8, '#1d1d1d'), 0, 0.55, 0)); sillon.add(enP(cajaLP(0.8, 0.9, 0.2, '#1d1d1d'), 0, 1.0, -0.35)); sillon.position.set(-1.2, 0, -1.2); p.add(sillon);
+    const espejo = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.05), new THREE.MeshStandardMaterial({ color: '#cfe8ff', metalness: 0.8, roughness: 0.1 })); espejo.position.set(-1.2, 1.8, -2.25); p.add(espejo);
+    p.add(enP(cajaLP(1.6, 1.0, 0.7, '#e8558e'), 1.6, 0.5, -0.6));
+    // gimnasio: cinta, pesas, mostrador con placa WiFi
+    const gm = L[1]; gm.add(enP(cajaLP(1.0, 0.25, 2.0, '#2b2f3a'), -1.5, 0.15, -1.0)); gm.add(enP(cajaLP(0.9, 1.2, 0.12, '#2b2f3a'), -1.5, 0.75, -1.95));
+    for (let i = 0; i < 4; i++) { const d = cilLP(0.12, 0.12, 0.5, '#555', 8); d.rotation.z = Math.PI / 2; d.position.set(-0.6 + i * 0.35, 0.9, -2.1); gm.add(d); }
+    gm.add(enP(cajaLP(1.6, 1.0, 0.7, '#3f7dfb'), 1.6, 0.5, -0.6));
+    // tienda: burro con ropa, maniquí, mostrador con expositor Instagram
+    const ti = L[2]; ti.add(enP(cajaLP(2.2, 0.06, 0.06, '#999'), -1.1, 1.7, -1.6));
+    ['#e85d4a', '#3d7fd6', '#e0a826', '#5aa55e', '#d6567a'].forEach((c, i) => { const ropa = cajaLP(0.35, 0.9, 0.5, c); ropa.position.set(-2.0 + i * 0.45, 1.2, -1.6); ti.add(ropa); });
+    ti.add(enP(cajaLP(1.6, 1.0, 0.7, '#8b5cf6'), 1.6, 0.5, -0.6));
+    // cafetería: barra con cafetera y una mesa con la tarjeta MENÚ
+    const cf = L[3]; cf.add(enP(cajaLP(2.6, 1.0, 0.7, '#7a3f22'), -1.0, 0.5, -1.7)); cf.add(enP(cajaLP(0.6, 0.6, 0.4, '#c9ccd2'), -1.6, 1.3, -1.8));
+    const mesaC = new THREE.Group(); mesaC.add(enP(cilLP(0.7, 0.7, 0.06, '#fbf6ee', 16), 0, 0.78, 0)); mesaC.add(enP(cilLP(0.06, 0.06, 0.78, '#6b3a22', 6), 0, 0.39, 0)); mesaC.position.set(1.4, 0, 0.0); cf.add(mesaC);
+    // los cuatro NFC
+    const exG = expositorL('google'); exG.scale.setScalar(0.42); exG.position.set(1.6, 1.0, -0.5); exG.rotation.y = -0.25; p.add(exG);
+    const plW = placaCuadrada('wifi'); plW.scale.setScalar(0.4); plW.position.set(1.6, 1.0, -0.5); plW.rotation.y = -0.25; gm.add(plW);
+    const exI = expositorL('instagram'); exI.scale.setScalar(0.42); exI.position.set(1.6, 1.0, -0.5); exI.rotation.y = -0.25; ti.add(exI);
+    const tjM = tarjetaMenu(); tjM.scale.setScalar(0.42); tjM.position.set(1.4, 0.81, -0.1); tjM.rotation.y = -0.2; cf.add(tjM);
+    this.nfcs = [exG, plW, exI, tjM];
+    this.halos = this.nfcs.map(o => { const h = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.5, 40), new THREE.MeshBasicMaterial({ color: VX.cian, transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false })); h.rotation.x = -Math.PI / 2; mundo.add(h); return h; });
+    // dependientes en cada local
+    this.gente = [];
+    [['#2b2f3a', 'mono'], ['#3f7dfb', 'corto'], ['#8b5cf6', 'largo'], ['#7a3f22', 'corto']].forEach(([c, pe], i) => { const m = muneco({ camisa: c, pantalon: '#2f3a56', pelo: '#3a2418', peinado: pe, piel: ['#f0c29a', '#c98d63', '#f5cfac', '#ab7450'][i] }); m.g.position.set(X[i] + 1.6, 0, -1.4); mundo.add(m.g); this.gente.push(m); });
+    // el protagonista con su móvil
+    this.yo = muneco({ camisa: '#ffb020', pantalon: '#24324a', pelo: '#2a1a12', peinado: 'corto', piel: '#f0c29a' }); mundo.add(this.yo.g);
+    this.mv = movil(); this.mv.scale.setScalar(0.22); mundo.add(this.mv); this.on = ondas();
+    const c = this.c = { mismo: cue('mismo'), cuatro: cue('cuatro'), cada: cue('cada'), pelu: cue('peluqueria'), gym: cue('gimnasio'), tienda: cue('tienda'), cafe: cue('cafeteria'), toca: [1, 2, 3, 4].map(n => cue('tocas', n)),
+      resena: cue('resena'), wifi: cue('wifi'), instagram: cue('instagram'), carta: cue('carta'), misma: cue('misma'), nfc: cue('nfc'), cambia: cue('cambia'), comenta: cue('comenta') };
+    this.seg = [c.pelu - 0.3, c.gym - 0.3, c.tienda - 0.3, c.cafe - 0.3];
+    this.musica = 'guitarra_bar'; this.volMusica = 0.45;
+    efectos = [['whoosh', 0.02], ['pop', c.cuatro], ...this.seg.map(t => ['whoosh', t]), ...c.toca.flatMap(t => [['tap', t + 0.2], ['ding', t + 0.55]]), ['riser', c.nfc - 0.8], ['hit', c.nfc], ['whoosh', c.comenta - 0.4], ['pop', c.comenta + 0.5]];
+  },
+  idx(t) { let i = -1; for (let k = 0; k < 4; k++) if (t >= this.seg[k]) i = k; return t >= this.c.misma - 0.2 ? 4 : i; },
+  actualizar(t) {
+    const c = this.c, i = this.idx(t), X = this.X;
+    this.gente.forEach((m, k) => { m.reset(); m.respirar(t, k); m.g.rotation.y = 0.3; if (k === i && entre(t, c.toca[k] + 0.4, c.toca[k] + 1.6)) m.hablar(t); });
+    // protagonista: camina por la acera hasta cada local y entra hasta el mostrador
+    const yo = this.yo; yo.reset(); const dentro = k => [X[k] + 0.4, 0.6], fuera = k => [X[k] + 0.4, 3.6];
+    const pts = [[0, -4, 3.6]]; for (let k = 0; k < 4; k++) { const t0 = this.seg[k]; pts.push([t0 - 0.2, ...fuera(k)], [t0 + 0.9, ...dentro(k)], [c.toca[k] + 1.5, ...dentro(k)], [c.toca[k] + 2.1, ...fuera(k)]); }
+    const r = recorrido(pts, t); yo.g.position.set(r.x, 0, r.z);
+    if (r.mueve) { yo.g.rotation.y = r.dir; yo.andar(t * 1.7, 1); } else { yo.g.rotation.y = i >= 0 && i < 4 ? Math.PI * 0.75 : 0; yo.respirar(t, 3); }
+    // móvil en la mano; al tocar, sube hacia el NFC
+    const tocando = i >= 0 && i < 4 && entre(t, c.toca[i] - 0.1, c.toca[i] + 1.3);
+    if (tocando) { yo.bD.hombro.rotation.x = -1.3; yo.bD.codo.rotation.x = -0.3; }
+    yo.g.updateMatrixWorld(true); const mano = yo.bD.mano.getWorldPosition(new THREE.Vector3());
+    this.mv.position.copy(mano).add(new THREE.Vector3(0, 0.12, 0.05)); this.mv.lookAt(cam.position);
+    let objetivo = null; if (tocando) { objetivo = this.nfcs[i].userData.centro(); const k = prog(t, c.toca[i] - 0.1, c.toca[i] + 0.3); this.mv.position.lerp(objetivo.clone().add(new THREE.Vector3(-0.25, 0.05, 0.25)), k); }
+    this.on.userData.actualizar(t, objetivo && t > c.toca[i] + 0.2 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), objetivo || new THREE.Vector3());
+    this.halos.forEach((h, k) => { const cen = this.nfcs[k].userData.centro(); h.position.set(cen.x, 1.02, cen.z); const on = (t < this.seg[0] && t > c.cuatro - 0.2) || i === 4 || (k === i && t < c.toca[k] + 0.2); h.material.opacity = on ? 0.5 + 0.4 * Math.sin(t * 6 + k) : 0; h.scale.setScalar(1 + 0.15 * Math.sin(t * 6 + k)); });
+    // cámara: plano general al principio y al final; en cada local, se acerca y sigue al protagonista
+    let fx, fz = 0.5, dist = 12.5, alt = 5.5;
+    if (i < 0 || i === 4) { fx = 10.5; dist = 22; alt = 9; if (i < 0) { fx = lerp(8, 10.5, prog(t, 0, this.seg[0])); dist = lerp(24, 20, prog(t, 0, this.seg[0])); } }
+    else { fx = lerp(X[i] + 0.6, X[i] + 0.6, 1); dist = 11; alt = 5; if (t - this.seg[i] < 0.9) { const prev = i ? X[i - 1] + 0.6 : 10.5; fx = lerp(prev, X[i] + 0.6, ease(clamp((t - this.seg[i]) / 0.9))); } }
+    this.camX = this.camX ?? fx; this.camX = fx;
+    cam.position.set(this.camX + 1.5, alt, fz + dist); cam.up.set(0, 1, 0); cam.lookAt(this.camX, i >= 0 && i < 4 ? 1.75 : 1.2, fz); if (cam.fov !== 32) { cam.fov = 32; cam.updateProjectionMatrix(); }
+    this.desenfoque = 0; for (const s of this.seg) { const d = t - s; if (d >= 0 && d < 0.5) this.desenfoque = Math.max(this.desenfoque, 10 * Math.sin(Math.PI * d / 0.5)); }
+  },
+  fx(t) { const c = this.c; let temblor = 0, flash = 0; const d = t - c.nfc; if (d >= 0 && d < 0.35) { temblor = 12 * (1 - d / 0.35); flash = 0.35 * (1 - d / 0.35); } return { desenfoque: this.desenfoque, temblor, flash }; },
+  capa(t) {
+    const c = this.c, i = this.idx(t); velos();
+    const NOMBRES = ['Peluquería', 'Gimnasio', 'Tienda de ropa', 'Cafetería'], RES = ['Reseña en Google', 'WiFi conectado', 'Su Instagram', 'Carta y pedido'], COL = ['#e8558e', '#3f7dfb', '#8b5cf6', '#e07a2a'];
+    const PANTS = [['resenaG', s => ({ llenas: s })], ['wifiAndroid', s => ({ conectado: s > 0 })], ['instagram', s => ({ siguiendo: s > 2 })], ['cartaV', s => ({ sel: Math.min(2, s) })]];
+    if (t < this.seg[0]) { if (t > c.mismo - 0.1) pildora('El mismo NFC', W / 2, 1420, entra(t, c.mismo), { icono: 'nfc', tono: 'oscuro', tam: 54 }); if (t > c.cuatro - 0.1) pildora('4 locales', W / 2, 1540, entra(t, c.cuatro), { tono: 'marca', tam: 54 }); }
+    if (i >= 0 && i < 4) {
+      const k = entra(t, this.seg[i] + 0.3); C.save(); C.globalAlpha = clamp(k * 1.5); C.font = `900 60px Inter, ${FUENTE}`; const tx = NOMBRES[i]; const w = C.measureText(tx).width + 170; C.translate(W / 2, 1460); C.scale(lerp(0.85, 1, k), lerp(0.85, 1, k));
+      C.fillStyle = 'rgba(12,14,24,0.86)'; rr(C, -w / 2, -58, w, 116, 58); C.fill(); C.fillStyle = COL[i]; C.beginPath(); C.arc(-w / 2 + 58, 0, 42, 0, 7); C.fill(); C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(String(i + 1), -w / 2 + 58, 3); C.textAlign = 'left'; C.fillText(tx, -w / 2 + 120, 3); C.restore();
+      const tt = c.toca[i]; if (entre(t, tt + 0.35, (this.seg[i + 1] ?? c.misma) - 0.35)) { const s = Math.min(5, Math.floor((t - tt - 0.35) / 0.12)); const [pn, est] = PANTS[i]; movil2D(lerp(W + 400, 800, entra(t, tt + 0.35, 0.45)), 900, 0.52, 0.06, pn, est(s)); pildora(RES[i], W / 2 - 160, 1620, entra(t, tt + 0.5), { icono: 'check', tono: 'verde', tam: 40 }); }
+    }
+    if (entre(t, c.nfc - 0.05, c.comenta - 0.3)) { const k = rebote(clamp((t - c.nfc) / 0.4)); C.save(); C.translate(W / 2, 1400); C.scale(k, k); C.font = `900 200px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillStyle = '#fff'; C.shadowColor = VX.azul; C.shadowBlur = 50; C.fillText('NFC', 0, 0); C.restore();
+      if (t > c.cambia - 0.2) pildora('Cambia lo que lleva dentro', W / 2, 1590, entra(t, c.cambia - 0.2), { tono: 'oscuro', tam: 44 }); }
+    cierreComenta(t, c.comenta - 0.2, 'TU LOCAL', 'y te digo cuál te pondría');
+  },
+};
+
+// ---------- 14. Hotel en corte (casa de muñecas de plastilina): un ascensor sube planta a planta, cada planta un NFC ----------
+function clay(c, extra = {}) { return new THREE.MeshStandardMaterial({ color: c, roughness: 0.88, metalness: 0, ...extra }); }
+function rbox(w, h, d, c, r = 0.08) { const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2, h / 2, d / 2) * 0.999), clay(c)); m.castShadow = m.receiveShadow = true; return m; }
+function rcil(r1, r2, h, c, s = 24) { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, s), clay(c)); m.castShadow = m.receiveShadow = true; return m; }
+function bola(r, c) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), clay(c)); m.castShadow = m.receiveShadow = true; return m; }
+const en3 = (o, x, y, z) => { o.position.set(x, y, z); return o; };
+function cartelClay(txt, fondo, tinta, w = 2.4, h = 0.6) {
+  const t = lienzo(768, 192, (x, cw, ch) => { x.fillStyle = fondo; rr(x, 0, 0, cw, ch, 90); x.fill(); x.fillStyle = tinta; x.font = `italic 600 110px Fraunces, serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, cw / 2, ch / 2 + 6); }).tex;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.9 })); return m;
+}
+const PISO_Y = [0, 3.4, 6.8, 10.2], XE = 3.55;
+V['hotel'] = { ...comunCapa, estilo: 'plastilina',
+  async montar() {
+    for (const [f, peso, est] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: est }); await ff.load(); document.fonts.add(ff); }
+    ['wifi', 'desayuno', 'carta', 'mesa', 'camarero', 'resena', 'google', 'nfc', 'pegatina', 'planta', 'recepcion', 'habitacion', 'restaurante', 'terraza', 'escondido'].forEach(w => CLAVES.add(w));
+    pared.visible = suelo.visible = bokeh.visible = false; scene.fog = null;
+    const cielo = document.createElement('canvas'); cielo.width = 8; cielo.height = 256; const cx = cielo.getContext('2d'); const gr = cx.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#9fd4ff'); gr.addColorStop(0.6, '#d9ecff'); gr.addColorStop(1, '#ffe0d0'); cx.fillStyle = gr; cx.fillRect(0, 0, 8, 256);
+    const tc = new THREE.CanvasTexture(cielo); tc.colorSpace = THREE.SRGBColorSpace; scene.background = tc;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#ffffff'); hemi.groundColor.set('#e8c9b0'); hemi.intensity = 1.5;
+    const sol = new THREE.DirectionalLight('#fff1e0', 2.4); sol.position.set(8, 18, 14); sol.target.position.set(0, 5, 0); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); sol.shadow.radius = 4; sol.shadow.bias = -0.0005; Object.assign(sol.shadow.camera, { left: -14, right: 14, top: 16, bottom: -6, near: 1, far: 60 }); scene.add(sol, sol.target);
+    const rel = new THREE.DirectionalLight('#ffd6f0', 0.7); rel.position.set(-10, 6, 8); scene.add(rel);
+    // jardín, árboles y nubes de plastilina
+    const cesped = rcil(26, 26, 0.3, '#b9e6a6', 64); cesped.position.set(0, -0.5, 0); mundo.add(cesped);
+    const camino = rbox(2.2, 0.06, 10, '#f3e2c8', 0.03); camino.position.set(-3.2, -0.33, 7); mundo.add(camino);
+    for (const [x, z, s] of [[-7, 1, 1], [7.2, -1, 1.2], [-6.5, 5, 0.8], [6.5, 4.5, 0.9], [-9, -3, 1.3], [9.5, -4, 1.1]]) { const a = new THREE.Group(); a.add(en3(rcil(0.14, 0.18, 1.4, '#a8744f', 10), 0, 0.7, 0)); a.add(en3(bola(0.8, '#7fcf7a'), 0, 1.8, 0)); a.add(en3(bola(0.55, '#92da8a'), 0.4, 2.3, 0.2)); a.scale.setScalar(s); a.position.set(x, -0.35, z); mundo.add(a); }
+    this.nubes = [];
+    for (const [x, y, z] of [[-9, 13, -10], [6, 16, -12], [10, 9, -9], [-12, 7, -11]]) { const n = new THREE.Group(); [[0, 0, 1.2], [1.2, -0.2, 0.9], [-1.1, -0.25, 0.8], [0.4, 0.5, 0.8]].forEach(([a, b, r]) => n.add(en3(bola(r, '#ffffff'), a, b, 0))); n.position.set(x, y, z); n.scale.set(1.3, 0.9, 0.9); mundo.add(n); this.nubes.push([n, x]); }
+    // estructura del edificio: forjados, pared trasera, laterales y hueco del ascensor
+    const PAREDES = ['#ffd9c7', '#cfe0ff', '#d6f5e3', '#ffe9b3'], SUELOS = ['#f6e6d2', '#f1e4d6', '#f3e7da', '#e7cfae'], TRIM = ['#ff8f7a', '#7aa7ff', '#5fcf9a', '#ffb547'];
+    this.pisos = PISO_Y.map((y, i) => {
+      const g = new THREE.Group(); g.position.y = y; mundo.add(g);
+      g.add(en3(rbox(9.2, 0.36, 4.8, '#fff6ec', 0.12), 0, -0.18, 0)); g.add(en3(rbox(9.2, 0.03, 4.6, SUELOS[i], 0.01), 0, 0.01, -0.05));
+      g.add(en3(rbox(9.4, 0.14, 0.14, TRIM[i], 0.06), 0, -0.2, 2.4));
+      const alto = i === 3 ? 1.1 : 3.05;
+      g.add(en3(rbox(9.2, alto, 0.25, PAREDES[i], 0.1), 0, alto / 2, -2.3));
+      g.add(en3(rbox(0.3, alto, 4.8, PAREDES[i], 0.1), -4.45, alto / 2, 0));
+      if (i < 3) { g.add(en3(rbox(0.3, alto, 4.8, '#ffffff', 0.1), 4.45, alto / 2, 0)); g.add(en3(rbox(0.22, alto, 1.7, PAREDES[i], 0.08), 2.75, alto / 2, -1.4)); }
+      return g;
+    });
+    // terraza: tejado del ascensor y cartel del hotel
+    const caseta = rbox(1.7, 2.6, 2.0, '#ffffff', 0.15); caseta.position.set(XE, PISO_Y[3] + 1.3, -1.2); mundo.add(caseta);
+    const cartel = cartelClay('Hotel Brisa', '#ff7aa8', '#ffffff', 3.4, 0.85); cartel.position.set(-1.0, PISO_Y[3] + 1.75, -2.15); mundo.add(cartel);
+    [-2.4, 0.4].forEach(x => mundo.add(en3(rcil(0.05, 0.05, 0.7, '#ffffff', 8), x, PISO_Y[3] + 1.2, -2.2)));
+    const baranda = new THREE.Mesh(new RoundedBoxGeometry(9.0, 0.7, 0.06, 2, 0.02), new THREE.MeshStandardMaterial({ color: '#cfefff', transparent: true, opacity: 0.25, roughness: 0.1 })); baranda.position.set(0, PISO_Y[3] + 0.35, 2.3); mundo.add(baranda);
+    // ascensor de cristal
+    this.cabina = new THREE.Group(); mundo.add(this.cabina);
+    const vidrio = new THREE.Mesh(new RoundedBoxGeometry(1.35, 2.5, 1.7, 3, 0.08), new THREE.MeshStandardMaterial({ color: '#bfe8ff', transparent: true, opacity: 0.32, roughness: 0.05, depthWrite: false })); vidrio.position.y = 1.25; this.cabina.add(vidrio);
+    this.cabina.add(en3(rbox(1.45, 0.12, 1.8, '#ffb547', 0.05), 0, 0.06, 0)); this.cabina.add(en3(rbox(1.45, 0.12, 1.8, '#ffb547', 0.05), 0, 2.5, 0));
+    for (const [a, b] of [[-0.66, 0.84], [0.66, 0.84], [-0.66, -0.84], [0.66, -0.84]]) this.cabina.add(en3(rbox(0.07, 2.45, 0.07, '#ffb547', 0.03), a, 1.25, b));
+    this.cabina.position.set(XE, 0, -0.1);
+    for (const x of [XE - 0.8, XE + 0.8]) mundo.add(en3(rbox(0.1, PISO_Y[3] + 2.6, 0.1, '#ffffff', 0.04), x, (PISO_Y[3] + 2.6) / 2, -1.05));
+    // planta 0: recepción
+    const p0 = this.pisos[0];
+    p0.add(en3(rbox(2.4, 1.05, 0.85, '#ff9f8a', 0.12), 0.2, 0.525, -0.6)); p0.add(en3(rbox(2.6, 0.09, 1.0, '#fff5ea', 0.04), 0.2, 1.09, -0.6));
+    const rc = cartelClay('Recepción', '#ffffff', '#ff7a6a', 2.0, 0.5); rc.position.set(0.2, 2.35, -2.16); p0.add(rc);
+    p0.add(en3(rbox(1.7, 0.42, 0.85, '#8fb8ff', 0.15), -2.7, 0.3, -1.3)); p0.add(en3(rbox(1.7, 0.75, 0.25, '#7aa7ff', 0.12), -2.7, 0.7, -1.75));
+    p0.add(en3(rcil(0.28, 0.22, 0.5, '#e98a5f'), -1.3, 0.25, -1.75)); p0.add(en3(bola(0.45, '#7fcf7a'), -1.3, 0.85, -1.75));
+    p0.add(en3(rbox(0.55, 1.0, 0.5, '#ffffff', 0.1), -3.3, 0.5, 0.9));
+    const plW = placaCuadrada('wifi'); plW.scale.setScalar(0.42); plW.position.set(0.75, 1.13, -0.45); plW.rotation.y = 0.2; p0.add(plW);
+    const exG = expositorL('google'); exG.scale.setScalar(0.42); exG.position.set(-3.3, 1.0, 0.95); exG.rotation.y = 0.5; p0.add(exG);
+    // planta 1: habitación
+    const p1 = this.pisos[1];
+    p1.add(en3(rbox(2.1, 0.45, 2.7, '#ffffff', 0.15), -1.7, 0.25, -0.75)); p1.add(en3(rbox(2.15, 0.22, 1.9, '#ff9eb5', 0.1), -1.7, 0.56, -0.35));
+    [-2.15, -1.25].forEach(x => p1.add(en3(rbox(0.75, 0.22, 0.45, '#ffffff', 0.1), x, 0.6, -1.7)));
+    p1.add(en3(rbox(2.3, 1.1, 0.16, '#8fb8ff', 0.08), -1.7, 0.6, -2.08));
+    p1.add(en3(rbox(0.7, 0.72, 0.55, '#ffd08a', 0.1), 0.1, 0.36, -1.55));
+    p1.add(en3(rcil(0.05, 0.08, 0.35, '#ffffff', 10), -0.1, 0.9, -1.7)); p1.add(en3(rcil(0.12, 0.2, 0.22, '#fff1a8', 16), -0.1, 1.15, -1.7));
+    p1.add(en3(rbox(1.3, 1.1, 0.06, '#e9f6ff', 0.05), 1.5, 1.8, -2.15)); p1.add(en3(rbox(1.45, 0.08, 0.12, '#ffffff', 0.03), 1.5, 1.22, -2.12));
+    const tjH = tarjetaMenu(); tjH.scale.setScalar(0.42); tjH.position.set(0.25, 0.73, -1.45); tjH.rotation.y = 0.25; p1.add(tjH);
+    // planta 2: restaurante
+    const p2 = this.pisos[2];
+    const mesa = (x, z) => { const m = new THREE.Group(); m.add(en3(rcil(0.65, 0.65, 0.08, '#fffaf2', 32), 0, 0.78, 0)); m.add(en3(rcil(0.07, 0.12, 0.78, '#c98a5f', 10), 0, 0.39, 0));
+      [[-0.9, 0], [0, -0.9]].forEach(([a, b]) => { m.add(en3(rbox(0.5, 0.08, 0.5, '#ff9f8a', 0.04), a, 0.48, b)); m.add(en3(rbox(0.06, 0.48, 0.06, '#c98a5f', 0.02), a, 0.24, b)); });
+      m.add(en3(rcil(0.2, 0.17, 0.03, '#ffffff'), -0.25, 0.835, 0.15)); m.position.set(x, 0, z); p2.add(m); return m; };
+    mesa(-2.6, -0.8); mesa(0.4, -0.8);
+    p2.add(en3(rbox(1.6, 0.9, 0.5, '#5fcf9a', 0.1), -1.1, 1.7, -2.15));
+    const tjR = tarjetaMenu(); tjR.scale.setScalar(0.42); tjR.position.set(0.65, 0.83, -0.65); tjR.rotation.y = 0.25; p2.add(tjR);
+    // planta 3: terraza con piscina y sombrilla
+    const p3 = this.pisos[3];
+    p3.add(en3(rbox(2.6, 0.32, 1.7, '#ffffff', 0.12), -2.4, 0.16, -1.0)); const agua = rbox(2.3, 0.05, 1.4, '#5fd0ff', 0.03); agua.material = clay('#5fd0ff', { roughness: 0.25 }); agua.position.set(-2.4, 0.31, -1.0); p3.add(agua);
+    p3.add(en3(rcil(0.04, 0.04, 2.0, '#ffffff', 8), 0.4, 1.0, -1.15)); p3.add(en3(rcil(0.02, 1.2, 0.45, '#ff7aa8', 16), 0.4, 2.1, -1.15));
+    p3.add(en3(rcil(0.45, 0.45, 0.07, '#fffaf2', 24), 0.4, 0.72, -1.0)); p3.add(en3(rcil(0.06, 0.1, 0.72, '#c98a5f', 10), 0.4, 0.36, -1.0));
+    p3.add(en3(rbox(0.7, 0.25, 1.6, '#ffd08a', 0.1), 1.6, 0.25, -1.2));
+    const plC = placaCuadrada('camarero'); plC.scale.setScalar(0.42); plC.position.set(0.55, 0.76, -0.85); plC.rotation.y = 0.2; p3.add(plC);
+    this.nfcs = [plW, tjH, tjR, plC, exG];
+    this.halos = this.nfcs.map(() => { const h = new THREE.Mesh(new THREE.RingGeometry(0.36, 0.44, 40), new THREE.MeshBasicMaterial({ color: '#ff5fa2', transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false })); h.rotation.x = -Math.PI / 2; mundo.add(h); return h; });
+    // personal del hotel
+    this.recep = muneco({ camisa: '#ff7a6a', pantalon: '#2f3a56', pelo: '#3a2418', peinado: 'largo', piel: '#f5cfac' }); this.recep.g.position.set(0.2, 0, -1.55); p0.add(this.recep.g);
+    this.cam2 = muneco({ camisa: '#ffffff', pantalon: '#1f2433', pelo: '#2a1a12', peinado: 'corto', piel: '#c98d63' }); this.cam2.g.position.set(-1.0, 0, -1.5); p2.add(this.cam2.g);
+    this.cam3 = muneco({ camisa: '#ffffff', pantalon: '#1f2433', pelo: '#1a1a1a', peinado: 'mono', piel: '#ab7450' }); p3.add(this.cam3.g);
+    this.yo = muneco({ camisa: '#ffb020', pantalon: '#24324a', pelo: '#2a1a12', peinado: 'corto', piel: '#f0c29a' }); mundo.add(this.yo.g);
+    this.mv = movil(); this.mv.scale.setScalar(0.22); mundo.add(this.mv); this.on = ondas();
+    const c = this.c = { sabias: cue('sabias'), baja: cue('baja'), movil: cue('movil'), primera: cue('primera'), tocas: cue('tocas'), segunda: cue('segunda'), ves: cue('ves'), arriba: cue('arriba'), toque: cue('toque'),
+      irte: cue('irte'), resena: cue('resena'), todo: cue('todo', 2), pegatina: cue('pegatina'), sigueme: cue('sigueme') }; c.comenta = c.sigueme - 0.3;
+    // segmentos: planta, punto donde se pone el huésped, NFC que toca y cuándo
+    this.S = [
+      { t0: c.baja - 0.35, piso: 0, sitio: [1.05, 0.15], nfc: 0, toca: c.movil, ascensor: false },
+      { t0: c.primera - 0.3, piso: 1, sitio: [0.95, -0.75], nfc: 1, toca: c.tocas, ascensor: true },
+      { t0: c.segunda - 0.3, piso: 2, sitio: [1.3, -0.1], nfc: 2, toca: c.ves, ascensor: true },
+      { t0: c.arriba - 0.3, piso: 3, sitio: [1.35, -0.2], nfc: 3, toca: c.toque, ascensor: true },
+      { t0: c.irte - 0.45, piso: 0, sitio: [-2.55, 1.25], nfc: 4, toca: c.resena + 0.05, ascensor: false },
+    ];
+    this.fin = c.todo - 0.25;
+    this.musica = 'ambient_b'; this.volMusica = 0.5;
+    efectos = [['whoosh', 0.02], ['pop', c.sabias + 0.9], ...this.S.map(s => ['whoosh', s.t0]), ...this.S.filter(s => s.ascensor).map(s => ['ding', s.t0 + 0.85]), ...this.S.flatMap(s => [['tap', s.toca + 0.2], ['pop', s.toca + 0.55]]),
+      ['whoosh', this.fin], ['riser', c.pegatina - 0.7], ['hit', c.pegatina + 0.1], ['whoosh', c.sigueme - 0.25], ['pop', c.sigueme + 0.3]];
+  },
+  idx(t) { if (t >= this.fin) return 5; let i = -1; this.S.forEach((s, k) => { if (t >= s.t0) i = k; }); return i; },
+  actualizar(t) {
+    const c = this.c, i = this.idx(t), S = this.S, yo = this.yo;
+    this.nubes.forEach(([n, x], k) => { n.position.x = x + Math.sin(t * 0.25 + k) * 0.8; });
+    this.recep.reset(); this.recep.respirar(t, 0); if (i === 0 && entre(t, S[0].toca + 0.4, S[0].toca + 1.6)) this.recep.hablar(t);
+    this.cam2.reset(); this.cam2.respirar(t, 1); this.cam2.g.rotation.y = 0.4;
+    // camarero de la terraza: llega cuando lo llamas
+    const s3 = S[3]; this.cam3.reset(); const w3 = recorrido([[0, -4.0, 0.6], [s3.toca + 0.2, -4.0, 0.6], [s3.toca + 1.3, 0.5, 0.6]], t);
+    this.cam3.g.position.set(w3.x, 0, w3.z); if (w3.mueve) { this.cam3.g.rotation.y = w3.dir; this.cam3.andar(t * 1.8, 1); } else { this.cam3.g.rotation.y = t > s3.toca + 1 ? 1.2 : 0.6; this.cam3.respirar(t, 2); }
+    // ascensor: sube entre plantas al empezar cada segmento
+    let cabY = 0; if (i >= 0 && i < 5) { const s = S[i]; const prev = i ? S[i - 1].piso : 0; cabY = s.ascensor ? lerp(PISO_Y[prev], PISO_Y[s.piso], ease(prog(t, s.t0, s.t0 + 0.85))) : PISO_Y[s.piso === 0 && i === 4 ? 0 : s.piso]; if (i === 4) cabY = PISO_Y[3]; }
+    if (i === 5) cabY = PISO_Y[0] + (PISO_Y[3] - PISO_Y[0]) * (0.5 + 0.5 * Math.sin(t * 0.8));
+    this.cabina.position.y = cabY;
+    // huésped
+    yo.reset(); let px = XE, pz = 0.0, py = 0, mira = null;
+    if (i < 0) { const r = recorrido([[0, -3.2, 4.5], [S[0].t0, -1.0, 1.6]], t); px = r.x; pz = r.z; if (r.mueve) { yo.g.rotation.y = r.dir; yo.andar(t * 1.7, 1); } }
+    else if (i < 5) {
+      const s = S[i], nx = S[i + 1]; py = PISO_Y[s.piso];
+      let pts;
+      if (s.ascensor) pts = [[s.t0 + 0.85, XE, 0.0], [s.t0 + 1.6, XE - 1.2, 0.3], [s.toca - 0.35, ...s.sitio]];
+      else if (i === 0) pts = [[s.t0, -1.0, 1.6], [s.toca - 0.35, ...s.sitio]];
+      else pts = [[s.t0, -1.2, 1.4], [s.toca - 0.35, ...s.sitio]];
+      if (nx && nx.ascensor) pts.push([Math.max(s.toca + 1.35, nx.t0 - 0.9), ...s.sitio], [nx.t0 - 0.05, XE, 0.0]);
+      if (s.ascensor && t < s.t0 + 0.85) py = this.cabina.position.y;
+      const r = recorrido(pts, t); px = r.x; pz = r.z;
+      if (r.mueve) { yo.g.rotation.y = r.dir; yo.andar(t * 1.7, 1); }
+      else { const o = this.nfcs[s.nfc].userData.centro(); mira = Math.atan2(o.x - px, o.z - pz); yo.g.rotation.y = (t < s.t0 + 0.9 && s.ascensor) ? 0 : mira; yo.respirar(t, 3); }
+    } else { px = -1.0; pz = 1.4; py = 0; yo.g.rotation.y = 0.3; yo.respirar(t, 3); }
+    yo.g.position.set(px, py, pz);
+    const s = i >= 0 && i < 5 ? S[i] : null;
+    const tocando = s && entre(t, s.toca - 0.15, s.toca + 1.3);
+    if (tocando) { yo.bD.hombro.rotation.x = -1.3; yo.bD.codo.rotation.x = -0.3; }
+    yo.g.updateMatrixWorld(true); const mano = yo.bD.mano.getWorldPosition(new THREE.Vector3());
+    this.mv.position.copy(mano).add(new THREE.Vector3(0, 0.12, 0.05)); this.mv.lookAt(cam.position); this.mv.visible = i < 5;
+    let objetivo = null; if (tocando) { objetivo = this.nfcs[s.nfc].userData.centro(); const k = prog(t, s.toca - 0.15, s.toca + 0.25); this.mv.position.lerp(objetivo.clone().add(new THREE.Vector3(-0.2, 0.12, 0.28)), k); }
+    this.on.userData.actualizar(t, objetivo && t > s.toca + 0.15 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), objetivo || new THREE.Vector3());
+    this.halos.forEach((h, k) => { const cen = this.nfcs[k].userData.centro(); h.position.set(cen.x, cen.y - 0.17, cen.z + 0.05); const on = i === 5 || (i < 0 && t > c.sabias + 0.8) || (s && s.nfc === k && t < s.toca + 0.2); h.material.opacity = on ? 0.55 + 0.35 * Math.sin(t * 6 + k) : 0; h.scale.setScalar(1 + 0.15 * Math.sin(t * 6 + k)); });
+    // cámara: plano general del edificio; en cada planta, sigue al ascensor
+    let tx, ty, dist, gx = 0;
+    const objPiso = k => { const ss = S[k]; return [ss.sitio[0] + 1.1, PISO_Y[ss.piso] + 1.45, 15]; };
+    if (i < 0) { const k = ease(prog(t, 0, S[0].t0)); tx = lerp(0.3, 0.2, k); ty = lerp(7.2, 6.4, k); dist = lerp(40, 34, k); gx = lerp(-6, 2, k); }
+    else if (i === 5) { const k = ease(prog(t, this.fin, this.fin + 1.0)); const [ax, ay, ad] = objPiso(4); tx = lerp(ax, 0.2, k); ty = lerp(ay, 6.4, k); dist = lerp(ad, 34, k); gx = 3 * Math.sin((t - this.fin) * 0.4); }
+    else { const [bx, by, bd] = objPiso(i); const d = t - S[i].t0, dur = S[i].ascensor ? 0.85 : 0.75;
+      if (d < dur) { const [ax, ay, ad] = i ? objPiso(i - 1) : [0.2, 6.4, 34]; const k = ease(d / dur); tx = lerp(ax, bx, k); ty = lerp(ay, by, k); dist = lerp(ad, bd, k) + (i === 4 ? 6 * Math.sin(Math.PI * k) : 0); } else { tx = bx; ty = by; dist = bd; } gx = 2.2; }
+    cam.position.set(tx + gx, ty + dist * 0.16, dist); cam.up.set(0, 1, 0); cam.lookAt(tx, ty, 0); if (cam.fov !== 30) { cam.fov = 30; cam.updateProjectionMatrix(); }
+    this.desenfoque = 0; for (const t0 of [...S.map(x => x.t0), this.fin]) { const d = t - t0; if (d >= 0 && d < 0.5) this.desenfoque = Math.max(this.desenfoque, 7 * Math.sin(Math.PI * d / 0.5)); }
+  },
+  fx(t) { const c = this.c; let temblor = 0, flash = 0; const d = t - c.pegatina - 0.1; if (d >= 0 && d < 0.35) { temblor = 10 * (1 - d / 0.35); flash = 0.3 * (1 - d / 0.35); } return { desenfoque: this.desenfoque, temblor, flash }; },
+  pantalla(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; },
+  capa(t) {
+    const c = this.c, i = this.idx(t), S = this.S; velos();
+    // gancho: interrogantes sobre cada planta
+    if (i < 0 && t > c.sabias + 0.6) this.nfcs.slice(0, 4).forEach((o, k) => { const [x, y] = this.pantalla(o.userData.centro()); const kk = rebote(clamp((t - c.sabias - 0.6 - k * 0.18) / 0.4)); if (kk <= 0) return;
+      C.save(); C.translate(x, y - 70); C.scale(kk, kk); C.fillStyle = '#ff5fa2'; C.shadowColor = 'rgba(120,30,70,0.45)'; C.shadowBlur = 20; C.beginPath(); C.arc(0, 0, 44, 0, 7); C.fill(); C.beginPath(); C.moveTo(-12, 36); C.lineTo(0, 62); C.lineTo(12, 36); C.fill();
+      C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 58px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('?', 0, 3); C.restore(); });
+    const PLANTAS = ['0', '1', '2', '3', '↩'], NOMBRES = ['Recepción', 'Habitación', 'Restaurante', 'Terraza', 'Salida'], COL = ['#ff8f7a', '#7aa7ff', '#5fcf9a', '#ffb547', '#ff5fa2'];
+    const RES = ['WiFi conectado', 'Desayuno pedido', 'Pedido desde la mesa', 'Camarero avisado', 'Reseña publicada'];
+    const PANTS = [['wifiAndroid', k => ({ conectado: k > 0 })], ['cartaCafe', k => ({ nuevo: k > 1 })], ['cartaV', k => ({ sel: Math.min(2, k) })], ['avisoEnviado', () => ({})], ['resenaG', k => ({ llenas: k })]];
+    if (i >= 0 && i < 5) {
+      const k = entra(t, S[i].t0 + 0.3); C.save(); C.globalAlpha = clamp(k * 1.5); C.font = `800 56px Inter, ${FUENTE}`; const tx = NOMBRES[i]; const w = C.measureText(tx).width + 170; C.translate(W / 2, 1460); C.scale(lerp(0.85, 1, k), lerp(0.85, 1, k));
+      C.fillStyle = 'rgba(255,255,255,0.94)'; C.shadowColor = 'rgba(90,40,70,0.3)'; C.shadowBlur = 24; rr(C, -w / 2, -58, w, 116, 58); C.fill(); C.shadowBlur = 0; C.fillStyle = COL[i]; C.beginPath(); C.arc(-w / 2 + 58, 0, 42, 0, 7); C.fill();
+      C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(PLANTAS[i], -w / 2 + 58, 3); C.fillStyle = '#3a2a4a'; C.textAlign = 'left'; C.fillText(tx, -w / 2 + 120, 3); C.restore();
+      const s = S[i], fin = (S[i + 1] ? S[i + 1].t0 : this.fin) - 0.3;
+      if (entre(t, s.toca + 0.35, fin)) { const st = Math.min(5, Math.floor((t - s.toca - 0.35) / 0.12)); const [pn, est] = PANTS[i]; movil2D(lerp(W + 400, 790, entra(t, s.toca + 0.35, 0.45)), 880, 0.5, 0.06, pn, est(st)); pildora(RES[i], W / 2 - 150, 1610, entra(t, s.toca + 0.5), { icono: 'check', tono: 'verde', tam: 40 }); }
+    }
+    // final: todas las plantas, el mismo NFC
+    if (i === 5 && t < c.sigueme - 0.3) {
+      this.nfcs.forEach((o, k) => { const [x, y] = this.pantalla(o.userData.centro()); const kk = rebote(clamp((t - this.fin - 0.8 - k * 0.12) / 0.4)); if (kk <= 0) return;
+        C.save(); C.translate(x, y - 64); C.scale(kk, kk); C.fillStyle = grad(C, -60, 0, 60, 0, [VX.cian, VX.azul]); C.shadowColor = 'rgba(30,60,140,0.4)'; C.shadowBlur = 18; rr(C, -62, -30, 124, 60, 30); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 32px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('NFC', 0, 2); C.restore(); });
+      if (t > c.pegatina) { const kb = rebote(clamp((t - c.pegatina) / 0.4)); C.save(); C.translate(W / 2, 1640); C.scale(kb, kb); C.font = `italic 600 92px Fraunces, serif`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.lineWidth = 14; C.strokeStyle = '#3a2a4a'; C.lineJoin = 'round'; C.strokeText('1 pegatina · 5 usos', 0, 0); C.fillStyle = '#fff'; C.fillText('1 pegatina · 5 usos', 0, 0); C.restore(); }
+    }
+    if (t > c.sigueme - 0.3) { const k = prog(t, c.sigueme - 0.3, c.sigueme + 0.1); C.save(); C.fillStyle = `rgba(40,22,44,${0.78 * k})`; C.fillRect(0, 0, W, H); C.restore();
+      C.save(); C.globalAlpha = k; logoVisax(C, W / 2 - 70, 560, 140); C.restore();
+      const kb = rebote(clamp((t - c.sigueme) / 0.45)); if (kb > 0) { C.save(); C.translate(W / 2, 930); C.scale(kb, kb); C.fillStyle = grad(C, -250, 0, 250, 0, ['#ff7aa8', '#ff9a6b']); C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 40; rr(C, -250, -75, 500, 150, 75); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('+ Sígueme', 0, 4); C.restore(); }
+      C.save(); C.globalAlpha = prog(t, c.sigueme + 0.4, c.sigueme + 0.8); C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.88)'; C.font = `600 44px Inter, ${FUENTE}`; C.fillText('si quieres saber más sobre la', W / 2, 1110); C.fillStyle = '#ffb3cf'; C.font = `italic 600 80px Fraunces, serif`; C.fillText('tecnología NFC.', W / 2, 1200); C.restore(); }
   },
 };
 
