@@ -4,7 +4,8 @@ import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { aplicarEstilo, dibujar3D } from './estilos.js';
-import { construirRestaurante, poblar, manosPOV, cana, bravas } from './juguete.js';
+import { construirRestaurante, poblar, manosPOV, cana, bravas, caja } from './juguete.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { construirMaqueta, recorrido, distanciaRecorrida, P } from './diorama.js';
 let ESTILO = null;
 
@@ -2302,6 +2303,145 @@ V['calle'] = { ...comunCapa, subtitulos: () => {}, estilo: 'nocheIso',
     // enfrente: el bar 2 a oscuras
     if (entre(t, c.mientras + 0.2, 99)) { const [x, y, ok] = this.proy(new THREE.Vector3(6 + 2.9, 2.6, 1.7)); if (ok && t > c.levantada - 0.4) chip(`MESA 4 · ESPERANDO ${relojMS(14 * 60 + (t - c.levantada) * 8)}`, x, Math.max(y - 20, 470), entra(t, c.levantada - 0.4), '#ff4d5e'); }
     cierreComenta(t, c.comenta - 0.3, 'SISTEMA', 'y te lo enseñamos en tu bar');
+  },
+};
+// ---------- 12. "Llevas años usando NFC sin saberlo": 5 usos, estudio de producto con podio giratorio ----------
+PANT.okVerde = (x, w, h, s) => {
+  x.fillStyle = '#0b1410'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#22c55e'; x.beginPath(); x.arc(w / 2, 420, 120 * (s.k ?? 1), 0, 7); x.fill(); check(x, w / 2 - 10, 420, 5.5 * (s.k ?? 1));
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `800 52px ${SANS}`; x.fillText(s.titulo || 'Hecho', w / 2, 640);
+  x.fillStyle = 'rgba(255,255,255,0.65)'; x.font = `600 32px ${SANS}`; x.fillText(s.sub || '', w / 2, 700);
+};
+function texCarta(dibujar, w = 512, h = 320) { return lienzo(w, h, dibujar).tex; }
+function objetoPago() {
+  const g = new THREE.Group();
+  const cuerpo = caja(0.62, 1.05, 0.3, '#262a33', 0.08); cuerpo.position.y = 0.55; cuerpo.rotation.x = -0.18; g.add(cuerpo);
+  const pant = lienzo(256, 200); const p = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.36), new THREE.MeshBasicMaterial({ map: pant.tex, toneMapped: false })); p.position.set(0, 0.2, 0.152); cuerpo.add(p);
+  for (let i = 0; i < 12; i++) { const k = caja(0.1, 0.07, 0.04, '#4a505e', 0.02); k.position.set(-0.13 + (i % 3) * 0.13, -0.12 - Math.floor(i / 3) * 0.1, 0.15); cuerpo.add(k); }
+  g.userData.pintar = (ok, k) => pant.pintar('p' + ok + Math.round(k * 10), (x, w, h) => { x.fillStyle = ok ? '#0d3b22' : '#e9eef5'; x.fillRect(0, 0, w, h); x.textAlign = 'center';
+    if (ok) { x.fillStyle = '#22c55e'; x.beginPath(); x.arc(w / 2, 80, 42 * k, 0, 7); x.fill(); check(x, w / 2 - 3, 80, 2 * k); x.fillStyle = '#fff'; x.font = `800 30px ${SANS}`; x.fillText('PAGADO', w / 2, 170); }
+    else { x.fillStyle = '#1a1f2b'; x.font = `600 26px ${SANS}`; x.fillText('Total', w / 2, 60); x.font = `900 58px ${SANS}`; x.fillText('3,50 €', w / 2, 130); x.fillStyle = '#3f7dfb'; x.font = `700 22px ${SANS}`; x.fillText('Acerque la tarjeta', w / 2, 180); } });
+  g.userData.punto = () => p.getWorldPosition(new THREE.Vector3());
+  return g;
+}
+function objetoDNI() {
+  const g = new THREE.Group();
+  const tex = texCarta((x, w, h) => { const gr = x.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#dff3ff'); gr.addColorStop(1, '#bfe0d6'); x.fillStyle = gr; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#1d3b5c'; x.font = `900 54px ${SANS}`; x.textAlign = 'left'; x.fillText('DNI', 30, 70); x.font = `600 18px ${SANS}`; x.fillStyle = 'rgba(29,59,92,0.6)'; x.fillText('DOCUMENTO DE EJEMPLO', 150, 64);
+    x.fillStyle = '#9fb3c8'; rr(x, 30, 100, 130, 170, 12); x.fill(); x.fillStyle = '#e8eef4'; x.beginPath(); x.arc(95, 160, 32, 0, 7); x.fill(); x.beginPath(); x.ellipse(95, 250, 52, 34, 0, Math.PI, 0); x.fill();
+    x.fillStyle = 'rgba(29,59,92,0.35)'; for (let i = 0; i < 5; i++) rr(x, 190, 110 + i * 32, 200 - i * 18, 14, 7), x.fill();
+    x.fillStyle = '#d9a441'; rr(x, 400, 190, 80, 64, 10); x.fill(); x.strokeStyle = '#a77a26'; x.lineWidth = 3; x.beginPath(); x.moveTo(440, 190); x.lineTo(440, 254); x.moveTo(400, 222); x.lineTo(480, 222); x.stroke(); });
+  const carta = new THREE.Mesh(new RoundedBoxGeometry(1.25, 0.8, 0.03, 3, 0.012), [mat0('#e8eef4'), mat0('#e8eef4'), mat0('#e8eef4'), mat0('#e8eef4'), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4 }), mat0('#e8eef4')]);
+  carta.position.y = 0.62; carta.rotation.x = -0.25; carta.castShadow = true; g.add(carta);
+  const pie = caja(0.6, 0.16, 0.3, '#d6dbe3', 0.05); pie.position.y = 0.08; g.add(pie);
+  g.userData.punto = () => carta.localToWorld(new THREE.Vector3(0.36, -0.07, 0.02));
+  return g;
+}
+function objetoTorno() {
+  const g = new THREE.Group();
+  const poste = caja(0.42, 1.25, 0.42, '#d9dde2', 0.06); poste.position.y = 0.625; g.add(poste);
+  const lector = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.02, 32), new THREE.MeshStandardMaterial({ color: '#1d2230', emissive: '#22c55e', emissiveIntensity: 0 })); lector.rotation.x = Math.PI / 2 - 0.5; lector.position.set(0, 1.18, 0.12); g.add(lector);
+  const brazos = new THREE.Group(); brazos.position.set(0.21, 0.85, 0); g.add(brazos);
+  for (let i = 0; i < 3; i++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.7, 12), mat0('#9aa3ab')); b.rotation.z = Math.PI / 2; b.position.x = 0.35; const piv = new THREE.Group(); piv.rotation.x = i * Math.PI * 2 / 3; piv.add(b); brazos.add(piv); }
+  const abono = new THREE.Mesh(new RoundedBoxGeometry(0.55, 0.35, 0.015, 3, 0.01), new THREE.MeshStandardMaterial({ map: texCarta((x, w, h) => { const gr = x.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#ff7a1a'); gr.addColorStop(1, '#e8337a'); x.fillStyle = gr; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.font = `900 64px ${SANS}`; x.fillText('ABONO', 30, 120); x.font = `600 28px ${SANS}`; x.fillText('Transporte · ejemplo', 30, 175); }) }));
+  g.add(abono);
+  g.userData = { lector, brazos, abono, punto: () => lector.getWorldPosition(new THREE.Vector3()) };
+  return g;
+}
+function objetoHotel() {
+  const g = new THREE.Group();
+  const marco = caja(1.25, 2.15, 0.12, '#e9dcc4', 0.03); marco.position.y = 1.07; g.add(marco);
+  const bisagra = new THREE.Group(); bisagra.position.set(-0.55, 0, 0.08); g.add(bisagra);
+  const puerta = caja(1.1, 2.0, 0.07, '#8a4b2b', 0.03); puerta.position.set(0.55, 1.02, 0); bisagra.add(puerta);
+  const cerradura = caja(0.16, 0.36, 0.05, '#2b2f3a', 0.02); cerradura.position.set(0.95, 1.05, 0.06); bisagra.add(cerradura);
+  const led = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 8), new THREE.MeshBasicMaterial({ color: '#ff3b3b', toneMapped: false })); led.position.set(0.95, 1.18, 0.09); bisagra.add(led);
+  const llave = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.27, 0.012, 3, 0.01), new THREE.MeshStandardMaterial({ map: texCarta((x, w, h) => { x.fillStyle = '#1b2a4a'; x.fillRect(0, 0, w, h); x.fillStyle = '#d9b26a'; x.font = `800 60px Fraunces, serif`; x.fillText('HOTEL', 40, 130); x.font = `600 28px ${SANS}`; x.fillText('Habitación 207', 40, 190); }) }));
+  g.add(llave);
+  g.userData = { bisagra, led, llave, punto: () => cerradura.getWorldPosition(new THREE.Vector3()) };
+  return g;
+}
+function objetoBar() {
+  const g = new THREE.Group();
+  const tapa = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.05, 40), mat0('#fbf6ee')); tapa.position.y = 0.62; g.add(tapa);
+  const pata = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 12), mat0('#6b3a22')); pata.position.y = 0.3; g.add(pata);
+  const tj = tarjetaMenu(); tj.scale.setScalar(0.62); tj.position.set(-0.1, 0.645, -0.15); g.add(tj);
+  const cc = cana(); cc.scale.setScalar(1.6); cc.position.set(0.42, 0.645, 0.15); g.add(cc);
+  g.userData = { tj, punto: () => tj.userData.centro() };
+  return g;
+}
+const FONDOS = [['#1b1f3a', '#3b2a6b'], ['#d6f8e8', '#7fe0b8'], ['#d8ebff', '#8fbaff'], ['#ffe6d1', '#ffb48a'], ['#ece3ff', '#b9a3ff'], ['#fff3d1', '#ffc96b'], ['#14182e', '#2a1d55']];
+V['usos'] = { ...comunCapa,
+  async montar() {
+    for (const [f, peso, est] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: est }); await ff.load(); document.fonts.add(ff); }
+    ['nfc', 'chip', 'dni', 'abono', 'hotel', 'carta', 'centimetros', 'movil', 'super'].forEach(w => CLAVES.add(w));
+    pared.visible = suelo.visible = bokeh.visible = false; scene.fog = null;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#ffffff'); hemi.groundColor.set('#c8c0d8'); hemi.intensity = 1.5;
+    const key = new THREE.DirectionalLight('#ffffff', 2.2); key.position.set(3, 6, 4); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 20 }); key.shadow.radius = 4; scene.add(key);
+    const rim = new THREE.DirectionalLight('#c9b8ff', 1.2); rim.position.set(-4, 3, -3); scene.add(rim);
+    this.fondo = document.createElement('canvas'); this.fondo.width = 16; this.fondo.height = 256; this.texF = new THREE.CanvasTexture(this.fondo); this.texF.colorSpace = THREE.SRGBColorSpace; scene.background = this.texF;
+    const podio = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.35, 0.32, 64), new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.35 })); podio.position.y = -0.16; podio.receiveShadow = true; podio.castShadow = true; mundo.add(podio); this.podio = podio;
+    const aro = new THREE.Mesh(new THREE.TorusGeometry(1.27, 0.015, 8, 96), new THREE.MeshBasicMaterial({ color: VX.cian, toneMapped: false })); aro.rotation.x = Math.PI / 2; aro.position.y = 0.0; mundo.add(aro);
+    const sombra = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.ShadowMaterial({ opacity: 0.18 })); sombra.rotation.x = -Math.PI / 2; sombra.position.y = -0.32; sombra.receiveShadow = true; mundo.add(sombra);
+    this.objs = [objetoPago(), objetoDNI(), objetoTorno(), objetoHotel(), objetoBar()]; this.objs.forEach(o => { o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); mundo.add(o); });
+    this.mv = movil(); this.mv.scale.setScalar(0.55); mundo.add(this.mv); this.on = ondas();
+    // chip NFC flotante del gancho
+    this.chipG = new THREE.Group(); const chip = caja(0.5, 0.5, 0.08, '#15171f', 0.04); this.chipG.add(chip);
+    for (let i = 0; i < 6; i++) { const p = caja(0.06, 0.18, 0.02, '#d9a441', 0.01); p.position.set(-0.32, -0.15 + i * 0.06, 0); p.rotation.z = Math.PI / 2; this.chipG.add(p); const p2 = p.clone(); p2.position.x = 0.32; this.chipG.add(p2); }
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texBokeh.tex, color: VX.cian, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false })); glow.scale.set(2.2, 2.2, 1); this.chipG.add(glow); this.chipG.position.y = 0.9; mundo.add(this.chipG);
+    const c = this.c = { chip: cue('chip'), sabe: cue('sabe'), nfc: cue('nfc'), uno: cue('uno'), eso: cue('eso'), dos: cue('dos'), dni: cue('dni'), leer: cue('leer'), tres: cue('tres'), abono: cue('abono'), tambien: cue('tambien'),
+      cuatro: cue('cuatro'), llaves: cue('llaves'), cinco: cue('cinco'), tocas: cue('tocas'), carta: cue('carta'), todo: cue('todo'), centimetros: cue('centimetros'), sigueme: cue('sigueme') };
+    this.seg = [c.uno - 0.25, c.dos - 0.25, c.tres - 0.25, c.cuatro - 0.25, c.cinco - 0.25, c.todo - 0.2];
+    this.toques = [c.eso - 0.4, c.leer - 0.2, c.tambien - 0.4, c.llaves + 0.2, c.tocas + 0.1];
+    this.musica = 'beat'; this.volMusica = 0.42;
+    efectos = [['whoosh', 0.02], ['pop', c.chip], ['riser', c.nfc - 0.9], ['hit', c.nfc], ...this.seg.slice(0, 5).flatMap((t, i) => [['whoosh', t], ['pop', t + 0.45]]), ...this.toques.flatMap(t => [['tap', t], ['ding', t + 0.35]]),
+      ['whoosh', c.todo - 0.2], ['pop', c.centimetros], ['whoosh', c.sigueme - 0.25], ['pop', c.sigueme + 0.3]];
+  },
+  idx(t) { let i = -1; for (let k = 0; k < this.seg.length; k++) if (t >= this.seg[k]) i = k; return i; },
+  actualizar(t) {
+    const c = this.c, i = this.idx(t), cen = new THREE.Vector3(0, 0, 0);
+    // fondo degradado según el objeto
+    const fi = i < 0 ? 0 : i >= 5 ? 6 : i + 1; const [a, b] = FONDOS[fi]; const x = this.fondo.getContext('2d'); const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, a); gr.addColorStop(1, b); x.fillStyle = gr; x.fillRect(0, 0, 16, 256); this.texF.needsUpdate = true;
+    // cámara: giro alrededor del podio, salto rápido entre objetos
+    let ang = 0.5 + t * 0.32; for (const s of this.seg) ang += 1.4 * ease(clamp((t - s) / 0.3)); const r = i >= 0 && i < 5 ? 4.0 : 4.6; const alt = i === 3 ? 1.7 : 1.3;
+    cam.position.set(Math.sin(ang) * r, alt + 0.4, Math.cos(ang) * r); cam.up.set(0, 1, 0); cam.lookAt(0, i === 3 ? 1.0 : 0.65, 0); if (cam.fov !== 36) { cam.fov = 36; cam.updateProjectionMatrix(); }
+    this.desenfoque = 0; for (const s of this.seg) { const d = t - s; if (d >= 0 && d < 0.3) this.desenfoque = Math.max(this.desenfoque, 16 * Math.sin(Math.PI * d / 0.3)); }
+    // objetos: cae el del tramo con rebote, el resto oculto
+    this.objs.forEach((o, k) => { const t0 = this.seg[k]; const vis = i === k; o.visible = vis; if (!vis) return; const kk = clamp((t - t0) / 0.55);
+      o.position.y = kk < 1 ? 3.2 * (1 - kk) * (1 - kk) - Math.sin(kk * Math.PI) * 0.12 * (kk > 0.6 ? 1 : 0) : 0; o.rotation.y = Math.atan2(cam.position.x, cam.position.z) + 0.35 + (1 - ease(kk)) * 2.5 + Math.sin(t * 0.6) * 0.06; o.updateMatrixWorld(true); });
+    this.chipG.visible = i < 0 || i >= 5; this.chipG.rotation.y = t * 1.2; this.chipG.position.y = 0.9 + Math.sin(t * 2) * 0.06; this.chipG.scale.setScalar(i >= 5 ? 0.9 : rebote(clamp((t - c.chip + 0.2) / 0.5)) * 0.9);
+    // el móvil (o la tarjeta) toca el objeto
+    this.mv.visible = false; let toque = null;
+    if (i >= 0 && i < 5) { const o = this.objs[i]; const tt = this.toques[i]; const p = o.userData.punto(); const camDir = cam.position.clone().sub(p).setY(0).normalize();
+      const der = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), camDir).normalize(); const fuera = p.clone().add(camDir.clone().multiplyScalar(0.35)).add(der.clone().multiplyScalar(1.3)).add(new THREE.Vector3(0, 1.3, 0)); const cerca = p.clone().add(camDir.clone().multiplyScalar(0.16));
+      const k = prog(t, tt - 0.6, tt), vuelta = prog(t, tt + 1.0, tt + 1.5); const pos = fuera.clone().lerp(cerca, k).lerp(fuera, vuelta);
+      const portador = i === 2 ? o.userData.abono : i === 3 ? o.userData.llave : this.mv; portador.visible = t > this.seg[i] + 0.4;
+      if (portador === this.mv) { this.mv.position.copy(pos); this.mv.lookAt(cam.position); } else { portador.parent.worldToLocal(pos); portador.position.copy(pos); portador.lookAt(cam.position); }
+      const hecho = t > tt + 0.3; if (entre(t, tt, tt + 0.9)) toque = { desde: (portador === this.mv ? this.mv : portador).getWorldPosition(new THREE.Vector3()), hasta: p };
+      const kOk = rebote(clamp((t - tt - 0.3) / 0.4));
+      if (i === 0) { o.userData.pintar(hecho, kOk); this.mv.userData.pantalla(hecho ? 'okVerde' : 'bloqueo', hecho ? { titulo: 'Pagado', sub: '3,50 € · ejemplo', k: kOk } : {}); }
+      if (i === 1) this.mv.userData.pantalla(hecho ? 'okVerde' : 'bloqueo', hecho ? { titulo: 'Chip leído', sub: 'DNI con NFC', k: kOk } : {});
+      if (i === 2) { o.userData.lector.material.emissiveIntensity = hecho ? 2.5 : 0; o.userData.brazos.rotation.x = -ease(clamp((t - tt - 0.5) / 0.6)) * Math.PI * 2 / 3; }
+      if (i === 3) { o.userData.led.material.color.set(hecho ? '#22c55e' : '#ff3b3b'); o.userData.bisagra.rotation.y = -ease(clamp((t - tt - 0.5) / 0.8)) * 0.9; }
+      if (i === 4) this.mv.userData.pantalla(hecho ? 'cartaV' : 'bloqueo', {});
+    }
+    this.on.userData.actualizar(t, toque ? 1 : 0, toque ? toque.desde : cen, toque ? toque.hasta : cen);
+  },
+  fx(t) { const c = this.c; let temblor = 0, flash = 0; const d = t - c.nfc; if (d >= 0 && d < 0.35) { temblor = 14 * (1 - d / 0.35); flash = 0.4 * (1 - d / 0.35); } return { desenfoque: this.desenfoque, temblor, flash }; },
+  capa(t) {
+    const c = this.c, i = this.idx(t); velos();
+    const TITULOS = ['Pagar con el móvil', 'El chip de tu DNI', 'El abono del transporte', 'Llaves de hotel', 'La carta del bar'];
+    if (entre(t, c.nfc - 0.05, this.seg[0])) { const k = rebote(clamp((t - c.nfc) / 0.4)); C.save(); C.translate(W / 2, 1480); C.scale(k, k); C.font = `900 220px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillStyle = '#fff'; C.shadowColor = VX.cian; C.shadowBlur = 60; C.fillText('NFC', 0, 0); C.restore(); }
+    if (i >= 0 && i < 5) { const k = entra(t, this.seg[i] + 0.35); C.save(); C.globalAlpha = clamp(k * 1.5); const X = W / 2, Y = 1500; C.font = `900 62px Inter, ${FUENTE}`; const tw = C.measureText(TITULOS[i]).width; const w = tw + 190;
+      C.translate(X, Y); C.scale(lerp(0.85, 1, k), lerp(0.85, 1, k)); C.fillStyle = 'rgba(12,14,24,0.86)'; rr(C, -w / 2, -60, w, 120, 60); C.fill();
+      C.fillStyle = grad(C, -w / 2, 0, -w / 2 + 100, 0, [VX.cian, VX.violeta]); C.beginPath(); C.arc(-w / 2 + 62, 0, 44, 0, 7); C.fill(); C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(String(i + 1), -w / 2 + 62, 3);
+      C.textAlign = 'left'; C.fillText(TITULOS[i], -w / 2 + 130, 3); C.restore();
+      C.save(); C.font = `800 34px Inter, ${FUENTE}`; C.textAlign = 'right'; C.fillStyle = 'rgba(255,255,255,0.9)'; C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 12; C.fillText(`${i + 1}/5`, W - 60, 120); C.restore();
+      if (t > this.toques[i] + 0.3) pildora('NFC ✓', W / 2, 1650, entra(t, this.toques[i] + 0.3), { tono: 'verde', tam: 40 }); }
+    if (entre(t, c.centimetros - 0.2, c.sigueme - 0.3)) golpeIOS('≤ 4 cm', W / 2, 1480, prog(t, c.centimetros - 0.2, c.centimetros + 0.1), 170, true);
+    if (t > c.sigueme - 0.3) { const k = prog(t, c.sigueme - 0.3, c.sigueme + 0.1); C.save(); C.fillStyle = `rgba(10,12,24,${0.8 * k})`; C.fillRect(0, 0, W, H); C.restore();
+      C.save(); C.globalAlpha = k; logoVisax(C, W / 2 - 70, 560, 140); C.restore();
+      const kb = rebote(clamp((t - c.sigueme) / 0.45)); if (kb > 0) { C.save(); C.translate(W / 2, 930); C.scale(kb, kb); C.fillStyle = grad(C, -250, 0, 250, 0, [VX.cian, VX.azul, VX.violeta]); C.shadowColor = 'rgba(0,0,0,0.4)'; C.shadowBlur = 40; rr(C, -250, -75, 500, 150, 75); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('+ Sígueme', 0, 4); C.restore(); }
+      C.save(); C.globalAlpha = prog(t, c.sigueme + 0.4, c.sigueme + 0.8); C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.85)'; C.font = `600 44px Inter, ${FUENTE}`; C.fillText('si quieres saber más sobre la', W / 2, 1110); C.fillStyle = VX.cian; C.font = `italic 600 80px Fraunces, serif`; C.fillText('tecnología NFC.', W / 2, 1200); C.restore(); }
   },
 };
 
