@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { construirBar, persona as personaGL } from './bar.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { aplicarEstilo, dibujar3D } from './estilos.js';
-import { construirRestaurante, poblar, manosPOV, cana, bravas, caja, muneco } from './juguete.js';
+import { construirRestaurante, poblar, manosPOV, cana, bravas, caja, muneco, mat as matJ } from './juguete.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { construirMaqueta, recorrido, distanciaRecorrida, P } from './diorama.js';
 let ESTILO = null;
@@ -2657,7 +2657,7 @@ V['hotel'] = { ...comunCapa, estilo: 'plastilina',
     this.fin = c.todo - 0.25;
     this.musica = 'ambient_b'; this.volMusica = 0.5;
     efectos = [['whoosh', 0.02], ['pop', c.sabias + 0.9], ...this.S.map(s => ['whoosh', s.t0]), ...this.S.filter(s => s.ascensor).map(s => ['ding', s.t0 + 0.85]), ...this.S.flatMap(s => [['tap', s.toca + 0.2], ['pop', s.toca + 0.55]]),
-      ['whoosh', this.fin], ['riser', c.pegatina - 0.7], ['hit', c.pegatina + 0.1], ['whoosh', c.sigueme - 0.25], ['pop', c.sigueme + 0.3]];
+      ['whoosh', this.fin], ['whoosh', c.sigueme - 0.25], ['pop', c.sigueme + 0.3]];
   },
   idx(t) { if (t >= this.fin) return 5; let i = -1; this.S.forEach((s, k) => { if (t >= s.t0) i = k; }); return i; },
   actualizar(t) {
@@ -2704,14 +2704,14 @@ V['hotel'] = { ...comunCapa, estilo: 'plastilina',
     else { const [bx, by, bd] = objPiso(i); const d = t - S[i].t0, dur = S[i].ascensor ? 0.85 : 0.75;
       if (d < dur) { const [ax, ay, ad] = i ? objPiso(i - 1) : [0.2, 6.4, 34]; const k = ease(d / dur); tx = lerp(ax, bx, k); ty = lerp(ay, by, k); dist = lerp(ad, bd, k) + (i === 4 ? 6 * Math.sin(Math.PI * k) : 0); } else { tx = bx; ty = by; dist = bd; } gx = 2.2; }
     cam.position.set(tx + gx, ty + dist * 0.16, dist); cam.up.set(0, 1, 0); cam.lookAt(tx, ty, 0); if (cam.fov !== 30) { cam.fov = 30; cam.updateProjectionMatrix(); }
-    this.desenfoque = 0; for (const t0 of [...S.map(x => x.t0), this.fin]) { const d = t - t0; if (d >= 0 && d < 0.5) this.desenfoque = Math.max(this.desenfoque, 7 * Math.sin(Math.PI * d / 0.5)); }
+    this.desenfoque = 0; for (const t0 of [...S.map(x => x.t0), this.fin]) { const d = t - t0; if (d >= 0 && d < 0.5) this.desenfoque = Math.max(this.desenfoque, 3 * Math.sin(Math.PI * d / 0.5)); }
   },
-  fx(t) { const c = this.c; let temblor = 0, flash = 0; const d = t - c.pegatina - 0.1; if (d >= 0 && d < 0.35) { temblor = 10 * (1 - d / 0.35); flash = 0.3 * (1 - d / 0.35); } return { desenfoque: this.desenfoque, temblor, flash }; },
+  fx(t) { return { desenfoque: this.desenfoque }; },
   pantalla(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; },
   capa(t) {
     const c = this.c, i = this.idx(t), S = this.S; velos();
     // gancho: interrogantes sobre cada planta
-    if (i < 0 && t > c.sabias + 0.6) this.nfcs.slice(0, 4).forEach((o, k) => { const [x, y] = this.pantalla(o.userData.centro()); const kk = rebote(clamp((t - c.sabias - 0.6 - k * 0.18) / 0.4)); if (kk <= 0) return;
+    if (false) this.nfcs.slice(0, 4).forEach((o, k) => { const [x, y] = this.pantalla(o.userData.centro()); const kk = rebote(clamp((t - c.sabias - 0.6 - k * 0.18) / 0.4)); if (kk <= 0) return;
       C.save(); C.translate(x, y - 70); C.scale(kk, kk); C.fillStyle = '#ff5fa2'; C.shadowColor = 'rgba(120,30,70,0.45)'; C.shadowBlur = 20; C.beginPath(); C.arc(0, 0, 44, 0, 7); C.fill(); C.beginPath(); C.moveTo(-12, 36); C.lineTo(0, 62); C.lineTo(12, 36); C.fill();
       C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 58px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('?', 0, 3); C.restore(); });
     const PLANTAS = ['0', '1', '2', '3', '↩'], NOMBRES = ['Recepción', 'Habitación', 'Restaurante', 'Terraza', 'Salida'], COL = ['#ff8f7a', '#7aa7ff', '#5fcf9a', '#ffb547', '#ff5fa2'];
@@ -2722,10 +2722,10 @@ V['hotel'] = { ...comunCapa, estilo: 'plastilina',
       C.fillStyle = 'rgba(255,255,255,0.94)'; C.shadowColor = 'rgba(90,40,70,0.3)'; C.shadowBlur = 24; rr(C, -w / 2, -58, w, 116, 58); C.fill(); C.shadowBlur = 0; C.fillStyle = COL[i]; C.beginPath(); C.arc(-w / 2 + 58, 0, 42, 0, 7); C.fill();
       C.fillStyle = '#fff'; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(PLANTAS[i], -w / 2 + 58, 3); C.fillStyle = '#3a2a4a'; C.textAlign = 'left'; C.fillText(tx, -w / 2 + 120, 3); C.restore();
       const s = S[i], fin = (S[i + 1] ? S[i + 1].t0 : this.fin) - 0.3;
-      if (entre(t, s.toca + 0.35, fin)) { const st = Math.min(5, Math.floor((t - s.toca - 0.35) / 0.12)); const [pn, est] = PANTS[i]; movil2D(lerp(W + 400, 790, entra(t, s.toca + 0.35, 0.45)), 880, 0.5, 0.06, pn, est(st)); pildora(RES[i], W / 2 - 150, 1610, entra(t, s.toca + 0.5), { icono: 'check', tono: 'verde', tam: 40 }); }
+      if (entre(t, s.toca + 0.35, fin)) { const st = Math.min(5, Math.floor((t - s.toca - 0.35) / 0.12)); const [pn, est] = PANTS[i]; movil2D(lerp(W + 400, 790, entra(t, s.toca + 0.35, 0.45)), 880, 0.5, 0.06, pn, est(st)); }
     }
     // final: todas las plantas, el mismo NFC
-    if (i === 5 && t < c.sigueme - 0.3) {
+    if (false) {
       this.nfcs.forEach((o, k) => { const [x, y] = this.pantalla(o.userData.centro()); const kk = rebote(clamp((t - this.fin - 0.8 - k * 0.12) / 0.4)); if (kk <= 0) return;
         C.save(); C.translate(x, y - 64); C.scale(kk, kk); C.fillStyle = grad(C, -60, 0, 60, 0, [VX.cian, VX.azul]); C.shadowColor = 'rgba(30,60,140,0.4)'; C.shadowBlur = 18; rr(C, -62, -30, 124, 60, 30); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 32px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('NFC', 0, 2); C.restore(); });
       if (t > c.pegatina) { const kb = rebote(clamp((t - c.pegatina) / 0.4)); C.save(); C.translate(W / 2, 1640); C.scale(kb, kb); C.font = `italic 600 92px Fraunces, serif`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.lineWidth = 14; C.strokeStyle = '#3a2a4a'; C.lineJoin = 'round'; C.strokeText('1 pegatina · 5 usos', 0, 0); C.fillStyle = '#fff'; C.fillText('1 pegatina · 5 usos', 0, 0); C.restore(); }
@@ -2735,6 +2735,123 @@ V['hotel'] = { ...comunCapa, estilo: 'plastilina',
       const kb = rebote(clamp((t - c.sigueme) / 0.45)); if (kb > 0) { C.save(); C.translate(W / 2, 930); C.scale(kb, kb); C.fillStyle = grad(C, -250, 0, 250, 0, ['#ff7aa8', '#ff9a6b']); C.shadowColor = 'rgba(0,0,0,0.35)'; C.shadowBlur = 40; rr(C, -250, -75, 500, 150, 75); C.fill(); C.shadowBlur = 0; C.fillStyle = '#fff'; C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText('+ Sígueme', 0, 4); C.restore(); }
       C.save(); C.globalAlpha = prog(t, c.sigueme + 0.4, c.sigueme + 0.8); C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.88)'; C.font = `600 44px Inter, ${FUENTE}`; C.fillText('si quieres saber más sobre la', W / 2, 1110); C.fillStyle = '#ffb3cf'; C.font = `italic 600 80px Fraunces, serif`; C.fillText('tecnología NFC.', W / 2, 1200); C.restore(); }
   },
+};
+
+// ---------- 15. La mano levantada: un cliente lleva "desde el martes" pidiendo; la mesa de al lado toca la pegatina y le sirven ----------
+V['mano'] = { ...comunCapa,
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    ['martes', 'barba', 'pegatina', 'barra', 'cocina', 'minuto', 'nfc', 'cana', 'canas', 'bravas'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#1a120c'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+    hemi.color.set('#fff1dc'); hemi.groundColor.set('#7a4a2a'); hemi.intensity = 1.25;
+    const sol = new THREE.DirectionalLight('#ffe2b8', 1.5); sol.position.set(3, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+    Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.05;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada }); Object.assign(this, r);
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
+    // el de la mano: solo en su mesa, mirando a cámara
+    this.yo = this.gente[4]; this.gente[5].g.visible = false;
+    const pelo = '#4a2c1a';
+    this.barba = new THREE.Group(); const cono = new THREE.Mesh(new THREE.ConeGeometry(0.21, 0.6, 18), matJ(pelo, 0.9)); cono.rotation.x = Math.PI; cono.position.y = -0.25; cono.castShadow = true; this.barba.add(cono);
+    const bigote = new THREE.Mesh(new THREE.SphereGeometry(0.17, 18, 12), matJ(pelo, 0.9)); bigote.scale.set(1.15, 0.6, 0.7); this.barba.add(bigote);
+    this.barba.position.set(0, -0.1, 0.13); this.yo.cabeza.add(this.barba);
+    // araña colgando de la mano
+    this.arana = new THREE.Group(); const hilo = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.4, 4), new THREE.MeshBasicMaterial({ color: '#e8e8e8' })); hilo.position.y = -0.2; this.arana.add(hilo);
+    const cuerpo = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 10), matJ('#141018', 0.5)); cuerpo.position.y = -0.42; this.arana.add(cuerpo);
+    for (let i = 0; i < 8; i++) { const pata = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.09, 4), matJ('#141018', 0.5)); const s = i < 4 ? 1 : -1, k = i % 4; pata.position.set(0.05 * s, -0.42, (k - 1.5) * 0.02); pata.rotation.z = s * 1.0; pata.rotation.x = (k - 1.5) * 0.3; this.arana.add(pata); }
+    r.mundo.add(this.arana);
+    // reloj de pared que va a toda velocidad
+    this.reloj = new THREE.Group(); this.reloj.position.set(-5.93, 2.45, -0.4); this.reloj.rotation.y = Math.PI / 2; r.mundo.add(this.reloj);
+    this.reloj.add(new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.06, 32).rotateX(Math.PI / 2), matJ('#2a2420', 0.5)));
+    const esfera = new THREE.Mesh(new THREE.CircleGeometry(0.3, 32), matJ('#fbf6ea', 0.8)); esfera.position.z = 0.032; this.reloj.add(esfera);
+    for (let i = 0; i < 12; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.01), matJ('#2a2420')); const a = i / 12 * Math.PI * 2; m.position.set(Math.sin(a) * 0.25, Math.cos(a) * 0.25, 0.04); m.rotation.z = -a; this.reloj.add(m); }
+    const aguja = (l, w) => { const g = new THREE.Group(); const m = new THREE.Mesh(new THREE.BoxGeometry(w, l, 0.012), matJ('#141018')); m.position.y = l / 2; g.add(m); g.position.z = 0.045; this.reloj.add(g); return g; };
+    this.horas = aguja(0.15, 0.03); this.minutos = aguja(0.24, 0.02);
+    // la mesa de al lado (la nuestra del restaurante): dos clientes
+    this.A = muneco({ camisa: '#3fb6a8', pantalon: '#2b2f3a', pelo: '#2a1a12', peinado: 'largo', piel: '#f2c49b' }); this.A.sentar(); this.A.g.position.set(0, 0, -1.07); r.mundo.add(this.A.g);
+    this.B = muneco({ camisa: '#f2a33a', pantalon: '#24324a', pelo: '#111111', peinado: 'corto', piel: '#c98d63' }); this.B.sentar(); this.B.g.position.set(0.05, 0, 0.37); this.B.g.rotation.y = Math.PI; r.mundo.add(this.B.g);
+    this.mv = movil('#20232c'); this.mv.scale.setScalar(0.25); r.mundo.add(this.mv); this.on = ondas();
+    this.canasMesa = [cana(), cana()]; this.canasMesa.forEach((c, i) => { c.position.set(-0.38 + i * 0.72, 0.79, 0.0); c.visible = false; r.mundo.add(c); });
+    this.bravasMesa = bravas(); this.bravasMesa.position.set(0.0, 0.79, 0.12); this.bravasMesa.visible = false; r.mundo.add(this.bravasMesa);
+    this.halo = new THREE.Mesh(new THREE.RingGeometry(0.2, 0.25, 40), new THREE.MeshBasicMaterial({ color: VX.cian, transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false })); this.halo.rotation.x = -Math.PI / 2; r.mundo.add(this.halo);
+    const c = this.c = { martes: cue('martes'), pasa: cue('pasa'), pasa2: cue('pasa', 2), barba: cue('barba'), ya: cue('ya'), mientras: cue('mientras'), acerca: cue('acerca'), pegatina: cue('pegatina'), pide: cue('pide'),
+      dos: cue('dos'), bravas: cue('bravas'), pedido: cue('pedido'), barra: cue('barra'), cocina: cue('cocina'), un: cue('un'), mesa3: cue('mesa', 3), mismo: cue('mismo'), mismo2: cue('mismo', 2), diferencia: cue('diferencia'), nfc: cue('nfc'), comenta: cue('comenta') };
+    if (c.un > 9000) c.un = cue('minuto') - 0.2;
+    // planos (cortes secos, cada uno con un empuje lento)
+    const yoC = [-3.6, 1.35, -0.52];
+    this.planos = [
+      { t: 0, de: [-2.55, 1.75, 2.0], a: [-2.75, 1.7, 1.55], mira: [-3.6, 1.2, -0.52], fov: 44 },
+      { t: c.martes - 0.05, de: [-3.3, 1.5, 0.85], a: [-3.35, 1.48, 0.7], mira: [-3.6, 1.36, -0.52], fov: 38 },
+      { t: c.pasa - 0.2, de: [-0.9, 2.2, 3.7], a: [-1.1, 2.1, 3.5], mira: [-3.4, 1.25, -0.3], fov: 46 },
+      { t: c.ya - 0.05, de: [-3.1, 1.5, 1.4], a: [-3.2, 1.48, 1.15], mira: [-3.6, 1.3, -0.52], fov: 40 },
+      { t: c.mientras - 0.1, de: [1.9, 1.65, 0.75], a: [1.6, 1.6, 0.55], mira: [0, 1.0, -0.7], fov: 42 },
+      { t: c.pide - 0.1, telefono: true, fov: 36 },
+      { t: c.barra - 0.35, de: [-3.9, 1.85, -3.5], a: [-4.05, 1.8, -3.75], mira: [-4.7, 1.6, -5.25], fov: 42 },
+      { t: c.cocina - 0.12, de: [2.2, 2.15, -4.1], a: [2.3, 2.2, -4.35], mira: [2.8, 2.35, -6.45], fov: 44 },
+      { t: c.un - 0.1, de: [2.1, 1.85, 1.0], a: [1.85, 1.8, 0.8], mira: [0, 1.0, -0.45], fov: 44 },
+      { t: c.mismo - 0.15, de: [2.9, 1.85, 1.05], a: [2.6, 1.8, 0.95], mira: [-3.0, 1.3, -0.45], fov: 36 },
+      { t: c.diferencia - 0.1, de: [0.6, 1.3, 0.1], a: [0.45, 1.2, -0.02], mira: [0.0, 0.86, -0.46], fov: 40 },
+      { t: c.comenta - 0.4, de: [2.6, 1.8, 0.95], a: [2.4, 1.78, 0.9], mira: [-3.4, 1.3, -0.45], fov: 44 },
+    ];
+    this.musica = 'guitarra_bar'; this.volMusica = 0.42;
+    efectos = [['whoosh', c.pasa - 0.1], ['whoosh', c.pasa2 - 0.1], ['pop', c.barba], ['whoosh', c.mientras - 0.15], ['tap', c.pegatina + 0.05], ['tick', c.dos + 0.1], ['tick', c.bravas + 0.1], ['ding', c.barra], ['ding', c.cocina + 0.05], ['pop', c.mesa3 - 0.2], ['pop', c.mesa3 + 0.1], ['whoosh', c.mismo2], ['hit', c.comenta]];
+  },
+  plano(t) { let p = this.planos[0], fin = 1e9; this.planos.forEach((q, k) => { if (t >= q.t) { p = q; fin = this.planos[k + 1]?.t ?? (q.t + 3); } }); return [p, fin]; },
+  actualizar(t) {
+    const c = this.c, yo = this.yo;
+    this.gente.forEach((g, k) => { g.reset(); g.respirar(t, k); if (k !== 4 && Math.sin(t * 1.3 + k * 2) > 0.3) g.hablar(t); });
+    // el de la mano: brazo arriba siempre, se le cae un poco y lo vuelve a subir
+    const canso = Math.max(0, Math.sin(t * 0.9)) * 0.25; yo.bD.hombro.rotation.x = -2.85 + canso; yo.bD.hombro.rotation.z = -0.15; yo.bD.codo.rotation.x = -0.1 - canso * 0.6;
+    yo.cejas.forEach((ce, s) => { ce.rotation.z = (s ? -1 : 1) * 0.25; });
+    // mira al camarero cuando pasa
+    const k = this.camarero; let mirar = null;
+    this.barba.scale.setScalar(Math.max(0.001, lerp(0, 1, ease(prog(t, c.barba - 0.5, c.barba + 0.4))) + lerp(0, 0.6, prog(t, c.mismo - 0.2, c.mismo + 2))));
+    // reloj: a toda velocidad mientras espera
+    const vel = t < c.mientras ? 1 : 0.15; const ang = t * 6 * vel + (t > c.mientras ? c.mientras * 6 * 0.85 : 0);
+    this.minutos.rotation.z = -ang * 12; this.horas.rotation.z = -ang;
+    // camarero
+    k.reset(); k.g.visible = true; k.bandeja.visible = false;
+    const pasar = (t0, t1, x0, x1, z, bandeja = false) => { if (!entre(t, t0, t1)) return false; const kk = (t - t0) / (t1 - t0); k.g.position.set(lerp(x0, x1, kk), 0, z); k.g.rotation.y = x1 > x0 ? Math.PI / 2 : -Math.PI / 2; k.andar(t * 2.2, 1); k.bandeja.visible = bandeja; mirar = k.g.position; return true; };
+    const pt = [[c.pasa - 0.3, c.pasa + 1.0, -5.6, 0.8, 1.15, false], [c.pasa2 - 0.2, c.pasa2 + 1.1, 0.8, -5.6, 1.2, true], [c.mismo2 - 0.3, c.mismo2 + 1.2, 0.8, -5.6, 1.15, false]];
+    let hecho = false; for (const a of pt) if (pasar(...a)) { hecho = true; break; }
+    if (!hecho) {
+      if (entre(t, c.pedido, c.mesa3 + 1.8)) { // le lleva el pedido a la mesa de al lado
+        const pts = [[c.pedido, -2.0, -4.6], [c.un - 0.2, -0.6, -2.0], [c.mesa3 - 0.3, 0.75, -0.55], [c.mesa3 + 1.8, 0.75, -0.55]];
+        const rr2 = recorrido(pts, t); k.g.position.set(rr2.x, 0, rr2.z); k.bandeja.visible = t < c.mesa3 - 0.2;
+        if (rr2.mueve) { k.g.rotation.y = rr2.dir; k.andar(t * 1.8, 1); } else { k.g.rotation.y = -1.9; k.respirar(t, 2); if (t < c.mesa3 + 0.4) { k.bD.hombro.rotation.x = -1.0; } k.hablar(t); }
+      } else k.g.visible = false;
+    }
+    yo.cabeza.rotation.set(0, 0, 0); if (mirar) yo.cabeza.rotation.y = clamp(Math.atan2(mirar.x - yo.g.position.x, mirar.z - yo.g.position.z), -1.2, 1.2) * 0.8; else { yo.cabeza.rotation.y = Math.sin(t * 0.6) * 0.15; yo.cabeza.rotation.x = 0.08; }
+    // araña en la mano a partir del "mismo bar"
+    yo.g.updateMatrixWorld(true); const mano = yo.bD.mano.getWorldPosition(new THREE.Vector3());
+    this.arana.visible = t > c.mismo - 0.3; this.arana.position.copy(mano); this.arana.position.y += 0.02 - Math.max(0, 1 - prog(t, c.mismo - 0.3, c.mismo + 0.6)) * 0.4; this.arana.rotation.y = t * 0.8;
+    // mesa de al lado
+    const A = this.A, B = this.B; A.reset(); B.reset(); A.respirar(t, 7); B.respirar(t, 8);
+    const brindis = t > c.mesa3 + 0.3; this.canasMesa.forEach(cc => cc.visible = t > c.mesa3 - 0.25); this.bravasMesa.visible = t > c.mesa3 + 0.05;
+    const tj = this.tj.userData.centro();
+    let pm = null;
+    if (entre(t, c.acerca - 0.4, c.cocina + 0.6)) { A.bD.hombro.rotation.x = -1.15; A.bD.codo.rotation.x = -0.7; A.g.updateMatrixWorld(true); pm = A.bD.mano.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 0.1, 0.06));
+      const kk = prog(t, c.acerca, c.pegatina + 0.1) * (1 - prog(t, c.pegatina + 0.6, c.pide)); pm.lerp(tj.clone().add(new THREE.Vector3(0.16, 0.14, 0.18)), kk); }
+    this.mv.visible = !!pm; if (pm) { this.mv.position.copy(pm); this.mv.lookAt(cam.position); }
+    const sel = t < c.dos ? 0 : t < c.bravas ? 1 : 2; this.mv.userData.pantalla(t < c.pide - 0.2 ? 'bloqueo' : 'cartaV', t < c.pide - 0.2 ? {} : { sel });
+    this.on.userData.actualizar(t, pm && entre(t, c.pegatina - 0.1, c.pegatina + 0.7) ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), tj);
+    if (brindis) { [A, B].forEach((m, i) => { m.bD.hombro.rotation.x = -1.6 - 0.3 * Math.max(0, Math.sin(t * 5 + i)); m.bD.codo.rotation.x = -0.6; m.hablar(t + i); }); }
+    if (t > c.mismo - 0.2) { A.cabeza.rotation.y = 0.5; }
+    // pantallas de barra y cocina
+    const pulso = 0.5 + 0.5 * Math.sin(t * 8);
+    this.pantBarra.userData.pintar('barra', t > c.barra - 0.3 ? { nuevo: true, detalle: '2 × Caña', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', t > c.cocina - 0.1 ? { nuevo: true, detalle: '1 × Patatas bravas', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.cocinero.reset(); this.cocinero.respirar(t, 4);
+    // halo de la pegatina
+    const cen = tj; this.halo.position.set(cen.x, 0.8, cen.z + 0.02); this.halo.material.opacity = (entre(t, c.diferencia, c.comenta) || entre(t, c.acerca - 0.6, c.pegatina)) ? 0.55 + 0.35 * Math.sin(t * 6) : 0; this.halo.scale.setScalar(1 + 0.12 * Math.sin(t * 6));
+    // cámara
+    const [p, fin] = this.plano(t); let pos, mira;
+    if (p.telefono) { const mp = this.mv.position.clone(); const dir = new THREE.Vector3(1.7, 1.6, 0.6).sub(mp).normalize(); this.mv.lookAt(mp.clone().add(dir)); const kk = prog(t, p.t, fin); pos = mp.clone().add(dir.multiplyScalar(lerp(0.62, 0.52, kk))); mira = mp; }
+    else { const kk = ease(prog(t, p.t, fin)); pos = new THREE.Vector3(...p.de).lerp(new THREE.Vector3(...p.a), kk); mira = new THREE.Vector3(...p.mira); }
+    cam.position.copy(pos); cam.up.set(0, 1, 0); cam.lookAt(mira); if (cam.fov !== p.fov) { cam.fov = p.fov; cam.updateProjectionMatrix(); }
+  },
+  capa(t) { velos(); cierreComenta(t, this.c.comenta - 0.2, 'CAÑA', 'y te lo enseño en tu bar'); },
 };
 
 // ---------- API para render.mjs ----------
