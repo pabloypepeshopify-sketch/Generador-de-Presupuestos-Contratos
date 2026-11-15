@@ -112,6 +112,9 @@ const ESTILOS = {
     post: { filtro: 'saturate(1.12) contrast(1.03)' },
     subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff7aa8', '#ff9a6b'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(70,20,50,0.7)', radio: 40 },
   },
+  // chiringuito: atardecer cálido; subtítulos naranja/coral
+  chiringuito: { post: { filtro: 'saturate(1.12) contrast(1.04)' },
+    subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff8a3d', '#ff5e62'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(80,30,10,0.7)', radio: 34 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
