@@ -1025,7 +1025,7 @@ V['mesa7'] = {
     efectos = [['whoosh', 0.05], ['whoosh', c.lleno - 0.1], ['whoosh', c.mesa - 0.1], ['hit', c.problema], ['pop', c.mano], ['whoosh', c.ahora - 0.1], ['tap', c.tocan + 0.3], ['whoosh', c.carta - 0.15],
       ['tick', c.carta + 0.4], ['tick', c.carta + 0.75], ['tap', c.piden + 0.5], ['whoosh', c.pedido - 0.1], ['ding', c.pedido + 0.4], ['buzz', c.caja - 0.6], ['tap', c.confirma + 0.15], ['ding', c.confirma + 0.4],
       ['pop', c.bebidas + 0.1], ['whoosh', c.comida - 0.15], ['ding', c.comida + 0.6], ['riser', c.mismo - 1.0], ['whoosh', c.mismo], ['hit', c.cero], ['whoosh', c.comenta - 0.1], ['pop', c.comenta + 0.5]];
-    this.musica = 'beat';
+    this.musica = 'guitarra_bar'; this.volMusica = 0.42;
     const tj = mesas[7].tj.userData.centro().toArray();
     this.tomas = [
       { a: 0, de: [0.3, 30, 0.01], a2: [9, 13, 14], mira: [0, 0, 0], mira2: [-0.5, 0, 0.6], fov: 40 },
