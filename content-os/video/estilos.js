@@ -121,6 +121,9 @@ const ESTILOS = {
   // taberna: taberna andaluza encalada, cálida; subtítulos albero/rojo
   taberna: { post: { filtro: 'saturate(1.12) contrast(1.06)' },
     subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#e8a91c', '#c8402a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(40,15,5,0.8)', radio: 18 } },
+  // cafeteria: mañana luminosa, menta y damero; subtítulos color café
+  cafeteria: { post: { filtro: 'saturate(1.1) contrast(1.05) brightness(1.02)' },
+    subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#c47a3a', '#8a4b2b'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(30,20,10,0.8)', radio: 22 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
