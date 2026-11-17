@@ -13,6 +13,11 @@
 - Retención: −35 % en los 5 primeros segundos, después **casi plana en el 50 % hasta el segundo 20**.
 - **Caída del 50 % al 28 % en los 3 últimos segundos**, justo en «Mándaselo al dueño… comenta MESA». La gente se va cuando el vídeo pide algo.
 
+### Reel 3: POV camarero liado (`liado`, 19,7 s)
+- Más de 1500 visitas al poco de publicarlo, subiendo unas 80 cada 30 s.
+- Qué tenía distinto: voz continua sin pausas, un corte de plano por segundo aprox., POV del camarero (no del cliente), taberna andaluza nueva, «Comenta CARTA» como texto a mitad y final en bucle.
+- Pendiente: mirar la curva de retención cuando se estabilice.
+
 ## Reglas para los próximos vídeos
 1. **Duración: 20–25 s como máximo.** La misma gente que se queda pesa mucho más en porcentaje si el vídeo es corto.
 2. **Gancho en el primer fotograma.** Texto grande arriba y acción desde el primer segundo (mano levantándose, algo moviéndose), nunca un plano quieto. El formato **«POV: …»** funcionó.
@@ -22,7 +27,7 @@
 6. **Nada de tarjeta final quieta.** Cortar justo al acabar la voz.
 7. **Sin marca de agua** (`visaxnfc.es` se veía comercial) y **sin música de anuncio** (el `beat` sonaba comercial; la guitarra suave sí gusta).
 8. **Subtítulos palabra a palabra siempre**: la mayoría ve sin sonido.
-9. **Cambio de plano cada 2–4 s.** Los cortes constantes retienen.
+9. **Cambio de plano cada 1–3 s y voz sin pausas** (en `liado` funcionó: un corte por segundo, hablando todo el rato).
 10. **Cada vídeo con un estilo 3D distinto**, para que la cuenta tenga variedad, pero con los mismos muñecotes, que gustan.
 
 ## Al publicar (lo hace el usuario en la app)
