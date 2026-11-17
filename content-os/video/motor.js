@@ -949,8 +949,8 @@ function pantallaLocal(titulo, colorTitulo) {
   return (x, w, h, s) => {
     x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = colorTitulo; x.font = `900 46px ${SANS}`; x.textAlign = 'left'; x.fillText(titulo, 40, 74);
     x.fillStyle = 'rgba(255,255,255,0.45)'; x.font = `600 26px ${SANS}`; x.textAlign = 'right'; x.fillText('VISAX · pedidos', w - 40, 72);
-    const viejos = titulo === 'COCINA' ? [['Mesa 2', '1 × Calamares'], ['Mesa 5', '2 × Hamburguesa']] : [['Mesa 3', '2 × Caña'], ['Mesa 8', '1 × Agua']];
-    const lista = s.nuevo ? [['MESA 7', s.detalle]].concat(viejos) : viejos;
+    const viejos = titulo === 'COCINA' ? [['Mesa 2', '1 × Calamares'], ['Mesa 5', '2 × Hamburguesa']] : [['Mesa 3', '2 × Caña'], [s.mesa === 8 ? 'Mesa 1' : 'Mesa 8', '1 × Agua']];
+    const lista = s.nuevo ? [[`MESA ${s.mesa || 7}`, s.detalle]].concat(viejos) : viejos;
     lista.forEach(([m, d], i) => { const y = 120 + i * 168; const nv = s.nuevo && i === 0;
       x.fillStyle = nv ? `rgba(63,125,251,${0.75 + 0.25 * (s.pulso || 0)})` : 'rgba(255,255,255,0.06)'; rr(x, 30, y, w - 60, 146, 22); x.fill();
       x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = `900 ${nv ? 50 : 40}px ${SANS}`; x.fillText(m, 60, y + 62); x.font = `600 30px ${SANS}`; x.fillStyle = nv ? '#fff' : 'rgba(255,255,255,0.6)'; x.fillText(d, 60, y + 112);
@@ -3273,16 +3273,21 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
     // móvil del cliente de la mesa 8 y ondas NFC
     this.mv2 = movil(); this.mv2.scale.setScalar(0.38); this.mv2.visible = false; r.mundo.add(this.mv2); this.on = ondas();
     const c = this.c = { oye: cue('oye'), sabado: cue('sabado'), ocho: cue('ocho'), yo: cue('yo'), jefe: cue('jefe'), ronda: cue('ronda'), m3: cue('mesa', 1), m5: cue('mesa', 2), m8: cue('mesa', 3), ocho3: cue('ocho', 3),
-      tu: cue('tu'), encargado: cue('encargado'), pongo: cue('pongo'), tocan: cue('tocan'), movil: cue('movil'), carta: cue('carta'), piden: cue('piden'), llega: cue('llega'), canas: cue('canas'), bravas: cue('bravas'), pensar: cue('pensar'), asi: cue('asi') };
+      tu: cue('tu'), once: cue('once'), cada2: cue('cada', 2), era2: cue('era', 2), encargado: cue('encargado'), pongo: cue('pongo'), tocan: cue('tocan'), movil: cue('movil'), carta: cue('carta'), piden: cue('piden'), llega: cue('llega'), canas: cue('canas'), bravas: cue('bravas'), pensar: cue('pensar'), asi: cue('asi') };
     duracion = palabras[palabras.length - 1].fin + 0.12; c.fin = duracion;
     // segmentos (corte de plano cada 1–3 s)
     c.B = c.sabado - 0.05; c.C = c.ocho - 0.05; c.D = c.jefe - 0.12; c.E = c.m3 - 0.1; c.F = c.ocho3 - 0.3; c.G = c.tu - 0.1; c.H = c.pongo - 0.06; c.I = c.tocan - 0.1; c.I2 = c.carta - 0.12; c.J = c.llega - 0.18; c.K = c.pensar - 0.12;
+    c.B2 = c.once - 0.05; c.J2 = c.canas - 0.12; c.J3 = c.bravas - 0.1; c.K2 = c.cada2 - 0.05; c.K3 = c.era2 - 0.12;
     c.H2 = c.H + (c.I - c.H) / 3; c.H3 = c.H + 2 * (c.I - c.H) / 3;
     this.ojo = new THREE.Vector3(1.0, 1.62, 1.4);
     const ph = this.cen[2].clone().add(new THREE.Vector3(0.03, 0.03, 0.06));
     const tomaCarta = (v, a, barrido = 0, lado = 1) => ({ a, barrido, de: [v.x + 1.1 * lado, v.y + 0.6, v.z + 1.3], a2: [v.x + 0.85 * lado, v.y + 0.45, v.z + 1.0], mira: [v.x - 0.15 * lado, v.y - 0.05, v.z], mira2: [v.x - 0.15 * lado, v.y - 0.05, v.z], fov: 40 });
     this.tomas = {
       B: [{ a: c.B, barrido: 0, de: [3.5, 2.95, 3.4], a2: [3.0, 2.75, 2.8], mira: [-0.6, 0.7, -1.7], mira2: [-0.4, 0.8, -1.5], fov: 54 }],
+      B2: [{ a: c.B2, barrido: 0, de: [2.45, 2.45, 3.4], a2: [2.3, 2.4, 3.15], mira: [-0.6, 1.05, -1.6], mira2: [-0.8, 1.05, -1.6], fov: 50 }],
+      K2: [{ a: c.K2, barrido: 0, de: [-2.2, 2.6, 2.6], a2: [-1.85, 2.5, 2.25], mira: [1.4, 0.9, -1.3], mira2: [1.3, 0.9, -1.3], fov: 52 }],
+      J2: [{ a: c.J2, barrido: 0, de: [-3.75, 2.1, -3.2], a2: [-3.95, 2.0, -3.5], mira: [-4.7, 1.62, -5.25], mira2: [-4.7, 1.62, -5.25], fov: 38 }],
+      J3: [{ a: c.J3, barrido: 0, de: [2.0, 2.15, -4.2], a2: [2.2, 2.2, -4.5], mira: [2.8, 2.5, -6.45], mira2: [2.8, 2.5, -6.45], fov: 40 }],
       C: [{ a: c.C, barrido: 0, de: [2.3, 1.4, -0.1], a2: [2.0, 1.45, 0.15], mira: [1.0, 1.45, 1.4], mira2: [1.0, 1.5, 1.4], fov: 46 }],
       H: [tomaCarta(this.cen[3], c.H, 0, 1), (v => ({ a: c.H2, barrido: 0.14, de: [v.x + 1.25, v.y + 0.55, v.z + 0.55], a2: [v.x + 1.0, v.y + 0.42, v.z + 0.45], mira: [v.x - 0.1, v.y - 0.05, v.z], mira2: [v.x - 0.1, v.y - 0.05, v.z], fov: 40 }))(this.cen[4]), tomaCarta(this.cen[2], c.H3, 0.14, 0.4)],
       I: [{ a: c.I, barrido: 0, de: [3.15, 1.85, -1.75], a2: [3.0, 1.7, -2.05], mira: this.cen[2].toArray(), mira2: this.cen[2].toArray(), fov: 40 },
@@ -3293,10 +3298,10 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
     this.etq = { m3: new THREE.Vector3(-3.6, 1.95, -0.4), m5: new THREE.Vector3(3.4, 1.95, -0.6), m8: new THREE.Vector3(2.4, 1.9, -2.9) };
     efectos = [['whoosh', c.B - 0.12], ['whoosh', c.C - 0.12], ['hit', c.yo], ['whoosh', c.D - 0.1], ['tick', c.jefe], ['whoosh', c.E - 0.08], ['tick', c.m3], ['whoosh', c.m5 - 0.12], ['tick', c.m5], ['whoosh', c.m8 - 0.12], ['tick', c.m8],
       ['whoosh', c.F - 0.08], ['whoosh', c.G - 0.1], ['pop', c.H + 0.05], ['pop', c.H2 + 0.05], ['pop', c.H3 + 0.05], ['whoosh', c.I - 0.1], ['tap', c.movil + 0.05], ['ding', c.carta - 0.05], ['tick', c.carta + 0.25], ['tick', c.carta + 0.5], ['pop', c.piden + 0.25],
-      ['whoosh', c.J - 0.1], ['buzz', c.llega], ['ding', c.llega + 0.05], ['pop', c.llega + 0.35], ['whoosh', c.K - 0.05], ['whoosh', c.fin - 0.35]];
+      ['whoosh', c.B2 - 0.1], ['whoosh', c.J2 - 0.1], ['ding', c.J2 + 0.05], ['whoosh', c.J3 - 0.1], ['ding', c.J3 + 0.05], ['whoosh', c.K2 - 0.1], ['whoosh', c.K3 - 0.1], ['whoosh', c.J - 0.1], ['buzz', c.llega], ['ding', c.llega + 0.05], ['pop', c.llega + 0.35], ['whoosh', c.K - 0.05], ['whoosh', c.fin - 0.35]];
     this.musica = 'guitarra_bar'; this.volMusica = 0.42;
   },
-  seg(t) { const c = this.c; return t < c.B ? 'A' : t < c.C ? 'B' : t < c.D ? 'C' : t < c.E ? 'D' : t < c.F ? 'E' : t < c.G ? 'F' : t < c.H ? 'G' : t < c.I ? 'H' : t < c.J ? 'I' : t < c.K ? 'J' : 'K'; },
+  seg(t) { const c = this.c; return t < c.B ? 'A' : t < c.B2 ? 'B' : t < c.C ? 'B2' : t < c.D ? 'C' : t < c.E ? 'D' : t < c.F ? 'E' : t < c.G ? 'F' : t < c.H ? 'G' : t < c.I ? 'H' : t < c.J ? 'I' : t < c.J2 ? 'J' : t < c.J3 ? 'J2' : t < c.K ? 'J3' : t < c.K2 ? 'K' : t < c.K3 ? 'K2' : 'K3'; },
   mirar(v) { const E = this.ojo, dx = v.x - E.x, dy = v.y - E.y, dz = v.z - E.z; return [Math.atan2(-dx, -dz), Math.atan2(dy, Math.hypot(dx, dz))]; },
   esperando(t) { const c = this.c; return t >= c.llega ? 0 : 4 + (t >= c.jefe) + (t >= c.m3) + (t >= c.m5) + (t >= c.m8); },
   actualizar(t) {
@@ -3317,8 +3322,9 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
     const pops = [c.pongo, c.pongo, c.H3 + 0.05, c.H + 0.05, c.H2 + 0.05, c.pongo];
     this.cartas.forEach((tj, i) => { const k = t < pops[i] ? 0 : rebote(clamp((t - pops[i]) / 0.35)); tj.visible = k > 0.001; tj.scale.setScalar(0.3 * Math.max(0.001, k)); });
     // ---- camarero (3.ª persona) ----
-    const k = this.camarero; k.g.visible = !['A', 'D', 'E', 'F', 'G', 'J', 'K'].includes(s); k.reset(); k.respirar(t, 3);
-    k.cabeza.rotation.y = Math.sin(t * 4.2) * 0.65; k.bI.hombro.rotation.x = -1.0; k.bI.codo.rotation.x = -0.9; k.bD.hombro.rotation.x = -0.85; k.bD.hombro.rotation.z = 0.3; k.bD.codo.rotation.x = -1.0 + Math.sin(t * 16) * 0.12;
+    const k = this.camarero; k.g.visible = ['B', 'B2', 'C', 'H', 'I', 'K2'].includes(s); k.reset(); k.respirar(t, 3);
+    if (caos) { k.cabeza.rotation.y = Math.sin(t * 4.2) * 0.65; k.bI.hombro.rotation.x = -1.0; k.bI.codo.rotation.x = -0.9; k.bD.hombro.rotation.x = -0.85; k.bD.hombro.rotation.z = 0.3; k.bD.codo.rotation.x = -1.0 + Math.sin(t * 16) * 0.12; }
+    else { k.bD.hombro.rotation.x = -0.9; k.bD.codo.rotation.x = -0.8; k.cabeza.rotation.x = 0.25; }
     if (entre(t, c.sabado, c.yo + 0.4)) k.hablar(t);
     // ---- chico ----
     const ch = this.chico; ch.g.visible = s === 'G'; ch.reset(); ch.respirar(t, 5); ch.cabeza.rotation.y = 0;
@@ -3326,11 +3332,11 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
     ch.bI.hombro.rotation.x = -0.45; ch.bI.codo.rotation.x = -0.9; if (entre(t, c.tu - 0.05, c.pongo + 1.3)) ch.hablar(t);
     // ---- pantallas ----
     const pulso = Math.round((0.5 + 0.5 * Math.sin(t * 8)) * 4) / 4;
-    this.pantBarra.userData.pintar('barra', t > c.llega + 0.3 ? { nuevo: true, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
-    this.pantCoc.userData.pintar('cocina', t > c.llega + 0.4 ? { nuevo: true, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    this.pantBarra.userData.pintar('barra', t > c.canas - 0.15 ? { nuevo: true, mesa: 8, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', t > c.bravas - 0.1 ? { nuevo: true, mesa: 8, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
     const V0 = new THREE.Vector3();
     // ---- planos en 3.ª persona ----
-    if (['B', 'C', 'H', 'I'].includes(s)) {
+    if (['B', 'B2', 'C', 'H', 'I', 'J2', 'J3', 'K2'].includes(s)) {
       this.D.visible = this.L.visible = false; this.colocarBrazo();
       this.desenfoque = camara2(t, this.tomas[s]); const a0 = this.tomas[s][0].a; if (t - a0 < 0.2) this.desenfoque = Math.max(this.desenfoque, 12 * (1 - (t - a0) / 0.2));
       if (s === 'I') movilEnTarjeta({ mv: this.mv2, on: this.on }, t, this.cartas[2], c.movil, c.I, c.J, 'bloqueo', 'cartaV', { hora: '23:04', mesa: 8, sel: t > c.carta + 0.5 ? 2 : t > c.carta + 0.25 ? 1 : 0, enviado: t > c.piden + 0.25 });
@@ -3348,7 +3354,8 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
     else if (s === 'F') { s0 = c.F; [yaw, pitch] = this.mirar(O.m8); pitch = lerp(pitch, -0.75, prog(t, c.F, c.F + 0.25)); }
     else if (s === 'G') { s0 = c.G; [yaw, pitch] = this.mirar(O.chico); pitch += 0.05 * Math.sin(t * 2); }
     else if (s === 'J') { s0 = c.J; [yaw, pitch] = this.mirar(O.sala); pitch -= 0.12; }
-    else if (s === 'K') { s0 = c.K; const kk = prog(t, c.K + 0.3, c.fin - 0.3); [yaw, pitch] = de(O.sala, O.m3, kk); yaw = lerp(yaw, this.mirar(O.m3)[0] + 0.1, prog(t, c.fin - 0.35, c.fin)); desen = 14 * prog(t, c.fin - 0.3, c.fin); }
+    else if (s === 'K') { s0 = c.K; [yaw, pitch] = this.mirar(O.sala); yaw += 0.12 * prog(t, c.K, c.K2); }
+    else if (s === 'K3') { s0 = c.K3; const kk = prog(t, c.K3, c.fin - 0.15); [yaw, pitch] = de(O.sala, O.m3, kk); yaw = lerp(yaw, this.mirar(O.m3)[0] + 0.1, prog(t, c.fin - 0.35, c.fin)); desen = 14 * prog(t, c.fin - 0.3, c.fin); }
     if (s0 && t - s0 < 0.2) desen = Math.max(desen, 14 * (1 - (t - s0) / 0.2));
     const amp = caos ? 2.2 : 1;
     const temb = (a, b, c2) => (Math.sin(t * a) * 0.006 + Math.sin(t * b + 1) * 0.004 + Math.sin(t * c2 + 2) * 0.003) * amp;
