@@ -3413,12 +3413,12 @@ PANT.cartaDesayuno = (x, w, h, s) => {
 function tazaCafe() {
   const g = new THREE.Group(); const blanco = matJ('#ffffff', 0.3);
   const plato = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.012, 28), blanco); plato.position.y = 0.006; g.add(plato);
-  const taza = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.038, 0.08, 24), blanco); taza.position.y = 0.052; g.add(taza);
+  const taza = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.038, 0.08, 24, 1, true), matJ('#ffffff', 0.3, { side: THREE.DoubleSide })); taza.position.y = 0.052; g.add(taza);
   const asa = new THREE.Mesh(new THREE.TorusGeometry(0.022, 0.007, 8, 16), blanco); asa.position.set(0.055, 0.055, 0); g.add(asa);
   const cafe = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.046, 0.004, 24), matJ('#c08a5a', 0.4)); cafe.position.y = 0.09; g.add(cafe);
   const vapor = [0, 1, 2].map(i => { const v = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.35, depthWrite: false })); g.add(v); return v; });
   g.traverse(m => { if (m.isMesh) m.castShadow = true; });
-  g.userData = { cafe, vapor, actualizar(t, nivel = 1) { cafe.position.y = 0.02 + 0.07 * nivel; cafe.visible = nivel > 0.02; vapor.forEach((v, i) => { const f = (t * 0.8 + i / 3) % 1; v.position.set(Math.sin(t * 3 + i) * 0.012, 0.1 + f * 0.14, 0); v.scale.setScalar(0.6 + f * 1.4); v.material.opacity = 0.35 * Math.sin(Math.PI * f) * (nivel > 0.6 ? 1 : 0); }); } };
+  g.userData = { cafe, vapor, actualizar(t, nivel = 1) { cafe.position.y = 0.02 + 0.064 * nivel; cafe.visible = nivel > 0.02; vapor.forEach((v, i) => { const f = (t * 0.8 + i / 3) % 1; v.position.set(Math.sin(t * 3 + i) * 0.012, 0.1 + f * 0.14, 0); v.scale.setScalar(0.6 + f * 1.4); v.material.opacity = 0.35 * Math.sin(Math.PI * f) * (nivel > 0.6 ? 1 : 0); }); } };
   return g;
 }
 function tostadaTomate() {
@@ -3507,7 +3507,7 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
       T(c.llega - 0.12, [-3.6, 2.15, -3.1], [-3.95, 2.0, -3.5], [-4.7, 1.62, -5.25], [-4.7, 1.62, -5.25], 38),
       T(c.momento - 0.15, [-1.6, 1.55, -4.4], [-1.8, 1.42, -4.65], [-2.05, 1.25, -5.2], [-2.05, 1.22, -5.2], 34),
       T(c.cuarenta - 0.12, [0.4, 1.7, 1.2], [1.7, 1.55, 0.6], [1.6, 1.0, -1.2], [3.0, 1.0, -0.6], 46),
-      T(c.mesa3 - 0.1, fr(this.tazaMesa.position, [0.15, 0.32, -0.55]), fr(this.tazaMesa.position, [0.05, 0.2, -0.4]), fr(this.tazaMesa.position, [-0.05, 0.08, 0]), fr(this.tazaMesa.position, [-0.05, 0.06, 0]), 40),
+      T(c.mesa3 - 0.1, fr(this.tazaMesa.position, [0.2, 0.65, 0.95]), fr(this.tazaMesa.position, [0.1, 0.5, 0.74]), fr(this.tazaMesa.position, [-0.16, 0.02, 0.1]), fr(this.tazaMesa.position, [-0.16, 0.02, 0.1]), 44),
       T(c.y - 0.1, [-1.2, 1.7, 1.6], [-2.6, 1.55, 0.6], yoP, yoP, 44, 0.22),
       T(c.sigue - 0.1, [-2.4, 1.45, 1.3], [-2.9, 1.65, 0.75], yoP, [M1.x + 0.15, 1.75, M1.z - 0.65], 46),
     ];
