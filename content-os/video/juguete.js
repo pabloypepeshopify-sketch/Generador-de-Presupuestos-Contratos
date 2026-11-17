@@ -106,32 +106,51 @@ function letrero(txt, w = 1.1, h = 0.28, fondo = '#1d1b22', color = '#ffffff') {
 }
 
 // ---------- restaurante ----------
-export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada }) {
+export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema = 'clasico' }) {
   const mundo = new THREE.Group(); scene.add(mundo);
-  const suelo = lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 16; i++) { const y = i * 64; for (let j = 0; j < 4; j++) { const off = (i % 2) * 128 + j * 256; const tono = 150 + ((i * 7 + j * 13) % 5) * 9; x.fillStyle = `rgb(${tono + 40},${tono - 10},${tono - 60})`; x.fillRect(off, y, 254, 62); x.fillRect(off - 1024, y, 254, 62); } } });
+  const TB = tema === 'taberna'; // taberna andaluza: cal, azulejo, barro, vigas oscuras, jamones y barriles
+  const COL = TB ? { fondo: '#f7f1e4', lado: '#f3ecdc', techo: '#efe6d2', viga: '#3b2414' } : { fondo: '#f1dcb6', lado: '#ecd3a8', techo: '#e6c99a', viga: '#6b3a20' };
+  const suelo = TB ? lienzoTex(1024, 1024, (x, w, h) => { x.fillStyle = '#7a3a22'; x.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { const k = (i * 5 + j * 3) % 7; x.fillStyle = `rgb(${178 + k * 6},${88 + k * 4},${52 + k * 3})`; x.fillRect(j * 128 + 3, i * 128 + 3, 122, 122); if ((i + j) % 2 === 0) { x.fillStyle = '#e9d9b0'; x.fillRect(j * 128 - 14, i * 128 - 14, 28, 28); x.fillStyle = '#2f6aa8'; x.fillRect(j * 128 - 8, i * 128 - 8, 16, 16); } } }) : lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 16; i++) { const y = i * 64; for (let j = 0; j < 4; j++) { const off = (i % 2) * 128 + j * 256; const tono = 150 + ((i * 7 + j * 13) % 5) * 9; x.fillStyle = `rgb(${tono + 40},${tono - 10},${tono - 60})`; x.fillRect(off, y, 254, 62); x.fillRect(off - 1024, y, 254, 62); } } });
   suelo.wrapS = suelo.wrapT = THREE.RepeatWrapping; suelo.repeat.set(5, 5);
   const piso = new THREE.Mesh(new THREE.PlaneGeometry(14, 16), new THREE.MeshStandardMaterial({ map: suelo, roughness: 0.6 })); piso.rotation.x = -Math.PI / 2; piso.position.z = -2; piso.receiveShadow = true; mundo.add(piso);
-  const alfombra = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), mat('#a8323a', 0.95)); alfombra.rotation.x = -Math.PI / 2; alfombra.position.set(0, 0.004, -1.5); alfombra.receiveShadow = true; mundo.add(alfombra);
+  const alfombra = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), mat('#a8323a', 0.95)); alfombra.rotation.x = -Math.PI / 2; alfombra.position.set(0, 0.004, -1.5); alfombra.receiveShadow = true; if (!TB) mundo.add(alfombra);
   const pared = (w, h, c) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat(c, 0.95)); m.receiveShadow = true; return m; };
-  const zocalo = (w) => { const g = new THREE.Group(); g.add(en(caja(w, 1.05, 0.08, '#7a3f22', 0.02), 0, 0.525, 0)); for (let x = -w / 2 + 0.4; x < w / 2; x += 0.8) g.add(en(caja(0.6, 0.7, 0.03, '#8d4b29', 0.02), x, 0.53, 0.05)); g.add(en(caja(w, 0.06, 0.12, '#5e2f18', 0.02), 0, 1.07, 0.02)); return sombra(g); };
+  const texAzulejo = TB ? (() => { const t = lienzoTex(256, 256, (x, w, h) => { x.fillStyle = '#f4ecd6'; x.fillRect(0, 0, w, h); x.fillStyle = '#1f4f9a'; x.beginPath(); x.moveTo(w / 2, 18); x.lineTo(w - 18, h / 2); x.lineTo(w / 2, h - 18); x.lineTo(18, h / 2); x.closePath(); x.fill();
+    x.fillStyle = '#e8a91c'; x.beginPath(); x.arc(w / 2, h / 2, 46, 0, 7); x.fill(); x.fillStyle = '#1f4f9a'; x.beginPath(); x.arc(w / 2, h / 2, 18, 0, 7); x.fill();
+    x.fillStyle = '#e8a91c'; [[0, 0], [w, 0], [0, h], [w, h]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, 34, 0, 7); x.fill(); }); x.strokeStyle = '#cbbf9f'; x.lineWidth = 4; x.strokeRect(0, 0, w, h); }); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })() : null;
+  const zocalo = TB ? (w) => { const g = new THREE.Group(); const tx = texAzulejo.clone(); tx.needsUpdate = true; tx.repeat.set(w / 0.3, 1.2 / 0.3);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, 1.2), new THREE.MeshStandardMaterial({ map: tx, roughness: 0.3 })); m.position.set(0, 0.6, 0.012); g.add(m);
+    g.add(en(caja(w, 0.07, 0.07, '#e8a91c', 0.02, 0.3), 0, 1.22, 0.03)); return sombra(g); } : (w) => { const g = new THREE.Group(); g.add(en(caja(w, 1.05, 0.08, '#7a3f22', 0.02), 0, 0.525, 0)); for (let x = -w / 2 + 0.4; x < w / 2; x += 0.8) g.add(en(caja(0.6, 0.7, 0.03, '#8d4b29', 0.02), x, 0.53, 0.05)); g.add(en(caja(w, 0.06, 0.12, '#5e2f18', 0.02), 0, 1.07, 0.02)); return sombra(g); };
   // pared del fondo con ventana de cocina (x 1.4..4.2, y 1.0..2.1)
   const Z = -6.5;
-  const fondo1 = en(pared(7.4, 3.4, '#f1dcb6'), -2.3, 1.7, Z); mundo.add(fondo1);
-  mundo.add(en(pared(1.8, 3.4, '#f1dcb6'), 5.1, 1.7, Z)); mundo.add(en(pared(2.8, 1.0, '#f1dcb6'), 2.8, 0.5, Z)); mundo.add(en(pared(2.8, 1.3, '#f1dcb6'), 2.8, 2.75, Z));
+  const fondo1 = en(pared(7.4, 3.4, COL.fondo), -2.3, 1.7, Z); mundo.add(fondo1);
+  mundo.add(en(pared(1.8, 3.4, COL.fondo), 5.1, 1.7, Z)); mundo.add(en(pared(2.8, 1.0, COL.fondo), 2.8, 0.5, Z)); mundo.add(en(pared(2.8, 1.3, COL.fondo), 2.8, 2.75, Z));
   const zf = en(zocalo(7.4), -2.3, 0, Z + 0.04); mundo.add(zf); mundo.add(en(zocalo(1.8), 5.1, 0, Z + 0.04));
-  const izq = en(pared(16, 3.4, '#ecd3a8'), -6, 1.7, -2); izq.rotation.y = Math.PI / 2; mundo.add(izq);
-  const der = en(pared(16, 3.4, '#ecd3a8'), 6, 1.7, -2); der.rotation.y = -Math.PI / 2; mundo.add(der);
+  const izq = en(pared(16, 3.4, COL.lado), -6, 1.7, -2); izq.rotation.y = Math.PI / 2; mundo.add(izq);
+  const der = en(pared(16, 3.4, COL.lado), 6, 1.7, -2); der.rotation.y = -Math.PI / 2; mundo.add(der);
   const zi = en(zocalo(16), -5.96, 0, -2); zi.rotation.y = Math.PI / 2; mundo.add(zi); const zd = en(zocalo(16), 5.96, 0, -2); zd.rotation.y = -Math.PI / 2; mundo.add(zd);
-  const atras = en(pared(12, 3.4, '#ecd3a8'), 0, 1.7, 4); atras.rotation.y = Math.PI; mundo.add(atras);
-  const techo = en(pared(12, 12, '#e6c99a'), 0, 3.4, -2); techo.rotation.x = Math.PI / 2; mundo.add(techo);
-  for (let z = -6; z <= 3; z += 1.5) mundo.add(sombra(en(caja(12, 0.16, 0.2, '#6b3a20', 0.03), 0, 3.32, z)));
+  const atras = en(pared(12, 3.4, COL.lado), 0, 1.7, 4); atras.rotation.y = Math.PI; mundo.add(atras);
+  const techo = en(pared(12, 12, COL.techo), 0, 3.4, -2); techo.rotation.x = Math.PI / 2; mundo.add(techo);
+  for (let z = -6; z <= 3; z += 1.5) mundo.add(sombra(en(caja(12, 0.2, 0.24, COL.viga, 0.03), 0, 3.3, z)));
   // ventanas con noche (pared izquierda) y cuadros
   [-4.5, -1.5].forEach(z => { const v = new THREE.Group(); v.position.set(-5.97, 1.85, z); v.rotation.y = Math.PI / 2;
     const noche = lienzoTex(256, 320, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#0d1638'); g.addColorStop(1, '#27346b'); x.fillStyle = g; x.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,230,${0.4 + (i % 3) * 0.2})`; x.fillRect((i * 97) % w, (i * 53) % (h * 0.7), 2, 2); } x.fillStyle = '#f5f1d0'; x.beginPath(); x.arc(w * 0.7, h * 0.22, 18, 0, 7); x.fill(); });
     v.add(new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.25), new THREE.MeshBasicMaterial({ map: noche, toneMapped: false })));
     v.add(en(caja(1.12, 0.07, 0.06, '#5e2f18'), 0, 0.63, 0.02)); v.add(en(caja(1.12, 0.07, 0.06, '#5e2f18'), 0, -0.63, 0.02)); v.add(en(caja(0.07, 1.3, 0.06, '#5e2f18'), -0.53, 0, 0.02)); v.add(en(caja(0.07, 1.3, 0.06, '#5e2f18'), 0.53, 0, 0.02)); v.add(en(caja(0.04, 1.25, 0.04, '#5e2f18'), 0, 0, 0.02));
     const cortina = en(caja(0.3, 1.5, 0.05, '#b1262f', 0.04), 0.7, 0, 0.05); v.add(cortina); const c2 = cortina.clone(); c2.position.x = -0.7; v.add(c2); mundo.add(v); });
-  [[5.97, 1.9, -3.5, '#2f5d8a'], [5.97, 1.9, -0.5, '#3b7a4a'], [-5.97, 1.9, 1.3, '#8a5a2f']].forEach(([x, y, z, c], i) => { const q = new THREE.Group(); q.position.set(x, y, z); q.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2;
+  if (TB) {
+    // platos de cerámica en las paredes
+    const texPlato = (c1, c2) => lienzoTex(256, 256, (x, w, h) => { x.fillStyle = '#f6efdc'; x.beginPath(); x.arc(w / 2, h / 2, 126, 0, 7); x.fill(); x.strokeStyle = c1; x.lineWidth = 14; x.beginPath(); x.arc(w / 2, h / 2, 104, 0, 7); x.stroke();
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; x.fillStyle = i % 2 ? c1 : c2; x.beginPath(); x.ellipse(w / 2 + Math.cos(a) * 62, h / 2 + Math.sin(a) * 62, 22, 12, a, 0, 7); x.fill(); } x.fillStyle = c2; x.beginPath(); x.arc(w / 2, h / 2, 28, 0, 7); x.fill(); });
+    [[5.97, 2.2, -3.9, '#1f4f9a', '#e8a91c'], [5.97, 2.0, -3.1, '#2f8a4a', '#1f4f9a'], [5.97, 2.25, -0.5, '#c8402a', '#e8a91c'], [-5.97, 2.1, 1.3, '#1f4f9a', '#c8402a'], [-5.97, 2.4, 2.1, '#e8a91c', '#2f8a4a']].forEach(([x, y, z, c1, c2]) => {
+      const p = new THREE.Mesh(new THREE.CircleGeometry(0.28, 40), new THREE.MeshStandardMaterial({ map: texPlato(c1, c2), roughness: 0.25 })); p.position.set(x + (x > 0 ? -0.02 : 0.02), y, z); p.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2; mundo.add(p); });
+    // macetas de geranios colgadas
+    [[5.9, 2.7, -2.0], [5.9, 2.7, 1.2], [-5.9, 2.75, -3.0], [-5.9, 2.75, -0.1]].forEach(([x, y, z]) => { const m = new THREE.Group(); m.position.set(x, y, z);
+      m.add(en(cil(0.13, 0.09, 0.2, '#1f4f9a', 16), 0, 0, 0)); for (let i = 0; i < 6; i++) m.add(en(esf(0.07, '#3b8a4a', 0.8), Math.cos(i) * 0.09, 0.13, Math.sin(i * 1.7) * 0.09)); for (let i = 0; i < 5; i++) m.add(en(esf(0.045, '#e0263a', 0.6), Math.cos(i * 1.3) * 0.1, 0.2 + (i % 2) * 0.04, Math.sin(i * 2.1) * 0.1)); mundo.add(sombra(m)); });
+    // barriles de vino como mesas altas
+    [[-5.2, -5.6], [5.2, -4.6]].forEach(([x, z]) => { const b = new THREE.Group(); b.position.set(x, 0, z); const cuerpo = cil(0.36, 0.36, 1.0, '#7a4423', 24); cuerpo.position.y = 0.5; cuerpo.scale.set(1, 1, 1); b.add(cuerpo);
+      [0.12, 0.5, 0.88].forEach(y => b.add(en(cil(0.375, 0.375, 0.05, '#2a2420', 24), 0, y, 0))); b.add(en(cil(0.36, 0.36, 0.02, '#8d5a33', 24), 0, 1.0, 0)); mundo.add(sombra(b)); });
+  } else [[5.97, 1.9, -3.5, '#2f5d8a'], [5.97, 1.9, -0.5, '#3b7a4a'], [-5.97, 1.9, 1.3, '#8a5a2f']].forEach(([x, y, z, c], i) => { const q = new THREE.Group(); q.position.set(x, y, z); q.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2;
     q.add(caja(0.75, 0.6, 0.04, '#5e2f18', 0.01)); const t = lienzoTex(256, 200, (cx, w, h) => { cx.fillStyle = c; cx.fillRect(0, 0, w, h); cx.fillStyle = '#f6e7c1'; cx.beginPath(); cx.arc(w * (0.3 + 0.2 * i), h * 0.45, 40, 0, 7); cx.fill(); cx.fillStyle = 'rgba(0,0,0,0.25)'; cx.fillRect(0, h * 0.72, w, h); });
     q.add(en(new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.48), new THREE.MeshBasicMaterial({ map: t })), 0, 0, 0.025)); mundo.add(q); });
   // barra (izquierda del fondo)
@@ -142,6 +161,9 @@ export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMen
   balda(1.55); balda(2.15);
   for (let i = 0; i < 3; i++) barra.add(en(cil(0.025, 0.025, 0.3, '#c9ccd2', 10), -1.2 + i * 0.18, 1.28, 0.05));
   [-1.4, -0.6, 0.6, 1.4].forEach(x => { const t = new THREE.Group(); t.position.set(x, 0, 0.75); t.add(en(cil(0.18, 0.18, 0.06, '#b8323a', 20), 0, 0.78, 0)); t.add(en(cil(0.03, 0.03, 0.75, '#2a2420', 10), 0, 0.38, 0)); t.add(en(cil(0.2, 0.22, 0.03, '#2a2420', 20), 0, 0.015, 0)); barra.add(sombra(t)); });
+  if (TB) { barra.add(en(caja(4.2, 0.05, 0.05, '#3b2414', 0.01), 0, 2.85, 0.15));
+    for (let i = 0; i < 6; i++) { const j = new THREE.Group(); j.position.set(-1.7 + i * 0.68, 2.82, 0.15); j.add(en(cil(0.006, 0.006, 0.22, '#e9dcc0', 6), 0, -0.11, 0));
+      const pata = en(cap(0.1, 0.42, '#8a2f22'), 0, -0.52, 0); pata.scale.set(1.15, 1, 0.9); j.add(pata); j.add(en(cil(0.03, 0.045, 0.14, '#e8d6b2', 10), 0, -0.24, 0)); j.add(en(esf(0.05, '#c99a6a', 0.7), 0, -0.84, 0.0)); j.rotation.z = (i % 2 ? 1 : -1) * 0.05; barra.add(j); } }
   sombra(barra);
   const pantBarra = pantalla3D(0.9, 0.56); pantBarra.position.set(-4.7, 1.65, -5.25); pantBarra.rotation.x = -0.15; mundo.add(pantBarra);
   mundo.add(sombra(en(cil(0.03, 0.03, 0.35, '#2a2420', 8), -4.7, 1.3, -5.3)));

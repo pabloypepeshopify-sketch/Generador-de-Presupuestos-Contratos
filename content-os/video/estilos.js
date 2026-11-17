@@ -118,6 +118,9 @@ const ESTILOS = {
   // ahorro: bar de azulejo verde visto desde arriba; subtítulos verde/menta
   ahorro: { post: { filtro: 'saturate(1.1) contrast(1.05)' },
     subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#1f7a5a', '#2fbf8a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.7)', radio: 30 } },
+  // taberna: taberna andaluza encalada, cálida; subtítulos albero/rojo
+  taberna: { post: { filtro: 'saturate(1.12) contrast(1.06)' },
+    subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#e8a91c', '#c8402a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(40,15,5,0.8)', radio: 18 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

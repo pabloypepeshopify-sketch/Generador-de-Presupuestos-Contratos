@@ -908,7 +908,7 @@ PANT.cartaV = (x, w, h, s) => {
   const gl = x.createRadialGradient(w * 0.2, 60, 10, w * 0.2, 60, 420); gl.addColorStop(0, 'rgba(63,125,251,0.35)'); gl.addColorStop(1, 'rgba(63,125,251,0)'); x.fillStyle = gl; x.fillRect(0, 0, w, 500);
   x.fillStyle = '#fff'; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.font = `600 46px ${SERIF}`; x.fillText('Bar La Esquina', 34, 120);
   x.font = `italic 600 30px ${SERIF}`; x.fillStyle = '#7fb2ff'; x.fillText('nuestra carta', 34, 162);
-  x.fillStyle = grad(x, w - 190, 0, w - 34, 0, [VX.cian, VX.violeta]); rr(x, w - 190, 86, 156, 58, 29); x.fill(); x.fillStyle = '#fff'; x.font = `800 28px ${SANS}`; x.textAlign = 'center'; x.fillText('Mesa 7', w - 112, 125);
+  x.fillStyle = grad(x, w - 190, 0, w - 34, 0, [VX.cian, VX.violeta]); rr(x, w - 190, 86, 156, 58, 29); x.fill(); x.fillStyle = '#fff'; x.font = `800 28px ${SANS}`; x.textAlign = 'center'; x.fillText(`Mesa ${s.mesa || 7}`, w - 112, 125);
   ['Bebidas', 'Para picar', 'Raciones'].forEach((t, i) => { const X = 34 + i * 165; x.fillStyle = i === 0 ? '#fff' : 'rgba(255,255,255,0.08)'; rr(x, X, 200, 150, 56, 28); x.fill(); x.fillStyle = i === 0 ? '#0a0c16' : 'rgba(255,255,255,0.75)'; x.font = `700 24px ${SANS}`; x.fillText(t, X + 75, 236); });
   const sel = s.sel || 0;
   PLATOS.slice(0, 4).forEach(([n, p, , cols], i) => {
@@ -938,7 +938,7 @@ PANT.pedidoCamarero = (x, w, h, s) => {
   x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h);
   x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.textAlign = 'left'; x.fillText('VISAX · Pedidos', 34, 70);
   x.fillStyle = '#fff'; x.font = `600 50px ${SERIF}`; x.fillText(s.confirmado ? 'Pedido confirmado' : 'Nuevo pedido', 34, 150);
-  x.fillStyle = grad(x, 34, 0, 300, 0, [VX.cian, VX.violeta]); rr(x, 34, 190, 230, 90, 26); x.fill(); x.fillStyle = '#fff'; x.font = `900 48px ${SANS}`; x.textAlign = 'center'; x.fillText('Mesa 7', 149, 252);
+  x.fillStyle = grad(x, 34, 0, 300, 0, [VX.cian, VX.violeta]); rr(x, 34, 190, 230, 90, 26); x.fill(); x.fillStyle = '#fff'; x.font = `900 48px ${SANS}`; x.textAlign = 'center'; x.fillText(`Mesa ${s.mesa || 7}`, 149, 252);
   x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.fillText(s.resumen || 'hace 5 s · 3 productos · 17,00 €', 34, 330);
   x.fillStyle = 'rgba(255,255,255,0.05)'; rr(x, 24, 370, w - 48, 260, 26); x.fill(); if (s.lineas) s.lineas.forEach(([n, tipo], i) => { const y = 440 + i * 72; x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.fillText(n, 50, y); const et = tipo === 'bebida' ? 'Barra' : 'Cocina'; x.font = `800 22px ${SANS}`; const ew = x.measureText(et).width + 28; x.fillStyle = tipo === 'bebida' ? 'rgba(51,198,244,0.2)' : 'rgba(255,122,26,0.22)'; rr(x, w - 50 - ew, y - 26, ew, 36, 18); x.fill(); x.fillStyle = tipo === 'bebida' ? '#7fdcff' : '#ffb27a'; x.textAlign = 'center'; x.fillText(et, w - 50 - ew / 2, y - 4); }); else lineasPedido(x, 50, 440, w - 100, null, 30, 72);
   const on = s.confirmado; x.fillStyle = on ? '#16a34a' : grad(x, 30, 0, w - 30, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, 30, h - 170, w - 60, 112, 56); x.fill();
@@ -3205,6 +3205,187 @@ V['ahorro'] = { ...comunCapa, estilo: 'ahorro',
     // 2) comparación final
     if (entre(t, c.mismas - 0.1, c.si - 0.1)) { const k = prog(t, c.mismas - 0.1, c.mismas + 0.25); panel([['60  →  30 viajes', 72, '#ffffff'], ['−50 % de paseos', 60, '#3fe08a']], k, 1460); }
     cierreComenta(t, c.comenta - 0.2, 'AHORRO', 'y te hago la cuenta de tu bar');
+  },
+};
+
+// ---------- POV del camarero liado: sábado, todas las mesas piden la cuenta; llega un chico y pone la carta NFC (taberna andaluza) ----------
+function dibujarLibreta(x, w, h, n) {
+  x.fillStyle = '#f7f2e6'; x.fillRect(0, 0, w, h);
+  x.strokeStyle = 'rgba(70,110,200,0.35)'; x.lineWidth = 2; for (let y = 120; y < h; y += 62) { x.beginPath(); x.moveTo(0, y); x.lineTo(w, y); x.stroke(); }
+  x.strokeStyle = 'rgba(220,60,60,0.5)'; x.beginPath(); x.moveTo(70, 0); x.lineTo(70, h); x.stroke();
+  x.fillStyle = '#2b3550'; for (let i = 0; i < 9; i++) { x.beginPath(); x.arc(40 + i * 54, 22, 9, 0, 7); x.fill(); }
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  const fila = (txt, i, color = '#1c3d8f', tachar = false, tam = 40) => { const y = 106 + i * 62; x.fillStyle = color; x.font = `italic 600 ${tam}px Fraunces, Georgia, serif`; x.save(); x.translate(84, y); x.rotate(((i * 37) % 7 - 3) * 0.006); x.fillText(txt, 0, 0);
+    if (tachar) { const tw = x.measureText(txt).width; x.strokeStyle = color; x.lineWidth = 4; x.beginPath(); x.moveTo(-6, -12); x.lineTo(tw + 6, -16); x.stroke(); } x.restore(); };
+  fila('M2 · 2 cañas', 0, '#1c3d8f', true); fila('M4 · bravas, tinto', 1); fila('M7 · cuenta', 2, '#1c3d8f', true); fila('M6 · ¿croquetas?', 3); fila('M1 · 3 cañas + agua', 4, '#1c3d8f', true);
+  if (n >= 1) fila('M3 · CUENTA', 5, '#b3122a'); if (n >= 2) fila('M5 · CUENTA', 6, '#b3122a'); if (n >= 3) fila('M8 · ', 7, '#b3122a');
+  if (n >= 4) { x.fillStyle = '#b3122a'; x.font = `italic 800 92px Fraunces, Georgia, serif`; x.fillText('¿¿??', 220, 106 + 7 * 62 + 18);
+    x.strokeStyle = '#b3122a'; x.lineWidth = 6; x.beginPath(); x.ellipse(310, 106 + 7 * 62 - 14, 175, 70, -0.08, 0, Math.PI * 1.95); x.stroke(); }
+  for (let i = 0; i < 5; i++) { x.strokeStyle = 'rgba(28,61,143,0.55)'; x.lineWidth = 3; x.beginPath(); const y0 = 650 + i * 9; x.moveTo(380, y0); for (let k = 0; k < 8; k++) x.lineTo(380 + k * 14, y0 + (k % 2 ? -14 : 10)); x.stroke(); }
+}
+function gancho(lineas, k) {
+  if (k <= 0) return; C.save(); C.globalAlpha = k; C.font = `900 84px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
+  lineas.forEach((l, i) => { const y = 600 + i * 124, w = C.measureText(l).width + 56; C.fillStyle = 'rgba(11,18,32,0.82)'; C.fillRect(W / 2 - w / 2, y - 60, w, 120); C.fillStyle = '#fff'; C.fillText(l, W / 2, y + 4); });
+  C.restore();
+}
+V['liado'] = { ...comunCapa, estilo: 'taberna',
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-ExtraBold.ttf', '800', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    scene.background = new THREE.Color('#1a120c'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+    hemi.color.set('#fff4e0'); hemi.groundColor.set('#8a4a2a'); hemi.intensity = 1.35;
+    const sol = new THREE.DirectionalLight('#ffe2b8', 1.5); sol.position.set(3, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+    Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.05; scene.add(cam); cam.rotation.order = 'YXZ';
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'taberna' }); Object.assign(this, r);
+    r.mesas[0].gente = [0, 1]; r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
+    const pers = (idx, a) => { const m = r.mesas[idx]; return this.gente.find(g => Math.abs(g.g.position.x - m.x) < 0.01 && (a ? g.g.position.z > m.z : g.g.position.z < m.z)); };
+    this.gritaA = pers(3, 0); this.gritaB = pers(4, 0); this.cliente8 = pers(2, 1);
+    // camarero (nosotros): libreta en la mano, sin bandeja
+    const k = this.camarero; k.bandeja.visible = false; k.g.position.set(1.0, 0, 1.4); k.g.rotation.y = Math.PI;
+    const libM = caja(0.15, 0.2, 0.014, '#f4efe2', 0.004); libM.position.set(0, -0.06, 0.05); libM.rotation.x = 0.5; k.bI.mano.add(libM);
+    // el chico que instala la carta NFC
+    const ch = this.chico = muneco({ camisa: '#3F7DFB', pantalon: '#22263a', pelo: '#1d140e', peinado: 'corto', piel: '#e3a87f', zapato: '#f2f2f2' });
+    const gorra = new THREE.Mesh(new THREE.SphereGeometry(0.228, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), matJ('#1d2a55')); gorra.position.set(0, 0.1, -0.03); gorra.rotation.x = -0.3; gorra.scale.set(1, 0.8, 1); ch.cabeza.add(gorra);
+    const visera = caja(0.24, 0.025, 0.17, '#1d2a55', 0.01); visera.position.set(0, 0.15, 0.2); visera.rotation.x = -0.15; ch.cabeza.add(visera);
+    this.tcChico = tarjetaMenu(); this.tcChico.scale.setScalar(0.3); this.tcChico.position.set(0, -0.04, 0.03); ch.bD.mano.add(this.tcChico);
+    const cajaCh = caja(0.28, 0.17, 0.22, '#2a2f44', 0.02); cajaCh.position.set(0, -0.1, 0.06); ch.bI.mano.add(cajaCh);
+    ch.g.position.set(0.95, 0, -0.15); ch.g.rotation.y = 0; r.mundo.add(ch.g);
+    // tarjetas MENÚ en cada mesa (aparecen al instalarlas)
+    this.cartas = r.mesas.map((m, i) => { const tj = tarjetaMenu(); tj.position.set(m.x + 0.28, 0.79, m.z + 0.1); tj.rotation.y = 0.3; tj.scale.setScalar(0.3); r.mundo.add(tj); return tj; });
+    r.mundo.updateMatrixWorld(true); this.cen = this.cartas.map(tj => tj.userData.centro().clone());
+    // cañas y bravas servidas al final
+    this.servido = [];
+    [0, 1, 3, 4, 5].forEach(i => { const m = r.mesas[i]; for (let j = 0; j < 2; j++) { const c = cana(); c.position.set(m.x - 0.18 + j * 0.2, 0.79, m.z - 0.05 + j * 0.08); r.mundo.add(c); this.servido.push(c); } });
+    this.bravas8 = bravas(); this.bravas8.position.set(r.mesas[2].x - 0.2, 0.79, r.mesas[2].z + 0.05); r.mundo.add(this.bravas8);
+    // manos POV: derecha con el móvil (VISAX pedidos), izquierda con la libreta
+    this.mv = movil('#20232c'); const h = manosPOV(cam, this.mv, { manga: '#ffffff', piel: '#eab48a' }); this.D = h.D; this.I = h.I; this.colocarBrazo = h.colocarBrazo; this.I.visible = false;
+    this.lib = lienzo(512, 700);
+    const L = this.L = new THREE.Group(); cam.add(L);
+    const papel = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.205), new THREE.MeshBasicMaterial({ map: this.lib.tex, color: '#efe7d6', toneMapped: false })); L.add(papel);
+    const tapa = caja(0.16, 0.215, 0.008, '#2b3550', 0.003); tapa.position.z = -0.006; L.add(tapa);
+    const piel = matJ('#eab48a', 0.6);
+    const palma = new THREE.Mesh(new RoundedBoxGeometry(0.085, 0.1, 0.03, 3, 0.012), piel); palma.position.set(-0.07, -0.08, -0.025); L.add(palma);
+    const pulgar = new THREE.Mesh(new THREE.CapsuleGeometry(0.013, 0.04, 6, 10), piel); pulgar.position.set(-0.062, -0.05, 0.01); pulgar.rotation.z = -0.5; L.add(pulgar);
+    const manga = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.32, 6, 12), matJ('#ffffff', 0.8)); manga.position.set(-0.15, -0.26, -0.06); manga.rotation.z = 0.55; L.add(manga);
+    L.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = false; } });
+    // móvil del cliente de la mesa 8 y ondas NFC
+    this.mv2 = movil(); this.mv2.scale.setScalar(0.38); this.mv2.visible = false; r.mundo.add(this.mv2); this.on = ondas();
+    const c = this.c = { oye: cue('oye'), sabado: cue('sabado'), ocho: cue('ocho'), yo: cue('yo'), jefe: cue('jefe'), ronda: cue('ronda'), m3: cue('mesa', 1), m5: cue('mesa', 2), m8: cue('mesa', 3), ocho3: cue('ocho', 3),
+      tu: cue('tu'), encargado: cue('encargado'), pongo: cue('pongo'), tocan: cue('tocan'), movil: cue('movil'), carta: cue('carta'), piden: cue('piden'), llega: cue('llega'), canas: cue('canas'), bravas: cue('bravas'), pensar: cue('pensar'), asi: cue('asi') };
+    duracion = palabras[palabras.length - 1].fin + 0.12; c.fin = duracion;
+    // segmentos (corte de plano cada 1–3 s)
+    c.B = c.sabado - 0.05; c.C = c.ocho - 0.05; c.D = c.jefe - 0.12; c.E = c.m3 - 0.1; c.F = c.ocho3 - 0.3; c.G = c.tu - 0.1; c.H = c.pongo - 0.06; c.I = c.tocan - 0.1; c.I2 = c.carta - 0.12; c.J = c.llega - 0.18; c.K = c.pensar - 0.12;
+    c.H2 = c.H + (c.I - c.H) / 3; c.H3 = c.H + 2 * (c.I - c.H) / 3;
+    this.ojo = new THREE.Vector3(1.0, 1.62, 1.4);
+    const ph = this.cen[2].clone().add(new THREE.Vector3(0.03, 0.03, 0.06));
+    const tomaCarta = (v, a, barrido = 0, lado = 1) => ({ a, barrido, de: [v.x + 1.1 * lado, v.y + 0.6, v.z + 1.3], a2: [v.x + 0.85 * lado, v.y + 0.45, v.z + 1.0], mira: [v.x - 0.15 * lado, v.y - 0.05, v.z], mira2: [v.x - 0.15 * lado, v.y - 0.05, v.z], fov: 40 });
+    this.tomas = {
+      B: [{ a: c.B, barrido: 0, de: [3.5, 2.95, 3.4], a2: [3.0, 2.75, 2.8], mira: [-0.6, 0.7, -1.7], mira2: [-0.4, 0.8, -1.5], fov: 54 }],
+      C: [{ a: c.C, barrido: 0, de: [2.3, 1.4, -0.1], a2: [2.0, 1.45, 0.15], mira: [1.0, 1.45, 1.4], mira2: [1.0, 1.5, 1.4], fov: 46 }],
+      H: [tomaCarta(this.cen[3], c.H, 0, 1), (v => ({ a: c.H2, barrido: 0.14, de: [v.x + 1.25, v.y + 0.55, v.z + 0.55], a2: [v.x + 1.0, v.y + 0.42, v.z + 0.45], mira: [v.x - 0.1, v.y - 0.05, v.z], mira2: [v.x - 0.1, v.y - 0.05, v.z], fov: 40 }))(this.cen[4]), tomaCarta(this.cen[2], c.H3, 0.14, 0.4)],
+      I: [{ a: c.I, barrido: 0, de: [3.15, 1.85, -1.75], a2: [3.0, 1.7, -2.05], mira: this.cen[2].toArray(), mira2: this.cen[2].toArray(), fov: 40 },
+        { a: c.I2, barrido: 0.12, de: [ph.x + 0.2, ph.y + 0.14, ph.z + 0.74], a2: [ph.x + 0.14, ph.y + 0.1, ph.z + 0.6], mira: ph.toArray(), mira2: ph.toArray(), fov: 36 }],
+    };
+    const mesaY = i => new THREE.Vector3(r.mesas[i].x, 1.15, r.mesas[i].z);
+    this.obj = { m3: new THREE.Vector3(-3.6, 1.15, -0.4), m5: new THREE.Vector3(3.4, 1.15, -0.7), m8: mesaY(2), sala: new THREE.Vector3(-0.6, 0.95, -2.6), chico: new THREE.Vector3(0.95, 1.38, -0.15) };
+    this.etq = { m3: new THREE.Vector3(-3.6, 1.95, -0.4), m5: new THREE.Vector3(3.4, 1.95, -0.6), m8: new THREE.Vector3(2.4, 1.9, -2.9) };
+    efectos = [['whoosh', c.B - 0.12], ['whoosh', c.C - 0.12], ['hit', c.yo], ['whoosh', c.D - 0.1], ['tick', c.jefe], ['whoosh', c.E - 0.08], ['tick', c.m3], ['whoosh', c.m5 - 0.12], ['tick', c.m5], ['whoosh', c.m8 - 0.12], ['tick', c.m8],
+      ['whoosh', c.F - 0.08], ['whoosh', c.G - 0.1], ['pop', c.H + 0.05], ['pop', c.H2 + 0.05], ['pop', c.H3 + 0.05], ['whoosh', c.I - 0.1], ['tap', c.movil + 0.05], ['ding', c.carta - 0.05], ['tick', c.carta + 0.25], ['tick', c.carta + 0.5], ['pop', c.piden + 0.25],
+      ['whoosh', c.J - 0.1], ['buzz', c.llega], ['ding', c.llega + 0.05], ['pop', c.llega + 0.35], ['whoosh', c.K - 0.05], ['whoosh', c.fin - 0.35]];
+    this.musica = 'guitarra_bar'; this.volMusica = 0.42;
+  },
+  seg(t) { const c = this.c; return t < c.B ? 'A' : t < c.C ? 'B' : t < c.D ? 'C' : t < c.E ? 'D' : t < c.F ? 'E' : t < c.G ? 'F' : t < c.H ? 'G' : t < c.I ? 'H' : t < c.J ? 'I' : t < c.K ? 'J' : 'K'; },
+  mirar(v) { const E = this.ojo, dx = v.x - E.x, dy = v.y - E.y, dz = v.z - E.z; return [Math.atan2(-dx, -dz), Math.atan2(dy, Math.hypot(dx, dz))]; },
+  esperando(t) { const c = this.c; return t >= c.llega ? 0 : 4 + (t >= c.jefe) + (t >= c.m3) + (t >= c.m5) + (t >= c.m8); },
+  actualizar(t) {
+    const c = this.c, s = this.seg(t), caos = t < c.H;
+    // ---- clientes ----
+    this.gente.forEach((p, i) => {
+      p.reset(); p.respirar(t, p.g.position.x); p.g.rotation.y = p.g.position.z > (this.mesas.find(m => Math.abs(m.x - p.g.position.x) < 0.01)?.z ?? 0) ? Math.PI : 0;
+      const grita = (p === this.gritaA && t < c.B + 0.4) || (p === this.gritaB && entre(t, c.jefe - 0.3, c.m3 + 0.3));
+      const arriba = caos && (grita || Math.sin(t * 1.6 + i * 1.9) > -0.35);
+      if (arriba) { p.bD.hombro.rotation.x = -2.75; p.bD.hombro.rotation.z = -0.15 + Math.sin(t * (grita ? 11 : 7) + i) * (grita ? 0.35 : 0.2); p.bD.codo.rotation.x = -0.15; p.hablar(t + i, grita ? 1 : 0.5); }
+      else if (Math.sin(t * 0.9 + i * 2.1) > 0.5) p.hablar(t + i, 0.5);
+      if (grita) { p.g.rotation.y = Math.atan2(this.ojo.x - p.g.position.x, this.ojo.z - p.g.position.z); p.hablar(t * 1.3, 1); }
+    });
+    if (s === 'I') { const q = this.cliente8; q.cabeza.rotation.set(0.35, 0.15, 0); q.bD.hombro.rotation.set(-1.35, 0, -0.1); q.bD.codo.rotation.x = -0.3; }
+    this.cocinero.reset(); this.cocinero.andar(t * 0.4, 0.3); this.cocinero.g.position.x = 2.6 + Math.sin(t * 0.6) * 0.9;
+    this.servido.forEach(x => (x.visible = t > c.llega)); this.bravas8.visible = t > c.bravas;
+    // ---- tarjetas ----
+    const pops = [c.pongo, c.pongo, c.H3 + 0.05, c.H + 0.05, c.H2 + 0.05, c.pongo];
+    this.cartas.forEach((tj, i) => { const k = t < pops[i] ? 0 : rebote(clamp((t - pops[i]) / 0.35)); tj.visible = k > 0.001; tj.scale.setScalar(0.3 * Math.max(0.001, k)); });
+    // ---- camarero (3.ª persona) ----
+    const k = this.camarero; k.g.visible = !['A', 'D', 'E', 'F', 'G', 'J', 'K'].includes(s); k.reset(); k.respirar(t, 3);
+    k.cabeza.rotation.y = Math.sin(t * 4.2) * 0.65; k.bI.hombro.rotation.x = -1.0; k.bI.codo.rotation.x = -0.9; k.bD.hombro.rotation.x = -0.85; k.bD.hombro.rotation.z = 0.3; k.bD.codo.rotation.x = -1.0 + Math.sin(t * 16) * 0.12;
+    if (entre(t, c.sabado, c.yo + 0.4)) k.hablar(t);
+    // ---- chico ----
+    const ch = this.chico; ch.g.visible = s === 'G'; ch.reset(); ch.respirar(t, 5); ch.cabeza.rotation.y = 0;
+    const kb = prog(t, c.encargado - 0.25, c.encargado + 0.15); ch.bD.hombro.rotation.x = -1.25 * kb; ch.bD.codo.rotation.x = -0.15 - 0.3 * kb; this.tcChico.rotation.x = -(ch.bD.hombro.rotation.x + ch.bD.codo.rotation.x);
+    ch.bI.hombro.rotation.x = -0.45; ch.bI.codo.rotation.x = -0.9; if (entre(t, c.tu - 0.05, c.pongo + 1.3)) ch.hablar(t);
+    // ---- pantallas ----
+    const pulso = Math.round((0.5 + 0.5 * Math.sin(t * 8)) * 4) / 4;
+    this.pantBarra.userData.pintar('barra', t > c.llega + 0.3 ? { nuevo: true, detalle: '2 × Caña', estado: 'A SERVIR', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', t > c.llega + 0.4 ? { nuevo: true, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    const V0 = new THREE.Vector3();
+    // ---- planos en 3.ª persona ----
+    if (['B', 'C', 'H', 'I'].includes(s)) {
+      this.D.visible = this.L.visible = false; this.colocarBrazo();
+      this.desenfoque = camara2(t, this.tomas[s]); const a0 = this.tomas[s][0].a; if (t - a0 < 0.2) this.desenfoque = Math.max(this.desenfoque, 12 * (1 - (t - a0) / 0.2));
+      if (s === 'I') movilEnTarjeta({ mv: this.mv2, on: this.on }, t, this.cartas[2], c.movil, c.I, c.J, 'bloqueo', 'cartaV', { hora: '23:04', mesa: 8, sel: t > c.carta + 0.5 ? 2 : t > c.carta + 0.25 ? 1 : 0, enviado: t > c.piden + 0.25 });
+      else { this.mv2.visible = false; this.on.userData.actualizar(t, 0, V0, V0); }
+      return;
+    }
+    this.mv2.visible = false; this.on.userData.actualizar(t, 0, V0, V0);
+    // ---- primera persona ----
+    const O = this.obj; let [yaw, pitch] = this.mirar(O.m3), desen = 0, s0 = 0;
+    const de = (a, b, kk) => { const A = this.mirar(a), B = this.mirar(b); return [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; };
+    if (s === 'A') { [yaw, pitch] = this.mirar(O.m3); yaw += 0.1 * (1 - prog(t, 0, 1.4)); }
+    else if (s === 'D') { s0 = c.D; [yaw, pitch] = this.mirar(O.m5); yaw += 0.06 * (1 - prog(t, c.D, c.E)); }
+    else if (s === 'E') { const L = [[c.E, O.m5, O.m3], [c.m5 - 0.12, O.m3, O.m5], [c.m8 - 0.12, O.m5, O.m8]]; let j = 0; L.forEach((x, n) => { if (t >= x[0]) j = n; });
+      const kk = prog(t, L[j][0], L[j][0] + 0.2); [yaw, pitch] = de(L[j][1], L[j][2], kk); desen = Math.sin(Math.PI * clamp((t - L[j][0]) / 0.2)) * 14; }
+    else if (s === 'F') { s0 = c.F; [yaw, pitch] = this.mirar(O.m8); pitch = lerp(pitch, -0.75, prog(t, c.F, c.F + 0.25)); }
+    else if (s === 'G') { s0 = c.G; [yaw, pitch] = this.mirar(O.chico); pitch += 0.05 * Math.sin(t * 2); }
+    else if (s === 'J') { s0 = c.J; [yaw, pitch] = this.mirar(O.sala); pitch -= 0.12; }
+    else if (s === 'K') { s0 = c.K; const kk = prog(t, c.K + 0.3, c.fin - 0.3); [yaw, pitch] = de(O.sala, O.m3, kk); yaw = lerp(yaw, this.mirar(O.m3)[0] + 0.1, prog(t, c.fin - 0.35, c.fin)); desen = 14 * prog(t, c.fin - 0.3, c.fin); }
+    if (s0 && t - s0 < 0.2) desen = Math.max(desen, 14 * (1 - (t - s0) / 0.2));
+    const amp = caos ? 2.2 : 1;
+    const temb = (a, b, c2) => (Math.sin(t * a) * 0.006 + Math.sin(t * b + 1) * 0.004 + Math.sin(t * c2 + 2) * 0.003) * amp;
+    cam.position.copy(this.ojo).add(new THREE.Vector3(temb(1.3, 2.1, 3.7), temb(1.7, 2.9, 4.1) + Math.sin(t * 1.9) * 0.008, 0));
+    cam.rotation.set(pitch + temb(0.9, 1.6, 2.3), yaw + temb(0.7, 1.3, 2.9), 0); cam.up.set(0, 1, 0);
+    if (cam.fov !== 64) { cam.fov = 64; cam.updateProjectionMatrix(); }
+    cam.updateMatrixWorld(true); this.desenfoque = desen;
+    // libreta (mano izquierda)
+    const n = t >= c.ocho3 - 0.05 ? 4 : t >= c.m8 ? 3 : t >= c.m5 ? 2 : t >= c.m3 ? 1 : 0; this.lib.pintar('l' + n, (x, w, h) => dibujarLibreta(x, w, h, n));
+    this.L.visible = ['A', 'D', 'E', 'F'].includes(s);
+    const bajo = [new THREE.Vector3(-0.15, -0.2, -0.42), new THREE.Euler(-0.6, 0.35, 0.2)], alto = [new THREE.Vector3(-0.004, -0.04, -0.3), new THREE.Euler(-0.08, 0.02, 0.03)];
+    const kl = s === 'F' ? prog(t, c.F, c.F + 0.3) : 0;
+    this.L.position.copy(bajo[0]).lerp(alto[0], kl); this.L.position.y += Math.sin(t * 2.6) * 0.004 * amp;
+    this.L.rotation.set(lerp(bajo[1].x, alto[1].x, kl), lerp(bajo[1].y, alto[1].y, kl), lerp(bajo[1].z, alto[1].z, kl));
+    // móvil (mano derecha)
+    const oculto = new THREE.Vector3(0.24, -0.62, -0.42), vista = new THREE.Vector3(0.02, -0.055, -0.36);
+    let pos = oculto.clone(), pantalla = 'bloqueo', est = { hora: '23:04' };
+    if (s === 'J') { pos = oculto.clone().lerp(vista, prog(t, c.J, c.J + 0.3)); if (entre(t, c.llega, c.llega + 0.5)) pos.x += Math.sin(t * 90) * 0.003; }
+    else if (s === 'K') pos = vista.clone().lerp(oculto, prog(t, c.K, c.K + 0.45));
+    if (t > c.llega - 0.02) { pantalla = 'pedidoCamarero'; est = { mesa: 8, lineas: [['2 × Caña', 'bebida'], ['1 × Patatas bravas', 'comida']], resumen: 'ahora · 3 productos · 11,50 €', confirmado: t > c.bravas + 0.4, onda: entre(t, c.bravas + 0.3, c.bravas + 0.8) ? (t - c.bravas - 0.3) / 0.5 : 0 }; }
+    pos.y += Math.sin(t * 2.3) * 0.004;
+    this.D.visible = s === 'J' || s === 'K'; this.D.position.copy(pos); this.D.rotation.set(0, 0, 0); this.D.updateMatrixWorld(true); this.colocarBrazo(); this.mv.userData.pantalla(pantalla, est);
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.oye, c.jefe, c.llega]) { const d = t - g; if (d >= 0 && d < 0.35) temblor = Math.max(temblor, (1 - d / 0.35) * 12); }
+    const zoom = entre(t, c.yo, c.D) ? 1 + 0.1 * (1 - prog(t, c.yo, c.yo + 0.5)) + 0.04 : 1; return { desenfoque: this.desenfoque, temblor, zoom }; },
+  capa(t) {
+    const c = this.c; velos(); const s = this.seg(t);
+    // marcador: mesas esperando
+    const n = this.esperando(t), cambios = [0, c.jefe, c.m3, c.m5, c.m8]; const ult = cambios.filter(x => t >= x).pop() || 0;
+    if (n > 0) marcador('MESAS ESPERANDO', String(n), '#ff4d5e', t - ult < 0.35 && ult > 0 ? rebote(clamp((t - ult) / 0.35)) : 1);
+    else marcador('MESAS ESPERANDO', '0', '#3ddc84', rebote(clamp((t - c.llega) / 0.35)));
+    gancho(['POV: ERES EL ÚNICO', 'CAMARERO UN SÁBADO'], 1 - prog(t, 2.35, 2.6));
+    // etiquetas sobre las mesas al girar la cabeza
+    if (s === 'E') { const L = [['Mesa 3 · cuenta', c.E, 'm3'], ['Mesa 5 · cuenta', c.m5 - 0.12, 'm5'], ['Mesa 8 · ¿?', c.m8 - 0.12, 'm8']]; let j = 0; L.forEach((x, k) => { if (t >= x[1]) j = k; });
+      etiquetaPlano(L[j][0], this.etq[L[j][2]], entra(t, L[j][1] + 0.15), 'rojo', 'recibo'); }
+    if (s === 'D') etiquetaPlano('Mesa 5 · otra ronda', this.etq.m5, entra(t, c.D + 0.15), 'rojo', 'mano');
+    if (entre(t, c.tocan + 0.2, c.bravas + 0.6)) pildora('Comenta CARTA', W / 2, 1660, entra(t, c.tocan + 0.2), { icono: 'check', tono: 'marca', tam: 54 });
   },
 };
 
