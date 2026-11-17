@@ -3229,7 +3229,7 @@ function componer(t) {
   if (fx.flash) { C.fillStyle = `rgba(255,255,255,${fx.flash})`; C.fillRect(0, 0, W, H); }
   actual.capa(t);
   if (actual.arriba) { if (t < (actual.c?.comenta ?? 1e9)) (actual.subtitulos || subtitulosArriba)(t); } else subtitulos(t);
-  marcaAgua();
+  // marcaAgua(); (quitada: se veía demasiado comercial)
 }
 window.frame = (t) => {
   actual.actualizar(t); if (actual.renderizar) actual.renderizar(); else renderer.render(scene, cam); componer(t);
