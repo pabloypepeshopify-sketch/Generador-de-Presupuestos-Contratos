@@ -3484,7 +3484,7 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
     // gente entrando y saliendo a cámara rápida
     this.paseantes = [{ camisa: '#3d7fd6', pelo: '#2a1a12' }, { camisa: '#e0a826', pelo: '#7a3d1d', peinado: 'largo' }, { camisa: '#7a5ad6', pelo: '#111111' }].map((o, i) => { const m = muneco({ pantalon: '#2b2f3a', piel: ['#f0c29a', '#e9b48c', '#c98d63'][i], ...o }); r.mundo.add(m.g); return m; });
     const c = this.c = { cafe: cue('cafe'), mesa1: cue('mesa'), levanta: cue('levanta'), pasa: cue('pasa'), pasa2: cue('pasa', 2), cinco: cue('cinco'), diez: cue('diez'), mesa2: cue('mesa', 2), toca: cue('toca'), movil: cue('movil'),
-      cafe2: cue('cafe', 2), tostada: cue('tostada'), pedido: cue('pedido'), llega: cue('llega'), momento: cue('momento'), cuarenta: cue('cuarenta'), mesa3: cue('mesa', 3), y: cue('y', 2), sigue: cue('sigue'), levantada: cue('levantada') };
+      cafe2: cue('cafe', 2), tostada: cue('tostada'), pedido: cue('pedido'), llega: cue('llega'), momento: cue('momento'), cuarenta: cue('cuarenta'), mesa3: cue('mesa', 3), cta: cue('comenta'), y: cue('y', 2), sigue: cue('sigue'), levantada: cue('levantada') };
     duracion = palabras[palabras.length - 1].fin + 0.12; c.fin = duracion;
     const P = this.ph, n = this.nrm, cen = this.cen;
     const fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
@@ -3508,12 +3508,13 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
       T(c.momento - 0.15, [-1.6, 1.55, -4.4], [-1.8, 1.42, -4.65], [-2.05, 1.25, -5.2], [-2.05, 1.22, -5.2], 34),
       T(c.cuarenta - 0.12, [0.4, 1.7, 1.2], [1.7, 1.55, 0.6], [1.6, 1.0, -1.2], [3.0, 1.0, -0.6], 46),
       T(c.mesa3 - 0.1, fr(this.tazaMesa.position, [0.2, 0.65, 0.95]), fr(this.tazaMesa.position, [0.1, 0.5, 0.74]), fr(this.tazaMesa.position, [-0.16, 0.02, 0.1]), fr(this.tazaMesa.position, [-0.16, 0.02, 0.1]), 44),
+      T(c.cta - 0.08, [4.15, 1.6, 0.95], [3.9, 1.52, 0.55], [3.4, 1.3, -0.92], [3.4, 1.35, -0.92], 42, 0.15),
       T(c.y - 0.1, [-1.2, 1.7, 1.6], [-2.6, 1.55, 0.6], yoP, yoP, 44, 0.22),
       T(c.sigue - 0.1, [-2.4, 1.45, 1.3], [-2.9, 1.65, 0.75], yoP, [M1.x + 0.15, 1.75, M1.z - 0.65], 46),
     ];
     efectos = [['whoosh', c.cafe - 0.6], ['whoosh', c.mesa1 - 0.15], ['whoosh', c.levanta - 0.15], ['whoosh', c.pasa - 0.15], ['whoosh', c.pasa2 - 0.15], ['whoosh', c.cinco - 0.15], ['hit', c.cinco], ['whoosh', c.diez - 0.12], ['hit', c.diez],
       ['whoosh', c.mesa2 - 0.15], ['whoosh', c.toca - 0.15], ['tap', c.movil + 0.05], ['ding', c.cafe2 - 0.05], ['tick', c.cafe2 + 0.3], ['tick', c.tostada + 0.1], ['pop', c.pedido + 0.1], ['whoosh', c.llega - 0.15], ['buzz', c.llega], ['ding', c.llega + 0.05],
-      ['whoosh', c.momento - 0.18], ['whoosh', c.cuarenta - 0.15], ['whoosh', c.mesa3 - 0.15], ['ding', c.mesa3], ['pop', c.mesa3 + 0.05], ['whoosh', c.y - 0.15], ['whoosh', c.sigue - 0.15], ['whoosh', c.fin - 0.3]];
+      ['whoosh', c.momento - 0.18], ['whoosh', c.cuarenta - 0.15], ['whoosh', c.mesa3 - 0.15], ['ding', c.mesa3], ['pop', c.mesa3 + 0.05], ['whoosh', c.cta - 0.12], ['pop', c.cta + 0.05], ['whoosh', c.y - 0.15], ['whoosh', c.sigue - 0.15], ['whoosh', c.fin - 0.3]];
     for (let s = 0.25; s < c.mesa2; s += 0.5) efectos.push(['tick', s]);
     this.musica = 'guitarra_bar'; this.volMusica = 0.4;
   },
@@ -3555,7 +3556,7 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
     // chica: toca la tarjeta y pide
     ella.reset(); ella.respirar(t, 3); ella.g.visible = !entre(t, c.cafe2 - 0.15, c.llega - 0.1); let movilVis = false;
     if (entre(t, c.toca - 0.3, c.llega)) { movilVis = true; ella.bD.hombro.rotation.x = -1.2; ella.bD.codo.rotation.x = -0.5; ella.cabeza.rotation.x = 0.3; }
-    if (t > c.mesa3) { ella.hablar(t, 0.5); ella.bD.hombro.rotation.x = -1.0; ella.bD.codo.rotation.x = -1.0; }
+    if (t > c.mesa3) { ella.hablar(t, 0.5); ella.bD.hombro.rotation.x = -1.0; ella.bD.codo.rotation.x = -1.0; ella.cabeza.rotation.x = -0.1; }
     this.mv2.visible = movilVis;
     if (movilVis) { const kk = prog(t, c.toca - 0.2, c.movil + 0.05); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.4).add(new THREE.Vector3(0, -0.05, 0)); this.mv2.position.copy(lejos).lerp(this.ph, kk); this.mv2.lookAt(this.mv2.position.clone().add(this.nrm));
       const sel = t > c.tostada + 0.1 ? 2 : t > c.cafe2 + 0.3 ? 1 : 0; this.mv2.userData.pantalla(t > c.movil + 0.25 ? 'cartaDesayuno' : 'bloqueo', t > c.movil + 0.25 ? { mesa: 2, sel, enviado: t > c.pedido + 0.1 } : { hora: '08:47' }); }
@@ -3577,7 +3578,7 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
     cronoPanel(X1, 'MESA 1 · ESPERANDO', mmss(this.t1(t)), '#ff4d5e', golpe * (dos ? lerp(1, 0.9, prog(t, c.mesa2 - 0.1, c.mesa2 + 0.2)) : 1));
     if (dos) { const parado = t >= c.mesa3; cronoPanel(W - 278, parado ? 'MESA 2 · SERVIDA' : 'MESA 2 · CON TARJETA', mmss(this.t2(t)), '#3ddc84', entra(t, c.mesa2 - 0.1) * 0.9 * (parado && t - c.mesa3 < 0.3 ? 1.12 : 1), parado); }
     gancho(['¿CUÁNTO TARDA UN BAR', 'EN PONERTE UN CAFÉ?'], 1 - prog(t, 2.2, 2.45));
-    if (entre(t, c.toca, c.mesa3 + 0.3)) pildora('Comenta CAFÉ', W / 2, 1660, entra(t, c.toca), { icono: 'check', tono: 'marca', tam: 54 });
+    if (entre(t, c.toca, c.y - 0.1)) { const grande = t >= c.cta - 0.05; pildora('Comenta CAFÉ', W / 2, grande ? 1560 : 1660, grande ? entra(t, c.cta - 0.05) * 1.3 : entra(t, c.toca), { icono: 'check', tono: 'marca', tam: 54 }); }
   },
 };
 
