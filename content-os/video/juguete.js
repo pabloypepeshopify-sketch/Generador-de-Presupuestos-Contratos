@@ -109,18 +109,22 @@ function letrero(txt, w = 1.1, h = 0.28, fondo = '#1d1b22', color = '#ffffff') {
 export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema = 'clasico' }) {
   const mundo = new THREE.Group(); scene.add(mundo);
   const TB = tema === 'taberna'; // taberna andaluza: cal, azulejo, barro, vigas oscuras, jamones y barriles
+  const MD = tema === 'moderno'; // bar de tapas moderno de noche: ladrillo visto, pintura oscura, neón
   const CF = tema === 'cafeteria'; // cafetería de mañana: menta y blanco, damero, azulejo metro, luz de día
-  const COL = CF ? { fondo: '#dcefe6', lado: '#f2f7f4', techo: '#fbfbf8', viga: '#c9a77c' } : TB ? { fondo: '#f7f1e4', lado: '#f3ecdc', techo: '#efe6d2', viga: '#3b2414' } : { fondo: '#f1dcb6', lado: '#ecd3a8', techo: '#e6c99a', viga: '#6b3a20' };
-  const suelo = CF ? lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = (i + j) % 2 ? '#22252b' : '#f3f1ea'; x.fillRect(j * 128, i * 128, 128, 128); } }) : TB ? lienzoTex(1024, 1024, (x, w, h) => { x.fillStyle = '#7a3a22'; x.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { const k = (i * 5 + j * 3) % 7; x.fillStyle = `rgb(${178 + k * 6},${88 + k * 4},${52 + k * 3})`; x.fillRect(j * 128 + 3, i * 128 + 3, 122, 122); if ((i + j) % 2 === 0) { x.fillStyle = '#e9d9b0'; x.fillRect(j * 128 - 14, i * 128 - 14, 28, 28); x.fillStyle = '#2f6aa8'; x.fillRect(j * 128 - 8, i * 128 - 8, 16, 16); } } }) : lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 16; i++) { const y = i * 64; for (let j = 0; j < 4; j++) { const off = (i % 2) * 128 + j * 256; const tono = 150 + ((i * 7 + j * 13) % 5) * 9; x.fillStyle = `rgb(${tono + 40},${tono - 10},${tono - 60})`; x.fillRect(off, y, 254, 62); x.fillRect(off - 1024, y, 254, 62); } } });
+  const COL = MD ? { fondo: '#24343a', lado: '#2a3b41', techo: '#1b2326', viga: '#121618' } : CF ? { fondo: '#dcefe6', lado: '#f2f7f4', techo: '#fbfbf8', viga: '#c9a77c' } : TB ? { fondo: '#f7f1e4', lado: '#f3ecdc', techo: '#efe6d2', viga: '#3b2414' } : { fondo: '#f1dcb6', lado: '#ecd3a8', techo: '#e6c99a', viga: '#6b3a20' };
+  const suelo = MD ? lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 16; i++) { const y = i * 64; for (let j = 0; j < 3; j++) { const off = (i % 2) * 170 + j * 340; const k = (i * 7 + j * 5) % 5; x.fillStyle = `rgb(${92 + k * 7},${62 + k * 5},${44 + k * 3})`; x.fillRect(off, y, 338, 62); x.fillRect(off - 1024, y, 338, 62); } } }) : CF ? lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = (i + j) % 2 ? '#22252b' : '#f3f1ea'; x.fillRect(j * 128, i * 128, 128, 128); } }) : TB ? lienzoTex(1024, 1024, (x, w, h) => { x.fillStyle = '#7a3a22'; x.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { const k = (i * 5 + j * 3) % 7; x.fillStyle = `rgb(${178 + k * 6},${88 + k * 4},${52 + k * 3})`; x.fillRect(j * 128 + 3, i * 128 + 3, 122, 122); if ((i + j) % 2 === 0) { x.fillStyle = '#e9d9b0'; x.fillRect(j * 128 - 14, i * 128 - 14, 28, 28); x.fillStyle = '#2f6aa8'; x.fillRect(j * 128 - 8, i * 128 - 8, 16, 16); } } }) : lienzoTex(1024, 1024, (x, w, h) => { for (let i = 0; i < 16; i++) { const y = i * 64; for (let j = 0; j < 4; j++) { const off = (i % 2) * 128 + j * 256; const tono = 150 + ((i * 7 + j * 13) % 5) * 9; x.fillStyle = `rgb(${tono + 40},${tono - 10},${tono - 60})`; x.fillRect(off, y, 254, 62); x.fillRect(off - 1024, y, 254, 62); } } });
   suelo.wrapS = suelo.wrapT = THREE.RepeatWrapping; suelo.repeat.set(5, 5);
   const piso = new THREE.Mesh(new THREE.PlaneGeometry(14, 16), new THREE.MeshStandardMaterial({ map: suelo, roughness: 0.6 })); piso.rotation.x = -Math.PI / 2; piso.position.z = -2; piso.receiveShadow = true; mundo.add(piso);
-  const alfombra = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), mat('#a8323a', 0.95)); alfombra.rotation.x = -Math.PI / 2; alfombra.position.set(0, 0.004, -1.5); alfombra.receiveShadow = true; if (!TB && !CF) mundo.add(alfombra);
+  const alfombra = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), mat('#a8323a', 0.95)); alfombra.rotation.x = -Math.PI / 2; alfombra.position.set(0, 0.004, -1.5); alfombra.receiveShadow = true; if (!TB && !CF && !MD) mundo.add(alfombra);
   const pared = (w, h, c) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat(c, 0.95)); m.receiveShadow = true; return m; };
   const texAzulejo = TB ? (() => { const t = lienzoTex(256, 256, (x, w, h) => { x.fillStyle = '#f4ecd6'; x.fillRect(0, 0, w, h); x.fillStyle = '#1f4f9a'; x.beginPath(); x.moveTo(w / 2, 18); x.lineTo(w - 18, h / 2); x.lineTo(w / 2, h - 18); x.lineTo(18, h / 2); x.closePath(); x.fill();
     x.fillStyle = '#e8a91c'; x.beginPath(); x.arc(w / 2, h / 2, 46, 0, 7); x.fill(); x.fillStyle = '#1f4f9a'; x.beginPath(); x.arc(w / 2, h / 2, 18, 0, 7); x.fill();
     x.fillStyle = '#e8a91c'; [[0, 0], [w, 0], [0, h], [w, h]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, 34, 0, 7); x.fill(); }); x.strokeStyle = '#cbbf9f'; x.lineWidth = 4; x.strokeRect(0, 0, w, h); }); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })() : null;
   const texMetro = CF ? (() => { const t = lienzoTex(256, 256, (x, w, h) => { x.fillStyle = '#c9d3cf'; x.fillRect(0, 0, w, h); for (let i = 0; i < 4; i++) for (let j = -1; j < 3; j++) { x.fillStyle = '#fbfdfc'; x.fillRect(j * 128 + (i % 2) * 64 + 3, i * 64 + 3, 122, 58); } }); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })() : null;
-  const zocalo = CF ? (w) => { const g = new THREE.Group(); const tx = texMetro.clone(); tx.needsUpdate = true; tx.repeat.set(w / 0.5, 1.3 / 0.5);
+  const texLadrillo = MD ? (() => { const t = lienzoTex(256, 256, (x, w, h) => { x.fillStyle = '#d9cbb8'; x.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) for (let j = -1; j < 3; j++) { const k = (i * 3 + j * 7 + 9) % 5; x.fillStyle = `rgb(${150 + k * 9},${70 + k * 5},${50 + k * 3})`; x.fillRect(j * 128 + (i % 2) * 64 + 3, i * 32 + 3, 122, 26); } }); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })() : null;
+  const zocalo = MD ? (w) => { const g = new THREE.Group(); const tx = texLadrillo.clone(); tx.needsUpdate = true; tx.repeat.set(w / 1.0, 1.9 / 1.0);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, 1.9), new THREE.MeshStandardMaterial({ map: tx, roughness: 0.9 })); m.position.set(0, 0.95, 0.012); g.add(m);
+    g.add(en(caja(w, 0.05, 0.06, '#121618', 0.02, 0.4), 0, 1.92, 0.03)); return sombra(g); } : CF ? (w) => { const g = new THREE.Group(); const tx = texMetro.clone(); tx.needsUpdate = true; tx.repeat.set(w / 0.5, 1.3 / 0.5);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, 1.3), new THREE.MeshStandardMaterial({ map: tx, roughness: 0.25 })); m.position.set(0, 0.65, 0.012); g.add(m);
     g.add(en(caja(w, 0.06, 0.06, '#1f6b54', 0.02, 0.4), 0, 1.32, 0.03)); return sombra(g); } : TB ? (w) => { const g = new THREE.Group(); const tx = texAzulejo.clone(); tx.needsUpdate = true; tx.repeat.set(w / 0.3, 1.2 / 0.3);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, 1.2), new THREE.MeshStandardMaterial({ map: tx, roughness: 0.3 })); m.position.set(0, 0.6, 0.012); g.add(m);
@@ -141,7 +145,7 @@ export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMen
     const noche = CF ? lienzoTex(256, 320, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#7fc4ff'); g.addColorStop(1, '#d9f0ff'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(255,255,255,0.9)'; [[60, 80, 40], [100, 70, 30], [190, 150, 34], [160, 160, 26]].forEach(([a, b, r]) => { x.beginPath(); x.arc(a, b, r, 0, 7); x.fill(); }); x.fillStyle = '#9cc79a'; x.fillRect(0, h * 0.78, w, h); x.fillStyle = '#e7d7b8'; x.fillRect(0, h * 0.88, w, h); }) : lienzoTex(256, 320, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#0d1638'); g.addColorStop(1, '#27346b'); x.fillStyle = g; x.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,230,${0.4 + (i % 3) * 0.2})`; x.fillRect((i * 97) % w, (i * 53) % (h * 0.7), 2, 2); } x.fillStyle = '#f5f1d0'; x.beginPath(); x.arc(w * 0.7, h * 0.22, 18, 0, 7); x.fill(); });
     v.add(new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.25), new THREE.MeshBasicMaterial({ map: noche, toneMapped: false })));
     v.add(en(caja(1.12, 0.07, 0.06, '#5e2f18'), 0, 0.63, 0.02)); v.add(en(caja(1.12, 0.07, 0.06, '#5e2f18'), 0, -0.63, 0.02)); v.add(en(caja(0.07, 1.3, 0.06, '#5e2f18'), -0.53, 0, 0.02)); v.add(en(caja(0.07, 1.3, 0.06, '#5e2f18'), 0.53, 0, 0.02)); v.add(en(caja(0.04, 1.25, 0.04, '#5e2f18'), 0, 0, 0.02));
-    const cortina = en(caja(0.3, 1.5, 0.05, CF ? '#f4efe4' : '#b1262f', 0.04), 0.7, 0, 0.05); v.add(cortina); const c2 = cortina.clone(); c2.position.x = -0.7; v.add(c2); mundo.add(v); });
+    const cortina = en(caja(0.3, 1.5, 0.05, MD ? '#1b2326' : CF ? '#f4efe4' : '#b1262f', 0.04), 0.7, 0, 0.05); v.add(cortina); const c2 = cortina.clone(); c2.position.x = -0.7; v.add(c2); mundo.add(v); });
   if (CF) {
     // pizarras con precios y plantas
     const pizarra = (txt1, txt2) => lienzoTex(320, 240, (x, w, h) => { x.fillStyle = '#23302b'; x.fillRect(0, 0, w, h); x.strokeStyle = '#a07a4e'; x.lineWidth = 16; x.strokeRect(0, 0, w, h); x.fillStyle = '#f4f1e8'; x.textAlign = 'center'; x.font = 'italic 700 46px Georgia, serif'; x.fillText(txt1, w / 2, 100); x.font = '800 54px Inter, Arial'; x.fillStyle = '#ffd36b'; x.fillText(txt2, w / 2, 178); });
@@ -164,8 +168,8 @@ export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMen
     q.add(en(new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.48), new THREE.MeshBasicMaterial({ map: t })), 0, 0, 0.025)); mundo.add(q); });
   // barra (izquierda del fondo)
   const barra = new THREE.Group(); barra.position.set(-3.2, 0, -5.4); mundo.add(barra);
-  barra.add(en(caja(4.2, 1.05, 0.7, CF ? '#1f6b54' : '#7a3f22', 0.05), 0, 0.525, 0)); barra.add(en(caja(4.4, 0.08, 0.86, CF ? '#eeeae2' : '#c98a52', 0.03, 0.35), 0, 1.09, 0));
-  for (let x = -1.8; x <= 1.8; x += 0.6) barra.add(en(caja(0.45, 0.7, 0.03, CF ? '#2a8466' : '#8d4b29', 0.02), x, 0.52, 0.36));
+  barra.add(en(caja(4.2, 1.05, 0.7, MD ? '#1b2326' : CF ? '#1f6b54' : '#7a3f22', 0.05), 0, 0.525, 0)); barra.add(en(caja(4.4, 0.08, 0.86, MD ? '#8a5a33' : CF ? '#eeeae2' : '#c98a52', 0.03, 0.35), 0, 1.09, 0));
+  for (let x = -1.8; x <= 1.8; x += 0.6) barra.add(en(caja(0.45, 0.7, 0.03, MD ? '#2b3337' : CF ? '#2a8466' : '#8d4b29', 0.02), x, 0.52, 0.36));
   const balda = (y) => { barra.add(en(caja(3.8, 0.05, 0.3, '#6b3a20', 0.015), 0, y, -0.85)); for (let i = 0; i < 16; i++) { const b = botella(['#2e7d4f', '#7a1f2b', '#c88a1a', '#3a4f8a', '#e5e0d0'][i % 5], 0.22 + (i % 3) * 0.05); b.position.set(-1.75 + i * 0.235, y + 0.025, -0.85); barra.add(b); } };
   balda(1.55); balda(2.15);
   for (let i = 0; i < 3; i++) barra.add(en(cil(0.025, 0.025, 0.3, '#c9ccd2', 10), -1.2 + i * 0.18, 1.28, 0.05));
@@ -209,7 +213,24 @@ export function construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMen
   // nuestra mesa: tarjeta MENÚ y placa camarero
   const tj = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(-0.16, 0.79, -0.42); tj.rotation.y = 0.28; mundo.add(tj);
   const placa = placaCuadrada('campana'); placa.scale.setScalar(0.24); placa.position.set(0.24, 0.79, -0.5); placa.rotation.y = -0.3; mundo.add(placa);
-  return { mundo, mesas, pantBarra, pantCoc, movCam, tj, placa, barra };
+  let puerta = null;
+  if (MD) {
+    // neón ABIERTO en la pared derecha
+    const neon = lienzoTex(512, 160, (x, w, h) => { x.clearRect(0, 0, w, h); x.shadowColor = '#ff3d9a'; x.shadowBlur = 30; x.strokeStyle = '#ffd1ea'; x.lineWidth = 8; x.font = 'italic 900 104px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.strokeText('ABIERTO', w / 2, h / 2 + 4); x.fillStyle = '#ff3d9a'; x.globalAlpha = 0.35; x.fillText('ABIERTO', w / 2, h / 2 + 4); });
+    const n = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.56), new THREE.MeshBasicMaterial({ map: neon, transparent: true, toneMapped: false })); n.position.set(5.97, 2.55, -1.8); n.rotation.y = -Math.PI / 2; mundo.add(n);
+    const ln = new THREE.PointLight('#ff3d9a', 6, 5, 1.6); ln.position.set(5.5, 2.5, -1.8); mundo.add(ln);
+    // puerta de la calle en la pared del fondo (z = 4), se abre hacia fuera
+    const marco = new THREE.Group(); marco.position.set(1.6, 0, 3.96); marco.rotation.y = Math.PI; mundo.add(marco);
+    marco.add(en(caja(1.3, 2.35, 0.02, '#0b1022', 0.005), 0, 1.175, -0.005));
+    [-0.68, 0.68].forEach(x => marco.add(en(caja(0.08, 2.45, 0.12, '#121618', 0.02), x, 1.225, 0))); marco.add(en(caja(1.44, 0.08, 0.12, '#121618', 0.02), 0, 2.43, 0));
+    puerta = new THREE.Group(); puerta.position.set(-0.6, 0, 0.02); marco.add(puerta);
+    const hoja = en(caja(1.2, 2.3, 0.05, '#121618', 0.02), 0.6, 1.15, 0); puerta.add(hoja);
+    const cristal = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.5), new THREE.MeshStandardMaterial({ color: '#3a5a7a', roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.6 })); cristal.position.set(0.6, 1.35, 0.03); puerta.add(cristal);
+    puerta.add(en(caja(0.04, 0.3, 0.06, '#c9ccd2', 0.01), 1.05, 1.1, 0.06));
+    const salida = lienzoTex(256, 64, (x, w, h) => { x.fillStyle = '#0f7a3a'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.font = '900 40px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('SALIDA', w / 2, h / 2 + 2); });
+    const ss = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.125), new THREE.MeshBasicMaterial({ map: salida, toneMapped: false })); ss.position.set(0, 2.62, 0.01); marco.add(ss);
+  }
+  return { mundo, mesas, pantBarra, pantCoc, movCam, tj, placa, barra, puerta };
 }
 
 // ---------- gente ----------

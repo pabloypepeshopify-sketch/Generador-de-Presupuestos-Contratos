@@ -127,6 +127,9 @@ const ESTILOS = {
   // mediodia: playa a pleno sol de agosto, colores saturados; subtítulos rojo/amarillo
   mediodia: { post: { filtro: 'saturate(1.22) contrast(1.07) brightness(1.03)' },
     subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff5e3a', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(10,30,60,0.8)', radio: 24 } },
+  // moderno: bar de tapas de noche, ladrillo y neón; subtítulos rosa/naranja neón
+  moderno: { post: { brillo: 0.18, desenfoqueBrillo: 14, filtro: 'saturate(1.15) contrast(1.08)' },
+    subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d9a', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 20 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
