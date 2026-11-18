@@ -3853,6 +3853,137 @@ V['dueno'] = { ...comunCapa, estilo: 'moderno',
   },
 };
 
+// ---------- POV del dueño v2: historia en tres actos (sábado malo → el lunes → sábado siguiente) y la pareja vuelve ----------
+PANT.pedidosLista = (x, w, h, s) => {
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(255,255,255,0.55)'; x.font = `600 24px ${SANS}`; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText('VISAX · Pedidos', 34, 70);
+  x.fillStyle = '#fff'; x.font = `600 50px ${SERIF}`; x.fillText(`${s.n || 0} pedidos nuevos`, 34, 150);
+  const L = [['Mesa 4', '2 × Caña · 1 × Bravas'], ['Mesa 2', '2 × Caña'], ['Mesa 6', '1 × Patatas bravas'], ['Mesa 1', '2 × Tinto de verano'], ['Mesa 5', '1 × Croquetas']];
+  for (let i = 0; i < Math.min(s.n || 0, 5); i++) { const k = (s.n || 0) - 1 - i; const [m, d] = L[k]; const y = 190 + i * 150, nuevo = i === 0;
+    x.fillStyle = nuevo ? grad(x, 24, 0, w - 24, 0, [VX.cian, VX.azul, VX.violeta]) : 'rgba(255,255,255,0.07)'; rr(x, 24, y, w - 48, 130, 26); x.fill();
+    x.fillStyle = '#fff'; x.font = `900 40px ${SANS}`; x.fillText(m, 52, y + 56); x.font = `600 28px ${SANS}`; x.fillStyle = nuevo ? '#fff' : 'rgba(255,255,255,0.65)'; x.fillText(d, 52, y + 100);
+    x.textAlign = 'right'; x.font = `800 24px ${SANS}`; x.fillStyle = nuevo ? VX.amarillo : 'rgba(255,255,255,0.4)'; x.fillText(nuevo ? 'AHORA' : 'hace 1 min', w - 52, y + 56); x.textAlign = 'left'; }
+};
+V['dueno2'] = { ...V['dueno'],
+  async montar() {
+    await V['dueno'].montar.call(this);
+    ['bar', 'lleno', 'veinte', 'lunes', 'siguiente', 'pareja', 'vuelto'].forEach(w => CLAVES.add(w));
+    const r = this; r.cocineroBase = this.cocinero.g.position.clone();
+    // el dueño como personaje (se ve en los planos de fuera)
+    const d = this.duenoM = muneco({ camisa: '#2b2f3a', pantalon: '#1d1b22', pelo: '#3a2418', peinado: 'corto', piel: '#e3a87f' }); this.mundo.add(d.g);
+    const c = this.c = { bar: cue('bar'), lleno: cue('lleno'), pero: cue('pero'), cuatro: cue('cuatro'), veinte: cue('veinte'), esperando: cue('esperando'), va: cue('va'), seis: cue('seis'), igual: cue('igual'), sesenta: cue('sesenta'), puerta: cue('puerta'), noche: cue('noche'),
+      lunes: cue('lunes'), pongo: cue('pongo'), tarjeta: cue('tarjeta'), cada: cue('cada'), sab2: cue('sabado', 2), tocan: cue('tocan'), piden: cue('piden'), llega: cue('llega'), aqui: cue('aqui'), mesas: cue('mesas'), cero: cue('cero'), pareja: cue('pareja'), vuelto: cue('vuelto') };
+    duracion = palabras[palabras.length - 1].fin + 0.35; c.fin = duracion;
+    c.L = c.lunes - 0.12; c.S2 = c.sab2 - 0.12;
+    const ph = this.cen[2].clone().add(new THREE.Vector3(0.03, 0.03, 0.06));
+    const T = (a, de, a2, mira, mira2, fov = 46, barrido = 0) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
+    this.tomas = {
+      A2: [T(c.lleno - 0.12, [4.8, 3.0, 3.4], [2.2, 3.05, 3.6], [0.0, 0.7, -2.0], [-1.5, 0.7, -2.6], 56)],
+      B: [T(c.pero - 0.1, [1.9, 1.6, 0.9], [4.6, 1.55, 1.1], [3.4, 1.2, -0.2], [3.4, 1.25, -0.2], 44)],
+      B2: [T(c.veinte - 0.1, [3.0, 1.45, 0.75], [3.25, 1.38, 0.35], [3.4, 1.28, -0.55], [3.4, 1.3, -0.6], 38)],
+      C: [T(c.va - 0.15, [3.7, 1.95, -1.9], [3.0, 1.85, -0.7], [3.0, 1.15, 1.0], [1.7, 1.2, 3.6], 52)],
+      E: [T(c.sesenta - 0.1, [-0.3, 1.6, 0.9], [0.2, 1.5, 1.7], [1.3, 1.2, 3.4], [1.6, 1.25, 3.9], 50)],
+      E2: [T(c.noche - 0.15, [-3.0, 1.75, -4.4], [-3.25, 1.65, -4.95], [-3.45, 1.4, -6.0], [-3.45, 1.4, -6.0], 42)],
+      F: [T(c.L, [-4.2, 2.3, 1.6], [3.4, 2.3, 1.6], [-3.6, 0.9, -1.8], [3.8, 0.9, -1.8], 50)],
+      F2: [T(c.cada - 0.1, [5.2, 3.0, 3.3], [3.0, 3.05, 3.6], [-0.5, 0.5, -2.0], [-0.8, 0.5, -2.2], 58)],
+      G: [T(c.S2, [1.6, 2.2, 3.6], [0.2, 2.9, 1.6], [-1.0, 1.0, -2.5], [-1.6, 1.0, -3.0], 54)],
+      H: [T(c.tocan - 0.1, [ph.x + 0.35, ph.y + 0.35, ph.z + 0.95], [ph.x + 0.15, ph.y + 0.22, ph.z + 0.65], ph.toArray(), ph.toArray(), 40)],
+      H2: [T(c.piden - 0.1, [ph.x + 0.1, ph.y + 0.06, ph.z + 0.48], [ph.x + 0.04, ph.y + 0.04, ph.z + 0.38], ph.toArray(), ph.toArray(), 36)],
+      K: [T(c.pareja - 0.12, [2.9, 1.6, 0.6], [2.5, 1.55, 1.3], [1.6, 1.3, 3.8], [2.4, 1.2, 1.6], 50)],
+      K2: [T(c.vuelto - 0.15, [2.0, 1.7, 1.6], [4.7, 1.6, 1.3], [3.4, 1.2, -0.2], [3.4, 1.25, -0.2], 46)],
+    };
+    // tarjetas: el lunes aparecen al pasar el dueño (de izquierda a derecha)
+    this.orden = this.mesas.map((m, i) => [m.x, i]).sort((a, b) => a[0] - b[0]);
+    this.popT = []; this.orden.forEach(([x, i], k) => { this.popT[i] = lerp(c.L + 0.25, c.cada + 0.05, k / (this.orden.length - 1)); });
+    efectos = [['whoosh', c.lleno - 0.15], ['whoosh', c.pero - 0.12], ['whoosh', c.veinte - 0.12], ['tick', c.veinte + 0.1], ['tick', c.veinte + 0.4], ['whoosh', c.va - 0.18], ['pop', c.va + 0.3], ['whoosh', c.seis - 0.15], ['pop', c.seis + 0.5],
+      ['whoosh', c.sesenta - 0.15], ['hit', c.sesenta], ['whoosh', c.noche - 0.18], ['riser', c.L - 1.0], ['whoosh', c.L - 0.05], ...this.popT.map(t => ['pop', t]), ['whoosh', c.cada - 0.12], ['ding', c.cada + 0.3],
+      ['whoosh', c.S2 - 0.05], ['whoosh', c.tocan - 0.12], ['tap', c.tocan + 0.2], ['whoosh', c.piden - 0.12], ['tick', c.piden + 0.15], ['pop', c.piden + 0.4], ['whoosh', c.llega - 0.18],
+      ...[0, 1, 2, 3, 4].map(k => ['ding', c.llega + k * 0.22]), ['buzz', c.llega], ['whoosh', c.mesas - 0.12], ['hit', c.cero], ['whoosh', c.pareja - 0.15], ['whoosh', c.vuelto - 0.18], ['pop', c.vuelto + 0.3]];
+  },
+  seg(t) { const c = this.c; const L = [['A', 0], ['A2', c.lleno - 0.12], ['B', c.pero - 0.1], ['B2', c.veinte - 0.1], ['C', c.va - 0.15], ['D', c.seis - 0.1], ['E', c.sesenta - 0.1], ['E2', c.noche - 0.15], ['F', c.L], ['F2', c.cada - 0.1], ['G', c.S2], ['H', c.tocan - 0.1], ['H2', c.piden - 0.1], ['I', c.llega - 0.15], ['J', c.mesas - 0.1], ['K', c.pareja - 0.12], ['K2', c.vuelto - 0.15]];
+    let s = 'A'; for (const [n, a] of L) if (t >= a) s = n; return s; },
+  perdido(t) { const c = this.c; return t >= c.sesenta ? 60 : t >= c.seis + 0.5 ? 40 : t >= c.va + 0.3 ? 20 : 0; },
+  actualizar(t) {
+    const c = this.c, s = this.seg(t), fase = t < c.L ? 1 : t < c.S2 ? 2 : 3, caos = fase === 1;
+    // gente: sábado 1 con manos arriba, lunes vacío, sábado 2 tranquilo
+    this.gente.forEach((p, i) => { if (this.asiento.has(p)) return; p.g.visible = fase !== 2; p.reset(); p.respirar(t, p.g.position.x); if (Math.sin(t * 1.1 + i * 2) > 0.4) p.hablar(t + i, 0.5);
+      if (caos && Math.sin(t * 1.6 + i * 1.9) > 0.2) { p.bD.hombro.rotation.x = -2.7; p.bD.hombro.rotation.z = -0.15 + Math.sin(t * 7 + i) * 0.2; }
+      if (fase === 3 && t > c.llega) { p.bD.hombro.rotation.x = -1.5 - 0.3 * Math.max(0, Math.sin(t * 5 + i)); p.bD.codo.rotation.x = -0.6; } });
+    // parejas: la 4 y la 6 se van el sábado 1; el sábado 2 la 6 está sentada y la 4 vuelve por la puerta
+    const pz = [1.6, 3.55]; let abierta = 0;
+    const camino = (m, k, x0, z0, kk, entrar) => { const pts = [[x0, z0], [lerp(x0, pz[0], 0.5), 2.2], [pz[0] + (k - 0.5) * 0.3, pz[1]], [pz[0] + (k - 0.5) * 0.3, 4.8]]; if (entrar) pts.reverse();
+      const sg = Math.min(2, Math.floor(kk * 3)), f = kk * 3 - sg, P0 = pts[sg], P1 = pts[sg + 1]; m.sentado = false; m.g.position.set(lerp(P0[0], P1[0], f), 0, lerp(P0[1], P1[1], f)); m.g.rotation.y = Math.atan2(P1[0] - P0[0], P1[1] - P0[1]); m.andar(t * 2.2, 1);
+      if (m.g.position.z > 3.0) abierta = 1; };
+    const salida = [[c.va - 0.7, c.seis + 0.4], [c.seis - 0.05, c.sesenta + 0.6]];
+    this.se.forEach((par, j) => par.forEach((m, k) => { const [x0, z0, r0] = this.asiento.get(m); m.reset(); m.g.visible = fase !== 2;
+      const sentado = () => { m.sentar(); m.g.position.set(x0, 0, z0); m.g.rotation.y = r0; m.respirar(t, j * 2 + k); };
+      if (fase === 1) { const [a, b] = salida[j]; if (t < a) { sentado(); m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.3)); m.bI.hombro.rotation.x = -1.0; m.bI.codo.rotation.x = -1.3; if (k === 0 && t > c.veinte - 0.2) { m.bI.hombro.rotation.x = -1.3; m.bI.codo.rotation.x = -1.5; m.cabeza.rotation.x = 0.35; } return; }
+        const kk = clamp((t - a - k * 0.12) / (b - a)); camino(m, k, x0, z0, kk, false); m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.3)); if (kk >= 1) m.g.visible = false; return; }
+      if (fase === 3) { if (j === 1 || t >= c.vuelto - 0.2) { sentado(); if (j === 0) { m.hablar(t + k, 0.6); m.bD.hombro.rotation.x = -2.4 - 0.3 * Math.sin(t * 9 + k); m.bD.hombro.rotation.z = -0.3; } return; }
+        if (t < c.pareja - 0.35) { m.g.visible = false; return; } camino(m, k, x0, z0, clamp((t - c.pareja + 0.35 - k * 0.1) / (c.vuelto - c.pareja + 0.15)), true); m.hablar(t, 0.4); } }));
+    this._abre = lerp(this._abre ?? 0, abierta, 0.35); if (this.puerta) this.puerta.rotation.y = -1.25 * this._abre;
+    // camarero y cocinero
+    const k = this.camarero; k.reset(); k.g.visible = fase !== 2; k.bandeja.visible = true;
+    if (caos) { const f = (t * 0.33) % 1, ang = f * Math.PI * 2; k.g.position.set(Math.cos(ang) * 2.2 + 0.2, 0, Math.sin(ang) * 1.6 - 1.6); k.g.rotation.y = ang + Math.PI; k.andar(t * 2.6, 1); }
+    else { k.g.position.set(1.0, 0, -1.4); k.g.rotation.y = -0.6; k.respirar(t, 2); k.hablar(t, 0.3); }
+    k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15);
+    this.cocinero.reset(); this.cocinero.andar(t * 0.4, 0.3); this.cocinero.g.visible = fase !== 2;
+    this.servido.forEach(x => (x.visible = fase === 3 && t > c.llega));
+    // el dueño: triste tras la barra, el lunes pone tarjetas, el sábado 2 sonríe
+    const d = this.duenoM; d.reset(); d.g.visible = !['A', 'D', 'I', 'J'].includes(s);
+    if (fase === 2) { const kx = prog(t, c.L, c.cada + 0.15); d.g.position.set(lerp(-4.3, 4.2, kx), 0, -1.75); d.g.rotation.y = Math.PI / 2; d.andar(t * 2.4, 1);
+      if (this.popT.some(p => entre(t, p - 0.12, p + 0.12))) { d.bD.hombro.rotation.x = -1.2; d.bD.hombro.rotation.z = -0.4; } if (t > c.cada) { d.g.rotation.y = 0.2; d.respirar(t, 1); d.bD.hombro.rotation.x = -2.6; d.hablar(t, 0.4); } }
+    else { d.g.position.set(-3.45, 0, -6.0); d.g.rotation.y = 0; d.respirar(t, 1);
+      if (fase === 1 && t > c.sesenta) { d.cabeza.rotation.x = 0.45; d.bI.hombro.rotation.x = -2.2; d.bI.codo.rotation.x = -1.6; d.bI.hombro.rotation.z = 0.3; }
+      if (fase === 3 && t > c.vuelto - 0.2) { d.bD.hombro.rotation.x = -2.6; d.bD.hombro.rotation.z = -0.2 + Math.sin(t * 9) * 0.25; d.hablar(t, 0.5); } }
+    // tarjetas
+    this.cartas.forEach((tj, i) => { const tp = this.popT[i]; const kk = fase === 1 ? 0 : t < tp ? 0 : rebote(clamp((t - tp) / 0.35)); tj.visible = kk > 0.001; tj.scale.setScalar(0.3 * Math.max(0.001, kk)); });
+    const pulso = Math.round((0.5 + 0.5 * Math.sin(t * 8)) * 4) / 4;
+    this.pantBarra.userData.pintar('barra', fase === 3 && t > c.llega ? { nuevo: true, mesa: 2, detalle: '2 × Caña', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', fase === 3 && t > c.llega ? { nuevo: true, mesa: 6, detalle: '1 × Patatas bravas', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    const V0 = new THREE.Vector3();
+    // ---- planos en 3.ª persona ----
+    if (this.tomas[s]) {
+      this.D.visible = this.tjMano.visible = false; this.colocarBrazo();
+      this.desenfoque = camara2(t, this.tomas[s]); const a0 = this.tomas[s][0].a; if (t - a0 < 0.18) this.desenfoque = Math.max(this.desenfoque, 13 * (1 - (t - a0) / 0.18));
+      if (s === 'H' || s === 'H2') { const q = this.cliente2; q.bD.hombro.rotation.set(-1.35, 0, -0.1); q.bD.codo.rotation.x = -0.3; q.g.visible = s === 'H';
+        movilEnTarjeta({ mv: this.mv2, on: this.on }, t, this.cartas[2], c.tocan + 0.2, c.tocan - 0.1, c.llega, 'bloqueo', 'cartaV', { hora: '22:15', mesa: 2, sel: t > c.piden + 0.3 ? 2 : t > c.piden + 0.1 ? 1 : 0, enviado: t > c.piden + 0.4 }); }
+      else { this.mv2.visible = false; this.on.userData.actualizar(t, 0, V0, V0); }
+      return;
+    }
+    this.mv2.visible = false; this.on.userData.actualizar(t, 0, V0, V0);
+    // ---- primera persona (dueño tras la barra) ----
+    const O = this.obj; let [yaw, pitch] = this.mirar(O.sala), desen = 0, s0 = 0;
+    if (s === 'A') { const kk = prog(t, 0, c.lleno - 0.12); [yaw, pitch] = this.mirar(O.m4); yaw += 0.18 * (1 - kk); pitch -= 0.04 * (1 - kk); }
+    else if (s === 'D') { s0 = c.seis - 0.1; const kk = prog(t, c.seis - 0.1, c.seis + 0.15); const A = this.mirar(O.puerta), B = this.mirar(O.m6); [yaw, pitch] = [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; yaw = lerp(yaw, this.mirar(O.puerta)[0], prog(t, c.igual, c.sesenta - 0.1) * 0.8); desen = Math.sin(Math.PI * kk) * 14; }
+    else if (s === 'I') { s0 = c.llega - 0.15; [yaw, pitch] = this.mirar(O.sala); pitch -= 0.15; yaw += 0.1 * Math.sin(t * 2); }
+    else if (s === 'J') { s0 = c.mesas - 0.1; const kk = prog(t, c.mesas - 0.1, c.pareja - 0.12); const A = this.mirar(O.m6), B = this.mirar(O.m4); [yaw, pitch] = [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; }
+    if (s0 && t - s0 < 0.18) desen = Math.max(desen, 14 * (1 - (t - s0) / 0.18));
+    const amp = caos ? 2 : 1, temb = (a, b, c2) => (Math.sin(t * a) * 0.006 + Math.sin(t * b + 1) * 0.004 + Math.sin(t * c2 + 2) * 0.003) * amp;
+    cam.position.copy(this.ojo).add(new THREE.Vector3(temb(1.3, 2.1, 3.7), temb(1.7, 2.9, 4.1), 0)); cam.rotation.set(pitch + temb(0.9, 1.6, 2.3), yaw + temb(0.7, 1.3, 2.9), 0); cam.up.set(0, 1, 0);
+    if (cam.fov !== 62) { cam.fov = 62; cam.updateProjectionMatrix(); } cam.updateMatrixWorld(true); this.desenfoque = desen; this.tjMano.visible = false;
+    const oculto = new THREE.Vector3(0.24, -0.62, -0.42), vista = new THREE.Vector3(0.02, -0.055, -0.36);
+    let pos = oculto.clone(); if (s === 'I') { pos = oculto.clone().lerp(vista, prog(t, c.llega - 0.15, c.llega + 0.15)); if (entre(t, c.llega, c.llega + 1.1)) pos.x += Math.sin(t * 90) * 0.002; } else if (s === 'J') pos = vista.clone().lerp(oculto, prog(t, c.mesas - 0.1, c.mesas + 0.25));
+    pos.y += Math.sin(t * 2.3) * 0.004; this.D.visible = s === 'I' || s === 'J'; this.D.position.copy(pos); this.D.rotation.set(0, 0, 0); this.D.updateMatrixWorld(true); this.colocarBrazo();
+    this.mv.userData.pantalla('pedidosLista', { n: t < c.llega ? 0 : Math.min(5, 1 + Math.floor((t - c.llega) / 0.22)) });
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.sesenta, c.cero]) { const d = t - g; if (d >= 0 && d < 0.35) temblor = Math.max(temblor, (1 - d / 0.35) * 14); }
+    let zoom = 1; for (const g of [c.cero, c.L, c.S2]) { const d = t - g; if (d >= 0 && d < 0.45) zoom = Math.max(zoom, 1 + 0.07 * (1 - d / 0.45)); } return { desenfoque: this.desenfoque, temblor, zoom }; },
+  capa(t) {
+    const c = this.c; velos(); const s = this.seg(t);
+    if (t < c.L) { const n = this.perdido(t), cambios = [c.va + 0.3, c.seis + 0.5, c.sesenta]; const ult = cambios.filter(x => t >= x).pop();
+      marcador('PERDIDO ESTE SÁBADO', n ? `−${n} €` : '0 €', '#ff4d5e', ult && t - ult < 0.35 ? rebote(clamp((t - ult) / 0.35)) * 1.1 : 1); }
+    else if (t >= c.mesas - 0.1) marcador('MESAS QUE SE VAN', t >= c.cero ? '0' : '…', '#3ddc84', t >= c.cero ? rebote(clamp((t - c.cero) / 0.35)) : 1);
+    if (t < 2.35) { pildora('POV: ERES EL DUEÑO', W / 2, 470, 1 - prog(t, 2.1, 2.35), { tono: 'rojo', tam: 40 }); gancho(['¿CUÁNTO PIERDE UN BAR', 'CADA SÁBADO?'], 1 - prog(t, 2.1, 2.35)); }
+    if (entre(t, c.L, c.L + 1.0)) gancho(['EL LUNES'], entra(t, c.L, 0.25) * (1 - prog(t, c.L + 0.8, c.L + 1.0)));
+    if (entre(t, c.S2, c.S2 + 1.0)) gancho(['SÁBADO SIGUIENTE'], entra(t, c.S2, 0.25) * (1 - prog(t, c.S2 + 0.8, c.S2 + 1.0)));
+    const etq = (txt, quien, a, b) => { if (!entre(t, a, b) || !quien.g.visible) return; const v = quien.g.position.clone(); v.y = 2.05; etiquetaPlano(txt, v, entra(t, a), 'rojo', 'recibo'); };
+    if (['C', 'D'].includes(s)) { etq('−20 €', this.se[0][0], c.va + 0.3, c.seis + 0.3); etq('−20 €', this.se[1][0], c.seis + 0.5, c.sesenta); }
+    if (s === 'B2') pildora('20 min esperando', W / 2, 1460, entra(t, c.veinte - 0.05), { icono: 'reloj', tono: 'rojo', tam: 46 });
+    if (entre(t, c.pero, c.L - 0.1)) pildora('¿Te has ido de un bar por esperar?', W / 2, 1640, entra(t, c.pero), { icono: 'reloj', tono: 'marca', tam: 44 });
+    if (entre(t, c.tocan, c.fin)) pildora('Mándaselo a un dueño de bar', W / 2, 1640, entra(t, c.tocan), { icono: 'usuario', tono: 'oscuro', tam: 42 });
+  },
+};
+
 // ---------- API para render.mjs ----------
 let actual = null;
 window.init = async (id, pal, dur) => {
