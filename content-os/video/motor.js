@@ -3398,17 +3398,17 @@ V['liado'] = { ...comunCapa, estilo: 'taberna',
 
 // ---------- Cronómetro: cuánto tarda un bar en ponerte un café (cafetería de mañana, cámara rápida sin parar) ----------
 PANT.cartaDesayuno = (x, w, h, s) => {
-  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.font = `600 46px ${SERIF}`; x.fillText('Café La Plaza', 34, 120); x.font = `italic 600 30px ${SERIF}`; x.fillStyle = '#ffc98a'; x.fillText('desayunos', 34, 162);
+  x.fillStyle = '#0a0c16'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.font = `600 46px ${SERIF}`; x.fillText(s.titulo || 'Café La Plaza', 34, 120); x.font = `italic 600 30px ${SERIF}`; x.fillStyle = '#ffc98a'; x.fillText(s.sub || 'desayunos', 34, 162);
   x.fillStyle = grad(x, w - 190, 0, w - 34, 0, [VX.cian, VX.violeta]); rr(x, w - 190, 86, 156, 58, 29); x.fill(); x.fillStyle = '#fff'; x.font = `800 28px ${SANS}`; x.textAlign = 'center'; x.fillText(`Mesa ${s.mesa || 2}`, w - 112, 125);
   const sel = s.sel || 0;
-  [['Café con leche', '1,30 €', ['#c89b6d', '#7a4b2a']], ['Tostada con tomate', '2,50 €', ['#e0a24a', '#b9481f']], ['Zumo de naranja', '3,00 €', ['#ffb347', '#f57b2c']], ['Croissant', '1,80 €', ['#e8c27a', '#b9822e']]].forEach(([n, p, cols], i) => {
+  (s.items || [['Café con leche', '1,30 €', ['#c89b6d', '#7a4b2a']], ['Tostada con tomate', '2,50 €', ['#e0a24a', '#b9481f']], ['Zumo de naranja', '3,00 €', ['#ffb347', '#f57b2c']], ['Croissant', '1,80 €', ['#e8c27a', '#b9822e']]]).forEach(([n, p, cols], i) => {
     const y = 210 + i * 160; x.fillStyle = 'rgba(255,255,255,0.05)'; rr(x, 24, y, w - 48, 140, 26); x.fill(); x.fillStyle = grad(x, 40, y + 18, 140, y + 118, cols); rr(x, 40, y + 18, 104, 104, 20); x.fill();
     x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = `700 30px ${SANS}`; x.fillText(n, 166, y + 62); x.fillStyle = 'rgba(255,255,255,0.6)'; x.font = `500 26px ${SANS}`; x.fillText(p, 166, y + 102);
     const on = sel > i && i < 2; x.fillStyle = on ? grad(x, w - 110, 0, w - 46, 0, [VX.cian, VX.violeta]) : 'rgba(255,255,255,0.12)'; x.beginPath(); x.arc(w - 78, y + 70, 32, 0, 7); x.fill();
     if (on) check(x, w - 78, y + 70, 1.3); else { x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.moveTo(w - 92, y + 70); x.lineTo(w - 64, y + 70); x.moveTo(w - 78, y + 56); x.lineTo(w - 78, y + 84); x.stroke(); }
   });
   if (sel) { const env = s.enviado; x.fillStyle = env ? '#16a34a' : grad(x, 30, 0, w - 30, 0, [VX.cian, VX.azul, VX.violeta]); rr(x, 30, h - 150, w - 60, 104, 52); x.fill(); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = `800 32px ${SANS}`;
-    if (env) { check(x, w / 2 - 150, h - 98, 1.4); x.fillText('Pedido enviado', w / 2 + 20, h - 87); } else x.fillText(`Pedir · ${Math.min(sel, 2)} · ${['', '1,30', '3,80'][Math.min(sel, 2)]} €`, w / 2, h - 87); }
+    if (env) { check(x, w / 2 - 150, h - 98, 1.4); x.fillText('Pedido enviado', w / 2 + 20, h - 87); } else x.fillText(`Pedir · ${Math.min(sel, 2)} · ${(s.totales || ['', '1,30', '3,80'])[Math.min(sel, 2)]} €`, w / 2, h - 87); }
 };
 function tazaCafe() {
   const g = new THREE.Group(); const blanco = matJ('#ffffff', 0.3);
@@ -3579,6 +3579,153 @@ V['crono'] = { ...comunCapa, estilo: 'cafeteria',
     if (dos) { const parado = t >= c.mesa3; cronoPanel(W - 278, parado ? 'MESA 2 · SERVIDA' : 'MESA 2 · CON TARJETA', mmss(this.t2(t)), '#3ddc84', entra(t, c.mesa2 - 0.1) * 0.9 * (parado && t - c.mesa3 < 0.3 ? 1.12 : 1), parado); }
     gancho(['¿CUÁNTO TARDA UN BAR', 'EN PONERTE UN CAFÉ?'], 1 - prog(t, 2.2, 2.45));
     if (entre(t, c.toca, c.y - 0.1)) { const grande = t >= c.cta - 0.05; pildora('Comenta CAFÉ', W / 2, grande ? 1560 : 1660, grande ? entra(t, c.cta - 0.05) * 1.3 : entra(t, c.toca), { icono: 'check', tono: 'marca', tam: 54 }); }
+  },
+};
+
+// ---------- El señor de la mano, parte 2: chiringuito en agosto a mediodía (mismo personaje que «crono») ----------
+function tintoVerano() {
+  const g = new THREE.Group(); const vaso = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.038, 0.15, 18), new THREE.MeshStandardMaterial({ color: '#b8243a', roughness: 0.15, emissive: '#3a0410', emissiveIntensity: 0.4 })); vaso.position.y = 0.075; g.add(vaso);
+  const limon = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.008, 16), matJ('#f5d83a', 0.5)); limon.position.set(0, 0.155, 0); limon.rotation.z = 0.3; g.add(limon);
+  for (let i = 0; i < 3; i++) { const h = caja(0.03, 0.03, 0.03, '#e6f4ff', 0.006); h.position.set(Math.cos(i * 2) * 0.015, 0.14, Math.sin(i * 2) * 0.015); h.rotation.set(i, i * 2, 0); g.add(h); }
+  g.traverse(m => { if (m.isMesh) m.castShadow = true; }); return g;
+}
+function espetos() {
+  const g = new THREE.Group(); const plato = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.014, 28), matJ('#ffffff', 0.3)); plato.position.y = 0.007; g.add(plato);
+  for (let i = 0; i < 3; i++) { const s = new THREE.Mesh(new THREE.CapsuleGeometry(0.022, 0.13, 6, 10), matJ('#8fa3b8', 0.35)); s.rotation.z = Math.PI / 2; s.scale.set(1, 1, 0.7); s.position.set(0, 0.035, -0.05 + i * 0.05); g.add(s);
+    const lomo = new THREE.Mesh(new THREE.CapsuleGeometry(0.012, 0.12, 4, 8), matJ('#4a5a6e', 0.4)); lomo.rotation.z = Math.PI / 2; lomo.position.set(0, 0.052, -0.05 + i * 0.05); g.add(lomo); }
+  const palo = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.24, 6), matJ('#d9b77a', 0.8)); palo.rotation.x = Math.PI / 2; palo.position.set(0.03, 0.04, 0); g.add(palo);
+  g.traverse(m => { if (m.isMesh) m.castShadow = true; }); return g;
+}
+function gaviota() {
+  const g = new THREE.Group(); const blanco = matJ('#ffffff', 0.6), gris = matJ('#9aa3ad', 0.6);
+  const cuerpo = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), blanco); cuerpo.scale.set(0.8, 0.8, 1.5); g.add(cuerpo);
+  const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), blanco); cabeza.position.set(0, 0.07, 0.12); g.add(cabeza);
+  const pico = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.06, 8), matJ('#f2b233', 0.5)); pico.rotation.x = Math.PI / 2; pico.position.set(0, 0.065, 0.19); g.add(pico);
+  [-1, 1].forEach(s => { const o = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), matJ('#111111', 0.3)); o.position.set(0.035 * s, 0.085, 0.15); g.add(o); });
+  const alas = [-1, 1].map(s => { const piv = new THREE.Group(); piv.position.set(0.05 * s, 0.03, 0); const a = caja(0.26, 0.015, 0.12, '#9aa3ad', 0.006); a.material = gris; a.position.x = 0.13 * s; piv.add(a); g.add(piv); return piv; });
+  const cola = caja(0.08, 0.01, 0.08, '#2a2a2a', 0.004); cola.position.set(0, 0.02, -0.15); g.add(cola);
+  g.userData.aletear = (t, k) => alas.forEach((p, i) => (p.rotation.z = (i ? -1 : 1) * (k ? Math.sin(t * 28) * 0.9 : -0.15)));
+  g.traverse(m => { if (m.isMesh) m.castShadow = true; }); return g;
+}
+V['mano2'] = { ...comunCapa, estilo: 'mediodia',
+  async montar() {
+    await V['chiringuito'].montar.call(this);
+    ['chiringuito', 'agosto', 'mano', 'cuarenta', 'grados', 'camarero', 'gamba', 'rojo', 'sombrilla', 'tarjeta', 'tintos', 'espetos', 'minuto', 'mesa'].forEach(w => CLAVES.add(w));
+    // mediodía de agosto: cielo azul intenso, sol alto y blanco
+    const cielo = document.createElement('canvas'); cielo.width = 8; cielo.height = 256; const cx = cielo.getContext('2d'); const gr = cx.createLinearGradient(0, 0, 0, 256);
+    gr.addColorStop(0, '#1f6fd6'); gr.addColorStop(0.55, '#5fb0f0'); gr.addColorStop(1, '#d8f1ff'); cx.fillStyle = gr; cx.fillRect(0, 0, 8, 256);
+    const tc = new THREE.CanvasTexture(cielo); tc.colorSpace = THREE.SRGBColorSpace; scene.background = tc; scene.fog = new THREE.Fog('#cfeaff', 40, 120);
+    const dirs = []; scene.traverse(o => { if (o.isDirectionalLight) dirs.push(o); }); this.sol = dirs[0]; this.sol.color.set('#fff8ea'); this.sol.intensity = 3.1; dirs.slice(1).forEach(l => (l.intensity = 0.25));
+    hemi.color.set('#ffffff'); hemi.groundColor.set('#e0c08a'); hemi.intensity = 1.6; renderer.toneMappingExposure = 1.08;
+    this.M.traverse(o => { if (o.isMesh && o.geometry.type === 'CircleGeometry' && o.material.fog === false) o.visible = false; });
+    this.bombillas.forEach(b => (b.visible = false));
+    // fuera lo del vídeo anterior: pareja de la mesa 0, su pedido, su tarjeta y el móvil del camarero
+    [this.A, this.B].forEach(m => (m.g.visible = false)); this.gente = this.gente.filter(m => m.g.visible);
+    [...this.canasMesa, this.bravasMesa, ...this.canasBarra, this.bravasBarra, this.tj, this.mvC, this.halo, this.aro].forEach(o => (o.visible = false));
+    // el señor de la mano (mismo que en «crono»), en la mesa sin sombrilla
+    const yo = this.yo = muneco({ camisa: '#ffffff', chaleco: '#34405e', pantalon: '#34405e', pelo: '#5a4a3a', peinado: 'corto', piel: '#f0c29b' }); yo.sentar(); yo.g.position.set(0.8, 0, 1.48); this.M.add(yo.g);
+    const corbata = caja(0.06, 0.24, 0.02, '#c0263a', 0.01); corbata.position.set(0, 1.2, 0.19); yo.raiz.add(corbata);
+    this.pielYo = []; yo.g.traverse(o => { if (o.isMesh && o.material.color && o.material.color.getHexString() === 'f0c29b') this.pielYo.push(o.material); });
+    // la de la sombrilla de al lado (mesa 2) con su tarjeta MENÚ
+    const m2 = this.mesas[2].position; this.ella = this.gente.find(g => Math.abs(g.g.position.x - m2.x) < 0.01 && g.g.position.z < m2.z);
+    const tj = this.tj2 = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(m2.x + 0.22, 0.795, m2.z - 0.28); tj.rotation.y = Math.PI - 0.3; this.M.add(tj);
+    this.M.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(Math.PI - 0.3), 0, Math.cos(Math.PI - 0.3));
+    this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07).add(new THREE.Vector3(0, 0.02, 0)); this.mv.scale.setScalar(0.38);
+    // pedido: tintos y espetos (bandeja, plancha y mesa)
+    this.bandeja.children.slice(1).forEach(o => (o.visible = false));
+    const t1 = tintoVerano(); t1.position.set(-0.09, 0.012, 0.03); const t2 = tintoVerano(); t2.position.set(0.08, 0.012, -0.04); const e1 = espetos(); e1.scale.setScalar(0.7); e1.position.set(0.02, 0.012, 0.12); this.bandeja.add(t1, t2, e1);
+    this.pedMesa = [tintoVerano(), tintoVerano(), espetos()]; [[m2.x - 0.2, m2.z - 0.12], [m2.x + 0.05, m2.z + 0.1], [m2.x - 0.05, m2.z + 0.2]].forEach(([x, z], i) => { this.pedMesa[i].position.set(x, 0.795, z); this.M.add(this.pedMesa[i]); });
+    this.espPlancha = espetos(); this.espPlancha.scale.setScalar(1.3); this.espPlancha.position.set(5.3, 1.04, -4.0); this.M.add(this.espPlancha);
+    this.humo = [0, 1, 2, 3].map(() => { const v = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.3, depthWrite: false })); this.M.add(v); return v; });
+    this.gav = gaviota(); this.M.add(this.gav);
+    // paseantes por la arena a cámara rápida
+    this.paseantes = [{ camisa: '#ff5e7a', pelo: '#2a1a12' }, { camisa: '#2bb3c9', pelo: '#7a3d1d', peinado: 'largo' }, { camisa: '#ffd23a', pelo: '#111111' }].map((o, i) => { const m = muneco({ pantalon: '#2b2f3a', piel: ['#f0c29a', '#e9b48c', '#c98d63'][i], ...o }); this.M.add(m.g); return m; });
+    const c = this.c = { parte: cue('parte'), chiringuito: cue('chiringuito'), agosto: cue('agosto'), levanta: cue('levanta'), cuarenta: cue('cuarenta'), pasa: cue('pasa'), rojo: cue('rojo'), gamba: cue('gamba'), sombrilla: cue('sombrilla'),
+      toca: cue('toca'), tarjeta: cue('tarjeta'), tintos: cue('tintos'), espetos: cue('espetos'), minuto: cue('minuto'), mesa: cue('mesa'), y: cue('y', 3), sigue: cue('sigue'), levantada: cue('levantada') };
+    duracion = palabras[palabras.length - 1].fin + 0.12; c.fin = duracion;
+    const yoP = [0.8, 1.35, 1.48], mano = [1.05, 1.75, 1.55], P = this.ph, n = this.nrm, cen = this.cen, fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
+    const T = (a, de, a2, mira, mira2, fov = 44, barrido = 0.18) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
+    this.tomas = [
+      T(0, [2.6, 1.7, 5.2], [1.35, 1.5, 3.4], yoP, [0.85, 1.45, 1.48], 46, 0),
+      T(c.chiringuito - 0.15, [-4.5, 7.0, 9.0], [3.5, 6.0, 8.0], [0.5, 0.8, -0.5], [0.8, 0.8, 0.5], 50),
+      T(c.levanta - 0.1, [1.6, 0.95, 2.9], [1.3, 1.05, 2.55], [0.95, 1.5, 1.5], mano, 50),
+      T(c.cuarenta - 0.1, [1.7, 1.5, 2.7], [-0.1, 1.5, 2.7], yoP, yoP, 40),
+      T(c.pasa - 0.1, [-1.5, 1.4, 3.8], [2.8, 1.4, 3.8], [-1.8, 1.1, 0.6], [3.2, 1.1, 0.6], 46),
+      T(c.rojo - 0.1, [1.5, 1.45, 3.0], [1.0, 1.38, 2.35], yoP, yoP, 38),
+      T(c.sombrilla - 0.1, [5.8, 1.8, 5.6], [4.9, 1.5, 4.6], [4.0, 1.1, 3.0], [4.0, 1.15, 2.9], 46, 0.22),
+      T(c.toca - 0.1, fr(cen, [0.75, 0.45, -0.95]), fr(cen, [0.45, 0.3, -0.7]), cen.toArray(), cen.toArray(), 42),
+      T(c.tintos - 0.12, fr(P, [n.x * 0.62 + 0.15, 0.16, n.z * 0.62]), fr(P, [n.x * 0.5, 0.1, n.z * 0.5 - 0.08]), P.toArray(), P.toArray(), 38),
+      T(c.espetos - 0.1, [5.0, 1.95, -1.5], [5.05, 1.78, -1.95], [5.3, 1.05, -4.0], [5.3, 1.05, -4.0], 40),
+      T(c.minuto - 0.12, [6.2, 1.7, 1.0], [5.9, 1.6, 1.4], [4.3, 1.2, 2.2], [4.7, 1.1, 2.9], 48),
+      T(c.mesa - 0.1, [2.6, 1.75, 3.9], [2.95, 1.55, 3.7], [4.0, 0.85, 3.3], [4.0, 0.85, 3.3], 40),
+      T(c.y - 0.1, [-0.8, 1.7, 4.0], [0.3, 1.5, 3.0], yoP, yoP, 44, 0.22),
+      T(c.sigue - 0.1, [1.7, 1.3, 2.9], [1.25, 1.5, 2.4], yoP, mano, 44),
+    ];
+    efectos = [['whoosh', c.chiringuito - 0.2], ['whoosh', c.levanta - 0.15], ['whoosh', c.cuarenta - 0.15], ['hit', c.cuarenta], ['whoosh', c.pasa - 0.15], ['whoosh', c.rojo - 0.15], ['pop', c.gamba],
+      ['whoosh', c.sombrilla - 0.15], ['whoosh', c.toca - 0.15], ['tap', c.tarjeta + 0.05], ['ding', c.tarjeta + 0.3], ['whoosh', c.tintos - 0.15], ['tick', c.tintos + 0.2], ['tick', c.espetos], ['whoosh', c.espetos - 0.15], ['buzz', c.espetos + 0.1],
+      ['whoosh', c.minuto - 0.15], ['whoosh', c.mesa - 0.15], ['ding', c.mesa], ['pop', c.mesa + 0.05], ['whoosh', c.y - 0.15], ['whoosh', c.sigue - 0.15], ['pop', c.sigue + 0.35], ['whoosh', c.fin - 0.3]];
+    for (let s = 0.25; s < c.sombrilla; s += 0.5) efectos.push(['tick', s]);
+    this.musica = 'guitarra_bar'; this.volMusica = 0.4;
+  },
+  t1(t) { return t * 150; },
+  t2(t) { const c = this.c; return clamp((t - c.sombrilla) / (c.mesa - c.sombrilla)) * 60; },
+  actualizar(t) {
+    const c = this.c, yo = this.yo, k = this.cam1, rapido = t < c.sombrilla;
+    // mar, sol que se mueve (pasa el tiempo)
+    const pos = this.mar.geometry.attributes.position, b = this.marBase; for (let i = 0; i < pos.count; i++) { const x = b[i * 3], y = b[i * 3 + 1], tt = t * (rapido ? 3 : 1); pos.array[i * 3 + 2] = 0.18 * Math.sin(x * 0.25 + tt * 1.3) + 0.12 * Math.sin(y * 0.45 + tt * 0.9) + 0.06 * Math.sin((x + y) * 0.9 + tt * 2.1); } pos.needsUpdate = true;
+    const a = 1.2 + this.t1(t) * 0.0008; this.sol.position.set(Math.cos(a) * 7, 12, Math.sin(a) * 7);
+    this.gente.forEach((g, i) => { g.reset(); g.respirar(t * (rapido ? 3 : 1), i); if (Math.sin(t * (rapido ? 4 : 1.2) + i * 2) > 0.3) g.hablar(t * (rapido ? 2 : 1) + i); });
+    this.barman.reset(); this.barman.respirar(t, 5); this.cocinero.reset(); this.cocinero.respirar(t, 6); this.cocinero.g.position.x = entre(t, c.espetos - 0.2, c.minuto) ? 6.25 : 5.6;
+    // el señor: mano arriba siempre, cada vez más rojo
+    yo.reset(); yo.respirar(t, 1); const canso = Math.max(0, Math.sin(t * 1.1)) * 0.22; yo.bD.hombro.rotation.x = -2.85 + canso; yo.bD.hombro.rotation.z = -0.15; yo.bD.codo.rotation.x = -0.1 - canso * 0.6;
+    yo.cejas.forEach((ce, s) => { ce.rotation.z = (s ? -1 : 1) * 0.25; });
+    const rojo = prog(t, c.levanta, c.gamba + 0.2); const col = new THREE.Color('#f0c29b').lerp(new THREE.Color('#ef5a43'), rojo); this.pielYo.forEach(m => m.color.copy(col));
+    let mira = null;
+    // camarero: pasa de largo y luego sirve la sombrilla 3
+    k.reset(); k.g.visible = true; this.bandeja.visible = false;
+    if (entre(t, c.pasa - 0.15, c.rojo - 0.1)) { const kk = (t - c.pasa + 0.15) / (c.rojo - c.pasa + 0.05); k.g.position.set(lerp(-3.0, 4.2, kk), 0.18, 0.6); k.g.rotation.y = Math.PI / 2; k.andar(t * 2.6, 1); this.bandeja.visible = true; mira = k.g.position; }
+    else if (entre(t, c.minuto - 0.12, c.y - 0.1)) { const m2 = this.mesas[2].position; const kk = prog(t, c.minuto - 0.12, c.mesa - 0.25); k.g.position.set(lerp(3.7, m2.x + 0.75, kk), 0, lerp(1.5, m2.z - 0.5, kk)); this.bandeja.visible = t < c.mesa - 0.05;
+      if (kk < 1) { k.g.rotation.y = Math.atan2(m2.x + 0.75 - 3.7, m2.z - 0.5 - 1.5); k.andar(t * 2.4, 1); } else { k.g.rotation.y = Math.atan2(-0.75, 0.5); k.respirar(t, 2); k.bD.hombro.rotation.x = -1.0; k.hablar(t, 0.5); } }
+    else if (t < c.minuto) { k.g.position.set(-0.5, 0.18, -2.3); k.g.rotation.y = 0; k.respirar(t, 2); }
+    else k.g.visible = false;
+    if (this.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
+    this.pedMesa.forEach(o => (o.visible = t > c.mesa - 0.05));
+    yo.cabeza.rotation.y = mira ? clamp(Math.atan2(mira.x - yo.g.position.x, mira.z - yo.g.position.z), -1.2, 1.2) * 0.8 : Math.sin(t * 0.6) * 0.15;
+    // plancha con humo
+    this.espPlancha.visible = entre(t, c.tintos, c.minuto + 0.5); this.humo.forEach((v, i) => { const f = (t * 0.7 + i / 4) % 1; v.visible = this.espPlancha.visible; v.position.set(5.3 + Math.sin(t * 2 + i) * 0.08, 1.1 + f * 0.6, -4.0 + (i - 1.5) * 0.06); v.scale.setScalar(0.6 + f * 1.5); v.material.opacity = 0.3 * Math.sin(Math.PI * f); });
+    // paseantes por la orilla mientras espera
+    this.paseantes.forEach((m, i) => { m.reset(); m.g.visible = rapido; if (!rapido) return; const f = ((t * 0.5 + i * 0.37) % 1); const z = [5.6, 6.6, -6.4][i], dir = i % 2 ? -1 : 1;
+      m.g.position.set(lerp(-8, 9, dir > 0 ? f : 1 - f), 0, z); m.g.rotation.y = dir * Math.PI / 2; m.andar(t * 3.2, 1); });
+    // gaviota que se le posa en la mano al final
+    yo.g.updateMatrixWorld(true); const pm = yo.bD.mano.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 0.12, 0));
+    const kg = prog(t, c.y - 0.1, c.sigue + 0.2); this.gav.visible = t > c.y - 0.1; this.gav.position.copy(new THREE.Vector3(-1.5, 4.2, -1.0).lerp(pm, kg)); this.gav.rotation.y = kg < 1 ? Math.atan2(pm.x + 1.5, pm.z + 1.0) : 0.6 + Math.sin(t * 2) * 0.2; this.gav.userData.aletear(t, kg < 1);
+    // la de la sombrilla: toca la tarjeta y pide
+    const ella = this.ella; let movilVis = false; ella.g.visible = !entre(t, c.tintos - 0.15, c.espetos - 0.1);
+    if (entre(t, c.toca - 0.3, c.espetos)) { movilVis = true; ella.bD.hombro.rotation.x = -1.2; ella.bD.codo.rotation.x = -0.5; ella.cabeza.rotation.x = 0.3; }
+    if (t > c.mesa) { ella.bD.hombro.rotation.x = -1.6 - 0.3 * Math.max(0, Math.sin(t * 5)); ella.bD.codo.rotation.x = -0.6; ella.hablar(t, 0.5); }
+    this.mv.visible = movilVis;
+    if (movilVis) { const kk = prog(t, c.toca - 0.2, c.tarjeta + 0.05); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.4).add(new THREE.Vector3(0, -0.05, 0)); this.mv.position.copy(lejos).lerp(this.ph, kk); this.mv.lookAt(this.mv.position.clone().add(this.nrm));
+      const sel = t > c.espetos + 0.05 ? 2 : t > c.tintos + 0.15 ? 1 : 0;
+      this.mv.userData.pantalla(t > c.tarjeta + 0.25 ? 'cartaDesayuno' : 'bloqueo', t > c.tarjeta + 0.25 ? { mesa: 3, titulo: 'Chiringuito El Faro', sub: 'a pie de playa', sel, enviado: t > c.espetos + 0.45, totales: ['', '6,00', '15,50'],
+        items: [['2 × Tinto de verano', '6,00 €', ['#c2304a', '#7d1630']], ['Espetos de sardinas', '9,50 €', ['#9fb3c8', '#4a5a6e']], ['Caña', '2,50 €', ['#f6c453', '#e09a2b']], ['Agua', '1,50 €', ['#bfe6ff', '#5fb0f0']]] } : { hora: '14:20' }); }
+    this.on.userData.actualizar(t, movilVis && entre(t, c.tarjeta - 0.05, c.tintos) ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
+    const pulso = 0.5 + 0.5 * Math.sin(t * 8);
+    this.pantBarra.userData.pintar('barra', t > c.espetos + 0.1 ? { nuevo: true, mesa: 3, detalle: '2 × Tinto de verano', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', t > c.espetos + 0.1 ? { nuevo: true, mesa: 3, detalle: '1 × Espetos', estado: 'EN MARCHA', pulso } : { nuevo: false });
+    this.desenfoque = camara2(t, this.tomas); if (t > c.fin - 0.3) this.desenfoque = Math.max(this.desenfoque, 14 * prog(t, c.fin - 0.3, c.fin));
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.cuarenta, c.gamba, c.mesa]) { const d = t - g; if (d >= 0 && d < 0.3) temblor = Math.max(temblor, (1 - d / 0.3) * 14); }
+    let zoom = 1; { const d = t - c.cuarenta; if (d >= 0 && d < 0.4) zoom = 1 + 0.08 * (1 - d / 0.4); } return { desenfoque: this.desenfoque, temblor, zoom }; },
+  capa(t) {
+    const c = this.c; velos();
+    const mmss = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    pildora('EL SEÑOR DE LA MANO · PARTE 2', W / 2, 62, 1, { tono: 'oscuro', tam: 26 });
+    const dos = t >= c.sombrilla - 0.1, X1 = dos ? lerp(W / 2, 278, prog(t, c.sombrilla - 0.1, c.sombrilla + 0.2)) : W / 2;
+    cronoPanel(X1, 'SEÑOR · ESPERANDO', mmss(this.t1(t)), '#ff4d5e', (entre(t, c.cuarenta, c.cuarenta + 0.3) ? 1.12 : 1) * (dos ? lerp(1, 0.9, prog(t, c.sombrilla - 0.1, c.sombrilla + 0.2)) : 1));
+    if (dos) { const parado = t >= c.mesa; cronoPanel(W - 278, parado ? 'SOMBRILLA 3 · SERVIDA' : 'SOMBRILLA 3 · TARJETA', mmss(this.t2(t)), '#3ddc84', entra(t, c.sombrilla - 0.1) * 0.9 * (parado && t - c.mesa < 0.3 ? 1.12 : 1), parado); }
+    gancho(['¿CUÁNTO TARDA UN', 'CHIRINGUITO EN AGOSTO?'], 1 - prog(t, 2.1, 2.35));
+    if (entre(t, c.cuarenta, c.toca - 0.1)) pildora('¿Lo máximo que has esperado tú?', W / 2, 1640, entra(t, c.cuarenta), { icono: 'reloj', tono: 'marca', tam: 46 });
+    if (entre(t, c.minuto, c.y - 0.1)) pildora('Etiqueta al que siempre levanta la mano', W / 2, 1640, entra(t, c.minuto), { icono: 'mano', tono: 'oscuro', tam: 40 });
   },
 };
 
