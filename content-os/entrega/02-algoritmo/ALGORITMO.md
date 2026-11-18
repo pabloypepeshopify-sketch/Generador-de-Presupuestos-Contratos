@@ -13,16 +13,30 @@
 - Retención: −35 % en los 5 primeros segundos, después **casi plana en el 50 % hasta el segundo 20**.
 - **Caída del 50 % al 28 % en los 3 últimos segundos**, justo en «Mándaselo al dueño… comenta MESA». La gente se va cuando el vídeo pide algo.
 
-### Reel 3: POV camarero liado (`liado`, 19,7 s)
-- Más de 1500 visitas al poco de publicarlo, subiendo unas 80 cada 30 s.
-- Qué tenía distinto: voz continua sin pausas, un corte de plano por segundo aprox., POV del camarero (no del cliente), taberna andaluza nueva, «Comenta CARTA» como texto a mitad y final en bucle.
-- Pendiente: mirar la curva de retención cuando se estabilice.
+### Reel 3: POV camarero liado (`liado`, 19,7 s), estadísticas a las 19 h
+- 2311 reproducciones, 1535 cuentas, tiempo medio **12 s de 19 s** (63 %). 91 % desde la pestaña de Reels. 1 seguidor.
+- Tasa de salto 32 % (más baja de lo normal). Me gusta 4,0 % (más alto de lo normal). Guardado 0,5 %, compartido 0 %, comentarios 0 %.
+- Retención: −45 % en los 5 primeros segundos, después casi plana del 52 % al 40 % hasta el final.
+- Las visitas se paran a las ~3 h: el algoritmo no lo saca del primer grupo de prueba.
+
+### Reel 4: cronómetro del café (`crono`, 17,3 s), estadísticas a las ~2 h
+- ~2100 reproducciones en 2 h, **el doble de rápido que un reel normal de la cuenta**. 90 % desde Reels.
+- Tasa de salto **27 %** (el mejor arranque hasta ahora). Me gusta 4,1 %. Compartido 0 %, guardado 0 %, comentarios 0 %.
+- Retención: baja suave (−35 % en 5 s, mejor que el POV), plana en torno al 55 %, y **cae del ~52 % al 40 % justo después del «¡Comenta CAFÉ!» hablado (s 14–15)**.
+
+### Conclusiones de los reels 3 y 4
+1. El gancho **pregunta + contador en pantalla** retiene más que el «POV:» (salto del 27 % frente al 32 %).
+2. **Pedir algo hablado hace que la gente se vaya**, aunque sea rápido y a mitad. Las llamadas a la acción, solo como texto.
+3. **«Comenta PALABRA» no genera comentarios** (0 % en los dos): al público general no le da nada. Hace falta una pregunta que cualquiera quiera contestar («¿Cuánto es lo máximo que has esperado tú?»).
+4. **Compartidos 0 % y 1 seguidor**: falta un motivo para mandarlo («etiqueta al que siempre levanta la mano») y un motivo para seguir (serie con personaje fijo, «Parte 2»).
+5. El tiempo medio es de 12 s en los dos: un vídeo de **12–15 s** se vería casi entero y se repetiría (bucle).
+
 
 ## Reglas para los próximos vídeos
 1. **Duración: 20–25 s como máximo.** La misma gente que se queda pesa mucho más en porcentaje si el vídeo es corto.
 2. **Gancho en el primer fotograma.** Texto grande arriba y acción desde el primer segundo (mano levantándose, algo moviéndose), nunca un plano quieto. El formato **«POV: …»** funcionó.
 3. **No empezar con el producto («NFC en las mesas»), porque la gente se va.** Empezar con una situación o una curiosidad.
-4. **El «Comenta X» va como texto a mitad del vídeo**, mientras sigue la acción. Nunca hablado al final.
+4. **Nada de llamada a la acción hablada** (ni al final ni a mitad: en `crono` hizo caer la retención). Como texto, y mejor una pregunta que cualquiera quiera contestar que un «Comenta PALABRA».
 5. **Terminar en el momento fuerte** (le traen la cuenta, le sirven) y **enlazar el final con el principio** (bucle). Ejemplo preparado: acaba en «…y yo que llevaba…» y empieza en «Veinte minutos intentando pagar la cuenta».
 6. **Nada de tarjeta final quieta.** Cortar justo al acabar la voz.
 7. **Sin marca de agua** (`visaxnfc.es` se veía comercial) y **sin música de anuncio** (el `beat` sonaba comercial; la guitarra suave sí gusta).
