@@ -3741,7 +3741,7 @@ V['dueno'] = { ...comunCapa, estilo: 'moderno',
     Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
     renderer.toneMappingExposure = 1.22; scene.add(cam); const luzPuerta = new THREE.PointLight('#ffd7a8', 9, 7, 1.4); luzPuerta.position.set(1.6, 2.9, 2.6); scene.add(luzPuerta); cam.rotation.order = 'YXZ';
     const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'moderno' }); Object.assign(this, r);
-    r.mesas[0].gente = [0, 1]; r.placa.visible = false; r.tj.visible = false;
+    r.mesas[0].gente = [0, 1]; r.placa.visible = false; r.tj.visible = false; r.mundo.children.forEach(o => { if (o.position.distanceTo(new THREE.Vector3(-2.4, 1.13, -5.35)) < 0.05) o.visible = false; }); r.movCam.visible = false;
     const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
     const pers = (idx, a) => { const m = r.mesas[idx]; return this.gente.find(g => Math.abs(g.g.position.x - m.x) < 0.01 && (a ? g.g.position.z > m.z : g.g.position.z < m.z)); };
     // las dos mesas que se van: mesa 4 (derecha) y mesa 6 (izquierda)
