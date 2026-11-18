@@ -3879,7 +3879,7 @@ V['dueno2'] = { ...V['dueno'],
     this.tomas = {
       A2: [T(c.lleno - 0.12, [4.8, 3.0, 3.4], [2.2, 3.05, 3.6], [0.0, 0.7, -2.0], [-1.5, 0.7, -2.6], 56)],
       B: [T(c.pero - 0.1, [1.9, 1.6, 0.9], [4.6, 1.55, 1.1], [3.4, 1.2, -0.2], [3.4, 1.25, -0.2], 44)],
-      B2: [T(c.veinte - 0.1, [3.0, 1.45, 0.75], [3.25, 1.38, 0.35], [3.4, 1.28, -0.55], [3.4, 1.3, -0.6], 38)],
+      B2: [T(c.veinte - 0.1, [4.45, 1.5, 0.3], [4.15, 1.42, 0.05], [3.4, 1.28, -0.55], [3.4, 1.3, -0.6], 40)],
       C: [T(c.va - 0.15, [3.7, 1.95, -1.9], [3.0, 1.85, -0.7], [3.0, 1.15, 1.0], [1.7, 1.2, 3.6], 52)],
       E: [T(c.sesenta - 0.1, [-0.3, 1.6, 0.9], [0.2, 1.5, 1.7], [1.3, 1.2, 3.4], [1.6, 1.25, 3.9], 50)],
       E2: [T(c.noche - 0.15, [-3.0, 1.75, -4.4], [-3.25, 1.65, -4.95], [-3.45, 1.4, -6.0], [-3.45, 1.4, -6.0], 42)],
@@ -3888,7 +3888,7 @@ V['dueno2'] = { ...V['dueno'],
       G: [T(c.S2, [1.6, 2.2, 3.6], [0.2, 2.9, 1.6], [-1.0, 1.0, -2.5], [-1.6, 1.0, -3.0], 54)],
       H: [T(c.tocan - 0.1, [ph.x + 0.35, ph.y + 0.35, ph.z + 0.95], [ph.x + 0.15, ph.y + 0.22, ph.z + 0.65], ph.toArray(), ph.toArray(), 40)],
       H2: [T(c.piden - 0.1, [ph.x + 0.1, ph.y + 0.06, ph.z + 0.48], [ph.x + 0.04, ph.y + 0.04, ph.z + 0.38], ph.toArray(), ph.toArray(), 36)],
-      K: [T(c.pareja - 0.12, [2.9, 1.6, 0.6], [2.5, 1.55, 1.3], [1.6, 1.3, 3.8], [2.4, 1.2, 1.6], 50)],
+      K: [T(c.pareja - 0.12, [3.7, 1.85, -0.7], [3.25, 1.75, 0.15], [1.7, 1.3, 3.6], [2.2, 1.2, 2.0], 50)],
       K2: [T(c.vuelto - 0.15, [2.0, 1.7, 1.6], [4.7, 1.6, 1.3], [3.4, 1.2, -0.2], [3.4, 1.25, -0.2], 46)],
     };
     // tarjetas: el lunes aparecen al pasar el dueño (de izquierda a derecha)
@@ -3913,7 +3913,7 @@ V['dueno2'] = { ...V['dueno'],
     const camino = (m, k, x0, z0, kk, entrar) => { const pts = [[x0, z0], [lerp(x0, pz[0], 0.5), 2.2], [pz[0] + (k - 0.5) * 0.3, pz[1]], [pz[0] + (k - 0.5) * 0.3, 4.8]]; if (entrar) pts.reverse();
       const sg = Math.min(2, Math.floor(kk * 3)), f = kk * 3 - sg, P0 = pts[sg], P1 = pts[sg + 1]; m.sentado = false; m.g.position.set(lerp(P0[0], P1[0], f), 0, lerp(P0[1], P1[1], f)); m.g.rotation.y = Math.atan2(P1[0] - P0[0], P1[1] - P0[1]); m.andar(t * 2.2, 1);
       if (m.g.position.z > 3.0) abierta = 1; };
-    const salida = [[c.va - 0.7, c.seis + 0.4], [c.seis - 0.05, c.sesenta + 0.6]];
+    const salida = [[c.va - 0.3, c.seis + 0.45], [c.seis - 0.05, c.sesenta + 0.6]];
     this.se.forEach((par, j) => par.forEach((m, k) => { const [x0, z0, r0] = this.asiento.get(m); m.reset(); m.g.visible = fase !== 2;
       const sentado = () => { m.sentar(); m.g.position.set(x0, 0, z0); m.g.rotation.y = r0; m.respirar(t, j * 2 + k); };
       if (fase === 1) { const [a, b] = salida[j]; if (t < a) { sentado(); m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.3)); m.bI.hombro.rotation.x = -1.0; m.bI.codo.rotation.x = -1.3; if (k === 0 && t > c.veinte - 0.2) { m.bI.hombro.rotation.x = -1.3; m.bI.codo.rotation.x = -1.5; m.cabeza.rotation.x = 0.35; } return; }
@@ -3956,7 +3956,7 @@ V['dueno2'] = { ...V['dueno'],
     if (s === 'A') { const kk = prog(t, 0, c.lleno - 0.12); [yaw, pitch] = this.mirar(O.m4); yaw += 0.18 * (1 - kk); pitch -= 0.04 * (1 - kk); }
     else if (s === 'D') { s0 = c.seis - 0.1; const kk = prog(t, c.seis - 0.1, c.seis + 0.15); const A = this.mirar(O.puerta), B = this.mirar(O.m6); [yaw, pitch] = [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; yaw = lerp(yaw, this.mirar(O.puerta)[0], prog(t, c.igual, c.sesenta - 0.1) * 0.8); desen = Math.sin(Math.PI * kk) * 14; }
     else if (s === 'I') { s0 = c.llega - 0.15; [yaw, pitch] = this.mirar(O.sala); pitch -= 0.15; yaw += 0.1 * Math.sin(t * 2); }
-    else if (s === 'J') { s0 = c.mesas - 0.1; const kk = prog(t, c.mesas - 0.1, c.pareja - 0.12); const A = this.mirar(O.m6), B = this.mirar(O.m4); [yaw, pitch] = [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; }
+    else if (s === 'J') { s0 = c.mesas - 0.1; const kk = prog(t, c.mesas - 0.1, c.pareja - 0.12); const A = this.mirar(O.sala), B = this.mirar(O.m4); [yaw, pitch] = [lerp(A[0], B[0], kk), lerp(A[1], B[1], kk)]; }
     if (s0 && t - s0 < 0.18) desen = Math.max(desen, 14 * (1 - (t - s0) / 0.18));
     const amp = caos ? 2 : 1, temb = (a, b, c2) => (Math.sin(t * a) * 0.006 + Math.sin(t * b + 1) * 0.004 + Math.sin(t * c2 + 2) * 0.003) * amp;
     cam.position.copy(this.ojo).add(new THREE.Vector3(temb(1.3, 2.1, 3.7), temb(1.7, 2.9, 4.1), 0)); cam.rotation.set(pitch + temb(0.9, 1.6, 2.3), yaw + temb(0.7, 1.3, 2.9), 0); cam.up.set(0, 1, 0);
