@@ -4230,6 +4230,184 @@ V['f1'] = { ...comunCapa, estilo: 'tele',
   },
 };
 
+// ---------- comunes: el señor de la mano en una mesa con su tarjeta ----------
+function senorDeLaMano() { const yo = muneco({ camisa: '#ffffff', chaleco: '#34405e', pantalon: '#34405e', pelo: '#5a4a3a', peinado: 'corto', piel: '#f0c29a' }); yo.sentar(); const corbata = caja(0.06, 0.24, 0.02, '#c0263a', 0.01); corbata.position.set(0, 1.2, 0.19); yo.raiz.add(corbata); return yo; }
+function montarMesaSenor(v, r, idx) {
+  const m = r.mesas[idx]; v.gente.filter(g => Math.abs(g.g.position.x - m.x) < 0.01).forEach(g => (g.g.visible = false)); v.gente = v.gente.filter(g => g.g.visible);
+  const yo = v.yo = senorDeLaMano(); yo.g.position.set(m.x, 0, m.z - 0.72); r.mundo.add(yo.g);
+  const tj = v.tjS = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(m.x + 0.24, 0.79, m.z - 0.28); tj.rotation.y = Math.PI - 0.3; r.mundo.add(tj);
+  r.mundo.updateMatrixWorld(true); v.cenS = tj.userData.centro().clone(); v.nrmS = new THREE.Vector3(Math.sin(Math.PI - 0.3), 0, Math.cos(Math.PI - 0.3));
+  v.phS = v.cenS.clone().addScaledVector(v.nrmS, 0.07).add(new THREE.Vector3(0, 0.02, 0));
+  v.mvS = movil(); v.mvS.scale.setScalar(0.38); v.mvS.visible = false; r.mundo.add(v.mvS); v.onS = ondas();
+  v.canaS = cana(); v.canaS.position.set(m.x - 0.12, 0.79, m.z - 0.38); v.canaS.visible = false; r.mundo.add(v.canaS);
+  v.yoP = [m.x, 1.35, m.z - 0.72]; v.manoP = [m.x + 0.25, 1.75, m.z - 0.62]; v.mS = m;
+}
+function senorAnim(v, t, manoArriba, cansancio = 1) { const yo = v.yo; yo.reset(); yo.respirar(t, 1); if (manoArriba) { const k = Math.max(0, Math.sin(t * 1.1)) * 0.22 * cansancio; yo.bD.hombro.rotation.x = -2.85 + k; yo.bD.hombro.rotation.z = -0.15; yo.bD.codo.rotation.x = -0.1 - k * 0.6; yo.cejas.forEach((ce, s) => (ce.rotation.z = (s ? -1 : 1) * 0.25)); } }
+function movilSenor(v, t, t0, tToque, t1, despues, est) { const vis = entre(t, t0, t1); v.mvS.visible = vis; if (!vis) { v.onS.userData.actualizar(t, 0, new THREE.Vector3(), new THREE.Vector3()); return; }
+  const kk = prog(t, t0, tToque); const lejos = v.phS.clone().addScaledVector(v.nrmS, 0.4).add(new THREE.Vector3(0, -0.05, 0)); v.mvS.position.copy(lejos).lerp(v.phS, kk); v.mvS.lookAt(v.mvS.position.clone().add(v.nrmS));
+  v.mvS.userData.pantalla(t > tToque + 0.25 ? despues : 'bloqueo', t > tToque + 0.25 ? est : { hora: '22:15' }); v.onS.userData.actualizar(t, entre(t, tToque - 0.05, tToque + 0.7) ? 1 : 0, v.mvS.getWorldPosition(new THREE.Vector3()), v.cenS);
+  v.yo.bD.hombro.rotation.set(-1.2, 0, -0.1); v.yo.bD.codo.rotation.x = -0.5; v.yo.cabeza.rotation.x = 0.3; }
+function follaje(t, k = 1) { if (k <= 0) return; C.save(); C.globalAlpha = k; C.filter = 'blur(22px)';
+  const hojas = [[-60, 260, 260, 140, 0.4], [80, 120, 200, 90, -0.3], [W + 40, 380, 280, 130, 2.6], [W - 60, 1500, 300, 160, 2.2], [-40, 1620, 320, 150, -0.6], [140, 1750, 220, 110, 0.5], [W - 160, 1800, 240, 120, 2.9]];
+  hojas.forEach(([x, y, a, b, r], i) => { C.fillStyle = i % 2 ? 'rgba(28,58,22,0.92)' : 'rgba(40,82,30,0.9)'; C.beginPath(); C.ellipse(x + Math.sin(t * 0.8 + i) * 8, y + Math.cos(t * 0.6 + i) * 6, a, b, r, 0, 7); C.fill(); });
+  C.restore(); C.filter = 'none'; }
+function etiquetaEspecie(lat, sub, k) { if (k <= 0) return; C.save(); C.globalAlpha = clamp(k * 1.6); const X = 70, Y = 1430;
+  C.fillStyle = 'rgba(0,0,0,0.35)'; C.fillRect(X - 20, Y - 70, 760, 140); C.fillStyle = '#f3e6c4'; C.fillRect(X, Y - 46, 4, 92);
+  C.textAlign = 'left'; C.textBaseline = 'middle'; C.fillStyle = '#ffffff'; C.font = `italic 600 54px Fraunces, Georgia, serif`; C.fillText(lat, X + 26, Y - 12);
+  C.fillStyle = 'rgba(243,230,196,0.9)'; C.font = `600 26px Inter, ${FUENTE}`; C.letterSpacing = '3px'; C.fillText(sub.toUpperCase(), X + 28, Y + 38); C.letterSpacing = '0px'; C.restore(); }
+
+// ---------- Documental de naturaleza: «El cliente en su hábitat» (taberna, teleobjetivo, susurro) ----------
+V['docu'] = { ...comunCapa, estilo: 'documental',
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    ['cliente', 'habitat', 'bar', 'mano', 'camarero', 'especie', 'evolucionado', 'movil', 'tarjeta', 'cana', 'naturaleza'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#1a120c'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fff1dc'); hemi.groundColor.set('#7a4a2a'); hemi.intensity = 1.3;
+    const sol = new THREE.DirectionalLight('#ffd9a0', 1.7); sol.position.set(-4, 8, 6); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.05;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'taberna' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p); montarMesaSenor(this, r, 3);
+    const c = this.c = { cliente: cue('cliente'), habitat: cue('habitat'), bar: cue('bar'), sabado: cue('sabado'), lleva: cue('lleva'), doce: cue('doce'), el: cue('el'), camarero: cue('camarero'), pasa: cue('pasa'), sin: cue('sin'), pero: cue('pero'),
+      acerca: cue('acerca'), tarjeta: cue('tarjeta'), pide: cue('pide'), treinta: cue('treinta'), despues: cue('despues'), cana: cue('cana'), la3: cue('naturaleza') - 0.1, naturaleza: cue('naturaleza'), sabia: cue('sabia') };
+    duracion = palabras[palabras.length - 1].fin + 0.3; c.fin = duracion;
+    const m = this.mS, yoP = this.yoP, mano = this.manoP, P = this.phS, n = this.nrmS, cen = this.cenS, fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
+    const T = (a, de, a2, mira, mira2, fov, barrido = 0) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
+    this.tomas = [
+      T(0, [0.6, 1.5, 4.6], [0.2, 1.48, 4.2], yoP, [m.x, 1.45, m.z - 0.72], 14),
+      T(c.habitat - 0.3, [3.5, 3.0, 3.6], [2.0, 3.0, 3.6], [-1.0, 0.8, -2.0], [-1.8, 0.8, -2.2], 48),
+      T(c.lleva - 0.2, [m.x + 0.9, 0.95, m.z + 1.4], [m.x + 0.75, 1.05, m.z + 1.2], [m.x + 0.2, 1.6, m.z - 0.6], mano, 28),
+      T(c.el - 0.15, [1.5, 1.4, 5.0], [1.2, 1.4, 5.0], [-2.6, 1.2, 1.2], [-4.6, 1.2, 1.2], 20),
+      T(c.pero - 0.2, [m.x + 0.5, 1.45, m.z + 2.0], [m.x + 0.25, 1.42, m.z + 1.1], yoP, yoP, 22),
+      T(c.acerca - 0.15, fr(cen, [0.75, 0.45, -0.95]), fr(cen, [0.55, 0.32, -0.75]), cen.toArray(), cen.toArray(), 30),
+      T(c.pide - 0.15, fr(P, [n.x * 0.62 + 0.12, 0.14, n.z * 0.62]), fr(P, [n.x * 0.5, 0.1, n.z * 0.5 - 0.06]), P.toArray(), P.toArray(), 32),
+      T(c.treinta - 0.15, [0.4, 1.5, 4.2], [0.1, 1.48, 3.9], [m.x + 0.3, 1.1, m.z], [m.x, 1.1, m.z - 0.2], 16),
+      T(c.cana - 0.2, [m.x + 0.55, 1.05, m.z + 0.6], [m.x + 0.4, 1.0, m.z + 0.45], [m.x - 0.12, 0.88, m.z - 0.38], [m.x - 0.12, 0.88, m.z - 0.38], 30),
+      T(c.la3 - 0.05, [m.x + 1.2, 1.6, m.z + 2.0], [m.x + 2.2, 2.2, m.z + 3.4], yoP, yoP, 34),
+    ];
+    efectos = [['whoosh', c.habitat - 0.35], ['whoosh', c.el - 0.2], ['tap', c.tarjeta + 0.05], ['ding', c.tarjeta + 0.35], ['tick', c.pide + 0.3], ['pop', c.cana + 0.05], ['ding', c.cana + 0.15]];
+    this.musica = 'ambient_b'; this.volMusica = 0.5;
+  },
+  actualizar(t) {
+    const c = this.c, k = this.camarero;
+    this.gente.forEach((g, i) => { g.reset(); g.respirar(t, i); if (Math.sin(t * 1.0 + i * 2) > 0.4) g.hablar(t + i, 0.4); });
+    const arriba = t < c.pero + 0.6; senorAnim(this, t, arriba);
+    if (!arriba) { this.yo.cabeza.rotation.x = 0.25; this.yo.cabeza.rotation.y = 0.2; }
+    movilSenor(this, t, c.acerca - 0.2, c.tarjeta, c.treinta, 'cartaV', { mesa: 3, sel: t > c.pide + 0.3 ? 2 : 1, enviado: t > c.pide + 0.6 }); this.yo.g.visible = !entre(t, c.pide - 0.15, c.treinta - 0.15);
+    if (t > c.cana) { this.yo.bD.hombro.rotation.x = -1.4 - 0.2 * prog(t, c.naturaleza, c.fin); this.yo.bD.codo.rotation.x = -0.9; this.yo.hablar(t, 0.15); }
+    this.canaS.visible = t > c.cana - 0.1;
+    // camarero: pasa sin mirar y luego trae la caña
+    k.reset(); k.g.visible = true; k.bandeja.visible = false;
+    if (entre(t, c.el - 0.2, c.pero - 0.2)) { const kk = prog(t, c.el - 0.2, c.pero - 0.2); k.g.position.set(lerp(-0.8, -6.0, kk), 0, 1.25); k.g.rotation.y = -Math.PI / 2; k.andar(t * 1.6, 1); k.cabeza.rotation.y = -0.9; }
+    else if (entre(t, c.treinta - 0.2, c.la3)) { const m = this.mS; const kk = prog(t, c.treinta - 0.2, c.cana - 0.3); k.g.position.set(lerp(-1.2, m.x + 0.55, kk), 0, lerp(1.6, m.z - 0.6, kk)); k.bandeja.visible = t < c.cana - 0.1;
+      if (kk < 1) { k.g.rotation.y = Math.atan2(m.x + 0.55 + 1.2, m.z - 0.6 - 1.6); k.andar(t * 1.6, 1); } else { k.g.rotation.y = -Math.PI / 2; k.respirar(t, 2); k.bD.hombro.rotation.x = -1.0; } }
+    else k.g.visible = false;
+    if (k.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
+    this.cocinero.reset(); this.cocinero.respirar(t, 4);
+    this.desenfoque = camara2(t, this.tomas); const sh = Math.sin(t * 1.3) * 0.002; cam.position.y += sh;
+  },
+  fx(t) { return { desenfoque: this.desenfoque }; },
+  capa(t) {
+    const c = this.c;
+    const tele = t < c.habitat - 0.3 || entre(t, c.el - 0.15, c.pero - 0.2) || entre(t, c.treinta - 0.15, c.cana - 0.2);
+    follaje(t, tele ? 1 : 0);
+    velos();
+    gancho(['EL CLIENTE DE BAR', 'EN SU HÁBITAT NATURAL'], 1 - prog(t, 2.2, 2.5));
+    if (entre(t, 0.5, c.lleva - 0.25)) etiquetaEspecie('Cliens sedientus', 'Cliente común · Hábitat: bar', prog(t, 0.5, 0.9));
+    if (entre(t, c.doce, c.el - 0.2)) etiquetaEspecie('12 minutos', 'Récord de la especie: 47 min', prog(t, c.doce, c.doce + 0.4));
+    if (entre(t, c.camarero, c.pero - 0.25)) etiquetaEspecie('Camarerus esquivus', 'Depredador · Visión selectiva', prog(t, c.camarero, c.camarero + 0.4));
+    if (entre(t, c.pero, c.acerca - 0.2)) etiquetaEspecie('Cliens tecnologicus', 'Subespecie evolucionada', prog(t, c.pero + 0.3, c.pero + 0.7));
+    if (entre(t, c.treinta, c.la3)) etiquetaEspecie('30 segundos', 'Tiempo de alimentación', prog(t, c.treinta, c.treinta + 0.4));
+    if (entre(t, c.la3, c.fin)) pildora('Etiqueta a un «cliens sedientus»', W / 2, 1640, entra(t, c.la3), { icono: 'usuario', tono: 'oscuro', tam: 40 });
+  },
+};
+
+// ---------- Tráiler de película: «LA MANO LEVANTADA» (bar moderno de noche, bandas de cine, rótulos) ----------
+function cartelCine(lineas, k, { tam = 120, sub = null, brillo = false } = {}) {
+  if (k <= 0) return; C.save(); C.fillStyle = `rgba(0,0,0,${clamp(k * 1.5)})`; C.fillRect(0, 0, W, H); C.globalAlpha = clamp(k * 1.5); const s = lerp(1.08, 1.0, ease(clamp(k)));
+  C.translate(W / 2, H / 2); C.scale(s, s); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `800 ${tam}px Fraunces, Georgia, serif`;
+  if (brillo) { C.shadowColor = '#ffb46a'; C.shadowBlur = 50; }
+  lineas.forEach((l, i) => { const y = (i - (lineas.length - 1) / 2) * tam * 1.12; const g = C.createLinearGradient(0, y - tam / 2, 0, y + tam / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(1, brillo ? '#f0c27a' : '#cfd6e0'); C.fillStyle = g; C.fillText(l, 0, y); });
+  C.shadowBlur = 0; if (sub) { C.font = `600 34px Inter, ${FUENTE}`; C.letterSpacing = '8px'; C.fillStyle = 'rgba(255,255,255,0.75)'; C.fillText(sub, 0, lineas.length * tam * 0.62 + 40); C.letterSpacing = '0px'; }
+  C.restore(); }
+V['trailer'] = { ...comunCapa, estilo: 'cine',
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-ExtraBold.ttf', '800', 'normal']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    scene.background = new THREE.Color('#06080b'); scene.fog = new THREE.Fog('#0a0d12', 6, 18); pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#9fb6d6'); hemi.groundColor.set('#2a2018'); hemi.intensity = 1.05;
+    const sol = new THREE.DirectionalLight('#ffb070', 1.6); sol.position.set(-6, 5, -2); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    const contraluz = new THREE.SpotLight('#ffd9a8', 60, 14, 0.5, 0.6, 1.4); contraluz.position.set(-3.6, 3.2, -3.0); contraluz.target.position.set(-3.6, 0.8, 0.0); scene.add(contraluz, contraluz.target);
+    renderer.toneMappingExposure = 1.3;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'moderno' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p); montarMesaSenor(this, r, 3);
+    this.halo = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.2, 48), new THREE.MeshBasicMaterial({ color: '#ffd9a8', transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false })); r.mundo.add(this.halo);
+    const c = this.c = { mundo: cue('mundo'), donde: cue('donde'), camareros: cue('camareros'), hombre: cue('hombre'), levanto: cue('levanto'), mano: cue('mano'), veinte: cue('veinte'), cuarenta: cue('cuarenta'), una: cue('una'), hora: cue('hora'), nadie: cue('nadie'),
+      hasta: cue('hasta'), descubrio: cue('descubrio'), tarjeta: cue('tarjeta'), este: cue('este'), espera: cue('espera'), termina: cue('termina'), mano2: cue('mano', 2), levantada: cue('levantada'), proximamente: cue('proximamente'), bar: cue('bar') };
+    duracion = palabras[palabras.length - 1].fin + 0.5; c.fin = duracion;
+    const m = this.mS, yoP = this.yoP, mano = this.manoP, cen = this.cenS, P = this.phS, n = this.nrmS, fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
+    const T = (a, de, a2, mira, mira2, fov = 38, barrido = 0) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
+    const mont = c.este - 0.1, paso = (c.mano2 - 0.25 - mont) / 6;
+    this.tomas = [
+      T(0, [0.5, 1.7, 3.2], [0.2, 1.65, 2.6], [-1.0, 1.2, -1.5], [-1.4, 1.2, -1.8], 40),
+      T(c.donde - 0.1, [-1.0, 0.55, 2.2], [-0.4, 0.6, 2.0], [-2.0, 1.4, 0.9], [0.4, 1.4, 0.9], 34),
+      T(c.hombre - 0.15, [m.x + 1.4, 1.35, m.z + 1.6], [m.x + 0.8, 1.35, m.z + 0.9], yoP, yoP, 30),
+      T(c.levanto - 0.15, [m.x + 0.55, 0.7, m.z + 0.5], [m.x + 0.45, 0.8, m.z + 0.35], [m.x + 0.2, 1.4, m.z - 0.6], mano, 40),
+      T(c.veinte + 0.35, [m.x + 0.6, 1.45, m.z + 0.5], [m.x + 0.5, 1.42, m.z + 0.35], yoP, yoP, 30),
+      T(c.cuarenta + 0.35, [m.x - 1.2, 1.9, m.z + 1.8], [m.x - 1.0, 1.85, m.z + 1.5], yoP, yoP, 30),
+      T(c.hora + 0.35, [m.x + 0.4, 1.6, m.z + 0.55], [m.x + 0.32, 1.58, m.z + 0.42], [m.x + 0.2, 1.65, m.z - 0.6], mano, 34),
+      T(c.nadie - 0.1, [1.6, 1.1, 3.4], [1.6, 1.15, 2.6], [1.4, 1.0, -4.0], [1.4, 1.0, -4.0], 34),
+      T(c.hasta - 0.15, fr(cen, [1.1, 0.45, -1.6]), fr(cen, [0.55, 0.25, -0.8]), cen.toArray(), cen.toArray(), 30),
+      T(c.tarjeta - 0.1, fr(cen, [0.3, 0.1, -0.45]), fr(cen, [0.22, 0.06, -0.35]), cen.toArray(), cen.toArray(), 30),
+      T(mont, fr(P, [n.x * 0.55 + 0.1, 0.12, n.z * 0.55]), fr(P, [n.x * 0.45, 0.08, n.z * 0.45]), P.toArray(), P.toArray(), 34),
+      T(mont + paso, [-3.8, 2.1, -3.4], [-4.0, 2.0, -3.8], [-4.7, 1.62, -5.25], [-4.7, 1.62, -5.25], 36),
+      T(mont + paso * 2, [-0.6, 0.6, -0.6], [-1.4, 0.6, -0.2], [-2.4, 1.1, 0.4], [-3.0, 1.1, 0.3], 44),
+      T(mont + paso * 3, [m.x + 0.55, 1.05, m.z + 0.6], [m.x + 0.4, 1.0, m.z + 0.45], [m.x - 0.12, 0.88, m.z - 0.38], [m.x - 0.12, 0.88, m.z - 0.38], 32),
+      T(mont + paso * 4, [m.x + 0.6, 1.45, m.z + 0.5], [m.x + 0.45, 1.42, m.z + 0.3], yoP, yoP, 30),
+      T(mont + paso * 5, [3.0, 2.6, 3.4], [1.0, 3.0, 3.6], [-2.0, 0.8, -1.0], [-2.6, 0.8, -1.2], 46),
+    ];
+    this.mont = mont; this.paso = paso;
+    efectos = [['riser', c.mundo - 0.2], ['hit', c.hombre], ['hit', c.mano + 0.1], ['hit', c.veinte], ['tick', c.veinte + 0.4], ['hit', c.cuarenta], ['tick', c.cuarenta + 0.4], ['hit', c.hora], ['whoosh', c.nadie - 0.15], ['riser', c.hasta],
+      ['hit', c.tarjeta + 0.05], ['ding', c.tarjeta + 0.15], ...[0, 1, 2, 3, 4, 5].map(i => ['whoosh', mont + paso * i]), ['tap', mont + 0.1], ['hit', c.mano2 - 0.25], ['riser', c.levantada + 0.3], ['hit', c.proximamente - 0.05]];
+    this.musica = 'ambient_b'; this.volMusica = 0.55;
+  },
+  actualizar(t) {
+    const c = this.c, k = this.camarero, mont = this.mont, paso = this.paso;
+    this.gente.forEach((g, i) => { g.reset(); g.respirar(t, i); });
+    const resuelto = t > mont; senorAnim(this, t, !resuelto && t > c.levanto - 0.1, 1.6);
+    if (entre(t, c.levanto - 0.1, c.mano + 0.2)) { const kk = prog(t, c.levanto - 0.1, c.mano + 0.2); this.yo.bD.hombro.rotation.x = lerp(-0.2, -2.85, kk); this.yo.bD.codo.rotation.x = lerp(-0.4, -0.1, kk); }
+    if (resuelto) { this.yo.bD.hombro.rotation.x = -1.4; this.yo.bD.codo.rotation.x = -0.9; this.yo.hablar(t, 0.2); }
+    movilSenor(this, t, mont - 0.2, mont + 0.15, mont + paso, 'cartaV', { mesa: 3, sel: 2, enviado: t > mont + 0.3 });
+    this.canaS.visible = t > mont + paso * 3 - 0.05;
+    // camarero: pasa a cámara lenta y luego corre con la caña
+    k.reset(); k.g.visible = true; k.bandeja.visible = false;
+    if (entre(t, c.donde - 0.2, c.hombre)) { const kk = prog(t, c.donde - 0.2, c.hombre); k.g.position.set(lerp(-2.4, 0.6, kk), 0, 0.9); k.g.rotation.y = Math.PI / 2; k.andar(t * 0.7, 0.8); k.cabeza.rotation.y = 0.6; }
+    else if (entre(t, mont + paso * 2, mont + paso * 3)) { const kk = prog(t, mont + paso * 2, mont + paso * 3); k.g.position.set(lerp(-1.2, -3.0, kk), 0, lerp(0.6, 0.15, kk)); k.g.rotation.y = -1.8; k.andar(t * 3, 1.2); k.bandeja.visible = true; }
+    else k.g.visible = false;
+    if (k.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
+    // la tarjeta brilla al descubrirla
+    this.halo.position.copy(this.cenS).addScaledVector(this.nrmS, 0.02); this.halo.lookAt(this.halo.position.clone().add(this.nrmS)); const kh = entre(t, c.hasta, mont) ? prog(t, c.hasta, c.tarjeta) : 0; this.halo.material.opacity = 0.8 * kh; this.halo.scale.setScalar(1 + 0.2 * Math.sin(t * 5));
+    const pulso = 0.5 + 0.5 * Math.sin(t * 8); this.pantBarra.userData.pintar('barra', t > mont + paso ? { nuevo: true, mesa: 3, detalle: '1 × Caña', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.desenfoque = camara2(t, this.tomas) * 0.5; cam.position.x += Math.sin(t * 0.9) * 0.004; cam.position.y += Math.sin(t * 1.3) * 0.003;
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.hombre, c.veinte, c.cuarenta, c.hora, c.tarjeta, c.mano2 - 0.25]) { const d = t - g; if (d >= 0 && d < 0.3) temblor = Math.max(temblor, (1 - d / 0.3) * 10); } return { desenfoque: this.desenfoque, temblor }; },
+  capa(t) {
+    const c = this.c;
+    // etalonaje frío/cálido
+    C.save(); C.globalCompositeOperation = 'soft-light'; const g = C.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(20,90,120,0.55)'); g.addColorStop(0.6, 'rgba(20,60,90,0.2)'); g.addColorStop(1, 'rgba(255,140,40,0.45)'); C.fillStyle = g; C.fillRect(0, 0, W, H); C.restore();
+    vineta();
+    // rótulos de tráiler
+    const card = (a, b, lineas, op = {}) => { if (entre(t, a, b)) cartelCine(lineas, Math.min(prog(t, a, a + 0.15), 1 - prog(t, b - 0.12, b)), op); };
+    card(0, c.donde - 0.1, ['EN UN', 'MUNDO…'], { tam: 130 });
+    card(c.veinte - 0.05, c.veinte + 0.35, ['20 MIN'], { tam: 190 });
+    card(c.cuarenta - 0.05, c.cuarenta + 0.35, ['40 MIN'], { tam: 190 });
+    card(c.una - 0.05, c.hora + 0.35, ['1 HORA'], { tam: 190 });
+    card(c.este - 0.35, c.este - 0.1, ['ESTE SÁBADO'], { tam: 110 });
+    card(c.mano2 - 0.25, c.proximamente - 0.15, ['LA MANO', 'LEVANTADA'], { tam: 150, brillo: true, sub: 'BASADO EN HECHOS REALES' });
+    card(c.proximamente - 0.15, c.fin, ['PRÓXIMAMENTE'], { tam: 104, sub: 'EN TU BAR' });
+    // bandas de cine
+    C.fillStyle = '#000'; C.fillRect(0, 0, W, 250); C.fillRect(0, H - 250, W, 250);
+  },
+};
+
 // ---------- API para render.mjs ----------
 let actual = null;
 window.init = async (id, pal, dur) => {

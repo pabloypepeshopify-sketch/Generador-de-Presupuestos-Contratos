@@ -136,6 +136,12 @@ const ESTILOS = {
   // tele: retransmisión deportiva; subtítulos cursiva roja tipo rótulo de carrera
   tele: { post: { filtro: 'saturate(1.18) contrast(1.1)' },
     subs: { tam: 66, fuente: tam => `italic 900 ${tam}px Inter, sans-serif`, pill: ['#e10600', '#ff3d2e'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 6 } },
+  // documental: documental de naturaleza; tonos cálidos, subtítulos serif blancos sobrios
+  documental: { post: { filtro: 'sepia(0.12) saturate(1.12) contrast(1.06)' },
+    subs: { tam: 60, fuente: tam => `italic 600 ${tam}px Fraunces, Georgia, serif`, pill: ['#3f6b2e', '#6b8f3a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 10 } },
+  // cine: tráiler; subtítulos en la banda negra de abajo
+  cine: { post: { filtro: 'contrast(1.18) saturate(0.9) brightness(0.97)' },
+    subs: { tam: 54, fuente: tam => `700 ${tam}px Inter, sans-serif`, pill: ['#f0c27a', '#c98a3a'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.9)', radio: 8, y: 1795 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
