@@ -54,7 +54,7 @@ window.TRAD = {
       'vis.p': 'In the San Pablo – Santa Justa neighbourhood, 41007. Street terrace and indoor dining room.',
       'vis.horario': 'Opening hours', 'vis.horario.v': 'Call or WhatsApp us and we’ll tell you if there’s a table.',
       'vis.tel': 'Phone & WhatsApp', 'vis.como': 'Get directions',
-      'pie.lema': 'Peruvian & Spanish kitchen', 'pie.fotos': 'Photos of the restaurant and its dishes.',
+      'pie.lema': 'Peruvian & Spanish kitchen', 'pie.fotos': 'Photos of the restaurant, its dishes and Wikimedia Commons.', 'pie.creditos': 'Photo credits',
       'bm.carta': 'Menu', 'bm.llamar': 'Call', 'bm.reservar': 'Book', 'bm.llegar': 'Directions',
       'cred.carta': 'Digital menu made by', 'cred.pie': 'Website and digital menu made by'
     },
@@ -96,7 +96,7 @@ window.TRAD = {
       'vis.p': 'サン・パブロ～サンタ・フスタ地区（41007）。通りに面したテラス席と店内席があります。',
       'vis.horario': '営業時間', 'vis.horario.v': 'お電話または WhatsApp でお問い合わせください。空席をお知らせします。',
       'vis.tel': '電話・WhatsApp', 'vis.como': '道順を見る',
-      'pie.lema': 'ペルー料理とスペイン料理', 'pie.fotos': '写真：店内と料理。',
+      'pie.lema': 'ペルー料理とスペイン料理', 'pie.fotos': '写真：店内と料理、Wikimedia Commons。', 'pie.creditos': '写真のクレジット',
       'bm.carta': 'メニュー', 'bm.llamar': '電話', 'bm.reservar': '予約', 'bm.llegar': '道順',
       'cred.carta': 'デジタルメニュー制作：', 'cred.pie': 'ウェブサイト・デジタルメニュー制作：'
     },
@@ -138,7 +138,7 @@ window.TRAD = {
       'vis.p': '位于圣巴勃罗–圣胡斯塔街区（41007）。设有临街露台和室内座位。',
       'vis.horario': '营业时间', 'vis.horario.v': '请致电或通过 WhatsApp 联系我们，我们会告知是否有空位。',
       'vis.tel': '电话与 WhatsApp', 'vis.como': '获取路线',
-      'pie.lema': '秘鲁菜与西班牙菜', 'pie.fotos': '照片：店内与菜品。',
+      'pie.lema': '秘鲁菜与西班牙菜', 'pie.fotos': '照片：店内、菜品与 Wikimedia Commons。', 'pie.creditos': '照片来源',
       'bm.carta': '菜单', 'bm.llamar': '致电', 'bm.reservar': '预订', 'bm.llegar': '路线',
       'cred.carta': '电子菜单制作：', 'cred.pie': '网站与电子菜单制作：'
     }

@@ -14,7 +14,9 @@
     u   precio único (montaditos, tartas…) — se pinta en lugar de tapa/ración
     a   alérgenos con la numeración de la carta (1…14). [] = la carta no
         declara ninguno. Sin la clave "a" = la carta no da datos → "consultar".
-    foto  nombre de la foto en img/ (opcional)
+    foto  nombre de la foto en img/ (opcional). Si empieza por 'wm:' es una foto
+          de Wikimedia Commons (licencia libre) y va el nombre del archivo:
+          foto: 'wm:Papa_huancaina.jpg'. Los créditos salen en creditos-fotos.html.
     top   true = sale marcado como "de la casa"
     nota  texto corto extra (p. ej. "Bajo pedido")
 
@@ -58,7 +60,7 @@ window.CARTA = [
       {
         id: 'pe-entradas', es: 'Entradas', en: 'Starters',
         platos: [
-          { n: 'Papa a la huancaína', t: 6.50, r: null, a: [3, 7],
+          { n: 'Papa a la huancaína', t: 6.50, r: null, a: [3, 7], foto: 'wm:Papa_huancaina.jpg',
             d: 'Patata cocida bañada en crema de ají amarillo.',
             en: 'Boiled potato with creamy ají amarillo sauce.' },
           { n: 'Yuca frita', t: 5.90, r: 10.50, a: [],
@@ -87,7 +89,7 @@ window.CARTA = [
           { n: 'Brocheta de pollo', t: 7.50, r: null, a: [6, 12],
             d: 'Pollo marinado en ajíes peruanos.',
             en: 'Pieces of chicken marinated in Peruvian chili peppers.' },
-          { n: 'Anticuchos de res', t: 8.50, r: null, a: [6, 12], top: true,
+          { n: 'Anticuchos de res', t: 8.50, r: null, a: [6, 12], top: true, foto: 'wm:Anticuchos_de_la_Tia_Grima.jpg',
             d: 'Corazón de ternera marinado en salsa de anticucho.',
             en: 'Chunks of beef heart marinated in anticucho sauce.' },
           { n: 'Salchipapa', t: 6.00, r: null, a: [1],
@@ -104,7 +106,7 @@ window.CARTA = [
           { n: 'Pato en ají', t: 8.90, r: 14.90, a: [12],
             d: 'Pato guisado en crema de ají peruano, con arroz y guarnición.',
             en: 'Duck cooked in a Peruvian chili pepper cream sauce, served with rice and side dishes.' },
-          { n: 'Ají de gallina', t: 8.90, r: 13.90, a: [1, 7, 12], top: true,
+          { n: 'Ají de gallina', t: 8.90, r: 13.90, a: [1, 7, 12], top: true, foto: 'wm:Ají_de_gallina_-_Tradicional.jpg',
             d: 'Pollo deshilachado en crema de ají y queso, con arroz y patata cocida.',
             en: 'Shredded chicken in a creamy chili pepper and cheese sauce, served with rice and boiled potato.' }
         ]
@@ -115,7 +117,7 @@ window.CARTA = [
           { n: 'Sopa García', t: 9.50, r: null, a: [1, 3, 6, 12],
             d: 'Caldo de pollo con trozos de carne, verduras, fideos y tiras de tortilla, con wantanes fritos.',
             en: 'Chicken broth with pieces of meat, vegetables, noodles and tortilla strips, served with fried wontons.' },
-          { n: 'Arroz chaufa', t: 6.90, r: 13.50, a: [1, 3, 6],
+          { n: 'Arroz chaufa', t: 6.90, r: 13.50, a: [1, 3, 6], foto: 'wm:Arroz_chaufa_especial_12032009.JPG',
             d: 'Arroz salteado chino-peruano con pollo o cerdo, huevo, cebolleta y soja.',
             en: 'Chinese-Peruvian style fried rice with chicken or pork, egg, scallions and soy sauce.' },
           { n: 'Lomo saltado', t: 6.90, r: 14.50, a: [1, 3, 6], foto: 'lomo-saltado', top: true,
@@ -150,7 +152,7 @@ window.CARTA = [
           { n: 'Ceviche', t: 7.90, r: 15.50, a: [4, 12], foto: 'ceviche', top: true,
             d: 'Pescado marinado en leche de tigre y lima, con cebolla morada, ají, cilantro, choclo y boniato.',
             en: 'Fish marinated in tiger’s milk and lime, served with red onion, chili pepper, cilantro, Andean corn and sweet potato.' },
-          { n: 'Leche de tigre', t: null, r: 10.00, a: [4, 12],
+          { n: 'Leche de tigre', t: null, r: 10.00, a: [4, 12], foto: 'wm:Leche_de_tigre.JPG',
             d: 'El jugo del ceviche, con chicharrón de pescado crujiente, yuca y trocitos de pescado.',
             en: 'Lime-infused ceviche broth, served with crispy fried fish, cassava and fish morsels.' },
           // La libreta no trae precio de este plato: se mantiene el de la carta impresa. CONFIRMAR.
@@ -177,13 +179,13 @@ window.CARTA = [
       {
         id: 'es-entradas', es: 'Entradas', en: 'Starters',
         platos: [
-          { n: 'Ensaladilla', t: 4.50, r: null,
+          { n: 'Ensaladilla', t: 4.50, r: null, foto: 'wm:Ensaladilla,_tapa_de_bar.jpg',
             d: 'La ensaladilla de toda la vida.', en: 'Classic Spanish potato salad.' },
           { n: 'Pimientos asados con melva', t: 4.50, r: 12.00,
             d: 'Pimientos asados con melva.', en: 'Roasted peppers with melva (frigate tuna).' },
           { n: 'Berenjenas con miel de caña', t: 4.50, r: 12.00,
             d: 'Berenjena frita y crujiente con miel de caña.', en: 'Crispy fried aubergine with cane honey.' },
-          { n: 'Tortillitas de camarones', t: 4.90, r: 12.00,
+          { n: 'Tortillitas de camarones', t: 4.90, r: 12.00, foto: 'wm:Tortilla_de_Camarones.jpg',
             d: 'Finas y crujientes, como en Cádiz.', en: 'Thin, crispy shrimp fritters, Cádiz-style.' },
           { n: 'Croquetas de rabo de toro', t: 4.50, r: 12.00,
             d: 'Croquetas cremosas de rabo de toro.', en: 'Creamy oxtail croquettes.' },
@@ -198,7 +200,7 @@ window.CARTA = [
       {
         id: 'es-carnes', es: 'Carnes', en: 'Meat',
         platos: [
-          { n: 'Solomillo al whisky', t: 5.50, r: 13.90, top: true,
+          { n: 'Solomillo al whisky', t: 5.50, r: 13.90, top: true, foto: 'wm:Solomillo_al_whisky.JPG',
             d: 'El clásico sevillano: solomillo en salsa de ajo y whisky.', en: 'A Sevillian classic: tenderloin in garlic and whisky sauce.' },
           { n: 'Presa ibérica', t: 5.50, r: 13.90,
             d: 'Presa de cerdo ibérico a la plancha.', en: 'Grilled Iberian pork shoulder.' },
@@ -215,9 +217,9 @@ window.CARTA = [
       {
         id: 'es-mar', es: 'Del mar', en: 'From the sea',
         platos: [
-          { n: 'Choco frito', t: 4.90, r: 13.90,
+          { n: 'Choco frito', t: 4.90, r: 13.90, foto: 'wm:Tapa_de_Chocos_fritos.jpg',
             d: 'Choco frito, como manda Andalucía.', en: 'Fried cuttlefish, Andalusian-style.' },
-          { n: 'Cazón en adobo', t: 4.90, r: 13.90, top: true,
+          { n: 'Cazón en adobo', t: 4.90, r: 13.90, top: true, foto: 'wm:Cazon_en_adobo_(24275490023)_(cropped).jpg',
             d: 'Cazón adobado y frito.', en: 'Marinated fried dogfish.' },
           // La libreta solo trae precio de ración. CONFIRMAR si sigue habiendo tapa.
           { n: 'Merluza a la romana', t: null, r: 13.90,
@@ -227,9 +229,9 @@ window.CARTA = [
       {
         id: 'es-guisos', es: 'Guisos', en: 'Stews',
         platos: [
-          { n: 'Cola de toro', t: 6.90, r: 13.50, top: true,
+          { n: 'Cola de toro', t: 6.90, r: 13.50, top: true, foto: 'wm:Rabo_de_toro-Estofado_(01).JPG',
             d: 'Rabo de toro guisado a fuego lento.', en: 'Slow-braised oxtail stew.' },
-          { n: 'Carrillada', t: 6.90, r: 13.50,
+          { n: 'Carrillada', t: 6.90, r: 13.50, foto: 'wm:Carrillada_Ibérica_Sevilla.jpg',
             d: 'Carrillada guisada, melosa.', en: 'Slow-cooked pork cheeks.' }
         ]
       },
@@ -240,7 +242,7 @@ window.CARTA = [
             d: 'Langostinos con alioli en pan.', en: 'Prawns with aioli on bread.' },
           { n: 'Filete de pollo o cerdo', u: 4.50,
             d: 'Filete de pollo o de cerdo en pan.', en: 'Chicken or pork fillet on bread.' },
-          { n: 'Serranito', u: 5.90, top: true,
+          { n: 'Serranito', u: 5.90, top: true, foto: 'wm:Serranito_de_cerdo.JPG',
             d: 'El montadito de Sevilla: filete, jamón serrano y pimiento frito.', en: 'Seville’s own sandwich: fillet, serrano ham and fried green pepper.' }
         ]
       }

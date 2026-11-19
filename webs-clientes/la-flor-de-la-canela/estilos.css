@@ -539,3 +539,7 @@ html:lang(ja) body, html:lang(zh) body { line-break: strict; word-break: normal;
   .datos div { grid-template-columns: 1fr; gap: 4px; }
   .visor-cerrar { top: -54px; right: 0; }
 }
+
+/* enlace a créditos de fotos en el pie */
+.pie-legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.pie-legal a:hover { color: rgba(246,239,227,.85); }

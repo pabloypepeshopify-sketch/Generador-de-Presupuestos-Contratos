@@ -149,9 +149,17 @@
     return '<div class="plato-precios">' + c(p.t, t('tapa')) + c(p.r, t('racion')) + '</div>';
   }
 
+  /* Fotos: 'ceviche' → img/ceviche.webp (del local); 'wm:Archivo.jpg' → Wikimedia Commons */
+  function fotoUrl(p, mini) {
+    if (p.foto.indexOf('wm:') === 0) {
+      return 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(p.foto.slice(3)) + '?width=' + (mini ? 160 : 1000);
+    }
+    return 'img/' + p.foto + (mini ? '-mini' : '') + '.webp';
+  }
+
   function platoHTML(p, s) {
     var tr = tradPlato(p);
-    var foto = p.foto ? '<button class="plato-foto" type="button" data-foto="img/' + p.foto + '.webp" aria-label="' + esc(p.n) + '"><img src="img/' + p.foto + '-mini.webp" alt="" loading="lazy" width="120" height="120"></button>' : '';
+    var foto = p.foto ? '<button class="plato-foto" type="button" data-foto="' + fotoUrl(p) + '" aria-label="' + esc(p.n) + '"><img src="' + fotoUrl(p, true) + '" alt="" loading="lazy" width="120" height="120"></button>' : '';
     var casa = p.top ? '<span class="plato-casa"><svg><use href="#flor"/></svg>' + t('casa') + '</span>' : '';
     var nota = p.nota ? '<span class="plato-nota">' + esc(nNota(p.nota)) + '</span>' : '';
     return '<article class="plato' + (s.sinPrecio ? ' sin-precio' : '') + '">' +
@@ -251,7 +259,7 @@
       var pr = !conPrecios ? [p.t != null ? t('tapa') : '', p.r != null ? t('racion') : ''].filter(Boolean).join(' · ')
         : (p.t != null ? '<span>' + t('tapa') + '<b>' + precio(p.t) + '</b></span>' : '') + (p.r != null ? '<span>' + t('racion') + '<b>' + precio(p.r) + '</b></span>' : '');
       return '<a class="estrella" href="#' + x.s.id + '" data-abrir-carta="' + x.c.id + '">' +
-        '<figure><img src="img/' + p.foto + '.webp" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera ' + (x.c.id === 'sevilla' ? 'es' : 'pe') + '"></span>' + esc(nSeccion(x.s)) + '</span></figure>' +
+        '<figure><img src="' + fotoUrl(p) + '" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera ' + (x.c.id === 'sevilla' ? 'es' : 'pe') + '"></span>' + esc(nSeccion(x.s)) + '</span></figure>' +
         '<div class="estrella-cuerpo"><h3>' + esc(p.n) + '</h3>' + (tr.sub ? '<p class="estrella-trad">' + esc(tr.sub) + '</p>' : '') +
         '<p>' + esc(tr.d) + '</p><div class="precio-linea">' + pr + '</div></div></a>';
     }).join('');
