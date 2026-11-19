@@ -11,127 +11,150 @@
   var guardar = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
   var leer = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
 
-  /* ───────────── textos en inglés ───────────── */
-  var EN = {
-    'nav.carta': 'Menu', 'nav.casa': 'Our story', 'nav.barra': 'Bar', 'nav.visita': 'Find us',
-    'cta.reservar': 'Book a table', 'cta.carta': 'See the menu',
-    'hero.ante': 'Restobar · Santa Justa · Seville',
-    'hero.t1': 'Ceviche and serranito,', 'hero.t2': 'at the same table.',
-    'hero.sub': 'Peruvian creole cooking and classic Sevillian tapas on Avenida de El Greco. A terrace on the street, tiles inside and a well-shaken pisco sour.',
-    'hero.d1': '168 Google reviews', 'hero.d2': 'dishes on the menu', 'hero.d3a': 'Tapa', 'hero.d3': 'or full plate',
-    'casa.pie': 'Av. de El Greco, 4 · the old Enea',
-    'casa.ante': 'Our story', 'casa.titulo': 'A flower <em>from Lima</em>',
-    'casa.p1': 'It’s named after Chabuca Granda’s waltz, the song every Peruvian knows by heart. Behind it is Dani Maguiño, who in 2006 opened what he remembers as Seville’s first Peruvian restaurant, on Plaza Pintor Amalio García del Moral.',
-    'casa.p2': 'Today that kitchen lives on Avenida de El Greco: a street terrace with wrought-iron grilles, a blue-and-white tiled dining room, wooden tables and a menu split in two. On one side, ceviche, causa and wok-tossed lomo saltado. On the other, serranito, fried cuttlefish and oxtail stew.',
-    'casa.c1': 'cooking Peru in Seville', 'casa.c2': 'kitchens, one table', 'casa.c3': 'allergens marked on the menu',
-    'coc.ante': 'Two kitchens', 'coc.titulo': 'Order from both. <em>Share.</em>',
-    'coc.pe.t': 'Peruvian kitchen', 'coc.pe.p': 'Ceviche with tiger’s milk, causa limeña, anticuchos, ají de gallina and everything from the wok: lomo saltado, chaufa, tipakay. Creole and chifa, just like in Lima.', 'coc.pe.cta': 'See Peruvian dishes',
-    'coc.es.t': 'Spanish kitchen', 'coc.es.p': 'Classic tapas: serranito, pork in whisky sauce, fried cuttlefish, marinated dogfish, oxtail and pork cheeks. With an ice-cold Cruzcampo.', 'coc.es.cta': 'See Spanish dishes',
-    'est.ante': 'To start', 'est.titulo': 'What you <em>have to try</em>', 'est.cta': 'Full menu',
-    'carta.ante': 'Digital menu', 'carta.titulo': 'The <em>menu</em>',
-    'carta.intro': 'Almost everything comes as a tapa or a full plate. Best way: order from both kitchens and share.',
-    'carta.tab.pe': 'Peruvian', 'carta.tab.es': 'Spanish', 'carta.alerg': 'Allergens',
-    'carta.ph': 'Search: ceviche, chaufa, serranito…',
-    'carta.pa.t': 'Hide dishes that contain:', 'carta.pa.nota': 'Based on the restaurant’s menu. If you have an allergy, always tell your server.', 'carta.pa.limpiar': 'Clear filters',
-    'carta.legal': 'Prices in euros, VAT included. If you have any allergy or intolerance, let us know and we’ll tell you what’s in every dish.',
-    'barra.ante': 'The bar', 'barra.titulo': 'Pisco sour: <em>mango, passion fruit</em> or classic',
-    'barra.p': 'Start with a pisco sour and let the night decide the rest. Chicha morada, tropical juices, mojitos and draught Cruzcampo for the tapas.',
-    'barra.b1': 'Classic pisco sour', 'barra.b2': 'Passion fruit pisco sour', 'barra.b3': 'Mango pisco sour', 'barra.b4': 'Chicha morada', 'barra.b5': 'Tropical juices', 'barra.b6': 'Mojito',
-    'barra.nota': 'Ask at the bar for today’s desserts.',
-    'res.ante': 'Book', 'res.titulo': 'Save us <em>a table</em>',
-    'res.p': 'Fill this in and WhatsApp opens with the message ready. We’ll reply there to confirm.',
-    'res.thefork': 'Also on TheFork',
-    'res.f.nombre': 'Name', 'res.f.personas': 'Guests', 'res.f.dia': 'Day', 'res.f.hora': 'Time', 'res.f.zona': 'Where',
-    'res.f.terraza': 'Terrace', 'res.f.dentro': 'Inside', 'res.f.notas': 'Anything we should know (optional)', 'res.f.notas.ph': 'Birthday, pram, allergies…',
-    'res.f.enviar': 'Request a table on WhatsApp',
-    'vis.ante': 'Find us', 'vis.titulo': 'Av. de El Greco, 4 <em>Seville</em>',
-    'vis.p': 'In the San Pablo – Santa Justa neighbourhood, 41007. Street terrace and indoor dining room.',
-    'vis.horario': 'Opening hours', 'vis.horario.v': 'Call or WhatsApp us and we’ll tell you if there’s a table.',
-    'vis.tel': 'Phone & WhatsApp', 'vis.como': 'Get directions',
-    'pie.lema': 'Peruvian & Spanish kitchen', 'pie.fotos': 'Photos of the restaurant and its dishes.',
-    'cred.carta': 'Digital menu made by', 'cred.pie': 'Website and digital menu made by',
-    'bm.carta': 'Menu', 'bm.llamar': 'Call', 'bm.reservar': 'Book', 'bm.llegar': 'Directions'
-  };
+  var T = window.TRAD;
+  var IDIOMAS = T.idiomas.map(function (i) { return i.id; });
 
+  /* ───────────── textos que pinta el JS ───────────── */
+  var mensajeES = function (f) {
+    return 'Hola, quería reservar mesa en La Flor de la Canela.\n\n· Nombre: ' + f.nombre + '\n· Personas: ' + f.personas +
+      '\n· Día: ' + f.dia + '\n· Hora: ' + f.hora + '\n· Zona: ' + f.zona + (f.notas ? '\n· Notas: ' + f.notas : '') +
+      (f.idioma ? '\n· Idioma del cliente: ' + f.idioma : '') + '\n\n¡Gracias!';
+  };
   var UI = {
     es: { tapa: 'Tapa', racion: 'Ración', precio: 'Precio', casa: 'De la casa', consulta: 'Alérgenos: consulta al personal',
-          sinAl: 'Sin alérgenos declarados', vacio: 'No hay platos que coincidan.', vacioSub: 'Prueba con otra palabra o quita algún filtro.',
-          aviso: 'La cocina española aún no tiene los alérgenos en carta, así que con filtros activos no se muestra. Pregunta y te lo decimos.',
-          platos: 'platos', verCarta: 'Ver en la carta', errNombre: 'Pon tu nombre para la reserva.', errDia: 'Elige el día.', errPasado: 'Ese día ya ha pasado.',
-          msg: function (f) { return 'Hola, quería reservar mesa en La Flor de la Canela.\n\n· Nombre: ' + f.nombre + '\n· Personas: ' + f.personas + '\n· Día: ' + f.dia + '\n· Hora: ' + f.hora + '\n· Zona: ' + f.zona + (f.notas ? '\n· Notas: ' + f.notas : '') + '\n\n¡Gracias!'; } },
+          precioBarra: 'Precio en barra', vacio: 'No hay platos que coincidan.', vacioSub: 'Prueba con otra palabra o quita algún filtro.',
+          aviso: 'La cocina española, las tartas y las bebidas aún no tienen los alérgenos en carta, así que con filtros activos no se muestran. Pregunta y te lo decimos.',
+          platos: 'platos', bebidas: 'bebidas', errNombre: 'Pon tu nombre para la reserva.', errDia: 'Elige el día.', errPasado: 'Ese día ya ha pasado.',
+          locale: 'es-ES', msg: mensajeES },
     en: { tapa: 'Tapa', racion: 'Plate', precio: 'Price', casa: 'House favourite', consulta: 'Allergens: please ask your server',
-          sinAl: 'No allergens declared', vacio: 'No dishes match.', vacioSub: 'Try another word or remove a filter.',
-          aviso: 'Allergen info for the Spanish kitchen isn’t on the menu yet, so those dishes are hidden while filters are on. Just ask us.',
-          platos: 'dishes', verCarta: 'See on the menu', errNombre: 'Please add your name.', errDia: 'Pick a day.', errPasado: 'That day has already passed.',
-          msg: function (f) { return 'Hi! I’d like to book a table at La Flor de la Canela.\n\n· Name: ' + f.nombre + '\n· Guests: ' + f.personas + '\n· Day: ' + f.dia + '\n· Time: ' + f.hora + '\n· Area: ' + f.zona + (f.notas ? '\n· Notes: ' + f.notas : '') + '\n\nThank you!'; } }
+          precioBarra: 'Ask at the bar', vacio: 'No dishes match.', vacioSub: 'Try another word or remove a filter.',
+          aviso: 'Allergen info for the Spanish kitchen, cakes and drinks isn’t on the menu yet, so those are hidden while filters are on. Just ask us.',
+          platos: 'dishes', bebidas: 'drinks', errNombre: 'Please add your name.', errDia: 'Pick a day.', errPasado: 'That day has already passed.',
+          locale: 'en-GB',
+          msg: function (f) { return 'Hi! I’d like to book a table at La Flor de la Canela.\n\n· Name: ' + f.nombre + '\n· Guests: ' + f.personas + '\n· Day: ' + f.dia + '\n· Time: ' + f.hora + '\n· Area: ' + f.zona + (f.notas ? '\n· Notes: ' + f.notas : '') + '\n\nThank you!'; } },
+    ja: { tapa: 'タパ', racion: 'ラシオン', precio: '価格', casa: 'おすすめ', consulta: 'アレルゲン：スタッフにお尋ねください',
+          precioBarra: '価格はスタッフへ', vacio: '該当する料理がありません。', vacioSub: '別の言葉で検索するか、フィルターを解除してください。',
+          aviso: 'スペイン料理・ケーキ・ドリンクはメニューにアレルゲン情報がないため、フィルター使用中は表示されません。スタッフにお尋ねください。',
+          platos: '品', bebidas: '種', errNombre: 'お名前を入力してください。', errDia: '日付を選んでください。', errPasado: 'その日はすでに過ぎています。',
+          locale: 'es-ES', idiomaCliente: 'japonés', msg: mensajeES },
+    zh: { tapa: '小份', racion: '大份', precio: '价格', casa: '招牌', consulta: '过敏原：请咨询服务员',
+          precioBarra: '价格请咨询吧台', vacio: '没有符合条件的菜品。', vacioSub: '请换个关键词或清除筛选。',
+          aviso: '西班牙菜、蛋糕和饮品暂无过敏原信息，筛选时不会显示。请咨询服务员。',
+          platos: '道', bebidas: '款', errNombre: '请填写姓名。', errDia: '请选择日期。', errPasado: '该日期已过。',
+          locale: 'es-ES', idiomaCliente: 'chino', msg: mensajeES }
   };
 
-  var estado = {
-    lang: 'es',
-    cocina: 'peru',
-    busqueda: '',
-    quitar: new Set()
-  };
+  var estado = { lang: 'es', cocina: 'peru', busqueda: '', quitar: new Set() };
 
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var precio = function (n) { return n.toFixed(2).replace('.', ',') + ' €'; };
-  var sinTildes = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var sinTildes = function (s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
   var t = function (k) { return UI[estado.lang][k]; };
+  var cjk = function () { return estado.lang === 'ja' || estado.lang === 'zh'; };
+
+  /* nombres traducidos de la carta */
+  var nCocina = function (c) { return c[estado.lang] || (T.cocinas[c.id] && T.cocinas[c.id][estado.lang]) || c.en; };
+  var nLema = function (c) { return c.lema[estado.lang] || (T.lemas[c.id] && T.lemas[c.id][estado.lang]) || c.lema.en; };
+  var nSeccion = function (s) { return s[estado.lang] || (T.secciones[s.id] && T.secciones[s.id][estado.lang]) || s.en; };
+  var nIntro = function (s) { if (!s.intro) return ''; return s.intro[estado.lang] || (T.intros[s.id] && T.intros[s.id][estado.lang]) || s.intro.en; };
+  var nAlergeno = function (n) { var a = ALERGENOS[n]; return a[estado.lang] || (T.alergenos[estado.lang] && T.alergenos[estado.lang][n]) || a.en; };
+  var nNota = function (nota) { return nota[estado.lang] || (T.notas[nota.es] && T.notas[nota.es][estado.lang]) || nota.en; };
+  /* → { sub: nombre traducido (solo ja/zh), d: descripción en el idioma actual } */
+  function tradPlato(p) {
+    if (estado.lang === 'es') return { sub: '', d: p.d };
+    if (estado.lang === 'en') return { sub: '', d: p.en || p.d };
+    var x = T.platos[p.n] && T.platos[p.n][estado.lang];
+    return x ? { sub: x[0], d: x[1] } : { sub: '', d: p.en || p.d };
+  }
 
   /* ───────────── idioma ───────────── */
   var originales = new Map();
   function aplicarIdioma(lang) {
+    if (IDIOMAS.indexOf(lang) === -1) lang = 'es';
     estado.lang = lang;
-    document.documentElement.lang = lang;
+    var info = T.idiomas.filter(function (i) { return i.id === lang; })[0];
+    document.documentElement.lang = info.html;
+    var dic = T.textos[lang] || {};
     $$('[data-i18n]').forEach(function (el) {
       if (!originales.has(el)) originales.set(el, el.textContent);
       var k = el.getAttribute('data-i18n');
-      el.textContent = lang === 'en' && EN[k] ? EN[k] : originales.get(el);
+      el.textContent = lang !== 'es' && dic[k] != null ? dic[k] : originales.get(el);
     });
     $$('[data-i18n-html]').forEach(function (el) {
       if (!originales.has(el)) originales.set(el, el.innerHTML);
       var k = el.getAttribute('data-i18n-html');
-      el.innerHTML = lang === 'en' && EN[k] ? EN[k] : originales.get(el);
+      el.innerHTML = lang !== 'es' && dic[k] != null ? dic[k] : originales.get(el);
     });
     $$('[data-i18n-ph]').forEach(function (el) {
       if (!originales.has(el)) originales.set(el, el.placeholder);
       var k = el.getAttribute('data-i18n-ph');
-      el.placeholder = lang === 'en' && EN[k] ? EN[k] : originales.get(el);
+      el.placeholder = lang !== 'es' && dic[k] != null ? dic[k] : originales.get(el);
     });
+    $('#idioma-actual').textContent = info.corto;
+    $$('#idiomas-lista [data-lang]').forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
     guardar('flor-lang', lang);
     pintarTodo();
   }
+
+  /* selector de idioma */
+  var btnIdioma = $('#idioma');
+  var listaIdiomas = $('#idiomas-lista');
+  listaIdiomas.innerHTML = T.idiomas.map(function (i) {
+    return '<button type="button" role="menuitemradio" data-lang="' + i.id + '" lang="' + i.html + '">' + esc(i.nombre) + '</button>';
+  }).join('');
+  function abrirIdiomas(si) {
+    listaIdiomas.hidden = !si;
+    btnIdioma.setAttribute('aria-expanded', si ? 'true' : 'false');
+    if (si) { var act = $('[aria-checked="true"]', listaIdiomas) || $('button', listaIdiomas); act.focus(); }
+  }
+  btnIdioma.addEventListener('click', function (e) { e.stopPropagation(); abrirIdiomas(listaIdiomas.hidden); });
+  listaIdiomas.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-lang]');
+    if (!b) return;
+    aplicarIdioma(b.getAttribute('data-lang'));
+    abrirIdiomas(false);
+    btnIdioma.focus();
+  });
+  listaIdiomas.addEventListener('keydown', function (e) {
+    var bs = $$('button', listaIdiomas), i = bs.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); bs[(i + 1) % bs.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); bs[(i - 1 + bs.length) % bs.length].focus(); }
+  });
+  document.addEventListener('click', function (e) { if (!listaIdiomas.hidden && !e.target.closest('.idiomas')) abrirIdiomas(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !listaIdiomas.hidden) { abrirIdiomas(false); btnIdioma.focus(); } });
 
   /* ───────────── carta ───────────── */
   var cuerpo = $('#panel-carta');
   var chips = $('#carta-chips');
 
-  function alergenosHTML(p) {
-    if (!p.a) return '<span class="al-consulta">' + t('consulta') + '</span>';
+  function alergenosHTML(p, s) {
+    if (!p.a) return s.consulta ? '' : '<span class="al-consulta">' + t('consulta') + '</span>';
     if (!p.a.length) return '';
     return '<div class="plato-alerg">' + p.a.map(function (n) {
-      var a = ALERGENOS[n];
-      return '<span class="al" style="--c:' + a.color + '" title="' + esc(a[estado.lang]) + '"><i>' + n + '</i>' + esc(a[estado.lang]) + '</span>';
+      var nom = nAlergeno(n);
+      return '<span class="al" style="--c:' + ALERGENOS[n].color + '" title="' + esc(nom) + '"><i>' + n + '</i>' + esc(nom) + '</span>';
     }).join('') + '</div>';
   }
 
-  function preciosHTML(p) {
+  function preciosHTML(p, s) {
+    if (s.sinPrecio) return '';
     if (p.u != null) return '<div class="plato-precios unico"><span><small>' + t('precio') + '</small>' + precio(p.u) + '</span></div>';
     var c = function (v, et) { return v == null ? '<span class="vacio">—</span>' : '<span><small>' + et + '</small>' + precio(v) + '</span>'; };
     return '<div class="plato-precios">' + c(p.t, t('tapa')) + c(p.r, t('racion')) + '</div>';
   }
 
-  function platoHTML(p) {
-    var desc = estado.lang === 'en' ? p.en : p.d;
-    var foto = p.foto ? '<button class="plato-foto" type="button" data-foto="img/' + p.foto + '.webp" aria-label="Ver foto de ' + esc(p.n) + '"><img src="img/' + p.foto + '-mini.webp" alt="" loading="lazy" width="120" height="120"></button>' : '';
+  function platoHTML(p, s) {
+    var tr = tradPlato(p);
+    var foto = p.foto ? '<button class="plato-foto" type="button" data-foto="img/' + p.foto + '.webp" aria-label="' + esc(p.n) + '"><img src="img/' + p.foto + '-mini.webp" alt="" loading="lazy" width="120" height="120"></button>' : '';
     var casa = p.top ? '<span class="plato-casa"><svg><use href="#flor"/></svg>' + t('casa') + '</span>' : '';
-    var nota = p.nota ? '<span class="plato-nota">' + esc(p.nota[estado.lang]) + '</span>' : '';
-    return '<article class="plato">' +
+    var nota = p.nota ? '<span class="plato-nota">' + esc(nNota(p.nota)) + '</span>' : '';
+    return '<article class="plato' + (s.sinPrecio ? ' sin-precio' : '') + '">' +
       '<div class="plato-info">' + foto +
         '<div><h4 class="plato-nombre">' + esc(p.n) + casa + nota + '</h4>' +
-        (desc ? '<p class="plato-desc">' + esc(desc) + '</p>' : '') +
-        alergenosHTML(p) + '</div>' +
-      '</div>' + preciosHTML(p) + '</article>';
+        (tr.sub ? '<p class="plato-trad">' + esc(tr.sub) + '</p>' : '') +
+        (tr.d ? '<p class="plato-desc">' + esc(tr.d) + '</p>' : '') +
+        alergenosHTML(p, s) + '</div>' +
+      '</div>' + preciosHTML(p, s) + '</article>';
   }
 
   function pasaFiltros(p) {
@@ -140,33 +163,41 @@
       for (var i = 0; i < p.a.length; i++) if (estado.quitar.has(p.a[i])) return false;
     }
     if (estado.busqueda) {
-      var txt = sinTildes(p.n + ' ' + p.d + ' ' + p.en);
+      var x = T.platos[p.n] || {};
+      var extra = (x.ja ? x.ja.join(' ') : '') + ' ' + (x.zh ? x.zh.join(' ') : '');
+      var txt = sinTildes(p.n + ' ' + p.d + ' ' + p.en + ' ' + extra);
       if (txt.indexOf(estado.busqueda) === -1) return false;
     }
     return true;
   }
 
+  function cabeceraSeccion(s, nombre, num) {
+    var unico = s.platos.every(function (p) { return p.u != null; });
+    var cols = s.sinPrecio ? '<div class="cs-cols nota"><span>' + t('precioBarra') + '</span></div>'
+      : '<div class="cs-cols' + (unico ? ' unico' : '') + '">' + (unico ? '<span>' + t('precio') + '</span>' : '<span>' + t('tapa') + '</span><span>' + t('racion') + '</span>') + '</div>';
+    var intro = nIntro(s);
+    var avisoAl = s.consulta ? '<p class="cs-intro">' + (intro ? esc(intro) + ' ' : '') + '<span>' + t('consulta') + '</span></p>' : (intro ? '<p class="cs-intro">' + esc(intro) + '</p>' : '');
+    return '<header class="cs-cabeza"><h3>' + esc(nombre) + ' <small>' + num + ' ' + t(s.bebida ? 'bebidas' : 'platos') + '</small></h3>' + cols + '</header>' + avisoAl;
+  }
+
   function pintarCarta() {
     var buscando = !!estado.busqueda;
-    // al buscar se mira en las dos cocinas a la vez
+    // al buscar se mira en toda la carta a la vez
     var cocinas = buscando ? CARTA : CARTA.filter(function (c) { return c.id === estado.cocina; });
     var html = '';
     var secs = [];
     var ocultasSinDatos = false;
 
     cocinas.forEach(function (coc) {
-      if (!buscando) html += '<p class="carta-lema">' + esc(coc.lema[estado.lang]) + '</p>';
+      if (!buscando) html += '<p class="carta-lema">' + esc(nLema(coc)) + '</p>';
       coc.secciones.forEach(function (s) {
         var platos = s.platos.filter(pasaFiltros);
         if (estado.quitar.size && s.platos.some(function (p) { return !p.a; })) ocultasSinDatos = true;
         if (!platos.length) return;
-        var unico = s.platos.every(function (p) { return p.u != null; });
-        var nombre = s[estado.lang] + (buscando ? ' · ' + coc[estado.lang] : '');
-        secs.push({ id: s.id, nombre: s[estado.lang] });
-        html += '<section class="carta-seccion" id="' + s.id + '">' +
-          '<header class="cs-cabeza"><h3>' + esc(nombre) + ' <small>' + platos.length + ' ' + t('platos') + '</small></h3>' +
-          '<div class="cs-cols' + (unico ? ' unico' : '') + '">' + (unico ? '<span>' + t('precio') + '</span>' : '<span>' + t('tapa') + '</span><span>' + t('racion') + '</span>') + '</div></header>' +
-          platos.map(platoHTML).join('') + '</section>';
+        var nombre = nSeccion(s) + (buscando ? ' · ' + nCocina(coc) : '');
+        secs.push({ id: s.id, nombre: nSeccion(s) });
+        html += '<section class="carta-seccion" id="' + s.id + '">' + cabeceraSeccion(s, nombre, platos.length) +
+          platos.map(function (p) { return platoHTML(p, s); }).join('') + '</section>';
       });
     });
 
@@ -193,12 +224,10 @@
 
   function pintarAlergenos() {
     $('#pa-lista').innerHTML = Object.keys(ALERGENOS).map(function (n) {
-      var a = ALERGENOS[n];
-      return '<label><input type="checkbox" value="' + n + '"' + (estado.quitar.has(+n) ? ' checked' : '') + '><span style="--c:' + a.color + '"><i>' + n + '</i>' + esc(a[estado.lang]) + '</span></label>';
+      return '<label><input type="checkbox" value="' + n + '"' + (estado.quitar.has(+n) ? ' checked' : '') + '><span style="--c:' + ALERGENOS[n].color + '"><i>' + n + '</i>' + esc(nAlergeno(n)) + '</span></label>';
     }).join('');
     $('#leyenda').innerHTML = Object.keys(ALERGENOS).map(function (n) {
-      var a = ALERGENOS[n];
-      return '<span class="al" style="--c:' + a.color + '"><i>' + n + '</i>' + esc(a[estado.lang]) + '</span>';
+      return '<span class="al" style="--c:' + ALERGENOS[n].color + '"><i>' + n + '</i>' + esc(nAlergeno(n)) + '</span>';
     }).join('');
     var num = $('#alerg-num');
     num.textContent = estado.quitar.size;
@@ -212,11 +241,12 @@
     $('#estrellas-pista').innerHTML = elegidos.map(function (n) {
       var x = todos.filter(function (o) { return o.p.n === n; })[0];
       if (!x) return '';
-      var p = x.p;
+      var p = x.p, tr = tradPlato(p);
       var pr = (p.t != null ? '<span>' + t('tapa') + '<b>' + precio(p.t) + '</b></span>' : '') + (p.r != null ? '<span>' + t('racion') + '<b>' + precio(p.r) + '</b></span>' : '');
       return '<a class="estrella" href="#' + x.s.id + '" data-abrir-carta="' + x.c.id + '">' +
-        '<figure><img src="img/' + p.foto + '.webp" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera ' + (x.c.id === 'peru' ? 'pe' : 'es') + '"></span>' + esc(x.s[estado.lang]) + '</span></figure>' +
-        '<div class="estrella-cuerpo"><h3>' + esc(p.n) + '</h3><p>' + esc(estado.lang === 'en' ? p.en : p.d) + '</p><div class="precio-linea">' + pr + '</div></div></a>';
+        '<figure><img src="img/' + p.foto + '.webp" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera pe"></span>' + esc(nSeccion(x.s)) + '</span></figure>' +
+        '<div class="estrella-cuerpo"><h3>' + esc(p.n) + '</h3>' + (tr.sub ? '<p class="estrella-trad">' + esc(tr.sub) + '</p>' : '') +
+        '<p>' + esc(tr.d) + '</p><div class="precio-linea">' + pr + '</div></div></a>';
     }).join('');
   }
 
@@ -226,6 +256,11 @@
     pintarCarta();
     pintarEstrellas();
   }
+
+  /* número de platos de la portada (sin contar bebidas) */
+  var nPlatos = 0;
+  CARTA.forEach(function (c) { c.secciones.forEach(function (s) { if (!s.bebida) nPlatos += s.platos.length; }); });
+  $$('.num-platos').forEach(function (el) { el.textContent = nPlatos; });
 
   /* chip activo según la sección que se está leyendo */
   var obs;
@@ -243,36 +278,34 @@
     $$('.carta-seccion', cuerpo).forEach(function (s) { obs.observe(s); });
   }
 
-  function cambiarCocina(id, bajar) {
+  function cambiarCocina(id) {
     if (estado.busqueda) cerrarBusqueda();
     estado.cocina = id;
     pintarSelector();
     pintarCarta();
-    if (bajar) $('#carta').scrollIntoView({ behavior: 'smooth' });
   }
 
   /* pestañas */
+  var ORDEN = CARTA.map(function (c) { return c.id; });
   $$('.selector [role="tab"]').forEach(function (b) {
     b.addEventListener('click', function () { cambiarCocina(b.getAttribute('data-cocina')); });
     b.addEventListener('keydown', function (e) {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      var otro = estado.cocina === 'peru' ? 'sevilla' : 'peru';
+      var i = ORDEN.indexOf(estado.cocina) + (e.key === 'ArrowRight' ? 1 : -1);
+      var otro = ORDEN[(i + ORDEN.length) % ORDEN.length];
       cambiarCocina(otro);
       $('#tab-' + otro).focus();
     });
   });
 
-  /* enlaces que abren la carta en una cocina concreta */
+  /* enlaces que abren la carta en una pestaña concreta */
   document.addEventListener('click', function (e) {
     var a = e.target.closest('[data-abrir-carta]');
     if (!a) return;
     var id = a.getAttribute('data-abrir-carta');
     var destino = a.getAttribute('href');
     e.preventDefault();
-    if (estado.busqueda) cerrarBusqueda();
-    estado.cocina = id;
-    pintarSelector();
-    pintarCarta();
+    cambiarCocina(id);
     var el = destino && destino !== '#carta' ? $(destino) : $('#carta');
     (el || $('#carta')).scrollIntoView({ behavior: 'smooth' });
   });
@@ -403,27 +436,38 @@
     else if (dia < iso(hoy)) { fallo = t('errPasado'); campo = form.dia; }
     if (fallo) { err.textContent = fallo; err.hidden = false; campo.classList.add('mal'); campo.focus(); return; }
 
+    // En japonés y chino el mensaje sale en español para que lo lea el personal.
+    var enEspanol = t('msg') === mensajeES;
     var fecha = new Date(dia + 'T12:00:00');
-    var diaTxt = fecha.toLocaleDateString(estado.lang === 'en' ? 'en-GB' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    var diaTxt = fecha.toLocaleDateString(t('locale'), { weekday: 'long', day: 'numeric', month: 'long' });
     var zonaEl = form.querySelector('input[name="zona"]:checked');
-    var zonaTxt = zonaEl ? zonaEl.nextElementSibling.textContent : '';
-    var texto = UI[estado.lang].msg({
+    var zonaTxt = !zonaEl ? '' : (enEspanol ? (zonaEl.value === 'terraza' ? 'Terraza' : 'Dentro') : zonaEl.nextElementSibling.textContent);
+    var texto = t('msg')({
       nombre: nombre, personas: form.personas.value, dia: diaTxt, hora: form.hora.value,
-      zona: zonaTxt, notas: form.notas.value.trim()
+      zona: zonaTxt, notas: form.notas.value.trim(), idioma: t('idiomaCliente') || ''
     });
     window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
   });
 
   /* ───────────── arranque ───────────── */
   $('#anio').textContent = new Date().getFullYear();
-  $('#idioma').addEventListener('click', function () { aplicarIdioma(estado.lang === 'es' ? 'en' : 'es'); });
 
-  var params = new URLSearchParams(location.search);
-  var langIni = params.get('lang') || leer('flor-lang') || ((navigator.language || 'es').slice(0, 2) === 'es' ? 'es' : (navigator.language ? 'en' : 'es'));
+  function idiomaInicial() {
+    var p = new URLSearchParams(location.search).get('lang');
+    if (p && IDIOMAS.indexOf(p) > -1) return p;
+    var g = leer('flor-lang');
+    if (g && IDIOMAS.indexOf(g) > -1) return g;
+    var nav = (navigator.language || 'es').slice(0, 2).toLowerCase();
+    if (nav === 'es') return 'es';
+    if (nav === 'ja' || nav === 'zh') return nav;
+    return navigator.language ? 'en' : 'es';
+  }
+
+  // QR de mesa: /#carta, /#carta-peru, /#carta-sevilla o /#carta-postres
   if (location.hash === '#carta-sevilla' || location.hash === '#carta-espanola') estado.cocina = 'sevilla';
-  aplicarIdioma(langIni === 'en' ? 'en' : 'es');
+  if (location.hash === '#carta-postres' || location.hash === '#carta-bebidas') estado.cocina = 'dulce';
+  aplicarIdioma(idiomaInicial());
 
-  // QR de mesa: /#carta, /#carta-peru o /#carta-sevilla
   if (/^#carta/.test(location.hash)) {
     setTimeout(function () { $('#carta').scrollIntoView(); }, 50);
   }

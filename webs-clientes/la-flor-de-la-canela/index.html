@@ -99,7 +99,14 @@
     <a href="#visitanos" data-i18n="nav.visita">Dónde estamos</a>
   </nav>
   <div class="cabecera-acciones">
-    <button class="idioma" id="idioma" type="button" aria-label="Cambiar idioma / Change language"><span data-l="es">ES</span><span data-l="en">EN</span></button>
+    <div class="idiomas">
+      <button class="idioma" id="idioma" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="idiomas-lista" aria-label="Idioma · Language · 言語 · 语言">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/></g></svg>
+        <span id="idioma-actual">ES</span>
+        <svg class="ico flecha-abajo" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/></svg>
+      </button>
+      <div class="idiomas-lista" id="idiomas-lista" role="menu" hidden></div>
+    </div>
     <a class="boton boton-carmin boton-sm solo-escritorio" href="#reservar" data-i18n="cta.reservar">Reservar mesa</a>
     <button class="hamburguesa" id="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </div>
@@ -115,7 +122,7 @@
   <div class="portada-texto">
     <p class="antetitulo" data-i18n="hero.ante">Restobar · Santa Justa · Sevilla</p>
     <h1 class="portada-titulo">
-      <span class="linea" data-i18n="hero.t1">Ceviche y serranito,</span>
+      <span class="linea" data-i18n="hero.t1">Ceviche y ensaladilla,</span>
       <span class="linea cursiva" data-i18n="hero.t2">en la misma mesa.</span>
     </h1>
     <p class="portada-sub" data-i18n="hero.sub">Cocina criolla peruana y tapeo sevillano de siempre, en la Avenida de El Greco. Terraza a la calle, azulejo dentro y pisco sour bien batido.</p>
@@ -125,7 +132,7 @@
     </div>
     <ul class="portada-datos">
       <li><strong>4,8 <svg class="estrella-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.8 2.8 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17l-5.7 3.1 1.2-6.3L2.9 9.4l6.3-.8Z"/></svg></strong><span data-i18n="hero.d1">168 reseñas en Google</span></li>
-      <li><strong>50</strong><span data-i18n="hero.d2">platos en carta</span></li>
+      <li><strong class="num-platos">54</strong><span data-i18n="hero.d2">platos en carta</span></li>
       <li><strong data-i18n="hero.d3a">Tapa</strong><span data-i18n="hero.d3">o ración</span></li>
     </ul>
   </div>
@@ -139,7 +146,7 @@
     </figure>
     <svg class="sello" viewBox="0 0 200 200" aria-hidden="true">
       <defs><path id="circ" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0"/></defs>
-      <text><textPath href="#circ" startOffset="0" textLength="486" lengthAdjust="spacing">PISCO SOUR · CEVICHE · SERRANITO · </textPath></text>
+      <text><textPath href="#circ" startOffset="0" textLength="486" lengthAdjust="spacing">PISCO SOUR · CEVICHE · ENSALADILLA · </textPath></text>
       <use href="#flor" x="70" y="70" width="60" height="60"/>
     </svg>
   </div>
@@ -230,6 +237,9 @@
         <button role="tab" id="tab-sevilla" aria-controls="panel-carta" aria-selected="false" data-cocina="sevilla">
           <span class="mini-bandera es" aria-hidden="true"></span><span data-i18n="carta.tab.es">Cocina española</span>
         </button>
+        <button role="tab" id="tab-dulce" aria-controls="panel-carta" aria-selected="false" data-cocina="dulce">
+          <svg class="tab-flor" aria-hidden="true"><use href="#flor"/></svg><span data-i18n="carta.tab.pb">Postres y bebidas</span>
+        </button>
         <span class="selector-fondo" aria-hidden="true"></span>
       </div>
     </header>
@@ -271,17 +281,17 @@
   </figure>
   <div class="barra-texto revelar">
     <p class="antetitulo" data-i18n="barra.ante">La barra</p>
-    <h2 class="titulo" data-i18n-html="barra.titulo">Pisco sour <em>de mango, de maracuyá</em> o clásico</h2>
-    <p data-i18n="barra.p">Se empieza con un pisco sour y se sigue con lo que pida la noche. Chicha morada, zumos tropicales, mojitos y caña de Cruzcampo para el tapeo.</p>
+    <h2 class="titulo" data-i18n-html="barra.titulo">Pisco sour, Cusqueña <em>e Inka Kola</em></h2>
+    <p data-i18n="barra.p">Cerveza peruana bien fría, Inka Kola en tres tamaños, pisco sour y sangría. Y para terminar, cuatro tartas a 6 €.</p>
     <ul class="bebidas">
-      <li><span data-i18n="barra.b1">Pisco sour clásico</span></li>
-      <li><span data-i18n="barra.b2">Pisco sour de maracuyá</span></li>
-      <li><span data-i18n="barra.b3">Pisco sour de mango</span></li>
-      <li><span data-i18n="barra.b4">Chicha morada</span></li>
-      <li><span data-i18n="barra.b5">Zumos tropicales</span></li>
-      <li><span data-i18n="barra.b6">Mojito</span></li>
+      <li><span data-i18n="barra.b1">Pisco sour</span></li>
+      <li><span data-i18n="barra.b2">Sangría</span></li>
+      <li><span data-i18n="barra.b3">Cusqueña rubia y negra</span></li>
+      <li><span data-i18n="barra.b4">Pilsen Callao</span></li>
+      <li><span data-i18n="barra.b5">Inka Kola</span></li>
+      <li><span data-i18n="barra.b6">Tartas a 6 €</span></li>
     </ul>
-    <p class="barra-nota" data-i18n="barra.nota">Pregunta en barra por los postres del día.</p>
+    <a class="boton boton-linea" href="#carta" data-abrir-carta="dulce"><span data-i18n="barra.cta">Ver bebidas y postres</span><svg class="ico"><use href="#i-flecha"/></svg></a>
   </div>
 </section>
 
@@ -313,7 +323,7 @@
   <form class="form-reserva revelar" id="form-reserva" novalidate>
     <label class="campo campo-ancho">
       <span data-i18n="res.f.nombre">Nombre</span>
-      <input name="nombre" required autocomplete="name" placeholder="Tu nombre">
+      <input name="nombre" required autocomplete="name" placeholder="Tu nombre" data-i18n-ph="res.f.nombre.ph">
     </label>
     <label class="campo">
       <span data-i18n="res.f.personas">Personas</span>
@@ -344,6 +354,7 @@
       <input name="notas" placeholder="Cumpleaños, carrito, alergias…" data-i18n-ph="res.f.notas.ph">
     </label>
     <button class="boton boton-wa campo-ancho" type="submit"><svg class="ico"><use href="#i-wa"/></svg><span data-i18n="res.f.enviar">Pedir mesa por WhatsApp</span></button>
+    <p class="form-aviso campo-ancho" data-i18n="res.f.aviso"></p>
     <p class="form-error campo-ancho" id="form-error" role="alert" hidden></p>
   </form>
 </section>
@@ -405,6 +416,7 @@
 </dialog>
 
 <script src="js/carta-datos.js"></script>
+<script src="js/traducciones.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
