@@ -24,6 +24,10 @@
 - Tasa de salto **27 %** (el mejor arranque hasta ahora). Me gusta 4,1 %. Compartido 0 %, guardado 0 %, comentarios 0 %.
 - Retención: baja suave (−35 % en 5 s, mejor que el POV), plana en torno al 55 %, y **cae del ~52 % al 40 % justo después del «¡Comenta CAFÉ!» hablado (s 14–15)**.
 
+### YouTube Shorts: cronómetro del café (`crono`)
+- **9000 visitas en YouTube** y subiendo (~100 cada 3 min). El mismo vídeo en Instagram se quedó en ~2000.
+- El formato pregunta + cronómetro funciona mejor en Shorts: hay que subir allí también todos los vídeos (y primero los del mismo formato: `mano2`, `dueno2`).
+
 ### Conclusiones de los reels 3 y 4
 1. El gancho **pregunta + contador en pantalla** retiene más que el «POV:» (salto del 27 % frente al 32 %).
 2. **Pedir algo hablado hace que la gente se vaya**, aunque sea rápido y a mitad. Las llamadas a la acción, solo como texto.
