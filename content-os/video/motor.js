@@ -4322,8 +4322,8 @@ V['docu'] = { ...comunCapa, estilo: 'documental',
 };
 
 // ---------- Tráiler de película: «LA MANO LEVANTADA» (bar moderno de noche, bandas de cine, rótulos) ----------
-function cartelCine(lineas, k, { tam = 120, sub = null, brillo = false } = {}) {
-  if (k <= 0) return; C.save(); C.fillStyle = `rgba(0,0,0,${clamp(k * 1.5)})`; C.fillRect(0, 0, W, H); C.globalAlpha = clamp(k * 1.5); const s = lerp(1.08, 1.0, ease(clamp(k)));
+function cartelCine(lineas, k, { tam = 120, sub = null, brillo = false, fondo = 1 } = {}) {
+  if (k <= 0) return; C.save(); C.fillStyle = `rgba(0,0,0,${clamp(k * 1.5) * fondo})`; C.fillRect(0, 0, W, H); C.globalAlpha = clamp(k * 1.5); const s = lerp(1.08, 1.0, ease(clamp(k)));
   C.translate(W / 2, H / 2); C.scale(s, s); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `800 ${tam}px Fraunces, Georgia, serif`;
   if (brillo) { C.shadowColor = '#ffb46a'; C.shadowBlur = 50; }
   lineas.forEach((l, i) => { const y = (i - (lineas.length - 1) / 2) * tam * 1.12; const g = C.createLinearGradient(0, y - tam / 2, 0, y + tam / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(1, brillo ? '#f0c27a' : '#cfd6e0'); C.fillStyle = g; C.fillText(l, 0, y); });
@@ -4342,15 +4342,15 @@ V['trailer'] = { ...comunCapa, estilo: 'cine',
     this.halo = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.2, 48), new THREE.MeshBasicMaterial({ color: '#ffd9a8', transparent: true, opacity: 0, side: THREE.DoubleSide, toneMapped: false, depthWrite: false })); r.mundo.add(this.halo);
     const c = this.c = { mundo: cue('mundo'), donde: cue('donde'), camareros: cue('camareros'), hombre: cue('hombre'), levanto: cue('levanto'), mano: cue('mano'), veinte: cue('veinte'), cuarenta: cue('cuarenta'), una: cue('una'), hora: cue('hora'), nadie: cue('nadie'),
       hasta: cue('hasta'), descubrio: cue('descubrio'), tarjeta: cue('tarjeta'), este: cue('este'), espera: cue('espera'), termina: cue('termina'), mano2: cue('mano', 2), levantada: cue('levantada'), proximamente: cue('proximamente'), bar: cue('bar') };
-    duracion = palabras[palabras.length - 1].fin + 0.5; c.fin = duracion;
+    duracion = palabras[palabras.length - 1].fin + 0.15; c.fin = duracion;
     const m = this.mS, yoP = this.yoP, mano = this.manoP, cen = this.cenS, P = this.phS, n = this.nrmS, fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
     const T = (a, de, a2, mira, mira2, fov = 38, barrido = 0) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
     const mont = c.este - 0.1, paso = (c.mano2 - 0.25 - mont) / 6;
     this.tomas = [
       T(0, [0.5, 1.7, 3.2], [0.2, 1.65, 2.6], [-1.0, 1.2, -1.5], [-1.4, 1.2, -1.8], 40),
-      T(c.donde - 0.1, [-1.0, 0.55, 2.2], [-0.4, 0.6, 2.0], [-2.0, 1.4, 0.9], [0.4, 1.4, 0.9], 34),
+      T(c.donde - 0.1, [-0.4, 0.75, 3.4], [0.2, 0.8, 3.1], [-2.0, 1.3, 0.9], [0.4, 1.3, 0.9], 32),
       T(c.hombre - 0.15, [m.x + 1.4, 1.35, m.z + 1.6], [m.x + 0.8, 1.35, m.z + 0.9], yoP, yoP, 30),
-      T(c.levanto - 0.15, [m.x + 0.55, 0.7, m.z + 0.5], [m.x + 0.45, 0.8, m.z + 0.35], [m.x + 0.2, 1.4, m.z - 0.6], mano, 40),
+      T(c.levanto - 0.15, [m.x + 0.8, 1.05, m.z + 0.95], [m.x + 0.6, 1.15, m.z + 0.7], [m.x + 0.2, 1.45, m.z - 0.6], mano, 40),
       T(c.veinte + 0.35, [m.x + 0.6, 1.45, m.z + 0.5], [m.x + 0.5, 1.42, m.z + 0.35], yoP, yoP, 30),
       T(c.cuarenta + 0.35, [m.x - 1.2, 1.9, m.z + 1.8], [m.x - 1.0, 1.85, m.z + 1.5], yoP, yoP, 30),
       T(c.hora + 0.35, [m.x + 0.4, 1.6, m.z + 0.55], [m.x + 0.32, 1.58, m.z + 0.42], [m.x + 0.2, 1.65, m.z - 0.6], mano, 34),
@@ -4362,7 +4362,7 @@ V['trailer'] = { ...comunCapa, estilo: 'cine',
       T(mont + paso * 2, [-0.6, 0.6, -0.6], [-1.4, 0.6, -0.2], [-2.4, 1.1, 0.4], [-3.0, 1.1, 0.3], 44),
       T(mont + paso * 3, [m.x + 0.55, 1.05, m.z + 0.6], [m.x + 0.4, 1.0, m.z + 0.45], [m.x - 0.12, 0.88, m.z - 0.38], [m.x - 0.12, 0.88, m.z - 0.38], 32),
       T(mont + paso * 4, [m.x + 0.6, 1.45, m.z + 0.5], [m.x + 0.45, 1.42, m.z + 0.3], yoP, yoP, 30),
-      T(mont + paso * 5, [3.0, 2.6, 3.4], [1.0, 3.0, 3.6], [-2.0, 0.8, -1.0], [-2.6, 0.8, -1.2], 46),
+      T(mont + paso * 5, [3.0, 2.6, 3.4], [-1.5, 3.0, 3.6], [-2.0, 0.8, -1.0], [-3.0, 0.8, -1.2], 46),
     ];
     this.mont = mont; this.paso = paso;
     efectos = [['riser', c.mundo - 0.2], ['hit', c.hombre], ['hit', c.mano + 0.1], ['hit', c.veinte], ['tick', c.veinte + 0.4], ['hit', c.cuarenta], ['tick', c.cuarenta + 0.4], ['hit', c.hora], ['whoosh', c.nadie - 0.15], ['riser', c.hasta],
@@ -4401,8 +4401,8 @@ V['trailer'] = { ...comunCapa, estilo: 'cine',
     card(c.cuarenta - 0.05, c.cuarenta + 0.35, ['40 MIN'], { tam: 190 });
     card(c.una - 0.05, c.hora + 0.35, ['1 HORA'], { tam: 190 });
     card(c.este - 0.35, c.este - 0.1, ['ESTE SÁBADO'], { tam: 110 });
-    card(c.mano2 - 0.25, c.proximamente - 0.15, ['LA MANO', 'LEVANTADA'], { tam: 150, brillo: true, sub: 'BASADO EN HECHOS REALES' });
-    card(c.proximamente - 0.15, c.fin, ['PRÓXIMAMENTE'], { tam: 104, sub: 'EN TU BAR' });
+    card(c.mano2 - 0.25, c.proximamente - 0.15, ['LA MANO', 'LEVANTADA'], { tam: 150, brillo: true, sub: 'BASADO EN HECHOS REALES', fondo: 0.55 });
+    card(c.proximamente - 0.15, c.fin, ['PRÓXIMAMENTE'], { tam: 104, sub: 'EN TU BAR', fondo: 0.45 });
     // bandas de cine
     C.fillStyle = '#000'; C.fillRect(0, 0, W, 250); C.fillRect(0, H - 250, W, 250);
   },
