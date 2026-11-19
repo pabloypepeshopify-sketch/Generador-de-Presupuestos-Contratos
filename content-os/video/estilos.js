@@ -130,6 +130,12 @@ const ESTILOS = {
   // moderno: bar de tapas de noche, ladrillo y neón; subtítulos rosa/naranja neón
   moderno: { post: { brillo: 0.18, desenfoqueBrillo: 14, filtro: 'saturate(1.15) contrast(1.08)' },
     subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d9a', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 20 } },
+  // miniatura: el bar como una maqueta (tilt-shift suave arriba y abajo, colores de juguete)
+  miniatura: { post: { filtro: 'saturate(1.3) contrast(1.06) brightness(1.03)', tiltShift: 6, tiltStops: [[0, 1], [0.18, 0], [0.78, 0], [1, 1]] },
+    subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#33C6F4', '#3F7DFB', '#7C5CFF'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.8)', radio: 26 } },
+  // tele: retransmisión deportiva; subtítulos cursiva roja tipo rótulo de carrera
+  tele: { post: { filtro: 'saturate(1.18) contrast(1.1)' },
+    subs: { tam: 66, fuente: tam => `italic 900 ${tam}px Inter, sans-serif`, pill: ['#e10600', '#ff3d2e'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 6 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
