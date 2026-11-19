@@ -136,7 +136,13 @@
     }).join('') + '</div>';
   }
 
+  var conPrecios = window.MOSTRAR_PRECIOS !== false;
+  function formatosHTML(p) {
+    var f = (p.t != null ? '<span>' + t('tapa') + '</span>' : '') + (p.r != null ? '<span>' + t('racion') + '</span>' : '');
+    return f ? '<div class="plato-formatos">' + f + '</div>' : '';
+  }
   function preciosHTML(p, s) {
+    if (!conPrecios) return s.sinPrecio ? '' : formatosHTML(p);
     if (s.sinPrecio) return '';
     if (p.u != null) return '<div class="plato-precios unico"><span><small>' + t('precio') + '</small>' + precio(p.u) + '</span></div>';
     var c = function (v, et) { return v == null ? '<span class="vacio">—</span>' : '<span><small>' + et + '</small>' + precio(v) + '</span>'; };
@@ -173,7 +179,7 @@
 
   function cabeceraSeccion(s, nombre, num) {
     var unico = s.platos.every(function (p) { return p.u != null; });
-    var cols = s.sinPrecio ? '<div class="cs-cols nota"><span>' + t('precioBarra') + '</span></div>'
+    var cols = !conPrecios ? '' : s.sinPrecio ? '<div class="cs-cols nota"><span>' + t('precioBarra') + '</span></div>'
       : '<div class="cs-cols' + (unico ? ' unico' : '') + '">' + (unico ? '<span>' + t('precio') + '</span>' : '<span>' + t('tapa') + '</span><span>' + t('racion') + '</span>') + '</div>';
     var intro = nIntro(s);
     var avisoAl = s.consulta ? '<p class="cs-intro">' + (intro ? esc(intro) + ' ' : '') + '<span>' + t('consulta') + '</span></p>' : (intro ? '<p class="cs-intro">' + esc(intro) + '</p>' : '');
@@ -242,9 +248,10 @@
       var x = todos.filter(function (o) { return o.p.n === n; })[0];
       if (!x) return '';
       var p = x.p, tr = tradPlato(p);
-      var pr = (p.t != null ? '<span>' + t('tapa') + '<b>' + precio(p.t) + '</b></span>' : '') + (p.r != null ? '<span>' + t('racion') + '<b>' + precio(p.r) + '</b></span>' : '');
+      var pr = !conPrecios ? [p.t != null ? t('tapa') : '', p.r != null ? t('racion') : ''].filter(Boolean).join(' · ')
+        : (p.t != null ? '<span>' + t('tapa') + '<b>' + precio(p.t) + '</b></span>' : '') + (p.r != null ? '<span>' + t('racion') + '<b>' + precio(p.r) + '</b></span>' : '');
       return '<a class="estrella" href="#' + x.s.id + '" data-abrir-carta="' + x.c.id + '">' +
-        '<figure><img src="img/' + p.foto + '.webp" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera pe"></span>' + esc(nSeccion(x.s)) + '</span></figure>' +
+        '<figure><img src="img/' + p.foto + '.webp" alt="' + esc(p.n) + '" loading="lazy" width="800" height="850"><span class="chapa"><span class="mini-bandera ' + (x.c.id === 'sevilla' ? 'es' : 'pe') + '"></span>' + esc(nSeccion(x.s)) + '</span></figure>' +
         '<div class="estrella-cuerpo"><h3>' + esc(p.n) + '</h3>' + (tr.sub ? '<p class="estrella-trad">' + esc(tr.sub) + '</p>' : '') +
         '<p>' + esc(tr.d) + '</p><div class="precio-linea">' + pr + '</div></div></a>';
     }).join('');

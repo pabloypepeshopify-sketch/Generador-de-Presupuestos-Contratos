@@ -27,6 +27,10 @@
   Precios actualizados con la libreta del local (noviembre 2026).
 */
 
+/* Dani no quiere precios en la web: se guardan aquí pero no se enseñan.
+   Para volver a enseñarlos, poner true. */
+window.MOSTRAR_PRECIOS = false;
+
 window.ALERGENOS = {
   1:  { es: 'Gluten',            en: 'Gluten',      color: '#a08468' },
   2:  { es: 'Crustáceos',        en: 'Crustaceans', color: '#7a2e3b' },

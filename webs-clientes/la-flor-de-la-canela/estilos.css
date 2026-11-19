@@ -402,6 +402,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .credito-marca img { width: 27px; height: auto; }
 .credito-marca strong { font-size: 15px; font-weight: 800; letter-spacing: .14em; }
 
+.bienvenida { list-style: none; padding: 0; margin: 0 0 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+.bienvenida li { display: inline-flex; align-items: center; gap: 8px; padding: 5px 13px 5px 6px; border-radius: 999px; background: var(--blanco); border: 1px solid var(--linea); box-shadow: 0 4px 14px -8px rgba(42,26,23,.35); font-size: 13.5px; font-weight: 800; color: var(--tinta); }
+.bandera { width: 30px; height: 20px; border-radius: 4px; flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+.plato-formatos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; padding-top: 3px; }
+.plato-formatos span { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--carmin); border: 1px solid rgba(176,31,46,.3); border-radius: 999px; padding: 4px 10px; }
+@media (max-width: 560px) {
+  .bienvenida { gap: 6px; margin-bottom: 22px; }
+  .bienvenida li { font-size: 12.5px; padding: 4px 10px 4px 5px; gap: 6px; }
+  .bandera { width: 26px; height: 17px; }
+  .plato-formatos { justify-content: flex-start; }
+  .plato-info:has(.plato-foto) + .plato-formatos { padding-left: 64px; }
+}
+
 /* traducciones dentro de la carta */
 .plato-trad { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: var(--carmin); }
 .estrella-trad { margin: -2px 0 2px !important; font-size: 13.5px !important; font-weight: 700; color: var(--carmin) !important; flex: none !important; }
