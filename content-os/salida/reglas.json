@@ -1,0 +1,236 @@
+[
+  {
+    "id": "R01",
+    "categoria": "formato",
+    "regla": "POV de venta real en un bar: cámara en el pecho del comercial y texto «POV: …» fijo arriba todo el vídeo.",
+    "como_aplicarla": "Grabar una visita real de un comercial con permiso del dueño; título tipo «POV: a los bares de Madrid les encanta esto» o «(caso real)».",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "locup.nfc 545k",
+      "packoescalera 330k",
+      "nfcash_ 326k",
+      "tapitreviews 192k",
+      "nfctap.ge_ 360k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R02",
+    "categoria": "gancho",
+    "regla": "Lo que pasa en la pantalla al tocar aparece en el primer segundo (la carta, la reseña, la página que se abre).",
+    "como_aplicarla": "Abrir con el toque y la pantalla cambiando; la explicación va después.",
+    "evidencia": [
+      "boostdailyfinds 1,1M",
+      "33.hats 1,7M",
+      "alejandrovalledor 452k",
+      "ifesciencia 654k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R03",
+    "categoria": "gancho",
+    "regla": "Pregunta sobre algo que el espectador ya tiene y no entiende, señalado en pantalla (círculo rojo en el botón NFC del móvil).",
+    "como_aplicarla": "«¿Sabes para qué sirve este botón de tu móvil?» con el botón NFC rodeado, y llevarlo hasta la tarjeta de la mesa.",
+    "evidencia": [
+      "eliannyanez3 8,2M",
+      "tecnoclips 1M"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R04",
+    "categoria": "gancho",
+    "regla": "Responder a un comentario o pregunta de seguidores («la mía no tiene escáner», «me lo habéis pedido»).",
+    "como_aplicarla": "Usar las preguntas reales que hacen los dueños de bar («¿esto lleva pilas?», «¿y si el cliente no tiene NFC?») como respuesta a comentario.",
+    "evidencia": [
+      "33.hats 1,7M",
+      "worksdsefs7 422k",
+      "automaticallyadhd 475k"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R05",
+    "categoria": "estructura",
+    "regla": "La reacción de una persona real ante la demo (sorpresa, duda, sí o no).",
+    "como_aplicarla": "Dejar en el montaje la cara del dueño o camarero al ver que se abre su ficha.",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "locup.nfc 545k",
+      "packoescalera 330k",
+      "nfcash_ 326k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R06",
+    "categoria": "estructura",
+    "regla": "La demo se hace con el móvil del otro: lo comprueba quien no se lo cree.",
+    "como_aplicarla": "«¿Me dejas tu móvil?» y que lo acerque el dueño o un cliente.",
+    "evidencia": [
+      "packoescalera 330k",
+      "locup.nfc 545k",
+      "nfcash_ 326k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R07",
+    "categoria": "texto",
+    "regla": "Pasos numerados en pantalla (1, 2, 3, 4).",
+    "como_aplicarla": "Un número por producto o por paso del recorrido de la mesa.",
+    "evidencia": [
+      "menu4d 102k",
+      "apiworking 359k",
+      "_lufatech_ 416k"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R08",
+    "categoria": "estructura",
+    "regla": "Contar la historia de una sola mesa con el reloj avanzando (SÁB 21:30 → 22:38).",
+    "como_aplicarla": "«Mesa 4, sábado 21:30» y la hora sube con cada paso: pide, llega a cocina, llama al camarero, pide la cuenta.",
+    "evidencia": [
+      "menu4d 102k"
+    ],
+    "confianza": "baja"
+  },
+  {
+    "id": "R09",
+    "categoria": "texto",
+    "regla": "Una cifra concreta dicha en voz (precio, «menos de 10 €», «un millón por semana»).",
+    "como_aplicarla": "En POV de venta, el precio real; en explicativos, cifras técnicas (144 bytes, 4 cm, 0 pilas).",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "alejandrovalledor 452k",
+      "negocio_beta 421k",
+      "_lufatech_ 416k",
+      "ifesciencia 654k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R10",
+    "categoria": "cta",
+    "regla": "Cierre con palabra clave en comentarios o una pregunta fácil de contestar.",
+    "como_aplicarla": "«Comenta MESA» o «¿qué modelo de móvil tienes?».",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "eliannyanez3 8,2M"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R11",
+    "categoria": "texto",
+    "regla": "Subtítulos grandes palabra a palabra con una palabra clave en color.",
+    "como_aplicarla": "Amarillo o naranja en la palabra importante de cada frase; centrados, fuera de los botones de la app.",
+    "evidencia": [
+      "alejandrovalledor 452k",
+      "jonathanbassedas 81k",
+      "tapitreviews 192k",
+      "apiworking 359k",
+      "33.hats 1,7M",
+      "_lufatech_ 416k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R12",
+    "categoria": "ritmo",
+    "regla": "Demo pura: 10–20 s y en bucle. Historia o venta real: 35–90 s.",
+    "como_aplicarla": "Si solo se enseña qué aparece al tocar, cortar a los 10–15 s; si hay persona y decisión, puede durar más.",
+    "evidencia": [
+      "boostdailyfinds 1,1M (10s)",
+      "33.hats 1,7M (18s)",
+      "escalator.esp 4,2M (34s)",
+      "locup.nfc 545k (66s)"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R13",
+    "categoria": "tema",
+    "regla": "«No tiene batería: la energía se la da tu móvil» es el dato técnico que más curiosidad despierta.",
+    "como_aplicarla": "Usarlo como giro a mitad del vídeo, no como intro.",
+    "evidencia": [
+      "sagecadence_ 249k",
+      "worksdsefs7 422k",
+      "ifesciencia 654k"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R14",
+    "categoria": "produccion",
+    "regla": "Plano macro de la antena en espiral y el chip.",
+    "como_aplicarla": "Contraluz o pegatina transparente pegada a la lente durante 1–2 s.",
+    "evidencia": [
+      "ifesciencia 654k",
+      "jonathanbassedas 81k",
+      "sagecadence_ 249k"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R15",
+    "categoria": "tema",
+    "regla": "Uso emocional o inesperado de una pegatina NFC.",
+    "como_aplicarla": "Historias reales del bar (el abuelo que siempre pide lo mismo, el camarero que ya no corre).",
+    "evidencia": [
+      "jonathanbassedas 81k",
+      "automaticallyadhd 475k"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R16",
+    "categoria": "produccion",
+    "regla": "Cámara en primera persona sin la cara del vendedor; protagonistas: las manos, el producto y la otra persona.",
+    "como_aplicarla": "Cámara de pecho o móvil a la altura del pecho en las visitas.",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "locup.nfc 545k",
+      "nfctap.ge_ 360k",
+      "nfcash_ 326k",
+      "boostdailyfinds 1,1M"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R17",
+    "categoria": "formato",
+    "regla": "Animación tipo prototipo (interfaz, esquema) para enseñar el recorrido invisible.",
+    "como_aplicarla": "Animación hecha con IA del viaje del toque: móvil → tarjeta → carta → cocina/camarero, mezclada con planos reales.",
+    "evidencia": [
+      "menu4d 102k",
+      "_lufatech_ 416k",
+      "tecnoclips 1M"
+    ],
+    "confianza": "media"
+  },
+  {
+    "id": "R18",
+    "categoria": "formato",
+    "regla": "Cuando un formato funciona, se repite igual (mismo título, misma estructura) con otro bar.",
+    "como_aplicarla": "Hacer serie: «POV: …» con un bar distinto cada vez.",
+    "evidencia": [
+      "escalator.esp 4,2M + 1,6M + 1,1M"
+    ],
+    "confianza": "alta"
+  },
+  {
+    "id": "R19",
+    "categoria": "payoff",
+    "regla": "Final con la decisión del dueño (¿compra o no?) visible en cámara.",
+    "como_aplicarla": "No cortar antes del sí o el no; si dice que no, se publica igual.",
+    "evidencia": [
+      "escalator.esp 4,2M",
+      "locup.nfc 545k",
+      "tapitreviews 192k"
+    ],
+    "confianza": "media"
+  }
+]
