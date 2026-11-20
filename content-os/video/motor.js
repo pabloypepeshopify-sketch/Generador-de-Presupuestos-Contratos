@@ -4545,14 +4545,14 @@ V['speedrun'] = { ...comunCapa, estilo: 'speedrun',
     k.reset(); k.g.visible = true; k.bandeja.visible = false;
     const pasar = (t0, t1, x0, x1, z, band) => { if (!entre(t, t0, t1)) return false; const kk = (t - t0) / (t1 - t0); k.g.position.set(lerp(x0, x1, kk), 0, z); k.g.rotation.y = x1 > x0 ? Math.PI / 2 : -Math.PI / 2; k.andar(t * 2.8, 1); k.bandeja.visible = band; this.tazaBand.visible = band; mira = k.g.position; return true; };
     if (pasar(c.camarero - 0.15, c.pasa2 - 0.1, -5.6, -1.4, 1.25, false) || pasar(c.pasa2 - 0.1, c.cinco - 0.08, -1.6, -5.8, 1.25, true)) {}
-    else if (entre(t, c.pedido - 0.1, c.y - 0.1)) { const kk = prog(t, c.pedido + 0.2, c.mesa2 - 0.15); k.g.position.set(lerp(0.2, 2.65, kk), 0, lerp(-2.6, -0.62, kk)); k.bandeja.visible = t < c.mesa2 - 0.05; this.tazaBand.visible = true;
+    else if (entre(t, c.pedido + 0.12, c.y - 0.1)) { const kk = prog(t, c.pedido + 0.2, c.mesa2 - 0.15); k.g.position.set(lerp(0.2, 2.65, kk), 0, lerp(-2.6, -0.62, kk)); k.bandeja.visible = t < c.mesa2 - 0.05; this.tazaBand.visible = true;
       if (kk < 1) { k.g.rotation.y = Math.atan2(2.45, 1.98); k.andar(t * 2.6, 1); } else { k.g.rotation.y = Math.PI / 2; k.respirar(t, 2); k.bD.hombro.rotation.x = -1.0; k.hablar(t, 0.5); if (t > c.record) { k.bD.hombro.rotation.set(-2.6, 0, 0.3); k.bI.hombro.rotation.set(-2.6, 0, -0.3); } } }
     else k.g.visible = false;
     if (k.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
     this.tazaMesa.visible = t > c.mesa2 - 0.05; this.tazaMesa.userData.actualizar(t, 1); this.tazaBand.userData.actualizar(t, 1);
     yo.cabeza.rotation.y += mira ? clamp(Math.atan2(mira.x - yo.g.position.x, mira.z - yo.g.position.z), -1.2, 1.2) * 0.8 : Math.sin(t * 0.6) * 0.12;
     // gente entrando y saliendo a cámara rápida
-    this.paseantes.forEach((m, i) => { m.reset(); m.g.visible = entre(t, c.cinco - 0.1, c.pero); if (!m.g.visible) return; const f = ((t * 0.6 + i * 0.37) % 1); const z = [2.0, -1.7, 2.7][i], dir = i % 2 ? -1 : 1;
+    this.paseantes.forEach((m, i) => { m.reset(); m.g.visible = entre(t, c.cinco - 0.1, c.pero - 0.12); if (!m.g.visible) return; const f = ((t * 0.6 + i * 0.37) % 1); const z = [2.0, -1.7, 2.7][i], dir = i % 2 ? -1 : 1;
       m.g.position.set(lerp(-5.5, 5.5, dir > 0 ? f : 1 - f), 0, z); m.g.rotation.y = dir * Math.PI / 2; m.andar(t * 3.4, 1); });
     // mosca dando vueltas a la mano al final
     yo.g.updateMatrixWorld(true); const pm = yo.bD.mano.getWorldPosition(new THREE.Vector3());
@@ -4562,7 +4562,7 @@ V['speedrun'] = { ...comunCapa, estilo: 'speedrun',
     if (entre(t, c.toca - 0.3, c.pedido + 0.4)) { movilVis = true; ella.bD.hombro.rotation.x = -1.2; ella.bD.codo.rotation.x = -0.5; ella.cabeza.rotation.x = 0.3; }
     if (t > c.record - 0.05) { const b = Math.sin(t * 14) * 0.15; ella.bD.hombro.rotation.set(-2.7 + b, 0, 0.35); ella.bI.hombro.rotation.set(-2.7 - b, 0, -0.35); ella.bD.codo.rotation.x = ella.bI.codo.rotation.x = -0.2; ella.hablar(t, 1); ella.raiz.position.y = Math.abs(Math.sin(t * 9)) * 0.05; }
     else if (t > c.mesa2) { ella.hablar(t, 0.5); ella.cabeza.rotation.x = 0.15; }
-    this.mv2.visible = movilVis; ella.bD.hombro.visible = !entre(t, c.cafe2 - 0.1, c.pedido - 0.08);
+    this.mv2.visible = movilVis; ella.bD.hombro.visible = !entre(t, c.cafe2 - 0.1, c.pedido + 0.15);
     if (movilVis) { const kk = prog(t, c.toca - 0.2, c.tarjeta + 0.05); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.4).add(new THREE.Vector3(0, -0.05, 0)); this.mv2.position.copy(lejos).lerp(this.ph, kk); this.mv2.lookAt(this.mv2.position.clone().add(this.nrm));
       const sel = t > c.cafe2 + 0.25 ? 1 : 0; this.mv2.userData.pantalla(t > c.tarjeta + 0.2 ? 'cartaDesayuno' : 'bloqueo', t > c.tarjeta + 0.2 ? { mesa: 2, sel, enviado: t > c.pedido } : { hora: '08:47' }); }
     this.on.userData.actualizar(t, movilVis && entre(t, c.tarjeta - 0.05, c.cafe2) ? 1 : 0, this.mv2.getWorldPosition(new THREE.Vector3()), this.cen);
