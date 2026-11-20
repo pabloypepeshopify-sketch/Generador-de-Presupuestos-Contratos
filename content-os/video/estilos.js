@@ -145,6 +145,9 @@ const ESTILOS = {
   // speedrun: bar clásico con look de directo de videojuego; subtítulos morado/cian abajo para dejar arriba el marcador
   speedrun: { post: { filtro: 'saturate(1.28) contrast(1.1) brightness(1.03)' },
     subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#7c3aed', '#22d3ee'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 14, y: 1390 } },
+  // cosas: lista rápida de gags; subtítulos rojo/amarillo (España) abajo
+  cosas: { post: { filtro: 'saturate(1.2) contrast(1.08) brightness(1.02)' },
+    subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#c60b1e', '#ff8a00'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

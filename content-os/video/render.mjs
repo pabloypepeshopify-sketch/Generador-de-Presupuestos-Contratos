@@ -40,6 +40,9 @@ const SFX = {
   tick: ['aevalsrc=0.5*sin(2*PI*2600*t)*exp(-120*t):d=0.06'],
   buzz: ['aevalsrc=0.45*sin(2*PI*160*t)*(0.5+0.5*sgn(sin(2*PI*9*t))):d=0.9', 'afade=t=out:st=0.7:d=0.2'],
   hit: ['aevalsrc=0.9*sin(2*PI*(42+90*exp(-14*t))*t)*exp(-4.5*t):d=0.9'],
+  chorro: ['anoisesrc=c=pink:d=2.0:a=0.5', 'lowpass=f=1400,highpass=f=250,afade=t=in:d=0.08,afade=t=out:st=1.75:d=0.25,volume=0.55'],
+  chorro_corto: ['anoisesrc=c=pink:d=0.55:a=0.5', 'lowpass=f=1500,highpass=f=300,afade=t=in:d=0.05,afade=t=out:st=0.4:d=0.15,volume=0.45'],
+  clink: ['aevalsrc=0.35*(sin(2*PI*3150*t)+0.6*sin(2*PI*4720*t)+0.3*sin(2*PI*6300*t))*exp(-9*t):d=0.6'],
   riser: ['anoisesrc=c=white:d=1.0:a=0.35', 'highpass=f=600,afade=t=in:d=0.95:curve=exp,afade=t=out:st=0.95:d=0.05,volume=0.6'],
 };
 const dirSfx = path.join(DIR, '.sfx'); await mkdir(dirSfx, { recursive: true });
