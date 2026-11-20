@@ -187,7 +187,7 @@
 
   function cabeceraSeccion(s, nombre, num) {
     var unico = s.platos.every(function (p) { return p.u != null; });
-    var cols = !conPrecios ? '' : s.sinPrecio ? '<div class="cs-cols nota"><span>' + t('precioBarra') + '</span></div>'
+    var cols = !conPrecios || s.sinPrecio ? ''
       : '<div class="cs-cols' + (unico ? ' unico' : '') + '">' + (unico ? '<span>' + t('precio') + '</span>' : '<span>' + t('tapa') + '</span><span>' + t('racion') + '</span>') + '</div>';
     var intro = nIntro(s);
     var avisoAl = s.consulta ? '<p class="cs-intro">' + (intro ? esc(intro) + ' ' : '') + '<span>' + t('consulta') + '</span></p>' : (intro ? '<p class="cs-intro">' + esc(intro) + '</p>' : '');

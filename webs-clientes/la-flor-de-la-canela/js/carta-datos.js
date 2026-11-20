@@ -22,16 +22,17 @@
 
   Cada sección puede llevar:
     bebida    true = cuenta como bebida (no suma en "platos en carta")
-    sinPrecio true = no hay precios todavía → "Precio en barra"
+    sinPrecio true = no hay precios todavía → sale sin precio
     consulta  true = alérgenos sin datos: se avisa una vez en la sección
     intro     { es, en } frase corta bajo el título de la sección
 
   Precios actualizados con la libreta del local (noviembre 2026).
 */
 
-/* Dani no quiere precios en la web: se guardan aquí pero no se enseñan.
-   Para volver a enseñarlos, poner true. */
-window.MOSTRAR_PRECIOS = false;
+/* Se enseñan los precios apuntados. Lo que no tiene precio (bebidas,
+   secciones con sinPrecio) sale sin precio y sin ningún aviso.
+   Para ocultar todos los precios, poner false. */
+window.MOSTRAR_PRECIOS = true;
 
 window.ALERGENOS = {
   1:  { es: 'Gluten',            en: 'Gluten',      color: '#a08468' },
