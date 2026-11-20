@@ -40,7 +40,7 @@ Apuntar el QR a `https://DOMINIO/#carta`. También valen `#carta-sevilla` (cocin
 ## Pendiente de confirmar con el cliente
 
 1. **Fotos**: salen del reportaje de detapasconchencho.es (mayo 2026). Pedir al local las originales (o permiso) antes de publicar.
-   - Además, 13 platos llevan fotos de referencia de Wikimedia Commons (licencia libre, enlazadas con `foto: 'wm:…'` en `js/carta-datos.js`). No son del local: los créditos están en `creditos-fotos.html`. Si el local hace fotos propias, cambiarlas por esas.
+   - Además, 12 platos llevan fotos de referencia de Wikimedia Commons (licencia libre, enlazadas con `foto: 'wm:…'` en `js/carta-datos.js`). No son del local: los créditos están en `creditos-fotos.html`. Si el local hace fotos propias, cambiarlas por esas.
 2. **Horario**: no aparece publicado en ningún sitio. Ahora pone "Llámanos o escríbenos por WhatsApp…". Rellenar en `index.html` (bloque `vis.horario.v`) y en `js/app.js` (texto en inglés).
 3. **Historia**: lo de Dani Maguiño, la plaza Pintor Amalio García del Moral y 2006 viene del mismo reportaje. Confirmar nombre y datos.
 4. **Alérgenos de la cocina española, tartas y bebidas**: no los tenemos. Ahora salen como "consulta al personal" y se ocultan si hay filtros activos. Cuando los den, añadir `a: [...]` a cada plato.

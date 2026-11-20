@@ -153,7 +153,7 @@ window.CARTA = [
           { n: 'Ceviche', t: 7.90, r: 15.50, a: [4, 12], foto: 'ceviche', top: true,
             d: 'Pescado marinado en leche de tigre y lima, con cebolla morada, ají, cilantro, choclo y boniato.',
             en: 'Fish marinated in tiger’s milk and lime, served with red onion, chili pepper, cilantro, Andean corn and sweet potato.' },
-          { n: 'Leche de tigre', t: null, r: 10.00, a: [4, 12], foto: 'wm:Leche_de_tigre.JPG',
+          { n: 'Leche de tigre', t: null, r: 10.00, a: [4, 12], foto: 'leche-de-tigre',
             d: 'El jugo del ceviche, con chicharrón de pescado crujiente, yuca y trocitos de pescado.',
             en: 'Lime-infused ceviche broth, served with crispy fried fish, cassava and fish morsels.' },
           // La libreta no trae precio de este plato: se mantiene el de la carta impresa. CONFIRMAR.
