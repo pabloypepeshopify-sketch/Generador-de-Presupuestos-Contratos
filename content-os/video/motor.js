@@ -4408,6 +4408,206 @@ V['trailer'] = { ...comunCapa, estilo: 'cine',
   },
 };
 
+// ---------- Speedrun: pedir un café en un bar (marcador de tramos tipo directo de videojuego) ----------
+// Avisa en consola si la cámara se mete en un muñeco (cabeza, cuerpo o manos): así los planos rotos salen en las muestras.
+function vigilarCamara(t, munecos) {
+  const v = new THREE.Vector3();
+  for (const m of munecos) { if (!m || !m.g.visible) continue; m.g.updateMatrixWorld(true);
+    const puntos = [[m.cabeza, 0.36], [m.raiz, 0.0], [m.bD.mano, 0.2], [m.bI.mano, 0.2]];
+    for (let [o, r] of puntos) { o.getWorldPosition(v); if (o === m.raiz) { v.y += 1.08; r = 0.42; } const d = v.distanceTo(cam.position); if (d < r) console.warn(`CHOQUE t=${t.toFixed(2)} d=${d.toFixed(2)}`); }
+  }
+}
+function mosca() {
+  const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), matJ('#15151a', 0.4)));
+  const ala = new THREE.MeshBasicMaterial({ color: '#dfe8ff', transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+  const alas = [-1, 1].map(s => { const a = new THREE.Mesh(new THREE.CircleGeometry(0.028, 10), ala); a.position.set(0.02 * s, 0.015, 0); a.rotation.x = -Math.PI / 2; g.add(a); return a; });
+  g.userData.aletear = t => alas.forEach((a, i) => (a.rotation.z = (i ? -1 : 1) * Math.sin(t * 60) * 0.6)); return g;
+}
+function trofeo(x, y, s, color = '#ffd34d') {
+  C.save(); C.translate(x, y); C.scale(s, s); C.fillStyle = color; C.strokeStyle = color; C.lineWidth = 5;
+  C.beginPath(); C.moveTo(-18, -20); C.lineTo(18, -20); C.quadraticCurveTo(17, 6, 0, 10); C.quadraticCurveTo(-17, 6, -18, -20); C.fill();
+  C.beginPath(); C.arc(-18, -10, 8, Math.PI * 0.5, Math.PI * 1.5); C.stroke(); C.beginPath(); C.arc(18, -10, 8, -Math.PI * 0.5, Math.PI * 0.5); C.stroke();
+  C.fillRect(-3, 9, 6, 9); C.fillRect(-12, 17, 24, 6); C.restore();
+}
+function confeti(t, t0, semilla = 7) {
+  if (t < t0) return; const r = azar(semilla), d = t - t0; if (d > 2.6) return;
+  const cols = ['#ffd34d', '#22d3ee', '#ff4d8d', '#7c3aed', '#3ddc84', '#ffffff'];
+  C.save(); for (let i = 0; i < 140; i++) { const x0 = r() * W, vy = 520 + r() * 700, vx = (r() - 0.5) * 500, giro = r() * 12, c = cols[i % cols.length], tam = 14 + r() * 16, del = r() * 0.25;
+    const dd = d - del; if (dd < 0) continue; const x = x0 + vx * dd * 0.5, y = -40 + vy * dd + 300 * dd * dd - r() * 200;
+    C.save(); C.translate(x, y); C.rotate(giro * dd + i); C.scale(1, Math.abs(Math.cos(dd * 9 + i))); C.fillStyle = c; C.fillRect(-tam / 2, -tam / 4, tam, tam / 2); C.restore(); }
+  C.restore();
+}
+// panel de tramos (estilo LiveSplit): cabecera, filas con tiempo y diferencia, cronómetro grande
+function panelSplits(k, { titulo, sub, filas, tiempo, color, brillo = 0, tachado = 0 }) {
+  if (k <= 0) return; const X = 36, Y = 150, w = 620, fila = 66, h = 124 + filas.length * fila + 132;
+  C.save(); C.translate(X, Y); C.globalAlpha = clamp(k * 1.5); C.translate(-(1 - k) * 160, 0);
+  C.shadowColor = 'rgba(0,0,0,0.5)'; C.shadowBlur = 30; C.fillStyle = 'rgba(10,8,22,0.86)'; rr(C, 0, 0, w, h, 26); C.fill(); C.shadowBlur = 0;
+  C.lineWidth = 4; C.strokeStyle = color; rr(C, 0, 0, w, h, 26); C.stroke();
+  C.fillStyle = '#fff'; C.font = `900 42px Inter, ${FUENTE}`; C.textAlign = 'left'; C.textBaseline = 'middle'; C.fillText(titulo, 28, 50);
+  C.fillStyle = color; C.font = `800 28px Inter, ${FUENTE}`; C.fillText(sub, 28, 94);
+  filas.forEach(([nombre, valor, delta, tono], i) => { const y = 124 + i * fila + fila / 2;
+    if (tono === 'activa') { C.fillStyle = 'rgba(124,58,237,0.35)'; rr(C, 12, y - fila / 2 + 4, w - 24, fila - 8, 12); C.fill(); }
+    C.fillStyle = tono === 'pendiente' ? 'rgba(255,255,255,0.45)' : '#fff'; C.font = `700 33px Inter, ${FUENTE}`; C.textAlign = 'left'; C.fillText(nombre, 28, y);
+    C.textAlign = 'right'; C.font = `800 33px "DejaVu Sans Mono", monospace`;
+    if (delta) { C.fillStyle = tono === 'oro' ? '#ffd34d' : tono === 'verde' ? '#3ddc84' : '#ff4d5e'; C.fillText(delta, w - 150, y); }
+    C.fillStyle = tono === 'oro' ? '#ffd34d' : '#fff'; C.fillText(valor, w - 26, y); });
+  const yT = 124 + filas.length * fila + 66; C.textAlign = 'right'; C.font = `900 112px "DejaVu Sans Mono", monospace`;
+  C.shadowColor = color; C.shadowBlur = 18 + brillo * 40; C.fillStyle = color; C.fillText(tiempo, w - 24, yT); C.shadowBlur = 0;
+  if (tachado > 0) { C.globalAlpha *= clamp(tachado); C.strokeStyle = '#ff4d5e'; C.lineWidth = 10; C.beginPath(); C.moveTo(24, yT); C.lineTo(24 + (w - 48) * clamp(tachado * 1.4), yT); C.stroke(); }
+  C.restore();
+}
+function sello(txt, k, color, rot = -0.12, tam = 120, Y = 980) {
+  if (k <= 0) return; const s = k < 1 ? lerp(2.2, 1, ease(k)) : 1; C.save(); C.translate(W / 2, Y); C.rotate(rot); C.scale(s, s); C.globalAlpha = clamp(k * 3);
+  C.font = `900 ${tam}px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const w = C.measureText(txt).width + 70, h = tam * 1.35;
+  C.fillStyle = 'rgba(10,8,22,0.55)'; rr(C, -w / 2, -h / 2, w, h, 20); C.fill(); C.lineWidth = 12; C.strokeStyle = color; rr(C, -w / 2, -h / 2, w, h, 20); C.stroke();
+  C.fillStyle = color; C.fillText(txt, 0, 6); C.restore();
+}
+V['speedrun'] = { ...comunCapa, estilo: 'speedrun',
+  async montar() {
+    ['speedrun', 'cafe', 'mano', 'camarero', 'cinco', 'diez', 'muerta', 'truco', 'tarjeta', 'pedido', 'mesa', 'cuarenta', 'segundos', 'record', 'mundial', 'runner', 'levantada'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#2a1d18'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0;
+    hemi.color.set('#fff3e0'); hemi.groundColor.set('#6b3f2a'); hemi.intensity = 1.55;
+    const sol = this.sol = new THREE.DirectionalLight('#ffe6c4', 2.1); sol.position.set(-5, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+    Object.assign(sol.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); sol.shadow.bias = -0.0005; scene.add(sol); scene.add(sol.target);
+    const rim = new THREE.DirectionalLight('#b48cff', 0.9); rim.position.set(6, 4, -6); scene.add(rim);
+    renderer.toneMappingExposure = 1.1;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'clasico' }); Object.assign(this, r);
+    r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
+    const M1 = this.M1 = r.mesas[3], M2 = this.M2 = r.mesas[4];
+    this.gente.filter(g => [M1, M2].some(m => Math.abs(g.g.position.x - m.x) < 0.01)).forEach(g => (g.g.visible = false));
+    this.gente = this.gente.filter(g => g.g.visible);
+    const yo = this.yo = senorDeLaMano(); yo.g.position.set(M1.x, 0, M1.z - 0.72); r.mundo.add(yo.g);
+    const ella = this.ella = muneco({ camisa: '#22b8cf', pantalon: '#2b2f3a', pelo: '#2a1a12', peinado: 'mono', piel: '#e9b48c' }); ella.sentar(); ella.g.position.set(M2.x, 0, M2.z - 0.72); r.mundo.add(ella.g);
+    const tj = this.tj2 = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(M2.x + 0.24, 0.79, M2.z - 0.3); tj.rotation.y = Math.PI - 0.3; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(Math.PI - 0.3), 0, Math.cos(Math.PI - 0.3));
+    this.mv2 = movil(); this.mv2.scale.setScalar(0.38); r.mundo.add(this.mv2); this.on = ondas();
+    this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07).add(new THREE.Vector3(0, 0.02, 0));
+    this.tazaMesa = tazaCafe(); this.tazaMesa.position.set(M2.x - 0.05, 0.79, M2.z - 0.38); r.mundo.add(this.tazaMesa);
+    const k = this.camarero; k.bandeja.children.slice(1).forEach(o => (o.visible = false));
+    this.tazaBand = tazaCafe(); this.tazaBand.position.set(0, 0.012, 0); k.bandeja.add(this.tazaBand);
+    this.mosca = mosca(); r.mundo.add(this.mosca);
+    this.paseantes = [{ camisa: '#ff4d8d', pelo: '#2a1a12' }, { camisa: '#ffd34d', pelo: '#7a3d1d', peinado: 'largo' }, { camisa: '#7c3aed', pelo: '#111111' }].map((o, i) => { const m = muneco({ pantalon: '#2b2f3a', piel: ['#f0c29a', '#e9b48c', '#c98d63'][i], ...o }); r.mundo.add(m.g); return m; });
+    const c = this.c = { cafe: cue('cafe'), arranca: cue('arranca'), mano: cue('mano'), camarero: cue('camarero'), pasa2: cue('pasa', 2), cinco: cue('cinco'), diez: cue('diez'), esta: cue('esta'), muerta: cue('muerta'),
+      pero: cue('pero'), mesa: cue('mesa'), truco: cue('truco'), toca: cue('toca'), tarjeta: cue('tarjeta'), cafe2: cue('cafe', 2), pedido: cue('pedido'), mesa2: cue('mesa', 2), cuarenta: cue('cuarenta'),
+      record: cue('record'), mundial: cue('mundial'), y: cue('y', 3), runner: cue('runner'), sigue: cue('sigue'), levantada: cue('levantada') };
+    duracion = palabras[palabras.length - 1].fin + 0.15; c.fin = duracion;
+    const P = this.ph, n = this.nrm, cen = this.cen, fr = (v, d) => [v.x + d[0], v.y + d[1], v.z + d[2]];
+    const yoP = this.yoP = [M1.x, 1.4, M1.z - 0.72], mano = [M1.x + 0.42, 1.85, M1.z - 0.5], ellaP = [M2.x, 1.4, M2.z - 0.72], taza = this.tazaMesa.position;
+    const T = (a, de, a2, mira, mira2, fov = 44, barrido = 0.16) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
+    this.tomas = [
+      T(0, [-1.9, 1.75, 2.4], [-2.75, 1.55, 1.45], [-3.5, 1.45, -0.5], yoP, 46, 0),
+      T(c.cafe - 0.1, [0.6, 2.7, 2.6], [-0.6, 2.3, 2.0], [-3.4, 1.2, -0.4], [-3.5, 1.3, -0.4], 48),
+      T(c.arranca - 0.08, [-3.0, 1.55, 1.6], [-3.35, 1.5, 0.75], yoP, yoP, 40),
+      T(c.mano - 0.08, [-2.4, 1.05, 1.0], [-2.7, 1.15, 0.65], [M1.x + 0.1, 1.45, M1.z - 0.72], [M1.x + 0.25, 1.6, M1.z - 0.65], 48),
+      T(c.camarero - 0.1, [-5.0, 1.6, 4.1], [-2.3, 1.55, 4.1], [-4.6, 1.0, 0.6], [-2.1, 1.0, 0.6], 46),
+      T(c.pasa2 - 0.1, [-2.1, 1.65, 4.1], [-4.8, 1.6, 4.1], [-2.2, 1.0, 0.6], [-4.6, 1.0, 0.6], 46),
+      T(c.cinco - 0.08, [-0.8, 5.6, 2.6], [-1.9, 5.2, 1.7], [-3.0, 0.4, -1.0], [-3.3, 0.4, -0.8], 52),
+      T(c.diez - 0.06, [-2.55, 1.35, 1.35], [-2.8, 1.4, 1.05], [-3.5, 1.5, -0.5], [-3.5, 1.55, -0.5], 40),
+      T(c.esta - 0.06, [-3.6, 1.15, 1.7], [-3.6, 1.22, 1.2], [-3.6, 1.5, -0.5], [-3.6, 1.42, -0.5], 44, 0.12),
+      T(c.pero - 0.08, [1.2, 1.9, 1.4], [2.7, 1.5, 0.3], [3.4, 1.2, -0.9], [3.4, 1.25, -0.9], 46, 0.2),
+      T(c.mesa - 0.08, [4.4, 1.65, 1.1], [4.05, 1.55, 0.6], ellaP, [M2.x, 1.35, M2.z - 0.72], 42),
+      T(c.toca - 0.08, fr(cen, [0.75, 0.45, -0.95]), fr(cen, [0.45, 0.3, -0.7]), cen.toArray(), cen.toArray(), 42),
+      T(c.cafe2 - 0.1, fr(P, [n.x * 0.62 + 0.15, 0.16, n.z * 0.62]), fr(P, [n.x * 0.5, 0.1, n.z * 0.5 - 0.08]), P.toArray(), P.toArray(), 38),
+      T(c.pedido - 0.08, [-3.6, 2.15, -3.1], [-3.95, 2.0, -3.5], [-4.7, 1.62, -5.25], [-4.7, 1.62, -5.25], 38),
+      T(c.mesa2 - 0.3, [5.0, 2.3, 1.7], [4.65, 2.0, 1.15], [2.6, 1.0, -0.9], [2.95, 1.0, -0.5], 46),
+      T(c.cuarenta - 0.06, fr(taza, [0.25, 0.42, 0.85]), fr(taza, [0.16, 0.3, 0.62]), fr(taza, [0, 0.05, 0]), fr(taza, [0, 0.05, 0]), 40),
+      T(c.record - 0.08, [4.7, 1.9, 1.0], [2.6, 1.75, 1.3], [3.4, 1.3, -0.9], [3.4, 1.45, -0.9], 46, 0.14),
+      T(c.mundial - 0.05, [2.0, 2.7, 1.8], [2.4, 2.45, 1.35], [3.3, 1.3, -0.7], [3.3, 1.35, -0.7], 46, 0.1),
+      T(c.y - 0.1, [-1.2, 1.7, 1.6], [-2.6, 1.55, 0.7], yoP, yoP, 44, 0.2),
+      T(c.sigue - 0.08, [-2.5, 1.5, 1.2], [-2.85, 1.7, 0.75], yoP, mano, 44),
+    ];
+    efectos = [['whoosh', c.cafe - 0.15], ['whoosh', c.arranca - 0.12], ['hit', c.arranca], ['whoosh', c.mano - 0.12], ['ding', c.mano + 0.1], ['whoosh', c.camarero - 0.15], ['whoosh', c.pasa2 - 0.15],
+      ['whoosh', c.cinco - 0.12], ['hit', c.cinco], ['whoosh', c.diez - 0.1], ['hit', c.diez], ['whoosh', c.esta - 0.1], ['buzz', c.muerta], ['hit', c.muerta],
+      ['whoosh', c.pero - 0.12], ['whoosh', c.mesa - 0.12], ['pop', c.truco], ['whoosh', c.toca - 0.12], ['tap', c.tarjeta + 0.05], ['ding', c.tarjeta + 0.12], ['whoosh', c.cafe2 - 0.12], ['ding', c.cafe2 + 0.2],
+      ['whoosh', c.pedido - 0.12], ['ding', c.pedido + 0.15], ['whoosh', c.mesa2 - 0.32], ['ding', c.mesa2], ['whoosh', c.cuarenta - 0.1], ['riser', c.record - 1.0], ['whoosh', c.record - 0.12], ['hit', c.record], ['pop', c.record + 0.05],
+      ['pop', c.mundial], ['whoosh', c.mundial - 0.08], ['whoosh', c.y - 0.12], ['whoosh', c.sigue - 0.1], ['whoosh', c.fin - 0.3]];
+    for (let s = c.arranca; s < c.pero; s += 0.5) efectos.push(['tick', s]);
+    for (let s = c.tarjeta; s < c.mesa2; s += 0.25) efectos.push(['tick', s]);
+    this.musica = 'guitarra_bar'; this.volMusica = 0.4;
+  },
+  // segundos de cada cronómetro (cámara rápida)
+  t1(t) { const c = this.c; if (t < c.arranca) return 0; return t < c.cinco ? (t - c.arranca) / (c.cinco - c.arranca) * 300 : t < c.diez ? lerp(300, 600, prog(t, c.cinco, c.diez)) : 600 + (t - c.diez) * 70; },
+  t2(t) { const c = this.c; return clamp((t - c.tarjeta) / (c.mesa2 - c.tarjeta)) * 40; },
+  actualizar(t) {
+    const c = this.c, yo = this.yo, ella = this.ella, k = this.camarero, rapido = entre(t, c.arranca, c.pero);
+    const a = 2.4 + this.t1(t) * 0.0012; this.sol.position.set(Math.cos(a) * 8, 9, Math.sin(a) * 8 + 2); this.sol.target.position.set(0, 0, -1);
+    this.gente.forEach((g, i) => { g.reset(); g.respirar(t * (rapido ? 3 : 1), i); if (Math.sin(t * (rapido ? 4 : 1.2) + i * 2) > 0.3) g.hablar(t * (rapido ? 2 : 1) + i); });
+    // el señor: mano arriba y hacia fuera (no atraviesa la cabeza)
+    yo.reset(); yo.respirar(t, 1); const canso = Math.max(0, Math.sin(t * 1.3)) * 0.18; const arriba = t > c.mano - 0.25 || t < c.arranca;
+    if (arriba) { yo.bD.hombro.rotation.set(-2.8 + canso, 0, 0.32); yo.bD.codo.rotation.x = -0.12 - canso * 0.5; } else { yo.bD.hombro.rotation.x = -0.3; }
+    yo.cejas.forEach((ce, s) => { ce.rotation.z = (s ? -1 : 1) * 0.25; });
+    if (entre(t, c.diez - 0.06, c.esta - 0.06)) { yo.bI.hombro.rotation.set(-1.25, 0, -0.1); yo.bI.codo.rotation.x = -1.35; yo.cabeza.rotation.x = 0.18; }
+    if (entre(t, c.esta - 0.06, c.pero)) { yo.cabeza.rotation.x = 0.45; yo.raiz.rotation.x = 0.08; }
+    let mira = null;
+    // camarero
+    k.reset(); k.g.visible = true; k.bandeja.visible = false;
+    const pasar = (t0, t1, x0, x1, z, band) => { if (!entre(t, t0, t1)) return false; const kk = (t - t0) / (t1 - t0); k.g.position.set(lerp(x0, x1, kk), 0, z); k.g.rotation.y = x1 > x0 ? Math.PI / 2 : -Math.PI / 2; k.andar(t * 2.8, 1); k.bandeja.visible = band; this.tazaBand.visible = band; mira = k.g.position; return true; };
+    if (pasar(c.camarero - 0.15, c.pasa2 - 0.1, -5.6, -1.4, 1.25, false) || pasar(c.pasa2 - 0.1, c.cinco - 0.08, -1.6, -5.8, 1.25, true)) {}
+    else if (entre(t, c.pedido - 0.1, c.y - 0.1)) { const kk = prog(t, c.pedido + 0.2, c.mesa2 - 0.15); k.g.position.set(lerp(0.2, 2.65, kk), 0, lerp(-2.6, -0.62, kk)); k.bandeja.visible = t < c.mesa2 - 0.05; this.tazaBand.visible = true;
+      if (kk < 1) { k.g.rotation.y = Math.atan2(2.45, 1.98); k.andar(t * 2.6, 1); } else { k.g.rotation.y = Math.PI / 2; k.respirar(t, 2); k.bD.hombro.rotation.x = -1.0; k.hablar(t, 0.5); if (t > c.record) { k.bD.hombro.rotation.set(-2.6, 0, 0.3); k.bI.hombro.rotation.set(-2.6, 0, -0.3); } } }
+    else k.g.visible = false;
+    if (k.bandeja.visible) { k.bI.codo.rotation.x = Math.min(k.bI.codo.rotation.x, -1.45); k.bI.hombro.rotation.x = Math.min(k.bI.hombro.rotation.x, -0.15); }
+    this.tazaMesa.visible = t > c.mesa2 - 0.05; this.tazaMesa.userData.actualizar(t, 1); this.tazaBand.userData.actualizar(t, 1);
+    yo.cabeza.rotation.y += mira ? clamp(Math.atan2(mira.x - yo.g.position.x, mira.z - yo.g.position.z), -1.2, 1.2) * 0.8 : Math.sin(t * 0.6) * 0.12;
+    // gente entrando y saliendo a cámara rápida
+    this.paseantes.forEach((m, i) => { m.reset(); m.g.visible = entre(t, c.cinco - 0.1, c.pero); if (!m.g.visible) return; const f = ((t * 0.6 + i * 0.37) % 1); const z = [2.0, -1.7, 2.7][i], dir = i % 2 ? -1 : 1;
+      m.g.position.set(lerp(-5.5, 5.5, dir > 0 ? f : 1 - f), 0, z); m.g.rotation.y = dir * Math.PI / 2; m.andar(t * 3.4, 1); });
+    // mosca dando vueltas a la mano al final
+    yo.g.updateMatrixWorld(true); const pm = yo.bD.mano.getWorldPosition(new THREE.Vector3());
+    this.mosca.visible = t > c.y - 0.1; this.mosca.position.set(pm.x + Math.cos(t * 7) * 0.16, pm.y + 0.08 + Math.sin(t * 11) * 0.04, pm.z + Math.sin(t * 7) * 0.16); this.mosca.rotation.y = -t * 7; this.mosca.userData.aletear(t);
+    // chica: toca la tarjeta, pide y celebra el récord
+    ella.reset(); ella.respirar(t, 3); let movilVis = false;
+    if (entre(t, c.toca - 0.3, c.pedido + 0.4)) { movilVis = true; ella.bD.hombro.rotation.x = -1.2; ella.bD.codo.rotation.x = -0.5; ella.cabeza.rotation.x = 0.3; }
+    if (t > c.record - 0.05) { const b = Math.sin(t * 14) * 0.15; ella.bD.hombro.rotation.set(-2.7 + b, 0, 0.35); ella.bI.hombro.rotation.set(-2.7 - b, 0, -0.35); ella.bD.codo.rotation.x = ella.bI.codo.rotation.x = -0.2; ella.hablar(t, 1); ella.raiz.position.y = Math.abs(Math.sin(t * 9)) * 0.05; }
+    else if (t > c.mesa2) { ella.hablar(t, 0.5); ella.cabeza.rotation.x = 0.15; }
+    this.mv2.visible = movilVis; ella.bD.hombro.visible = !entre(t, c.cafe2 - 0.1, c.pedido - 0.08);
+    if (movilVis) { const kk = prog(t, c.toca - 0.2, c.tarjeta + 0.05); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.4).add(new THREE.Vector3(0, -0.05, 0)); this.mv2.position.copy(lejos).lerp(this.ph, kk); this.mv2.lookAt(this.mv2.position.clone().add(this.nrm));
+      const sel = t > c.cafe2 + 0.25 ? 1 : 0; this.mv2.userData.pantalla(t > c.tarjeta + 0.2 ? 'cartaDesayuno' : 'bloqueo', t > c.tarjeta + 0.2 ? { mesa: 2, sel, enviado: t > c.pedido } : { hora: '08:47' }); }
+    this.on.userData.actualizar(t, movilVis && entre(t, c.tarjeta - 0.05, c.cafe2) ? 1 : 0, this.mv2.getWorldPosition(new THREE.Vector3()), this.cen);
+    const pulso = 0.5 + 0.5 * Math.sin(t * 8);
+    this.pantBarra.userData.pintar('barra', t > c.pedido ? { nuevo: true, mesa: 2, detalle: '1 × Café con leche', estado: 'NUEVO', pulso } : { nuevo: false });
+    this.pantCoc.userData.pintar('cocina', { nuevo: false });
+    this.cocinero.reset(); this.cocinero.respirar(t, 4);
+    this.desenfoque = camara2(t, this.tomas); if (t > c.fin - 0.3) this.desenfoque = Math.max(this.desenfoque, 14 * prog(t, c.fin - 0.3, c.fin));
+    vigilarCamara(t, [yo, ella, k, ...this.gente, ...this.paseantes]);
+  },
+  fx(t) { const c = this.c; let temblor = 0; for (const g of [c.arranca, c.cinco, c.diez, c.muerta, c.record]) { const d = t - g; if (d >= 0 && d < 0.3) temblor = Math.max(temblor, (1 - d / 0.3) * 14); }
+    let zoom = 1; for (const g of [c.arranca, c.cinco, c.diez, c.record, c.mundial]) { const d = t - g; if (d >= 0 && d < 0.4) zoom = Math.max(zoom, 1 + 0.09 * (1 - d / 0.4)); }
+    const flash = t >= c.record && t < c.record + 0.18 ? 0.55 * (1 - (t - c.record) / 0.18) : 0; return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; velos();
+    const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`, mmssd = s => `${mmss(s)}.${Math.floor((s % 1) * 10)}`;
+    // run muerta: viñeta roja
+    if (entre(t, c.muerta - 0.05, c.pero)) { C.save(); C.globalAlpha = 0.35 * prog(t, c.muerta - 0.05, c.muerta + 0.1); C.fillStyle = '#c01030'; C.globalCompositeOperation = 'multiply'; C.fillRect(0, 0, W, H); C.restore(); }
+    const fase2 = entre(t, c.pero - 0.1, c.y - 0.1), cambio = t >= c.pero - 0.1 && t < c.pero + 0.25 ? prog(t, c.pero - 0.1, c.pero + 0.25) : 1;
+    if (!fase2) {
+      const t1 = this.t1(t), muerta = t > c.muerta - 0.05;
+      const filas = [['Sentarse', t > c.arranca ? '0:02' : '—', t > c.arranca ? '-0:01' : '', t > c.arranca ? 'verde' : 'pendiente'],
+        ['Levantar la mano', t > c.mano ? '0:05' : '—', t > c.mano ? '-0:02' : '', t > c.mano ? 'verde' : t > c.arranca ? 'activa' : 'pendiente'],
+        ['Que te vea', '—', t > c.camarero ? `+${mmss(Math.max(0, t1 - 5))}` : '', t > c.mano ? 'activa' : 'pendiente'],
+        ['Café en la mesa', '—', '', 'pendiente']];
+      panelSplits(t < c.arranca ? 0 : t < c.y ? Math.min(1, entra(t, c.arranca)) : entra(t, c.y - 0.1), { titulo: 'PEDIR UN CAFÉ', sub: t > c.y ? 'MESA 1 · SIGUE ESPERANDO' : 'ANY% · MESA 1 · SIN TARJETA', filas, tiempo: mmss(t1), color: t1 > 240 ? '#ff4d5e' : '#ffffff', tachado: muerta && t < c.pero ? prog(t, c.muerta - 0.05, c.muerta + 0.25) : 0 });
+    } else {
+      const t2 = this.t2(t), oro = s => t > s;
+      const filas = [['Tocar la tarjeta', oro(c.tarjeta) ? '0:01' : '—', oro(c.tarjeta) ? '-4:59' : '', oro(c.tarjeta) ? 'oro' : 'activa'],
+        ['Pedir', oro(c.pedido) ? '0:06' : '—', oro(c.pedido) ? '-9:54' : '', oro(c.pedido) ? 'oro' : oro(c.tarjeta) ? 'activa' : 'pendiente'],
+        ['Que te vea', oro(c.pedido + 0.2) ? '0:07' : '—', oro(c.pedido + 0.2) ? 'SKIP' : '', oro(c.pedido + 0.2) ? 'oro' : 'pendiente'],
+        ['Café en la mesa', oro(c.mesa2) ? '0:40' : '—', oro(c.mesa2) ? '-14:52' : '', oro(c.mesa2) ? 'oro' : oro(c.pedido + 0.2) ? 'activa' : 'pendiente']];
+      panelSplits(cambio, { titulo: 'PEDIR UN CAFÉ', sub: 'ANY% · MESA 2 · CON TARJETA', filas, tiempo: mmssd(t2), color: t >= c.mesa2 ? '#ffd34d' : '#3ddc84', brillo: t >= c.mesa2 ? 0.5 + 0.5 * Math.sin(t * 10) : 0 });
+    }
+    gancho(['SPEEDRUN:', 'PEDIR UN CAFÉ', 'EN UN BAR'], 1 - prog(t, c.arranca - 0.25, c.arranca - 0.05));
+    if (entre(t, c.arranca, c.arranca + 0.55)) golpeIOS('¡GO!', W / 2, 900, prog(t, c.arranca, c.arranca + 0.18) * 1.01, 230, true);
+    if (entre(t, c.muerta - 0.05, c.pero - 0.1)) sello('RUN MUERTA', prog(t, c.muerta - 0.05, c.muerta + 0.15) * 1.01, '#ff4d5e', -0.12, 120, 1150);
+    if (entre(t, c.truco - 0.05, c.toca + 0.05)) sello('ATAJO', prog(t, c.truco - 0.05, c.truco + 0.12) * 1.01, '#22d3ee', 0.08, 140, 1150);
+    if (entre(t, c.record - 0.05, c.y - 0.12)) { const kk = prog(t, c.record - 0.05, c.record + 0.15) * 1.01; sello('RÉCORD MUNDIAL', kk, '#ffd34d', -0.06, 104, 1190); if (kk > 0.6) { trofeo(W / 2, 1040, 2.6 + 0.15 * Math.sin(t * 9)); } }
+    confeti(t, c.record);
+    if (entre(t, c.cuarenta - 0.1, c.y - 0.12)) pildora('¿Tu récord esperando en un bar?', W / 2, 1560, entra(t, c.cuarenta - 0.1), { tono: 'oscuro', tam: 44 });
+    if (t > c.y - 0.1) pildora('Etiqueta al que siempre levanta la mano', W / 2, 1560, entra(t, c.y - 0.1), { tono: 'oscuro', tam: 40 });
+  },
+};
+
 // ---------- API para render.mjs ----------
 let actual = null;
 window.init = async (id, pal, dur) => {

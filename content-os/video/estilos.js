@@ -142,6 +142,9 @@ const ESTILOS = {
   // cine: tráiler; subtítulos en la banda negra de abajo
   cine: { post: { filtro: 'contrast(1.18) saturate(0.9) brightness(0.97)' },
     subs: { tam: 54, fuente: tam => `700 ${tam}px Inter, sans-serif`, pill: ['#f0c27a', '#c98a3a'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.9)', radio: 8, y: 1795 } },
+  // speedrun: bar clásico con look de directo de videojuego; subtítulos morado/cian abajo para dejar arriba el marcador
+  speedrun: { post: { filtro: 'saturate(1.28) contrast(1.1) brightness(1.03)' },
+    subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#7c3aed', '#22d3ee'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 14, y: 1390 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
