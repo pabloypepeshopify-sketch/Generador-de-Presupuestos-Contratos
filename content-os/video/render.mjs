@@ -65,7 +65,7 @@ const navegador = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=
 const pag = await navegador.newPage();
 pag.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.error('[motor]', m.text()); });
 pag.on('pageerror', e => console.error('[motor]', e.message));
-await pag.goto(`http://127.0.0.1:${puerto}/motor.html?escala=${opt('--escala', '0.667')}&estilo=${opt('--estilo', '')}`);
+await pag.goto(`http://127.0.0.1:${puerto}/motor.html?escala=${opt('--escala', '0.667')}&estilo=${opt('--estilo', '')}&limpio=${args.includes('--limpio') ? 1 : ''}`);
 await pag.waitForFunction(() => window.listo === true, null, { timeout: 120000 });
 const info = await pag.evaluate(([i, p, d]) => window.init(i, p, d), [id, palabras, durVoz ? durVoz + 0.8 : 0]);
 const dur = info.duracion;

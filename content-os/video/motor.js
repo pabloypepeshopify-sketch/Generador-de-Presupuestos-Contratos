@@ -4627,6 +4627,7 @@ function componer(t) {
   C.save(); C.translate(W / 2 + dx, H / 2 + dy); C.scale(z, z); dibujar3D(C, renderer.domElement, W, H, ESTILO, fx.desenfoque > 0.5 ? `blur(${fx.desenfoque.toFixed(1)}px)` : ''); C.restore(); C.filter = 'none';
   vineta();
   if (fx.flash) { C.fillStyle = `rgba(255,255,255,${fx.flash})`; C.fillRect(0, 0, W, H); }
+  if (Q.get('limpio')) return; // solo la imagen 3D, sin rótulos ni subtítulos (muestras de estilo)
   actual.capa(t);
   if (actual.arriba) { if (t < (actual.c?.comenta ?? 1e9)) (actual.subtitulos || subtitulosArriba)(t); } else subtitulos(t);
   // marcaAgua(); (quitada: se veía demasiado comercial)
