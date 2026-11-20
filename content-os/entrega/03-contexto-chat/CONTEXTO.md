@@ -54,6 +54,16 @@
   - En los 4 proyectos (generador-de-presupuestos-contratos, visax-nfc, visax-pedidos, visax-informe) hay un *Ignored Build Step* puesto: `git diff --quiet HEAD^ HEAD -- ':(top)' ':(top,exclude)content-os'`. Si un cambio solo toca `content-os/` (vídeos), no se despliega nada.
   - visax-nfc, visax-pedidos y visax-informe apuntan a carpetas que no existen en esta rama (`visax-nfc`, `carta-nfc/lite`, `app-comerciales/informe-web`). Si se toca código fuera de `content-os/`, volverán a fallar.
 
+## Novedades (sesión del 20 de noviembre)
+- Rama de trabajo ahora: `claude/ecstatic-clarke-64r8wz` (contiene todo lo de `claude/ecstatic-darwin-l8byvt`).
+- El vídeo del café (`crono`) llegó a 23.000 visitas en YouTube.
+- Nuevo vídeo `speedrun` («Speedrun: pedir un café en un bar»): marcador de tramos tipo videojuego, «RUN MUERTA», «ATAJO», «RÉCORD MUNDIAL» con confeti. Voz de **Rodrigo – Spanish Entertainment Host** `Ol36Ik3IUXEnXKMyM7Sr` (gaming/streamer).
+- **Estilo visual: el usuario prefiere los muñecotes 3D de siempre.** Se probaron dibujo 2D, papel, pixel art, vóxel, low poly, siluetas, monigotes y tipografía: no convencen. La variedad se saca de bares y formatos distintos.
+- **Nada de imágenes ni vídeos con IA de ElevenLabs** (≈190 créditos por imagen, demasiado caro). ElevenLabs solo para voces, una toma por voz.
+- Voces: quitar pausas con cortes deterministas (silencedetect) y atempo 1.08; tiempos de palabra con la transcripción de ElevenLabs (scribe, 0 créditos) si Whisper no puede bajar el modelo.
+- Red: el entorno permite `elevenlabsusercontent.com` (para bajar las voces). `three.js` se instala desde npm en `video/vendor/` (jsdelivr está bloqueado).
+- Motor: `vigilarCamara` avisa en consola si la cámara se mete en un muñeco; `--limpio` saca muestras sin rótulos. Mano levantada siempre hacia fuera (`hombro.rotation.z` positivo) para que no atraviese la cabeza.
+
 ## Pendiente / siguiente paso
 1. Volver a renderizar sin marca de agua los vídeos antiguos antes de publicarlos: todos menos pov y hotel.
 2. Sacar versiones cortas de 20–25 s de los que se vayan a publicar, siguiendo `02-algoritmo/ALGORITMO.md`.
