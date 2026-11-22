@@ -1,0 +1,86 @@
+/* ─────────────────────────────────────────────────────────────
+   DESIGN TOKENS — VISAX AI
+   Fuente única de colores, tipografías, radios y sombras.
+   La web pública, el futuro portal de clientes y el panel interno
+   leen de aquí (Tailwind los expone como clases: bg-bg, text-ink,
+   text-accent, border-ink-line, rounded-card, shadow-glow…).
+
+   Los colores van en canales RGB ("51 198 244") para que Tailwind
+   pueda aplicar opacidad: bg-brand-blue/20, text-ink/70…
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Marca (degradado del logotipo: cian → azul → morado) */
+  --c-brand-cyan: 51 198 244;
+  --c-brand-blue: 63 125 251;
+  --c-brand-indigo: 90 92 245;
+  --c-brand-violet: 124 92 255;
+  --c-brand-purple: 139 92 246;
+  --c-brand-deep: 109 40 217;
+  --c-brand-silver: 234 240 248;
+
+  /* Superficies (tema oscuro, por defecto) */
+  --c-bg: 6 6 11;
+  --c-bg-soft: 11 11 19;
+  --c-bg-raise: 17 17 27;
+
+  /* Texto. Contraste sobre --c-bg: ink 18:1 · soft 9,8:1 · faint 5,6:1 (AA) */
+  --c-ink: 245 247 251;
+  --c-ink-soft: 174 180 198;
+  --c-ink-faint: 128 134 156;
+
+  /* Acento para texto e iconos (cian en oscuro, azul profundo en claro) */
+  --c-accent: 51 198 244;
+
+  /* Líneas */
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  /* Degradados */
+  --brand-gradient: linear-gradient(
+    120deg,
+    rgb(var(--c-brand-cyan)) 0%,
+    rgb(var(--c-brand-blue)) 42%,
+    rgb(var(--c-brand-violet)) 72%,
+    rgb(var(--c-brand-purple)) 100%
+  );
+  --text-gradient: var(--brand-gradient);
+  --brand-gradient-soft: linear-gradient(120deg, rgba(51, 198, 244, 0.14), rgba(124, 92, 255, 0.14));
+
+  /* Radios */
+  --radius-sm: 12px;
+  --radius: 18px;
+  --radius-lg: 28px;
+
+  /* Sombras */
+  --shadow-card: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 60px -12px rgba(63, 125, 251, 0.45);
+  --shadow-glow-violet: 0 0 70px -14px rgba(124, 92, 255, 0.5);
+
+  /* Movimiento */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Tipografías: las variables --font-sans y --font-mono las pone next/font (app/layout.tsx) */
+
+  color-scheme: dark;
+}
+
+/* Sección clara: añade la clase .theme-light a un bloque y todo lo de dentro
+   (textos, líneas, tarjetas) cambia de tema sin tocar los componentes. */
+.theme-light {
+  --c-bg: 246 247 251;
+  --c-bg-soft: 255 255 255;
+  --c-bg-raise: 255 255 255;
+  --c-ink: 11 12 20;
+  --c-ink-soft: 61 66 87;
+  --c-ink-faint: 90 96 118;
+  --c-accent: 36 87 214;
+  --line: rgba(10, 12, 20, 0.1);
+  --line-strong: rgba(10, 12, 20, 0.2);
+  --text-gradient: linear-gradient(120deg, #1f6fd6 0%, #3d55e8 50%, #6d28d9 100%);
+  --brand-gradient-soft: linear-gradient(120deg, rgba(51, 198, 244, 0.12), rgba(124, 92, 255, 0.12));
+  --shadow-card: 0 24px 60px -30px rgba(15, 20, 40, 0.25);
+  color-scheme: light;
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-ink));
+}

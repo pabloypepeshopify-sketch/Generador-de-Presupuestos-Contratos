@@ -1,16 +1,19 @@
 /**
  * ─────────────────────────────────────────────────────────────
  *  CONFIGURACIÓN CENTRAL DE VISAX AI
- *  Cambia aquí TODO lo personalizable: teléfono, email, webhook,
+ *  Cambia aquí TODO lo personalizable: teléfono, email,
  *  redes sociales, textos de marca y URL del sitio.
  * ─────────────────────────────────────────────────────────────
  */
 export const site = {
   name: 'VISAX AI',
   legalName: 'VISAX AI',
-  tagline: 'Automatizamos tu negocio con Inteligencia Artificial',
+  // Lema de marca (sustituye a «Automatizamos. Inteligencia. Resultados.»)
+  tagline: 'Tu socio tecnológico. Tu empresa, en constante evolución.',
+  // Título corto para Google (title por defecto)
+  seoTitle: 'Socio tecnológico para pymes en Cádiz y Sevilla',
   description:
-    'VISAX AI automatiza tu negocio con Inteligencia Artificial: recepcionistas virtuales, agentes de voz, presupuestos, facturas y cobros, además de software y páginas web a medida. En toda la provincia de Cádiz y Sevilla.',
+    'VISAX AI es el socio tecnológico de tu empresa: analizamos cómo trabaja tu negocio, detectamos qué mejorar y lo ponemos en marcha con inteligencia artificial, automatización y tecnología, mes a mes. Desde Sanlúcar de Barrameda, para toda la provincia de Cádiz y Sevilla.',
 
   // URL pública (dominio propio conectado en Vercel)
   url: 'https://visaxai.es',
@@ -51,7 +54,7 @@ export const site = {
   phone: '656 999 241',
   phoneRaw: '+34656999241', // formato para enlaces tel:
   email: 'contactovisaxai@gmail.com',
-  // Teléfono para la llamada gratuita (apartado "Reserva una llamada gratuita")
+  // Segundo teléfono (también se muestra en contacto)
   callPhone: '622 293 436',
   callPhoneRaw: '+34622293436',
   // Número de WhatsApp en formato internacional sin signos (déjalo vacío para ocultar el botón)
@@ -62,24 +65,11 @@ export const site = {
     weekdays: 'Lunes a Viernes',
     hours: '9:00 – 19:00',
     timezone: 'CET (España)',
-    note: 'Tus automatizaciones, en cambio, trabajan 24/7.',
+    note: 'Visitas presenciales con cita previa.',
   },
 
-  // Zona horaria del negocio (IANA). El calendario devuelve las horas
-  // ocupadas en UTC; la web las convierte a esta zona para pintarlas bien.
+  // Zona horaria del negocio (IANA): calendario de visitas
   businessTimezone: 'Europe/Madrid',
-
-  // ── WEBHOOKS DE MAKE (citas por correo) ─────────────────────
-  // 1) RESERVA: crea el evento en Google Calendar y envía el email de
-  //    confirmación. Recibe { nombre, email, telefono, fecha, hora }.
-  makeWebhook: 'https://hook.eu1.make.com/i3sffiqtduc3jhr93kxvvi2j04oejptg',
-  // 2) DISPONIBILIDAD: dado un día { fecha: "YYYY-MM-DD" } devuelve el
-  //    horario y las horas ya ocupadas para pintar los tramos libres.
-  //    Respuesta JSON: { inicio, fin, duracion, ocupadas_inicio, ocupadas_fin }.
-  //    IMPORTANTE: para poder LEER esta respuesta desde el navegador, el
-  //    módulo "Webhook response" de Make debe devolver la cabecera
-  //    Access-Control-Allow-Origin: *  (CORS). Ver README.
-  availabilityWebhook: 'https://hook.eu1.make.com/30lkmlm2w48g77cnz93it7firfdenh4s',
 
   // ── REDES SOCIALES (deja vacío para ocultar) ────────────────
   social: {
