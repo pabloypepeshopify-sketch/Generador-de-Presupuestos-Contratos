@@ -27,14 +27,11 @@ export function FAQ() {
       <div className="container-x grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
         <SectionHeading
           id="faq-title"
+          className="lg:sticky lg:top-32 lg:self-start"
           eyebrow="Preguntas frecuentes"
-          title={
-            <>
-              Lo que nos
-              <br />
-              <span className="text-gradient">suelen preguntar.</span>
-            </>
-          }
+          title="Lo que nos"
+          accent="suelen preguntar."
+          size="md"
           intro={
             <>
               ¿Otra duda? Llámanos al{' '}
@@ -49,9 +46,12 @@ export function FAQ() {
             </>
           }
         />
-        <div className="border-t border-ink-line">
+        <div className="flex flex-col gap-3">
           {visibles.map((f) => (
-            <details key={f.q} className="group border-b border-ink-line">
+            <details
+              key={f.q}
+              className="group rounded-card-lg border border-ink-line bg-bg-soft/60 px-5 transition-colors duration-300 open:border-brand-violet/40 open:bg-[linear-gradient(135deg,rgba(51,198,244,0.06),rgba(124,92,255,0.08))] sm:px-6"
+            >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-left [&::-webkit-details-marker]:hidden">
                 <h3 className="text-lg font-semibold tracking-tight sm:text-xl">{f.q}</h3>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink-line text-ink-soft transition duration-300 group-open:rotate-45 group-open:border-transparent group-open:bg-brand group-open:text-white">

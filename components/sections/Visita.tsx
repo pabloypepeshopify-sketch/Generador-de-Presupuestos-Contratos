@@ -10,13 +10,9 @@ export function Visita() {
         <SectionHeading
           id="visita-title"
           eyebrow="Visitas presenciales"
-          title={
-            <>
-              ¿Prefieres que vayamos
-              <br />
-              <span className="text-gradient">a tu negocio?</span>
-            </>
-          }
+          title="¿Prefieres que vayamos"
+          accent="a tu negocio?"
+          size="md"
           intro={`Elige día y hora y vamos a verte, en ${site.zona.base} o donde esté tu empresa en la provincia de Cádiz o Sevilla. Te llamamos antes para confirmar la visita.`}
         />
         <div className="mt-10">

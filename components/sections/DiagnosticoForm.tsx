@@ -85,7 +85,7 @@ export function DiagnosticoForm() {
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} aria-labelledby="diagnostico-form-title" className="glass relative flex flex-col gap-4 rounded-card-lg p-6 sm:p-8">
+    <form noValidate onSubmit={onSubmit} aria-labelledby="diagnostico-form-title" className="glass ring-brand relative flex flex-col gap-4 rounded-card-lg p-6 shadow-[0_30px_100px_-40px_rgba(63,125,251,0.6)] sm:p-8">
       <h3 id="diagnostico-form-title" className="text-xl tracking-tight">
         Cuéntanos sobre tu empresa
       </h3>

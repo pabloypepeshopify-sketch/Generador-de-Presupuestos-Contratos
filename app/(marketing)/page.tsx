@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import { site } from '@/lib/site.config';
 import { Hero } from '@/components/sections/Hero';
 import { Problema } from '@/components/sections/Problema';
-import { QueHacemos } from '@/components/sections/QueHacemos';
+import { Metodo } from '@/components/sections/Metodo';
 import { Sectores } from '@/components/sections/Sectores';
-import { ComoTrabajamos } from '@/components/sections/ComoTrabajamos';
 import { Planes } from '@/components/sections/Planes';
 import { PorQue } from '@/components/sections/PorQue';
 import { Testimonios } from '@/components/sections/Testimonios';
@@ -34,10 +33,9 @@ export default function HomePage() {
     <>
       <Hero />
       <Problema />
-      <QueHacemos />
+      <Metodo />
       <Planes />
       <Sectores />
-      <ComoTrabajamos />
       <PorQue />
       <Testimonios />
       <PortalPreview />

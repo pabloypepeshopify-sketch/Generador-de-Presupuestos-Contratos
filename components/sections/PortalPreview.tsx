@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Clock3 } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/SectionHeading';
+import { TiltOnScroll } from '@/components/ui/TiltOnScroll';
 import { portal } from '@/content/home';
 
 const MENU = ['Inicio', 'Servicios activos', 'Incidencias', 'Historial de mejoras', 'Informes', 'Solicitudes'];
@@ -14,13 +15,9 @@ export function PortalPreview() {
           <SectionHeading
             id="portal-title"
             eyebrow="Portal de clientes · Próximamente"
-            title={
-              <>
-                Todo lo de tu empresa,
-                <br />
-                <span className="text-gradient">en un solo sitio.</span>
-              </>
-            }
+            title="Todo lo de tu empresa,"
+            accent="en un solo sitio."
+            size="md"
             intro="Estamos preparando un espacio privado para cada cliente. Todavía no está disponible: mientras tanto, lo gestionamos todo contigo directamente."
           />
           <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -40,6 +37,7 @@ export function PortalPreview() {
         </div>
 
         {/* Maqueta (decorativa). Sin datos: solo la estructura del futuro panel. */}
+        <TiltOnScroll className="relative">
         <div className="relative" aria-hidden="true">
           <div className="absolute -inset-6 rounded-[40px] bg-[radial-gradient(60%_60%_at_50%_40%,rgba(63,125,251,0.22),transparent_70%)]" />
           <div className="relative overflow-hidden rounded-card-lg border border-ink-line bg-bg-soft shadow-card">
@@ -84,6 +82,7 @@ export function PortalPreview() {
             <Clock3 className="h-3.5 w-3.5" /> Próximamente
           </span>
         </div>
+        </TiltOnScroll>
       </div>
     </section>
   );

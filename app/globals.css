@@ -243,3 +243,319 @@ p {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   EFECTOS PREMIUM
+   ═══════════════════════════════════════════════════════════ */
+
+/* Ángulo animable para bordes giratorios */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Borde de 1px hecho con máscara: no depende del fondo de la tarjeta */
+.ring-brand,
+.ring-spin {
+  position: relative;
+}
+.ring-brand::before,
+.ring-spin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ring-brand::before {
+  background: linear-gradient(130deg, rgba(51, 198, 244, 0.7), rgba(124, 92, 255, 0.12) 45%, rgba(124, 92, 255, 0.7));
+}
+.ring-spin::before {
+  background: conic-gradient(
+    from var(--angle),
+    rgba(255, 255, 255, 0.06) 0deg,
+    rgba(255, 255, 255, 0.06) 200deg,
+    rgb(var(--c-brand-cyan)) 260deg,
+    rgb(var(--c-brand-violet)) 320deg,
+    rgba(255, 255, 255, 0.06) 360deg
+  );
+  animation: spin-angle 5s linear infinite;
+}
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Foco de luz que sigue al ratón dentro de una tarjeta (.spot + SpotlightGroup) */
+.spot {
+  position: relative;
+}
+.spot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(124, 92, 255, 0.16), transparent 45%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .spot:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Texto con degradado que brilla despacio */
+.text-shimmer {
+  background: linear-gradient(
+    100deg,
+    rgb(var(--c-brand-cyan)) 0%,
+    rgb(var(--c-brand-blue)) 30%,
+    #c9d6ff 50%,
+    rgb(var(--c-brand-violet)) 70%,
+    rgb(var(--c-brand-purple)) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmer 7s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Cinta infinita */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.mask-x {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Orbe del hero: anillos en 3D que giran */
+.orb {
+  perspective: 1200px;
+}
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(51, 198, 244, 0.95),
+    rgba(63, 125, 251, 0.04),
+    rgba(124, 92, 255, 0.95),
+    rgba(63, 125, 251, 0.04),
+    rgba(51, 198, 244, 0.95)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transform-style: preserve-3d;
+}
+.orb-ring.r1 {
+  animation: ring1 18s linear infinite;
+}
+.orb-ring.r2 {
+  inset: 9%;
+  animation: ring2 24s linear infinite;
+}
+.orb-ring.r3 {
+  inset: 20%;
+  animation: ring3 30s linear infinite;
+}
+@keyframes ring1 {
+  from {
+    transform: rotateX(68deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(68deg) rotateZ(360deg);
+  }
+}
+@keyframes ring2 {
+  from {
+    transform: rotateX(62deg) rotateY(28deg) rotateZ(360deg);
+  }
+  to {
+    transform: rotateX(62deg) rotateY(28deg) rotateZ(0deg);
+  }
+}
+@keyframes ring3 {
+  from {
+    transform: rotateX(72deg) rotateY(-32deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(72deg) rotateY(-32deg) rotateZ(360deg);
+  }
+}
+/* Partículas que orbitan */
+.orbit {
+  position: absolute;
+  inset: 0;
+  animation: orbit var(--orbit-duration, 20s) linear infinite;
+  animation-delay: var(--orbit-delay, 0s);
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.float-y {
+  animation: float-y 6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes float-y {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Paquetes que viajan por una línea (visual de procesos) */
+.travel {
+  offset-rotate: 0deg;
+  animation: travel 3.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+/* Línea que se dibuja (visual de mejora continua) */
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 2.6s var(--ease-brand) forwards;
+  animation-delay: var(--delay, 0.2s);
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/* Brillo que recorre un esqueleto de carga */
+.shine {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  background-size: 200% 100%;
+  animation: shine 2.4s linear infinite;
+}
+@keyframes shine {
+  to {
+    background-position: -200% 0;
+  }
+}
+/* Escáner (sección del problema) */
+.scan {
+  animation: scan 3.6s var(--ease-brand) infinite;
+}
+@keyframes scan {
+  0% {
+    transform: translateX(-10%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+/* Pulso de radar (mapa) */
+.radar {
+  animation: radar 2.8s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@keyframes radar {
+  from {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+/* Puntos de «escribiendo…» */
+.typing span {
+  animation: typing 1.2s ease-in-out infinite;
+}
+.typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes typing {
+  50% {
+    opacity: 0.25;
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-spin::before,
+  .text-shimmer,
+  .marquee,
+  .orb-ring,
+  .orbit,
+  .float-y,
+  .travel,
+  .shine,
+  .scan,
+  .radar,
+  .typing span {
+    animation: none !important;
+  }
+  .draw {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .travel-dot {
+    display: none;
+  }
+}

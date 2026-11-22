@@ -104,6 +104,14 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Logotipo gigante en fantasma */}
+        <div
+          className="pointer-events-none select-none pb-4 pt-2 text-white opacity-[0.07] [mask-image:linear-gradient(to_bottom,#000_30%,transparent)]"
+          aria-hidden="true"
+        >
+          <Logo variant="word" className="mx-auto w-[92%]" />
+        </div>
+
         <div className="flex flex-col items-center justify-between gap-4 border-t border-ink-line py-8 text-xs text-ink-faint md:flex-row">
           <p>
             © <span suppressHydrationWarning>{year}</span> {site.name} · {site.tagline}

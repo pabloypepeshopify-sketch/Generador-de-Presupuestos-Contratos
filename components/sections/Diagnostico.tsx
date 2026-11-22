@@ -20,13 +20,9 @@ export function Diagnostico() {
           <SectionHeading
             id="diagnostico-title"
             eyebrow="Empecemos"
-            title={
-              <>
-                Solicita tu
-                <br />
-                <span className="text-gradient">diagnóstico inicial.</span>
-              </>
-            }
+            title="Solicita tu"
+            accent="diagnóstico inicial."
+            size="md"
             intro="Cuéntanos un poco sobre tu empresa y qué te gustaría mejorar. Te contestamos para preparar el diagnóstico contigo."
           />
 

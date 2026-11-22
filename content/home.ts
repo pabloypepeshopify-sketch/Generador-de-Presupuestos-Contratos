@@ -6,7 +6,6 @@ import {
   Handshake,
   Layers,
   LifeBuoy,
-  MapPin,
   MessageSquareText,
   MonitorSmartphone,
   RefreshCw,
@@ -39,22 +38,22 @@ export const problemas: Item[] = [
   {
     icon: Repeat,
     title: 'Tareas manuales que se repiten',
-    text: 'Copiar datos de un sitio a otro, contestar lo mismo una y otra vez, rehacer documentos. Horas que no hacen crecer la empresa.',
+    text: 'Copiar datos, contestar lo mismo, rehacer documentos. Horas que no hacen crecer la empresa.',
   },
   {
     icon: Unplug,
     title: 'Herramientas que no se hablan',
-    text: 'El correo por un lado, las hojas de cálculo por otro y el programa de gestión por otro. La información se pierde por el camino.',
+    text: 'Correo, hojas de cálculo y programa de gestión por separado. La información se pierde por el camino.',
   },
   {
     icon: Compass,
     title: 'La IA, sin saber por dónde empezar',
-    text: 'Oyes hablar de inteligencia artificial cada día, pero no sabes qué te sirve a ti ni a quién preguntar sin que te vendan humo.',
+    text: 'Oyes hablar de ella cada día, pero no sabes qué te sirve ni a quién preguntar sin que te vendan humo.',
   },
   {
     icon: Clock,
     title: 'Sin tiempo para mejorar',
-    text: 'Entre clientes, equipo y papeles, no queda tiempo para modernizar la empresa. Y se va quedando para mañana.',
+    text: 'Entre clientes, equipo y papeles, modernizar la empresa se queda siempre para mañana.',
   },
 ];
 
@@ -63,22 +62,22 @@ export const capacidades: Item[] = [
   {
     icon: Workflow,
     title: 'Procesos inteligentes',
-    text: 'Automatizamos las tareas manuales y repetitivas para que el trabajo fluya solo entre personas y herramientas.',
+    text: 'Las tareas repetitivas pasan solas de un sitio a otro, sin copiar ni pegar.',
   },
   {
     icon: BrainCircuit,
     title: 'Inteligencia artificial',
-    text: 'Integramos la IA en el funcionamiento de tu negocio: atender, ordenar, redactar, resumir y decidir con más información.',
+    text: 'La IA dentro de tu día a día: atender, ordenar, redactar y resumir.',
   },
   {
     icon: MonitorSmartphone,
     title: 'Modernización digital',
-    text: 'Webs, herramientas y sistemas al día, conectados entre sí y pensados para cómo trabajáis.',
+    text: 'Webs, herramientas y sistemas al día y conectados entre sí.',
   },
   {
     icon: RefreshCw,
     title: 'Mejora continua',
-    text: 'Seguimiento, mantenimiento y nuevas oportunidades cada mes. Tu empresa no se queda parada.',
+    text: 'Cada mes revisamos, mantenemos y buscamos la siguiente mejora.',
   },
 ];
 
@@ -116,37 +115,32 @@ export const razones: Item[] = [
   {
     icon: MessageSquareText,
     title: 'No necesitas conocimientos técnicos',
-    text: 'Te hablamos claro y sin jerga. Tú nos cuentas cómo trabajas; la parte técnica es cosa nuestra.',
+    text: 'Te hablamos claro. La parte técnica es cosa nuestra.',
   },
   {
     icon: Layers,
     title: 'No tienes que buscar herramientas',
-    text: 'Nada de comparar programas y aplicaciones. Elegimos y conectamos lo que encaja contigo.',
+    text: 'Elegimos y conectamos lo que encaja contigo.',
   },
   {
     icon: Route,
     title: 'Partimos de tus necesidades reales',
-    text: 'Primero entendemos tu negocio; después decidimos la tecnología. Nunca al revés.',
+    text: 'Primero tu negocio, después la tecnología. Nunca al revés.',
   },
   {
     icon: Sparkles,
     title: 'Soluciones a medida',
-    text: 'Cada empresa es distinta. Lo que hacemos se adapta a la tuya, no a una plantilla.',
+    text: 'Se adapta a tu empresa, no a una plantilla.',
   },
   {
     icon: Handshake,
     title: 'Un único socio para todo',
-    text: 'Automatización, IA, web y sistemas con un solo equipo que conoce tu empresa de principio a fin.',
-  },
-  {
-    icon: MapPin,
-    title: 'Cerca de ti',
-    text: 'Somos un equipo pequeño y local. Conocemos tu negocio, podemos visitarte y trabajar a tu lado.',
+    text: 'Automatización, IA, web y sistemas con un solo equipo.',
   },
   {
     icon: LifeBuoy,
     title: 'Mejora continua',
-    text: 'No entregamos y desaparecemos: seguimos revisando y mejorando contigo mes a mes.',
+    text: 'No entregamos y desaparecemos: seguimos contigo mes a mes.',
   },
 ];
 
