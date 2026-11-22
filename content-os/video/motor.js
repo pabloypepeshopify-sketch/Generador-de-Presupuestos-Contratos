@@ -4960,7 +4960,7 @@ V['escala'] = { ...comunCapa, estilo: 'escala',
       ['pop', c.llega], ['pop', c.llega + 0.15], ['pop', c.llega + 0.3], ['ding', c.todo], ['whoosh', c.fin - 0.45]];
     this.musica = 'guitarra_bar'; this.volMusica = 0.42; this.silencioMusica = [c.silencio - 0.05, c.llega - 0.1];
   },
-  nivel(t) { const c = this.c; return t < c.y ? 0 : t < c.cien ? 1 : t < c.mil ? 2 : t < c.millon ? 3 : t < c.espacio ? 4 : t < c.y2 ? 5 : 6; },
+  nivel(t) { const c = this.c; return t < c.y - 0.08 ? 0 : t < c.cien - 0.06 ? 1 : t < c.mil - 0.08 ? 2 : t < c.millon - 0.08 ? 3 : t < c.espacio - 0.06 ? 4 : t < c.y2 - 0.06 ? 5 : 6; },
   actualizar(t) {
     const c = this.c, n = this.nivel(t);
     const enBar = n <= 2 || n === 6; this.mundo.visible = enBar; this.calle.visible = n === 3; this.ciudad.visible = n === 4; this.tierra.visible = n === 5; this.sol.visible = n !== 5;
