@@ -29,6 +29,10 @@ export const faqs = [
     a: `Lo preparamos y programamos en ${site.shipping.prep} y el envío tarda ${site.shipping.eta} (${site.shipping.zone}). El envío cuesta ${eur(site.shipping.cost)} y es gratis a partir de ${eur(site.shipping.freeFrom)}.`,
   },
   {
+    q: '¿Enviáis fuera de España?',
+    a: `No, solo hacemos envíos nacionales: a ${site.shipping.zone}. Para Canarias, Ceuta o Melilla, consúltanos antes de pedir.`,
+  },
+  {
     q: '¿Hay descuento si compro varios?',
     a: `Sí, el precio por unidad baja según la cantidad del mismo producto: ${products
       .filter((p) => p.tiers?.length)

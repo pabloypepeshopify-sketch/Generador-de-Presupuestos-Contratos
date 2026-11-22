@@ -128,9 +128,10 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 <Truck className="h-5 w-5 shrink-0 text-brand-cyan" />
                 <span>
                   <strong className="block">Envío {site.shipping.eta}</strong>
-                  <span className="text-ink-soft">
+                  <span className="block text-ink-soft">
                     {eur(site.shipping.cost)} · gratis desde {eur(site.shipping.freeFrom)}
                   </span>
+                  <span className="block text-ink-soft">{site.shipping.scope}</span>
                 </span>
               </div>
             </div>

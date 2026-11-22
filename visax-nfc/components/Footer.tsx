@@ -71,7 +71,7 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-ink-line py-8 text-xs text-ink-soft sm:flex-row">
           <p>
-            © {year} {site.name} · {site.legal.holder}
+            © {year} {site.name} · {site.legal.holder} · {site.shipping.scope}
           </p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <Link href="/aviso-legal" className="transition hover:text-white">Aviso legal</Link>

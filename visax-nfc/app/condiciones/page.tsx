@@ -43,6 +43,9 @@ export default function Condiciones() {
       </p>
 
       <h2>Programación y envío</h2>
+      <p>
+        <strong>Solo hacemos envíos nacionales</strong>, a direcciones de España. No enviamos fuera de España.
+      </p>
       <ul>
         <li>Preparación y programación: {site.shipping.prep}.</li>
         <li>

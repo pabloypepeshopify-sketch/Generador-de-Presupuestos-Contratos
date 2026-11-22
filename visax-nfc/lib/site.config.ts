@@ -42,6 +42,7 @@ export const site = {
     cost: 490,
     freeFrom: 5000,
     zone: 'Península y Baleares',
+    scope: 'Solo envíos nacionales (España)',
     eta: '24–72 h',
     prep: '3–5 días laborables', // preparación y programación antes de enviar
   },

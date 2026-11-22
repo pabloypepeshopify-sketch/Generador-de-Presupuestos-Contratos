@@ -185,7 +185,7 @@ export function CartDrawer() {
                       <dt>Total</dt>
                       <dd className="tabular-nums">{eur(total)}</dd>
                     </div>
-                    <p className="text-xs text-ink-faint">IVA incluido</p>
+                    <p className="text-xs text-ink-faint">IVA incluido · {site.shipping.scope}</p>
                   </dl>
 
                   {status === 'whatsapp' ? (
