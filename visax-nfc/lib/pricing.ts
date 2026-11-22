@@ -42,6 +42,9 @@ export function shippingFor(subtotal: number) {
 
 const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 export const eur = (cents: number) => fmt.format(cents / 100);
+const fmtEntero = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+/** «300 €» en vez de «300,00 €» cuando no hay céntimos (precios de servicios). */
+export const eurCorto = (cents: number) => (cents % 100 ? eur(cents) : fmtEntero.format(cents / 100));
 
 /** «12,50 €/ud desde 40 ud» para cada tramo con descuento. */
 export function tierSummary(p: Priced) {

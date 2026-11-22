@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { ProductGallery } from '@/components/ProductGallery';
 import { ProductBuy } from '@/components/ProductBuy';
 import { productBySlug, products } from '@/lib/products';
-import { eur } from '@/lib/pricing';
+import { eur, eurCorto } from '@/lib/pricing';
 import { site } from '@/lib/site.config';
 
 export function generateStaticParams() {
@@ -70,7 +70,23 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                   <h2 className="font-display text-2xl leading-tight">{p.extra.title}</h2>
                 </div>
                 <p className="mt-3 leading-relaxed text-ink-soft">{p.extra.text}</p>
-                <ul className="mt-4 space-y-2 text-sm">
+                <ul className="mt-5 space-y-3">
+                  {p.extra.options.map((o) => (
+                    <li key={o.name} className="flex items-start justify-between gap-4 rounded-2xl border border-white/10 bg-bg/40 p-4">
+                      <span>
+                        <span className="flex flex-wrap items-center gap-2 font-semibold text-white">
+                          {o.name}
+                          {o.badge && (
+                            <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#06060B]">{o.badge}</span>
+                          )}
+                        </span>
+                        <span className="mt-1 block text-sm text-ink-soft">{o.note}</span>
+                      </span>
+                      <span className="shrink-0 font-display text-2xl tabular-nums">{eurCorto(o.price)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <ul className="mt-5 space-y-2 text-sm">
                   {p.extra.points.map((x) => (
                     <li key={x} className="flex gap-2">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" /> {x}
@@ -85,7 +101,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 >
                   <MessageCircle className="h-4 w-4" /> Quiero mi carta digital
                 </a>
-                <p className="mt-3 text-xs text-ink-soft">La carta se presupuesta aparte de las tarjetas.</p>
+                <p className="mt-3 text-xs text-ink-soft">Se paga aparte de las tarjetas NFC.</p>
               </section>
             )}
             <div className="mt-8">
@@ -104,7 +120,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     rel="noopener noreferrer"
                     className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand-violet/40 px-5 py-2.5 font-semibold text-white transition hover:border-brand-violet"
                   >
-                    <MessageCircle className="h-4 w-4" /> Pedir presupuesto
+                    <MessageCircle className="h-4 w-4" /> {p.notice.cta ?? 'Pedir presupuesto'}
                   </a>
                 )}
               </div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, BookOpenText, Check, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/products';
-import { bestTier, eur } from '@/lib/pricing';
+import { bestTier, eur, eurCorto } from '@/lib/pricing';
 import { useCart } from '@/components/cart/CartProvider';
 import { ProductArt } from '@/components/ProductArt';
 
@@ -77,7 +77,9 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
               <BookOpenText className="h-5 w-5 shrink-0 text-brand-cyan" />
               <span className="flex-1">
                 <strong className="block text-white">{product.extra.title}</strong>
-                <span className="text-ink-soft">Nueva, o mejoramos la que ya tienes</span>
+                <span className="text-ink-soft">
+                  Desde {eurCorto(Math.min(...product.extra.options.map((o) => o.price)))} · nueva o mejorada
+                </span>
               </span>
               <ArrowUpRight className="h-4 w-4 shrink-0 text-ink-soft" />
             </Link>

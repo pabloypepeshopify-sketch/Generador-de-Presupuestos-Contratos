@@ -23,13 +23,20 @@ export type Product = {
   bullets: string[];
   includes: string[];
   /** Aviso destacado en la ficha (servicio aparte, compatibilidad…). */
-  notice?: { title: string; text: string; quote?: string };
+  notice?: { title: string; text: string; quote?: string; cta?: string };
   /** Precio por unidad según la cantidad (desde `min` unidades), en céntimos. */
   tiers?: { min: number; price: number }[];
   /** Aclaración corta junto al precio (p. ej. un extra que se contrata aparte). */
   priceNote?: string;
   /** Servicio que hacemos nosotros junto al NFC: se destaca en la tarjeta de la tienda y arriba en la ficha. */
-  extra?: { title: string; text: string; points: string[]; quote: string };
+  extra?: {
+    title: string;
+    text: string;
+    points: string[];
+    /** Precios del servicio (céntimos), se pagan aparte del NFC. */
+    options: { name: string; price: number; note: string; badge?: string }[];
+    quote: string;
+  };
   /** Animación 3D de la ficha: el móvil se acerca al NFC y se ve lo que abre. */
   scene?: 'review' | 'menu' | 'order';
 };
@@ -78,7 +85,16 @@ export const products: Product[] = [
       title: 'También te hacemos la carta digital',
       text: '¿No tienes carta digital? Te la diseñamos nosotros. ¿Ya tienes una? Te la mejoramos. Y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
       points: ['Tus platos, precios, fotos y alérgenos', 'Con tu logo y tus colores', 'Lista para el móvil; y si quieres, también la web del local'],
-      quote: 'Hola, quiero las tarjetas NFC de menú y que me hagáis (o me mejoréis) la carta digital.',
+      options: [
+        { name: 'Carta digital', price: 30000, note: 'Nueva, o mejoramos la que ya tienes' },
+        {
+          name: 'Web premium + carta digital premium',
+          price: 60000,
+          badge: 'Demo gratis',
+          note: 'Te hacemos una demo gratuita para que la veas antes de decidir',
+        },
+      ],
+      quote: 'Hola, quiero las tarjetas NFC de menú y me interesa la carta digital (o la web + carta premium con demo gratis).',
     },
   },
   {
@@ -90,7 +106,7 @@ export const products: Product[] = [
       'El cliente acerca el móvil al NFC de la mesa, ve la carta y hace el pedido desde su teléfono. El pedido llega directo a cocina: menos espera para tu cliente, menos trabajo para el camarero y más rotación de mesas. Es la misma placa que la de la carta: lo que cambia es el software de pedidos, que se contrata aparte.',
     price: 1500,
     tiers: [{ min: 40, price: 1250 }],
-    priceNote: 'Precio de la placa NFC. El software de pedidos se contrata aparte.',
+    priceNote: 'Precio de la placa NFC. El software de pedidos: 500 € más.',
     image: '/products/tarjeta-nfc-menu.png',
     face: '/textures/menu-face.png',
     icon: 'order',
@@ -104,9 +120,10 @@ export const products: Product[] = [
     ],
     includes: ['Placa NFC «Toca para ver menú», la misma que la de la carta', 'Programación con tu sistema de pedidos'],
     notice: {
-      title: 'El sistema de pedidos se contrata aparte',
-      text: 'Este precio es el del NFC. El sistema que recibe los pedidos en cocina lo ponemos nosotros y se contrata aparte: te hacemos presupuesto para tu local.',
-      quote: 'Hola, quiero presupuesto del sistema de pedido en mesa para mi local.',
+      title: 'Software de pedidos: 500 € más',
+      text: 'La placa NFC cuesta lo mismo que la tarjeta de carta. El software que recibe los pedidos en cocina lo ponemos nosotros y son 500 € más.',
+      quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos (500 €).',
+      cta: 'Pedir el software',
     },
   },
   {

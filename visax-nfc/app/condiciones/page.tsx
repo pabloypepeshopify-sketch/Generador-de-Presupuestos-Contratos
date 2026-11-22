@@ -31,8 +31,10 @@ export default function Condiciones() {
           ))}
       </ul>
       <p>
-        Los productos que necesitan un software o sistema (pedido en mesa y llamar al camarero) se venden como NFC; el
-        software se contrata aparte con presupuesto. Los gastos de envío se muestran antes de pagar.
+        Los productos que necesitan un software o sistema se venden como NFC y el software se contrata aparte: el de
+        pedido en mesa son 500 € más y el de llamar al camarero se presupuesta. La carta digital (300 €) y la web premium
+        con carta digital premium (600 €, con demo gratuita) también se contratan aparte. Los gastos de envío se muestran
+        antes de pagar.
       </p>
 
       <h2>Pedido y pago</h2>
