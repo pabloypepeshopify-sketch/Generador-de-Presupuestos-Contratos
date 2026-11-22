@@ -12,9 +12,9 @@ export function Problema() {
           eyebrow="El día a día"
           title={
             <>
-              Tu negocio funciona.
+              Lo que frena a tu empresa
               <br />
-              <span className="text-ink-soft">Pero te cuesta más de lo que debería.</span>
+              <span className="text-ink-soft">no siempre se ve.</span>
             </>
           }
         />

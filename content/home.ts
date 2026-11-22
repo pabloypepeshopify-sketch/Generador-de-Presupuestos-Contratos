@@ -28,7 +28,6 @@ export const mensajes = {
   heroSubtitle:
     'Analizamos, modernizamos y optimizamos empresas mediante inteligencia artificial y tecnología. Nos encargamos de identificar qué necesita tu negocio y llevarlo a cabo.',
   sinSaber: 'No necesitas saber qué tecnología necesita tu empresa. Nosotros nos encargamos de encontrarla y aplicarla.',
-  diferenciador: 'No vendemos herramientas. Mejoramos empresas.',
   ctaPrincipal: 'Solicita tu diagnóstico inicial',
   ctaSecundario: 'Cómo trabajamos',
 } as const;

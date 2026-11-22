@@ -7,21 +7,21 @@ export function QueHacemos() {
   return (
     <section id="que-hacemos" aria-labelledby="que-hacemos-title" className="section">
       <div className="container-x">
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+        <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
           <SectionHeading
             id="que-hacemos-title"
             eyebrow="Qué hacemos"
             title={
               <>
-                No vendemos herramientas.
+                Cuatro áreas de trabajo.
                 <br />
-                <span className="text-gradient">Mejoramos empresas.</span>
+                <span className="text-gradient">Un objetivo: que tu empresa funcione mejor.</span>
               </>
             }
           />
           <p className="max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg lg:pb-2">
-            No tienes que elegir nada de un catálogo. Analizamos tu negocio y aplicamos lo que necesita, combinando cuatro
-            áreas de trabajo según lo que más te ayude en cada momento.
+            No tienes que elegir nada de un catálogo. Analizamos tu negocio y combinamos lo que necesita en cada momento: tú
+            solo nos cuentas qué te gustaría mejorar.
           </p>
         </div>
 

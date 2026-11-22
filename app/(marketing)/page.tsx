@@ -35,9 +35,9 @@ export default function HomePage() {
       <Hero />
       <Problema />
       <QueHacemos />
+      <Planes />
       <Sectores />
       <ComoTrabajamos />
-      <Planes />
       <PorQue />
       <Testimonios />
       <PortalPreview />
