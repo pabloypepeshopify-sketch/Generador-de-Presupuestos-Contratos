@@ -3,6 +3,7 @@ import { Problema } from '@/components/sections/Problema';
 import { QueHacemos } from '@/components/sections/QueHacemos';
 import { Sectores } from '@/components/sections/Sectores';
 import { ComoTrabajamos } from '@/components/sections/ComoTrabajamos';
+import { Planes } from '@/components/sections/Planes';
 import { PorQue } from '@/components/sections/PorQue';
 import { Testimonios } from '@/components/sections/Testimonios';
 import { PortalPreview } from '@/components/sections/PortalPreview';
@@ -16,6 +17,7 @@ export default function HomePage() {
       <QueHacemos />
       <Sectores />
       <ComoTrabajamos />
+      <Planes />
       <PorQue />
       <Testimonios />
       <PortalPreview />
