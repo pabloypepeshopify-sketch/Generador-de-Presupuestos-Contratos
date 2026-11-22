@@ -90,7 +90,7 @@ export const products: Product[] = [
       text: '¿No tienes carta digital? Te la diseñamos nosotros. ¿Ya tienes una? Te la mejoramos. Y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
       points: ['Tus platos, precios, fotos y alérgenos', 'Con tu logo y tus colores', 'Lista para el móvil; y si quieres, también la web del local'],
       options: [
-        { name: 'Carta digital', price: 30000, note: 'Nueva, o mejoramos la que ya tienes' },
+        { name: 'Carta digital', price: 30000, badge: 'Demo gratis', note: 'Nueva, o mejoramos la que ya tienes. Te hacemos una demo gratuita antes de decidir' },
         {
           name: 'Web premium + carta digital premium',
           price: 60000,
@@ -130,10 +130,20 @@ export const products: Product[] = [
       text: 'La placa NFC cuesta lo mismo que la de la carta. Para que los pedidos lleguen a cocina hace falta el software: te lo ponemos nosotros junto con tu carta digital.',
       points: [],
       options: [
-        { name: 'Carta digital + software de pedidos', price: 85000, note: 'Tu carta en el móvil del cliente y los pedidos directos a cocina' },
-        { name: 'Carta digital + página web + software de pedidos', price: 99000, note: 'Todo junto: la web del local, la carta y los pedidos en mesa' },
+        {
+          name: 'Carta digital + software de pedidos',
+          price: 85000,
+          badge: 'Demo gratis',
+          note: 'Tu carta en el móvil del cliente y los pedidos directos a cocina. Pruébalo antes con una demo gratuita',
+        },
+        {
+          name: 'Carta digital + página web + software de pedidos',
+          price: 99000,
+          badge: 'Demo gratis',
+          note: 'Todo junto: la web del local, la carta y los pedidos en mesa. Con demo gratuita antes de decidir',
+        },
       ],
-      quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos.',
+      quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos y ver la demo gratis.',
       cta: 'Quiero el sistema de pedidos',
     },
   },

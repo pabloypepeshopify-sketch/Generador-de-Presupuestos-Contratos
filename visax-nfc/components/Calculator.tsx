@@ -1,9 +1,9 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { useCart } from '@/components/cart/CartProvider';
 
 function Slider({
   label,
@@ -30,7 +30,7 @@ function Slider({
         <label htmlFor={id} className="text-sm text-ink-soft">
           {label}
         </label>
-        <span className="font-display text-2xl tabular-nums">
+        <span className="shrink-0 whitespace-nowrap font-display text-2xl tabular-nums">
           {value}
           {suffix}
         </span>
@@ -50,13 +50,22 @@ function Slider({
   );
 }
 
-/** Calculadora orientativa de reseñas nuevas al mes con el expositor. */
+// useGrouping 'always': en español, sin esto «9984» sale sin el punto de los miles.
+const agrupar = { useGrouping: 'always' } as unknown as Intl.NumberFormatOptions;
+const horas = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0, ...agrupar });
+const euros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, ...agrupar });
+
+/**
+ * Calculadora orientativa del tiempo (y su coste) que tu equipo dedica a llevar
+ * cartas, tomar nota, ir y volver y dar la contraseña del WiFi en cada mesa.
+ */
 export function Calculator() {
-  const [clients, setClients] = useState(80);
-  const [days, setDays] = useState(26);
-  const [rate, setRate] = useState(3);
-  const { add } = useCart();
-  const perMonth = Math.round((clients * days * rate) / 100);
+  const [mesas, setMesas] = useState(40);
+  const [minutos, setMinutos] = useState(4);
+  const [coste, setCoste] = useState(12);
+  const [dias, setDias] = useState(26);
+  const horasMes = (mesas * minutos * dias) / 60;
+  const dineroMes = horasMes * coste;
 
   return (
     <section id="calculadora" className="section">
@@ -65,38 +74,45 @@ export function Calculator() {
           eyebrow="Calculadora"
           title={
             <>
-              ¿Cuántas reseñas
+              ¿Cuánto tiempo y dinero
               <br />
-              <span className="text-gradient italic">te estás perdiendo?</span>
+              <span className="text-gradient italic">estás perdiendo?</span>
             </>
           }
-          intro="Mueve los valores con los datos de tu negocio. Es una estimación: depende de tu clientela y de si tu equipo lo recuerda al cobrar."
+          intro="Llevar la carta, tomar nota, ir y volver o dar la contraseña del WiFi: minutos en cada mesa que se suman. Mueve los valores con los datos de tu local. Es una estimación."
         />
         <div className="glass rounded-[var(--radius)] p-7 shadow-card sm:p-9">
           <div className="space-y-7">
-            <Slider label="Clientes al día" value={clients} min={5} max={500} step={5} onChange={setClients} />
-            <Slider label="Días abiertos al mes" value={days} min={8} max={31} onChange={setDays} />
+            <Slider label="Mesas que atiendes al día" value={mesas} min={5} max={300} step={5} onChange={setMesas} />
             <Slider
-              label="De cada 100 clientes, cuántos dejarían reseña si se lo pones fácil"
-              value={rate}
+              label="Minutos por mesa en cartas, tomar nota y el WiFi"
+              value={minutos}
               min={1}
               max={10}
-              onChange={setRate}
+              suffix=" min"
+              onChange={setMinutos}
             />
+            <Slider label="Lo que te cuesta una hora de camarero" value={coste} min={8} max={25} suffix=" €" onChange={setCoste} />
+            <Slider label="Días abiertos al mes" value={dias} min={8} max={31} onChange={setDias} />
           </div>
-          <div className="mt-8 rounded-2xl border border-brand-violet/30 bg-brand-gradient-soft p-6 text-center" aria-live="polite">
-            <p className="text-sm text-ink-soft">Reseñas nuevas estimadas</p>
-            <p className="mt-1 font-display text-6xl tabular-nums text-gradient">≈ {perMonth}</p>
-            <p className="mt-1 text-sm text-ink-soft">
-              al mes · ≈ {perMonth * 12} al año
-            </p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2" aria-live="polite">
+            <div className="rounded-2xl border border-brand-violet/30 bg-brand-gradient-soft p-5 text-center">
+              <p className="text-sm text-ink-soft">Tiempo perdido</p>
+              <p className="mt-1 font-display text-5xl tabular-nums text-gradient">≈ {horas.format(horasMes)} h</p>
+              <p className="mt-1 text-sm text-ink-soft">al mes · ≈ {horas.format(horasMes * 12)} h al año</p>
+            </div>
+            <div className="rounded-2xl border border-brand-violet/30 bg-brand-gradient-soft p-5 text-center">
+              <p className="text-sm text-ink-soft">Dinero perdido</p>
+              <p className="mt-1 font-display text-5xl tabular-nums text-gradient">≈ {euros.format(dineroMes)}</p>
+              <p className="mt-1 text-sm text-ink-soft">al mes · ≈ {euros.format(dineroMes * 12)} al año</p>
+            </div>
           </div>
-          <button
-            onClick={() => add('expositor-resenas-google')}
+          <Link
+            href="/productos/nfc-pedido-en-mesa"
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand-gradient px-6 py-3.5 font-semibold text-white shadow-glow transition hover:brightness-110"
           >
-            <ShoppingBag className="h-4 w-4" /> Quiero el expositor
-          </button>
+            Recupéralo con el pedido en mesa <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>

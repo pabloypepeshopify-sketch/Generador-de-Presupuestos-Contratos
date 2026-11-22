@@ -78,7 +78,7 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
               <span className="flex-1">
                 <strong className="block text-white">{product.extra.title}</strong>
                 <span className="text-ink-soft">
-                  Desde {eurCorto(Math.min(...product.extra.options.map((o) => o.price)))} + IVA
+                  Desde {eurCorto(Math.min(...product.extra.options.map((o) => o.price)))} + IVA · demo gratis
                 </span>
               </span>
               <ArrowUpRight className="h-4 w-4 shrink-0 text-ink-soft" />

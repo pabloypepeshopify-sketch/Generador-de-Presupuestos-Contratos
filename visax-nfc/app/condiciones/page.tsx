@@ -33,8 +33,9 @@ export default function Condiciones() {
       <p>
         Los productos que necesitan un software o sistema se venden como NFC y el software se contrata aparte: el de
         pedido en mesa va con tu carta digital (850 € + IVA, o 990 € + IVA con la página web) y el de llamar al camarero
-        se presupuesta. La carta digital (300 € + IVA) y la web premium con carta digital premium (600 € + IVA, con demo
-        gratuita) también se contratan aparte. Los gastos de envío se muestran antes de pagar.
+        se presupuesta. La carta digital (300 € + IVA) y la web premium con carta digital premium (600 € + IVA) también
+        se contratan aparte. La carta digital, la web y el software de pedidos tienen demo gratuita antes de contratar.
+        Los gastos de envío se muestran antes de pagar.
       </p>
 
       <h2>Pedido y pago</h2>
