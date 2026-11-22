@@ -148,6 +148,9 @@ const ESTILOS = {
   // cosas: lista rápida de gags; subtítulos rojo/amarillo (España) abajo
   cosas: { post: { filtro: 'saturate(1.2) contrast(1.08) brightness(1.02)' },
     subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#c60b1e', '#ff8a00'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
+  // escala: «¿qué pasa si… levantan la mano?»; subtítulos blancos sobre píldora amarilla/naranja abajo
+  escala: { post: { filtro: 'saturate(1.18) contrast(1.07) brightness(1.02)' },
+    subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff8a00', '#ffc400'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

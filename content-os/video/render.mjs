@@ -43,6 +43,9 @@ const SFX = {
   chorro: ['anoisesrc=c=pink:d=2.0:a=0.5', 'lowpass=f=1400,highpass=f=250,afade=t=in:d=0.08,afade=t=out:st=1.75:d=0.25,volume=0.55'],
   chorro_corto: ['anoisesrc=c=pink:d=0.55:a=0.5', 'lowpass=f=1500,highpass=f=300,afade=t=in:d=0.05,afade=t=out:st=0.4:d=0.15,volume=0.45'],
   clink: ['aevalsrc=0.35*(sin(2*PI*3150*t)+0.6*sin(2*PI*4720*t)+0.3*sin(2*PI*6300*t))*exp(-9*t):d=0.6'],
+  murmullo1: ['anoisesrc=c=pink:d=2.0:a=0.4', 'bandpass=f=600:w=500,tremolo=f=5:d=0.4,afade=t=in:d=0.3,afade=t=out:st=1.6:d=0.4,volume=0.35'],
+  murmullo2: ['anoisesrc=c=pink:d=2.4:a=0.5', 'bandpass=f=700:w=700,tremolo=f=7:d=0.5,afade=t=in:d=0.2,afade=t=out:st=2.0:d=0.4,volume=0.6'],
+  murmullo3: ['anoisesrc=c=pink:d=3.8:a=0.6', 'bandpass=f=800:w=900,tremolo=f=9:d=0.5,afade=t=in:d=0.2,afade=t=out:st=3.3:d=0.5,volume=0.8'],
   riser: ['anoisesrc=c=white:d=1.0:a=0.35', 'highpass=f=600,afade=t=in:d=0.95:curve=exp,afade=t=out:st=0.95:d=0.05,volume=0.6'],
 };
 const dirSfx = path.join(DIR, '.sfx'); await mkdir(dirSfx, { recursive: true });
@@ -90,7 +93,7 @@ const etiquetas = ['[voz]']; let idx = 2;
 const musica = info.musica ? path.join(DIR, 'musica', `${info.musica}.mp3`) : null;
 if (musica && await existe(musica)) {
   entradas.push('-stream_loop', '-1', '-t', String(dur), '-i', musica);
-  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volMusica ?? 0.5},afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
+  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volMusica ?? 0.5}${info.silencioMusica ? `,volume='if(between(t,${info.silencioMusica[0].toFixed(2)},${info.silencioMusica[1].toFixed(2)}),0,1)':eval=frame` : ''},afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
     '[mus0][vozsc]sidechaincompress=threshold=0.04:ratio=5:attack=15:release=350[mus]');
   etiquetas.push('[mus]'); idx = 3;
 } else filtros[0] = '[1:a]aformat=sample_rates=44100:channel_layouts=stereo[voz]';
