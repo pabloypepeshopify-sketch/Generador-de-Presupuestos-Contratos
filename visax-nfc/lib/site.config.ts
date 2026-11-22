@@ -40,11 +40,10 @@ export const site = {
   // ── ENVÍOS (importes en céntimos) ───────────────────────────
   shipping: {
     cost: 490,
-    freeFrom: 5000,
+    freeFrom: 10000,
     zone: 'Península y Baleares',
     scope: 'Solo envíos nacionales (España)',
-    eta: '24–72 h',
-    prep: '3–5 días laborables', // preparación y programación antes de enviar
+    carrier: 'Correos',
   },
 
   // Opiniones de clientes: la sección aparece sola en cuanto haya alguna.

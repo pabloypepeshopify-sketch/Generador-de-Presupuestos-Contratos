@@ -12,7 +12,7 @@ const steps = [
   {
     icon: PackageCheck,
     title: 'Lo programamos y te lo enviamos',
-    text: `Grabamos tu enlace en el chip, lo probamos y sale hacia ti en ${site.shipping.prep}. Llega en ${site.shipping.eta}.`,
+    text: `Grabamos tu enlace en el chip, lo probamos y te lo enviamos por ${site.shipping.carrier}.`,
   },
   {
     icon: Smartphone,

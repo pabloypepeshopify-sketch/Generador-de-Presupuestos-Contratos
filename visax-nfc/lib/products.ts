@@ -31,11 +31,14 @@ export type Product = {
   /** Servicio que hacemos nosotros junto al NFC: se destaca en la tarjeta de la tienda y arriba en la ficha. */
   extra?: {
     title: string;
+    /** Etiqueta sobre la foto en la tienda */
+    badge: string;
     text: string;
     points: string[];
-    /** Precios del servicio (céntimos), se pagan aparte del NFC. */
+    /** Precios del servicio (céntimos, sin IVA), se pagan aparte del NFC. */
     options: { name: string; price: number; note: string; badge?: string }[];
     quote: string;
+    cta: string;
   };
   /** Animación 3D de la ficha: el móvil se acerca al NFC y se ve lo que abre. */
   scene?: 'review' | 'menu' | 'order';
@@ -83,6 +86,7 @@ export const products: Product[] = [
     includes: ['Tarjeta NFC adhesiva', 'Programación con el enlace de tu carta'],
     extra: {
       title: 'También te hacemos la carta digital',
+      badge: '+ Te hacemos la carta digital',
       text: '¿No tienes carta digital? Te la diseñamos nosotros. ¿Ya tienes una? Te la mejoramos. Y la dejamos enlazada a tus tarjetas: el cliente toca y ve tu carta.',
       points: ['Tus platos, precios, fotos y alérgenos', 'Con tu logo y tus colores', 'Lista para el móvil; y si quieres, también la web del local'],
       options: [
@@ -95,6 +99,7 @@ export const products: Product[] = [
         },
       ],
       quote: 'Hola, quiero las tarjetas NFC de menú y me interesa la carta digital (o la web + carta premium con demo gratis).',
+      cta: 'Quiero mi carta digital',
     },
   },
   {
@@ -106,7 +111,7 @@ export const products: Product[] = [
       'El cliente acerca el móvil al NFC de la mesa, ve la carta y hace el pedido desde su teléfono. El pedido llega directo a cocina: menos espera para tu cliente, menos trabajo para el camarero y más rotación de mesas. Es la misma placa que la de la carta: lo que cambia es el software de pedidos, que se contrata aparte.',
     price: 1500,
     tiers: [{ min: 40, price: 1250 }],
-    priceNote: 'Precio de la placa NFC. El software de pedidos: 500 € más.',
+    priceNote: 'Precio de la placa NFC. El software de pedidos va aparte: desde 850 € + IVA.',
     image: '/products/tarjeta-nfc-menu.png',
     face: '/textures/menu-face.png',
     icon: 'order',
@@ -119,11 +124,17 @@ export const products: Product[] = [
       'Sin app ni batería',
     ],
     includes: ['Placa NFC «Toca para ver menú», la misma que la de la carta', 'Programación con tu sistema de pedidos'],
-    notice: {
-      title: 'Software de pedidos: 500 € más',
-      text: 'La placa NFC cuesta lo mismo que la tarjeta de carta. El software que recibe los pedidos en cocina lo ponemos nosotros y son 500 € más.',
-      quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos (500 €).',
-      cta: 'Pedir el software',
+    extra: {
+      title: 'Software de pedidos en mesa',
+      badge: '+ Software de pedidos',
+      text: 'La placa NFC cuesta lo mismo que la de la carta. Para que los pedidos lleguen a cocina hace falta el software: te lo ponemos nosotros junto con tu carta digital.',
+      points: [],
+      options: [
+        { name: 'Carta digital + software de pedidos', price: 85000, note: 'Tu carta en el móvil del cliente y los pedidos directos a cocina' },
+        { name: 'Carta digital + página web + software de pedidos', price: 99000, note: 'Todo junto: la web del local, la carta y los pedidos en mesa' },
+      ],
+      quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos.',
+      cta: 'Quiero el sistema de pedidos',
     },
   },
   {
@@ -205,15 +216,16 @@ export const products: Product[] = [
       'El cliente acerca el móvil y se conecta al WiFi del local al instante: nadie tiene que preguntar la contraseña ni teclearla. Te lo enviamos programado con tu red.',
     price: 2500,
     tiers: [{ min: 3, price: 2000 }],
+    image: '/products/nfc-wifi.png',
     icon: 'wifi',
     linkKind: 'wifi',
     bullets: [
       'Android: se conecta con un toque',
       'iPhone: abre tu red con botón para copiar la contraseña',
-      'Sin pedir ni teclear la contraseña',
+      'Adhesiva: se pega en mesa, barra o pared',
       'Te llega programado con tu red',
     ],
-    includes: ['NFC con chip programado', 'Programación con el nombre y la contraseña de tu WiFi'],
+    includes: ['Tarjeta NFC adhesiva', 'Programación con el nombre y la contraseña de tu WiFi'],
     notice: {
       title: 'En iPhone, con un paso más',
       text: 'Apple no deja conectarse a un WiFi desde un NFC. En iPhone se abre una página con el nombre de tu red y un botón para copiar la contraseña; en Android se conecta solo.',

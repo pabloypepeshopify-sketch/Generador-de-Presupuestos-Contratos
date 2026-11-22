@@ -41,7 +41,7 @@ const items = [
 const facts = [
   { icon: BatteryFull, text: 'Sin app ni batería' },
   { icon: Leaf, text: 'Menos papel y menos imprenta' },
-  { icon: Truck, text: `Envío ${site.shipping.eta} · gratis desde ${eur(site.shipping.freeFrom)}` },
+  { icon: Truck, text: `Envío por ${site.shipping.carrier} · gratis desde ${eur(site.shipping.freeFrom)}` },
 ];
 
 export function Benefits() {

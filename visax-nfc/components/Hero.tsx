@@ -18,7 +18,7 @@ export function Hero() {
             className="hero-in glass mb-7 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-ink-soft"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-            Moderniza tu local · Te llega programado · Envío {site.shipping.eta}
+            Moderniza tu local · Te llega programado · Envío por {site.shipping.carrier}
           </p>
           <h1 className="font-display text-[clamp(2.5rem,6.4vw,5.4rem)] font-medium leading-[0.98] tracking-tightest">
             <span style={delay(0.12)} className="hero-in block">

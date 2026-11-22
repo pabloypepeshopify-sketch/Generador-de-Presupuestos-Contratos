@@ -78,13 +78,9 @@ export async function POST(req: Request) {
         {
           shipping_rate_data: {
             type: 'fixed_amount',
-            display_name: shipping ? `Envío ${site.shipping.eta}` : `Envío gratis ${site.shipping.eta}`,
+            display_name: shipping ? `Envío por ${site.shipping.carrier}` : `Envío gratis por ${site.shipping.carrier}`,
             fixed_amount: { amount: shipping, currency: 'eur' },
             tax_behavior: 'inclusive',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 2 },
-              maximum: { unit: 'business_day', value: 5 },
-            },
           },
         },
       ],

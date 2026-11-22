@@ -82,11 +82,14 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                         </span>
                         <span className="mt-1 block text-sm text-ink-soft">{o.note}</span>
                       </span>
-                      <span className="shrink-0 font-display text-2xl tabular-nums">{eurCorto(o.price)}</span>
+                      <span className="shrink-0 text-right">
+                        <span className="block font-display text-2xl tabular-nums">{eurCorto(o.price)}</span>
+                        <span className="block text-xs text-ink-soft">+ IVA</span>
+                      </span>
                     </li>
                   ))}
                 </ul>
-                <ul className="mt-5 space-y-2 text-sm">
+                <ul className={p.extra.points.length ? 'mt-5 space-y-2 text-sm' : 'hidden'}>
                   {p.extra.points.map((x) => (
                     <li key={x} className="flex gap-2">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" /> {x}
@@ -99,9 +102,9 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                   rel="noopener noreferrer"
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-[#06060B] transition hover:bg-brand-silver"
                 >
-                  <MessageCircle className="h-4 w-4" /> Quiero mi carta digital
+                  <MessageCircle className="h-4 w-4" /> {p.extra.cta}
                 </a>
-                <p className="mt-3 text-xs text-ink-soft">Se paga aparte de las tarjetas NFC.</p>
+                <p className="mt-3 text-xs text-ink-soft">Precios sin IVA. Se paga aparte de las tarjetas NFC.</p>
               </section>
             )}
             <div className="mt-8">
@@ -137,13 +140,13 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 <PackageCheck className="h-5 w-5 shrink-0 text-brand-cyan" />
                 <span>
                   <strong className="block">Programado y probado</strong>
-                  <span className="text-ink-soft">Preparado en {site.shipping.prep}</span>
+                  <span className="text-ink-soft">Te llega listo para usar</span>
                 </span>
               </div>
               <div className="flex gap-3 rounded-2xl border border-ink-line p-4 text-sm">
                 <Truck className="h-5 w-5 shrink-0 text-brand-cyan" />
                 <span>
-                  <strong className="block">Envío {site.shipping.eta}</strong>
+                  <strong className="block">Envío por {site.shipping.carrier}</strong>
                   <span className="block text-ink-soft">
                     {eur(site.shipping.cost)} · gratis desde {eur(site.shipping.freeFrom)}
                   </span>

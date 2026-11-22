@@ -32,7 +32,7 @@ export function NfcSection() {
               >
                 Ir a la tienda NFC <ArrowUpRight className="h-4 w-4" />
               </a>
-              <p className="text-sm text-ink-soft">Envío en 24–72 h · Sin app ni batería.</p>
+              <p className="text-sm text-ink-soft">Te llegan programados · Sin app ni batería.</p>
             </div>
           </div>
         </div>

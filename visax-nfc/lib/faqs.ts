@@ -25,8 +25,8 @@ export const faqs = [
     a: 'No, si tu carta digital sigue en la misma dirección web: la tarjeta abrirá siempre la versión actual. Si cambias de dirección, escríbenos.',
   },
   {
-    q: '¿Cuánto tarda en llegar?',
-    a: `Lo preparamos y programamos en ${site.shipping.prep} y el envío tarda ${site.shipping.eta} (${site.shipping.zone}). El envío cuesta ${eur(site.shipping.cost)} y es gratis a partir de ${eur(site.shipping.freeFrom)}.`,
+    q: '¿Cuánto cuesta el envío?',
+    a: `Lo enviamos por ${site.shipping.carrier} a ${site.shipping.zone}, ya programado. El envío cuesta ${eur(site.shipping.cost)} y es gratis a partir de ${eur(site.shipping.freeFrom)}.`,
   },
   {
     q: '¿Enviáis fuera de España?',

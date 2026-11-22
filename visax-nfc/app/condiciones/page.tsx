@@ -32,9 +32,9 @@ export default function Condiciones() {
       </ul>
       <p>
         Los productos que necesitan un software o sistema se venden como NFC y el software se contrata aparte: el de
-        pedido en mesa son 500 € más y el de llamar al camarero se presupuesta. La carta digital (300 €) y la web premium
-        con carta digital premium (600 €, con demo gratuita) también se contratan aparte. Los gastos de envío se muestran
-        antes de pagar.
+        pedido en mesa va con tu carta digital (850 € + IVA, o 990 € + IVA con la página web) y el de llamar al camarero
+        se presupuesta. La carta digital (300 € + IVA) y la web premium con carta digital premium (600 € + IVA, con demo
+        gratuita) también se contratan aparte. Los gastos de envío se muestran antes de pagar.
       </p>
 
       <h2>Pedido y pago</h2>
@@ -49,9 +49,9 @@ export default function Condiciones() {
         <strong>Solo hacemos envíos nacionales</strong>, a direcciones de España. No enviamos fuera de España.
       </p>
       <ul>
-        <li>Preparación y programación: {site.shipping.prep}.</li>
+        <li>Preparamos y programamos cada pedido antes de enviarlo. El plazo de entrega te lo confirmamos al hacer el pedido.</li>
         <li>
-          Envío a {site.shipping.zone}: {site.shipping.eta}. Coste {eur(site.shipping.cost)}; gratis en pedidos desde{' '}
+          Envío a {site.shipping.zone} por {site.shipping.carrier}. Coste {eur(site.shipping.cost)}; gratis en pedidos desde{' '}
           {eur(site.shipping.freeFrom)}.
         </li>
         <li>Para Canarias, Ceuta o Melilla, consúltanos antes de pedir.</li>

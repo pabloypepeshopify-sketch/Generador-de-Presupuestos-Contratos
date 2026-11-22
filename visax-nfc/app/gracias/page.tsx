@@ -17,8 +17,8 @@ export default function ThanksPage() {
         <CheckCircle2 className="h-16 w-16 text-[#34A853]" />
         <h1 className="mt-6 font-display text-5xl">¡Pedido recibido!</h1>
         <p className="mt-4 max-w-lg text-ink-soft">
-          Te hemos enviado el recibo por email. Programamos tu NFC con el enlace que nos has indicado y sale hacia ti en{' '}
-          {site.shipping.prep}. Si nos faltaba el enlace, te escribimos antes de enviarlo.
+          Te hemos enviado el recibo por email. Programamos tu NFC con el enlace que nos has indicado y te lo enviamos por{' '}
+          {site.shipping.carrier}. Si nos faltaba el enlace, te escribimos antes de enviarlo.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link href="/" className="rounded-full border border-ink-line px-6 py-3 font-semibold transition hover:border-brand-violet/60">
