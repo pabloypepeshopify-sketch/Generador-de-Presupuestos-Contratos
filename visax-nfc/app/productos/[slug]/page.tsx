@@ -89,6 +89,25 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     </li>
                   ))}
                 </ul>
+                {p.extra.maintenance && (
+                  <div className="mt-5">
+                    <p className="text-sm font-semibold text-white">¿Te la tenemos al día? Mantenimiento opcional</p>
+                    <ul className="mt-2 divide-y divide-white/10 rounded-2xl border border-white/10 bg-bg/40">
+                      {p.extra.maintenance.map((m) => (
+                        <li key={m.name} className="flex items-start justify-between gap-4 p-4">
+                          <span>
+                            <span className="block font-semibold text-white">{m.name}</span>
+                            <span className="mt-1 block text-sm text-ink-soft">{m.note}</span>
+                          </span>
+                          <span className="shrink-0 text-right">
+                            <span className="block whitespace-nowrap font-display text-xl tabular-nums">{eurCorto(m.price)}/mes</span>
+                            <span className="block text-xs text-ink-soft">+ IVA</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <ul className={p.extra.points.length ? 'mt-5 space-y-2 text-sm' : 'hidden'}>
                   {p.extra.points.map((x) => (
                     <li key={x} className="flex gap-2">

@@ -22,7 +22,7 @@ export const faqs = [
   },
   {
     q: 'Si cambio mi carta, ¿tengo que comprar otra tarjeta?',
-    a: 'No, si tu carta digital sigue en la misma dirección web: la tarjeta abrirá siempre la versión actual. Si cambias de dirección, escríbenos.',
+    a: 'No, si tu carta digital sigue en la misma dirección web: la tarjeta abrirá siempre la versión actual. Si cambias de dirección, escríbenos. Y si quieres que los cambios te los hagamos nosotros: un cambio de carta al mes por 15 €/mes, o mantenimiento con todos los cambios por 39 €/mes (más IVA).',
   },
   {
     q: '¿Cuánto cuesta el envío?',

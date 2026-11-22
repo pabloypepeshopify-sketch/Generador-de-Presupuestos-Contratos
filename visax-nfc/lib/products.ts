@@ -37,6 +37,8 @@ export type Product = {
     points: string[];
     /** Precios del servicio (céntimos, sin IVA), se pagan aparte del NFC. */
     options: { name: string; price: number; note: string; badge?: string }[];
+    /** Cuotas mensuales opcionales (céntimos al mes, sin IVA). */
+    maintenance?: { name: string; price: number; note: string }[];
     quote: string;
     cta: string;
   };
@@ -62,6 +64,12 @@ export const LINK_FIELDS: Partial<Record<LinkKind, { key: string; label: string;
   },
 };
 export const SETUP_LATER: LinkKind[] = ['order', 'waiter', 'wifi'];
+
+/** Mantenimiento de la carta digital (y de la web o el software), opcional y al mes. */
+const MANTENIMIENTO = [
+  { name: 'Mantenimiento', price: 3900, note: 'Cambios en la carta y en todo lo demás que te hagamos, siempre que los necesites' },
+  { name: 'Un cambio de carta al mes', price: 1500, note: 'Si solo quieres actualizar la carta una vez al mes' },
+];
 
 export const products: Product[] = [
   {
@@ -98,6 +106,7 @@ export const products: Product[] = [
           note: 'Te hacemos una demo gratuita para que la veas antes de decidir',
         },
       ],
+      maintenance: MANTENIMIENTO,
       quote: 'Hola, quiero las tarjetas NFC de menú y me interesa la carta digital (o la web + carta premium con demo gratis).',
       cta: 'Quiero mi carta digital',
     },
@@ -143,6 +152,7 @@ export const products: Product[] = [
           note: 'Todo junto: la web del local, la carta y los pedidos en mesa. Con demo gratuita antes de decidir',
         },
       ],
+      maintenance: MANTENIMIENTO,
       quote: 'Hola, quiero el NFC de pedido en mesa con el software de pedidos y ver la demo gratis.',
       cta: 'Quiero el sistema de pedidos',
     },
