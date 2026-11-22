@@ -235,3 +235,11 @@ p {
   outline-offset: 3px;
   border-radius: 6px;
 }
+
+/* Carruseles sin barra de scroll visible (pestañas de sectores en móvil) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

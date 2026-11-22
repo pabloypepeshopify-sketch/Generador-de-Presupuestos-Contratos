@@ -53,7 +53,7 @@ export function Button({
     size === 'md' ? 'px-7 py-3.5 text-sm' : 'px-5 py-2.5 text-sm',
     variant === 'primary' &&
       'bg-white text-[#06060B] shadow-glow hover:bg-brand-silver',
-    variant === 'secondary' && 'border-gradient bg-bg-raise/40 text-ink hover:bg-bg-raise/80',
+    variant === 'secondary' && 'border-gradient bg-bg-raise text-ink hover:bg-bg-soft',
     variant === 'ghost' && 'text-ink-soft hover:text-ink',
     className,
   );

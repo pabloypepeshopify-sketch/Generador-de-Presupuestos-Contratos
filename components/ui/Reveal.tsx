@@ -81,13 +81,17 @@ export function RevealItem({
   children,
   className,
   direction = 'up',
+  as = 'div',
 }: {
   children: ReactNode;
   className?: string;
   direction?: Direction;
+  /** 'li' dentro de listas (<ul>/<ol>) para que el HTML sea válido */
+  as?: 'div' | 'li';
 }) {
+  const Comp = as === 'li' ? motion.li : motion.div;
   return (
-    <motion.div
+    <Comp
       className={className}
       variants={{
         hidden: { opacity: 0, ...offset[direction] },
@@ -95,6 +99,6 @@ export function RevealItem({
       }}
     >
       {children}
-    </motion.div>
+    </Comp>
   );
 }
