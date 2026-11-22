@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { site } from '@/lib/site.config';
 import { logoSvg, LOGO_VIEWBOX } from '@/lib/brand';
 
-export const alt = `${site.name} — ${site.tagline}`;
+export const alt = `${site.name} · ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -40,7 +40,8 @@ export default function OpengraphImage() {
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logoSrc} width={LOGO_W} height={Math.round((LOGO_W * LH) / LW)} alt="" />
-        <div style={{ fontSize: 32, color: '#AEB4C6', marginTop: 40 }}>{site.tagline}</div>
+        <div style={{ fontSize: 34, color: '#F5F7FB', marginTop: 44, fontWeight: 600 }}>{site.tagline}</div>
+        <div style={{ fontSize: 24, color: '#AEB4C6', marginTop: 14 }}>Socio tecnológico para empresas · Cádiz y Sevilla</div>
       </div>
     ),
     { ...size },
