@@ -2,6 +2,7 @@ import { BatteryFull, Smartphone, Truck } from 'lucide-react';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { HeroVisual } from '@/components/HeroVisual';
 import { site } from '@/lib/site.config';
+import { eur } from '@/lib/pricing';
 
 type Delay = React.CSSProperties & { '--delay'?: string };
 const delay = (sec: number): Delay => ({ '--delay': `${sec}s` });
@@ -48,7 +49,7 @@ export function Hero() {
               <BatteryFull className="h-4 w-4 text-brand-cyan" /> Sin batería ni app
             </li>
             <li className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-brand-cyan" /> Envío gratis desde 50 €
+              <Truck className="h-4 w-4 text-brand-cyan" /> Envío gratis desde {eur(site.shipping.freeFrom)}
             </li>
           </ul>
         </div>
