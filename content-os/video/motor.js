@@ -4933,7 +4933,7 @@ V['escala'] = { ...comunCapa, estilo: 'escala',
       const L = 0.8 + R5() * 0.7; const b = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, L, 8), matJ(['#e85d4a', '#3f7dfb', '#2e9e5b', '#ffb020', '#ff4d8d'][i % 5])); b.position.y = L / 2; h.add(b); const m = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), matJ(['#f2c49b', '#e9b48c', '#c98d63'][i % 3])); m.position.y = L + 0.04; h.add(m); h.userData.L = L; this.manosTierra.add(h); }
     this.espana = dirLatLon(40, -3.5);
     const c = this.c = { mano: cue('mano'), nada: cue('nada'), y: cue('y'), diez: cue('diez'), camarero: cue('camarero'), agobia: cue('agobia'), cien: cue('cien'), tiembla: cue('tiembla'), mil: cue('mil'), calle: cue('calle'),
-      millon: cue('millon'), espacio: cue('espacio'), y2: cue('y', 2), tocan: cue('tocan'), tarjeta: cue('tarjeta'), silencio: cue('silencio'), llega: cue('llega'), todo: cue('todo') };
+      millon: cue('millon'), espacio: cue('se', 2), y2: cue('y', 2), tocan: cue('tocan'), tarjeta: cue('tarjeta'), silencio: cue('silencio'), llega: cue('llega'), todo: cue('todo') };
     duracion = palabras[palabras.length - 1].fin + 0.2; c.fin = duracion;
     const T = (a, de, a2, mira, mira2, fov = 44, barrido = 0.16) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
     const M0 = r.mesas[0], cara = [M0.x, 1.45, M0.z - 0.72], X = 200, CZ = 600, E = this.espana, TZ = -3000;
@@ -4964,7 +4964,7 @@ V['escala'] = { ...comunCapa, estilo: 'escala',
   actualizar(t) {
     const c = this.c, n = this.nivel(t);
     const enBar = n <= 2 || n === 6; this.mundo.visible = enBar; this.calle.visible = n === 3; this.ciudad.visible = n === 4; this.tierra.visible = n === 5; this.sol.visible = n !== 5;
-    scene.background.set(n === 3 ? '#ff9a6b' : n === 4 ? '#8fc3ea' : n === 5 ? '#02030a' : '#1c1512'); hemi.intensity = n === 5 ? 0.6 : 1.6;
+    scene.background.set(n === 3 ? '#ff9a6b' : n === 4 ? '#8fc3ea' : n === 5 ? '#02030a' : '#1c1512'); hemi.intensity = n === 5 ? 1.5 : 1.6;
     const final = n === 6, bajan = final && t > c.silencio - 0.1;
     // sentados: mano arriba (1 → 10)
     this.sentados.forEach((m, i) => { m.reset(); m.respirar(t, i); const sube = i === 0 ? prog(t, 0.2, c.mano + 0.1) : n >= 1 ? prog(t, c.y + i * 0.03, c.y + 0.2 + i * 0.03) : 0;
