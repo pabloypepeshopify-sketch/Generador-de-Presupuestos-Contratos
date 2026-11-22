@@ -8,6 +8,8 @@ import { PorQue } from '@/components/sections/PorQue';
 import { Testimonios } from '@/components/sections/Testimonios';
 import { PortalPreview } from '@/components/sections/PortalPreview';
 import { FAQ } from '@/components/sections/FAQ';
+import { Diagnostico } from '@/components/sections/Diagnostico';
+import { Visita } from '@/components/sections/Visita';
 
 export default function HomePage() {
   return (
@@ -22,6 +24,8 @@ export default function HomePage() {
       <Testimonios />
       <PortalPreview />
       <FAQ />
+      <Diagnostico />
+      <Visita />
     </>
   );
 }
