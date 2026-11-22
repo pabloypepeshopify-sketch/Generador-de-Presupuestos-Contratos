@@ -11,6 +11,9 @@ const POS = [
   { style: { left: '0%', top: '50%' }, cls: '-translate-y-1/2' },
 ];
 
+// En móvil la etiqueta larga taparía el centro: versión corta.
+const CORTO = ['Analizamos', 'Detectamos', 'Implementamos', 'Mejoramos'];
+
 // Arcos entre fases (órbita de radio 140 centrada en 200,200), en sentido horario.
 const ARCOS = [
   'M243.3 66.9 A140 140 0 0 1 333.1 156.7',
@@ -67,7 +70,8 @@ export function HeroCycle() {
             <span className="node-pulse flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white" style={{ '--delay': `${i * 0.8}s` } as React.CSSProperties}>
               <f.icon className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
-            {f.title}
+            <span className="hidden sm:inline">{f.title}</span>
+            <span className="sm:hidden">{CORTO[i]}</span>
           </div>
         </div>
       ))}

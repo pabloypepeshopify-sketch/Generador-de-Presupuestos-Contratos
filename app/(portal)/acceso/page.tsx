@@ -58,9 +58,12 @@ export default function AccesoPage() {
             </a>
           </div>
 
-          <Link href="/#diagnostico" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
-            ¿Aún no eres cliente? Solicita tu diagnóstico inicial <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          <p className="mt-8">
+            <Link href="/#diagnostico" className="text-sm font-semibold text-accent hover:underline">
+              ¿Aún no eres cliente? Solicita tu diagnóstico inicial{' '}
+              <ArrowRight className="inline h-4 w-4 align-[-3px]" aria-hidden="true" />
+            </Link>
+          </p>
         </div>
 
         <div className="rounded-card-lg border border-ink-line bg-bg-soft/70 p-6 sm:p-8">

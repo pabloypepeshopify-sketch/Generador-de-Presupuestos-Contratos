@@ -41,7 +41,7 @@ export default function OpengraphImage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logoSrc} width={LOGO_W} height={Math.round((LOGO_W * LH) / LW)} alt="" />
         <div style={{ fontSize: 34, color: '#F5F7FB', marginTop: 44, fontWeight: 600 }}>{site.tagline}</div>
-        <div style={{ fontSize: 24, color: '#AEB4C6', marginTop: 14 }}>Socio tecnológico para empresas · Cádiz y Sevilla</div>
+        <div style={{ fontSize: 24, color: '#AEB4C6', marginTop: 14 }}>Inteligencia artificial y tecnología para empresas · Cádiz y Sevilla</div>
       </div>
     ),
     { ...size },
