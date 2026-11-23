@@ -5375,6 +5375,7 @@ V['km'] = { ...comunCapa, estilo: 'km',
     foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fff4e6'); hemi.groundColor.set('#4a3a30'); hemi.intensity = 1.7;
     const sol = this.sol = new THREE.DirectionalLight('#ffe8cc', 1.9); sol.position.set(-4, 12, 4); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 }); sol.shadow.bias = -0.0005; scene.add(sol);
     renderer.toneMappingExposure = 1.08;
+    this.focoK = new THREE.SpotLight('#fff1d6', 0, 9, 0.5, 0.5, 1.2); this.focoK.position.set(-0.8, 2.25, -2.7); this.focoK.target.position.set(-0.8, 1.35, -4.6); scene.add(this.focoK, this.focoK.target);
     const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'taberna' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
     // vista cenital: fuera techo, vigas, lámparas y la pared de la calle (se cambia por un murete con hueco a la terraza)
     r.mundo.updateMatrixWorld(true); const bx = new THREE.Box3(); let silla0 = null;
@@ -5426,7 +5427,7 @@ V['km'] = { ...comunCapa, estilo: 'km',
   pos(t) { const c = this.c; if (t < c.finReb) return this.posRuta(this.rutaA, this.tA(t)); return this.posRuta(this.rutaB, t); },
   actualizar(t) {
     const c = this.c, k = this.camarero, abierto = t >= c.abrimos;
-    this.sol.intensity = abierto ? 1.9 : 0.35; hemi.intensity = abierto ? 1.7 : 0.45;
+    this.sol.intensity = abierto ? 1.9 : 0.35; hemi.intensity = abierto ? 1.7 : 0.55; this.focoK.intensity = abierto ? 0 : 15;
     this.gente.forEach((g, i) => { g.reset(); g.respirar(t, i); if (Math.sin(t * 1.3 + i * 2) > 0.2) g.hablar(t + i); const s = abierto ? clamp(rebote(clamp((t - c.abrimos - (i % 6) * 0.05) / 0.35))) : 0; g.g.visible = s > 0.01; g.g.scale.setScalar(Math.max(0.01, Math.min(1.08, s))); });
     this.cocinero.reset(); this.cocinero.respirar(t, 4);
     // camarero
@@ -5485,7 +5486,7 @@ V['km'] = { ...comunCapa, estilo: 'km',
     if (reb) { C.save(); C.globalCompositeOperation = 'saturation'; C.fillStyle = 'rgba(128,128,128,0.7)'; C.fillRect(0, 0, W, H); C.restore(); C.fillStyle = 'rgba(255,255,255,0.06)'; for (let y = (t * 900) % 12; y < H; y += 12) C.fillRect(0, y, W, 3);
       const yb = (t * 1400) % H; C.fillStyle = 'rgba(255,255,255,0.18)'; C.fillRect(0, yb, W, 26); C.save(); C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'left'; C.fillStyle = '#fff'; C.shadowColor = '#000'; C.shadowBlur = 12; C.fillText('◀◀ REBOBINA', 60, 560); C.restore(); }
     // título
-    if (t < c.abrimos) { const k = entra(t, 0.02); C.save(); C.translate(W / 2, 230); C.scale(k, k); C.font = `900 76px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
+    if (t < c.abrimos) { const k = entra(t, -0.45); C.save(); C.translate(W / 2, 230); C.scale(k, k); C.font = `900 76px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
       ['¿CUÁNTOS KM ANDA', 'UN CAMARERO', 'EN UN SÁBADO?'].forEach((l, i) => { const y = i * 100, w = C.measureText(l).width + 50; C.fillStyle = i === 2 ? '#ffd34d' : 'rgba(255,255,255,0.95)'; rr(C, -w / 2, y - 48, w, 96, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, y + 3); }); C.restore(); }
     // marcador: reloj + km (rojo sin tarjeta, verde con tarjeta)
     const hud = t >= c.abrimos && t < c.hasta - 0.1;
