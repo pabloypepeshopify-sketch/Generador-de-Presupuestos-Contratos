@@ -151,6 +151,12 @@ const ESTILOS = {
   // escala: «¿qué pasa si… levantan la mano?»; subtítulos blancos sobre píldora amarilla/naranja abajo
   escala: { post: { filtro: 'saturate(1.18) contrast(1.07) brightness(1.02)' },
     subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff8a00', '#ffc400'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
+  // esquivo: taberna, subtítulos grandes abajo (arriba va el texto fijo del meme)
+  esquivo: { post: { filtro: 'saturate(1.15) contrast(1.07)' },
+    subs: { tam: 80, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#e8a91c', '#c8402a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
+  // chasquido: bar moderno de noche; subtítulos grandes abajo (arriba va la opción y su nota)
+  chasquido: { post: { brillo: 0.12, desenfoqueBrillo: 12, filtro: 'saturate(1.15) contrast(1.08)' },
+    subs: { tam: 78, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d9a', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
