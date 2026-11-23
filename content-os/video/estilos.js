@@ -163,6 +163,9 @@ const ESTILOS = {
   // km: vista cenital con rastro de luz; subtítulos naranja/rojo abajo (arriba va el marcador)
   km: { post: { brillo: 0.22, desenfoqueBrillo: 10, filtro: 'saturate(1.18) contrast(1.07) brightness(1.02)' },
     subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff5a1f', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
+  // martes: thriller nocturno en bar moderno; subtítulos sobrios (cocinero k en salmón, crítico c en blanco)
+  martes: { post: { brillo: 0.15, desenfoqueBrillo: 10, filtro: 'saturate(1.05) contrast(1.12) brightness(0.98)' },
+    subs: { tam: 58, fuente: tam => `800 ${tam}px Inter, sans-serif`, pill: ['#ff3b4d', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 12, y: 1560, voces: { k: '#ffc2b0', c: '#ffffff' } } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

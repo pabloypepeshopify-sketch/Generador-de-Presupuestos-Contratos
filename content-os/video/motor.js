@@ -5521,6 +5521,129 @@ V['km'] = { ...comunCapa, estilo: 'km',
   },
 };
 
+// ---------- «MARTES, 23:58»: thriller de cocina a punto de cerrar; insultos, plato volando y giro: es un crítico ----------
+V['martes'] = { ...comunCapa, estilo: 'martes',
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    ['listo', 'doce', 'minutos', 'payaso', 'mar', 'critico', 'diez', 'postre'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#0d1013'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#cfe0ff'); hemi.groundColor.set('#2a2228'); hemi.intensity = 1.45;
+    const sol = new THREE.DirectionalLight('#bcd2ff', 1.4); sol.position.set(-4, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 36 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.1;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'moderno' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p); this.gente.forEach(g => (g.g.visible = false)); this.camarero.g.visible = false;
+    const k = this.cocinero; k.cejas.forEach(ce => (ce.rotation.z = 0));
+    // luz cálida de la cocina y foco sobre la mesa del crítico
+    this.luzMesa = new THREE.SpotLight('#ffd9a0', 30, 8, 0.5, 0.6, 1.4); this.luzMesa.position.set(0.2, 3.3, -4.0); this.luzMesa.target.position.set(0.2, 0.8, -3.9); scene.add(this.luzMesa, this.luzMesa.target);
+    const luzPuerta = new THREE.PointLight('#ffd9a8', 14, 7, 1.5); luzPuerta.position.set(1.4, 2.7, 2.4); scene.add(luzPuerta);
+    this.fuegoLuz = new THREE.PointLight('#ff7a1a', 0, 4, 1.5); this.fuegoLuz.position.set(2.5, 1.5, -8.0); scene.add(this.fuegoLuz);
+    // crítico: traje oscuro, gafas y bigote fino
+    const cr = this.critico = muneco({ camisa: '#2b2f3a', pantalon: '#1d1b22', pelo: '#15151a', peinado: 'corto', piel: '#f0c29a' }); gafas(cr); bigote(cr, '#15151a'); r.mundo.add(cr.g);
+    // carnet de crítico
+    const tex = texK(512, 320, (x, w, h) => { x.fillStyle = '#f7f1e3'; x.fillRect(0, 0, w, h); x.fillStyle = '#7a1f2b'; x.fillRect(0, 0, w, 70); x.fillStyle = '#fff'; x.font = '800 40px Inter, Arial'; x.textAlign = 'center'; x.fillText('CRÍTICO', w / 2, 50);
+      x.fillStyle = '#1d1b22'; x.font = '800 44px Inter, Arial'; x.fillText('GASTRONÓMICO', w / 2, 150); x.fillStyle = '#c9a44a'; x.font = '900 70px Inter, Arial'; x.fillText('★ ★ ★', w / 2, 250); x.fillStyle = '#555'; x.font = '600 24px Inter, Arial'; x.fillText('ACREDITACIÓN 2026', w / 2, 300); });
+    const carnet = this.carnet = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.125, 0.006), [matJ('#e8e0d0'), matJ('#e8e0d0'), matJ('#e8e0d0'), matJ('#e8e0d0'), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.5 }), matJ('#e8e0d0')]);
+    carnet.rotation.y = Math.PI; carnet.scale.setScalar(1.3); r.mundo.add(carnet);
+    // sartén con llamas y plato estrella
+    const sarten = this.sarten = new THREE.Group(); sarten.add(enK(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.05, 24), matJ('#26262b', 0.4)), 0, 0, 0)); const mango = enK(caja(0.04, 0.025, 0.3, '#1a1a1e', 0.01), 0, 0.01, -0.28); sarten.add(mango);
+    this.trozos = Array.from({ length: 6 }, (_, i) => { const q = caja(0.05, 0.04, 0.05, i % 2 ? '#e7a64a' : '#c9361f', 0.012); sarten.add(q); return q; });
+    sarten.position.set(0, -0.1, 0.32); k.bD.mano.add(sarten);
+    this.llamas = Array.from({ length: 7 }, (_, i) => { const m = new THREE.Mesh(new THREE.ConeGeometry(0.05 + (i % 3) * 0.02, 0.3, 10), new THREE.MeshBasicMaterial({ color: i % 2 ? '#ffb020' : '#ff5a1f', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })); r.mundo.add(m); return m; });
+    const plato = this.plato = bravas(); plato.scale.setScalar(1.25); r.mundo.add(plato);
+    this.vapor = Array.from({ length: 5 }, () => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.4, depthWrite: false })); r.mundo.add(m); return m; });
+    const w = palabras, c = this.c = { buenas: cue('buenas'), se: cue('se'), tu: cue('tu'), que: cue('que'), aun: cue('aun'), sera: cue('sera'), me: cue('me'), critico: cue('critico'), un: cue('un'), le: cue('le') };
+    c.fin = w[w.length - 1].fin + 0.55; duracion = c.fin; c.sienta = 3.7; c.coc0 = c.sera + 0.05; c.fogon = c.sera + 0.45; c.coge = c.critico - 1.25; c.lanza = c.critico - 0.95; c.aterriza = c.critico - 0.4; c.reloj = c.me + 0.65;
+    // recorrido del crítico (pasillo entre mesas, comprobado con vigilarPaso)
+    this.ruta = polilinea([[1.6, 4.7], [1.6, 3.2], [1.4, 1.0], [1.4, -1.6], [1.15, -3.0], [0.8, -3.45]]);
+    this.cortes = [0, c.se - 0.1, c.tu - 0.08, c.que - 0.06, c.aun - 0.1, c.sera - 0.08, c.fogon, c.me - 0.05, c.reloj, c.lanza, c.aterriza - 0.08, c.critico + 0.1, c.un - 0.08, c.le - 0.1, c.fin - 0.3];
+    efectos = [['tick', 0.05], ['hit', 0.1], ['tick', 1.05], ['clink', 0.55], ['ding', 0.6], ['tick', 2.05], ['tick', 3.05], ['hit', c.tu], ['tick', 4.05], ['tick', 5.05], ['hit', c.que + 0.6], ['tick', 6.05], ['tick', 7.05],
+      ['whoosh', c.sera - 0.1], ['riser', c.fogon - 0.5], ['hit', c.fogon], ['fuego', c.fogon], ['fuego', c.me], ['tick', c.reloj], ['tick', c.reloj + 0.25], ['tick', c.reloj + 0.5], ['whoosh', c.lanza], ['riser', c.lanza - 0.3],
+      ['hit', c.aterriza], ['clink', c.aterriza + 0.02], ['tick', c.critico + 0.3], ['pop', c.critico + 0.6], ['ding', c.un + 0.1], ['hit', c.un], ['whoosh', c.le - 0.12], ['ding', c.fin - 0.35]];
+    this.musica = 'guitarra_bar'; this.volMusica = 0.3; this.silencioMusica = [c.reloj - 0.05, c.aterriza];
+  },
+  hora(t) { const c = this.c; const s = t < c.aterriza ? lerp(23 * 3600 + 58 * 60 + 2, 23 * 3600 + 59 * 60 + 59, clamp(t / c.aterriza)) : t < c.le ? 23 * 3600 + 59 * 60 + 59 : 24 * 3600;
+    const hh = Math.floor(s / 3600) % 24, mm = Math.floor(s / 60) % 60, ss = Math.floor(s) % 60; return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`; },
+  actualizar(t) {
+    const c = this.c, k = this.cocinero, cr = this.critico, M = this.mesas[5];
+    const habla = q => palabras.some(w => w.q === q && t >= w.t && t < w.fin + 0.04);
+    // puerta
+    if (this.puerta) this.puerta.rotation.y = -1.3 * Math.sin(Math.PI * clamp((t - 0.2) / 1.6));
+    // crítico: entra, se sienta, espera, come, enseña el carnet
+    cr.reset(); cr.cejas.forEach(ce => (ce.rotation.z = 0)); this.carnet.visible = t > c.critico - 0.05;
+    if (t < c.sienta) { cr.sentado = false; const u = clamp((t - 0.25) / (c.sienta - 0.25)); const [x, z] = this.ruta.at(u); const [x2, z2] = this.ruta.at(Math.min(1, u + 0.01)); cr.g.position.set(x, 0, z); cr.g.rotation.y = Math.atan2(x2 - x, z2 - z); cr.andar(t * 1.7, 0.9); }
+    else { cr.sentar(); const q = prog(t, c.sienta, c.sienta + 0.3); cr.g.position.set(lerp(0.8, 0.2, q), 0, lerp(-3.45, -3.48, q)); cr.g.rotation.y = lerp(Math.PI * 0.85, Math.PI, q); cr.respirar(t, 1); }
+    if (entre(t, c.reloj - 0.1, c.lanza)) { cr.bI.hombro.rotation.set(-1.25, 0, 0.5); cr.bI.codo.rotation.x = -1.2; cr.cabeza.rotation.set(0.35, -0.3, 0); }
+    if (t > c.aterriza && t < c.critico) { cr.bD.hombro.rotation.set(-0.9 + Math.sin(t * 9) * 0.25, 0, 0); cr.bD.codo.rotation.x = -1.2; cr.cabeza.rotation.x = 0.3; }
+    if (t > c.critico - 0.05) { const q = prog(t, c.critico - 0.05, c.critico + 0.25); cr.bD.hombro.rotation.set(lerp(-0.4, -1.35, q), 0, lerp(0, 0.45, q)); cr.bD.codo.rotation.x = lerp(-0.3, -0.6, q); this.carnet.position.set(lerp(0.1, 0.36, q), lerp(0.9, 1.2, q), -3.95); this.carnet.rotation.set(-0.15, Math.PI, 0.08); }
+    if (t > c.un - 0.05) { cr.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * -0.2)); }
+    if (habla('c')) cr.hablar(t, 0.75); else if (t > c.un + 0.6) cr.boca.scale.set(1.4, 0.35, 0.5);
+    // cocinero: en el pase, se gira al fogón, cocina con llamas, lanza el plato, y al final… educadísimo
+    k.reset(); k.cejas.forEach(ce => { ce.rotation.z = 0; ce.position.y = 0.1; }); k.boca.scale.set(1, 0.25, 0.5); this.sarten.visible = false;
+    const pase = [2.8, -6.85], fogon = [2.35, -7.75]; let pos = pase, giro = 0;
+    if (t < c.coc0) { giro = Math.atan2(cr.g.position.x - pase[0], cr.g.position.z - pase[1]) * (t < 0.6 ? 0 : 1); k.respirar(t, 4); }
+    else if (t < c.fogon) { const q = prog(t, c.coc0, c.fogon); pos = [lerp(pase[0], fogon[0], q), lerp(pase[1], fogon[1], q)]; giro = lerp(0, Math.PI, q); k.andar(t * 3, 1); }
+    else if (t < c.coge) { pos = fogon; giro = Math.PI; this.sarten.visible = true; const s = Math.sin(t * 16); k.bD.hombro.rotation.set(-1.0 + s * 0.35, 0, 0.1); k.bD.codo.rotation.x = -0.7; k.bI.hombro.rotation.set(-1.4, 0, -0.3 + Math.sin(t * 21) * 0.4); k.bI.codo.rotation.x = -1.0; k.raiz.rotation.z = Math.sin(t * 8) * 0.06;
+      this.trozos.forEach((q, i) => { const f = (t * 2.2 + i / 6) % 1; q.position.set(Math.cos(i * 2.1) * 0.08, 0.04 + Math.sin(Math.PI * f) * 0.35, Math.sin(i * 2.1) * 0.08); q.rotation.set(t * 9 + i, t * 7, 0); }); }
+    else if (t < c.aterriza + 0.2) { const q = prog(t, c.coge, c.lanza); pos = [lerp(fogon[0], pase[0], q), lerp(fogon[1], pase[1], q)]; giro = lerp(Math.PI, Math.atan2(0.2 - pase[0], -3.85 - pase[1]) + Math.PI * 2, q); if (t < c.lanza) k.andar(t * 3, 1);
+      const qa = prog(t, c.lanza - 0.15, c.lanza + 0.15); k.bD.hombro.rotation.set(lerp(-0.6, -2.4, qa), 0, 0); k.bD.codo.rotation.x = lerp(-1.3, -0.1, qa); }
+    else { pos = pase; giro = Math.atan2(cr.g.position.x - pase[0], cr.g.position.z - pase[1]); k.respirar(t, 4); }
+    k.g.position.set(pos[0], 0, pos[1]); k.g.rotation.y = giro;
+    const enfadado = t < c.coge; if (enfadado && t > c.tu - 0.1) { k.cejas.forEach((ce, q) => { ce.rotation.z = (q ? 1 : -1) * 0.6; ce.position.y = 0.08; }); }
+    if (entre(t, c.tu, c.coc0)) { k.bD.hombro.rotation.set(-1.6, 0, 0.1); k.bD.codo.rotation.x = -0.3 + Math.sin(t * 10) * 0.15; }
+    if (t > c.aterriza + 0.5 && t < c.le - 0.1) { k.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.35)); k.boca.scale.set(1.0, 0.6, 0.5); k.cabeza.rotation.x = -0.05; }
+    if (t > c.le - 0.1) { k.cejas.forEach((ce, q) => { ce.rotation.z = (q ? -1 : 1) * 0.3; ce.position.y = 0.13; }); k.bD.hombro.rotation.set(-0.5, 0, 0.6); k.bD.codo.rotation.x = -1.5; k.cabeza.rotation.z = 0.15; k.raiz.rotation.x = 0.1; if (!habla('k')) k.boca.scale.set(1.8, 0.35, 0.5); }
+    if (habla('k')) k.hablar(t, 1); if (habla('k') && t < c.coge) k.boca.scale.x = 1.5;
+    // llamas
+    const fuego = entre(t, c.fogon, c.coge); this.fuegoLuz.intensity = fuego ? 10 + Math.sin(t * 37) * 4 : 0; k.g.updateMatrixWorld(true); const ps = this.sarten.getWorldPosition(new THREE.Vector3());
+    this.llamas.forEach((m, i) => { m.visible = fuego; const f = (t * 3 + i / 7) % 1; m.position.set(ps.x + Math.cos(i * 2.3) * 0.08, ps.y + 0.12 + f * 0.35 * (1 + (i % 3) * 0.4), ps.z + Math.sin(i * 2.3) * 0.08); m.scale.setScalar(1.2 * (1 - f) + 0.2); m.material.opacity = 0.9 * (1 - f); });
+    // plato: en la mano, vuela, aterriza
+    const pl = this.plato, ini = new THREE.Vector3(2.75, 1.45, -6.45), fin = new THREE.Vector3(0.2, 0.8, -3.9); pl.visible = t > c.coge;
+    if (t < c.lanza) { k.bD.mano.getWorldPosition(pl.position); pl.position.y += 0.05; pl.rotation.set(0, 0, 0); }
+    else if (t < c.aterriza) { const q = (t - c.lanza) / (c.aterriza - c.lanza); pl.position.lerpVectors(ini, fin, q); pl.position.y += Math.sin(Math.PI * q) * 1.3; pl.rotation.set(0, q * Math.PI * 4, Math.sin(q * Math.PI) * 0.3); }
+    else { pl.position.copy(fin); pl.rotation.set(0, 0, 0); }
+    this.vapor.forEach((v, i) => { const f = (t * 0.7 + i / 5) % 1; v.visible = t > c.aterriza; v.position.set(fin.x + Math.sin(i * 2 + t) * 0.05, fin.y + 0.1 + f * 0.5, fin.z + Math.cos(i * 3) * 0.05); v.scale.setScalar(0.4 + f * 0.8); v.material.opacity = 0.22 * (1 - f); });
+    // cámara
+    let n = 0; this.cortes.forEach((a, i) => { if (t >= a) n = i; }); const d = t - this.cortes[n]; let fov = 42; cam.up.set(0, 1, 0);
+    const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); fov = f; };
+    const cp = cr.g.position, kp = k.g.position;
+    switch (n) {
+      case 0: case 14: pon(-0.4, 1.7, -1.6 + (n ? 0 : d * 0.1), 1.5, 1.35, 3.6, 46); break;
+      case 1: { const [x, z] = [cp.x, cp.z]; pon(x - 0.3, 1.65, z - 2.3, x, 1.4, z, 42); break; }
+      case 2: pon(2.75, 1.65, -4.55 + d * 0.08, 2.8, 1.6, -6.85, 40); break;
+      case 3: pon(2.2, 1.05, -4.7, 2.8, 1.6, -6.85, 44); break;
+      case 4: pon(0.45, 1.45, -4.8 + d * 0.04, 0.2, 1.25, -3.48, 46); break;
+      case 5: pon(3.5, 1.7, -5.1, 2.6, 1.35, -7.3, 46); break;
+      case 6: pon(3.3, 1.95, -7.2, 2.4, 1.1, -8.1, 52); break;
+      case 7: pon(2.5, 1.65, -8.6, 2.35, 1.4, -7.75, 56); break;
+      case 8: pon(0.95, 1.4, -4.35, 0.2, 1.2, -3.48, 44); break;
+      case 9: { pl.updateMatrixWorld(true); const pp = pl.position; pon(-0.6, 1.9, -4.9, pp.x, pp.y, pp.z, 50); break; }
+      case 10: pon(0.8, 1.1, -4.35, 0.2, 0.85, -3.9, 40); break;
+      case 11: pon(0.55, 1.5, -4.95, 0.15, 1.2, -3.48, 50); break;
+      case 12: pon(-0.45, 1.5, -4.9, 0.2, 1.15, -3.5, 48); break;
+      case 13: pon(2.75, 1.65, -4.7 + d * 0.05, 2.8, 1.6, -6.85, 40); break;
+    }
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    this.desenfoque = n > 0 && d < 0.1 ? 10 * (1 - d / 0.1) : 0;
+    vigilarCamara(t, [k, cr]); vigilarPaso(t, cr, this.mesas, [k]);
+  },
+  fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0; for (const g of [c.tu, c.fogon, c.aterriza, c.un]) { const d = t - g; if (d >= 0 && d < 0.3) { temblor = Math.max(temblor, (1 - d / 0.3) * 12); zoom = Math.max(zoom, 1 + 0.07 * (1 - d / 0.3)); } if (d >= 0 && d < 0.1) flash = Math.max(flash, 0.5 * (1 - d / 0.1)); }
+    return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; vineta();
+    // reloj de suspense
+    const tension = t < c.aterriza; const h = this.hora(t); C.save(); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `800 64px "DejaVu Sans Mono", monospace`;
+    const rojo = tension && t > c.reloj - 0.1, late = Math.sin(t * Math.PI * 2) > 0; C.fillStyle = 'rgba(0,0,0,0.55)'; rr(C, W / 2 - 190, 200, 380, 92, 16); C.fill();
+    C.fillStyle = t >= c.le ? '#22e07a' : rojo && late ? '#ff3b4d' : '#ffffff'; C.shadowColor = rojo ? '#ff3b4d' : 'rgba(0,0,0,0)'; C.shadowBlur = 20; C.fillText(h, W / 2, 248); C.restore();
+    if (t < 1.7) { const k = Math.min(prog(t, 0, 0.35), 1 - prog(t, 1.4, 1.7)); C.save(); C.globalAlpha = k; C.fillStyle = 'rgba(0,0,0,0.3)'; C.fillRect(0, 0, W, H); C.textAlign = 'center'; C.textBaseline = 'middle';
+      C.fillStyle = '#f2f2f2'; C.font = `600 150px Fraunces, Georgia, serif`; C.fillText('MARTES,', W / 2, 820); C.fillStyle = '#ff3b4d'; C.font = `600 170px "DejaVu Sans Mono", monospace`; C.fillText('23:58', W / 2, 1000);
+      C.font = `italic 600 44px Fraunces, Georgia, serif`; C.fillStyle = 'rgba(255,255,255,0.8)'; C.fillText('La cocina cierra a las 00:00', W / 2, 1140); C.restore(); }
+    if (t > c.un - 0.05 && t < c.le) sello('10 / 10', clamp((t - c.un + 0.05) / 0.25), '#ffd34d', -0.1, 130, 560);
+    if (t > c.le + 0.4) { const k = entra(t, c.le + 0.4); C.save(); C.translate(W / 2, 430); C.scale(k, k); C.font = `900 58px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const l = '¿Tú le habrías dado de cenar?'; const w2 = C.measureText(l).width + 50;
+      C.fillStyle = 'rgba(255,255,255,0.95)'; rr(C, -w2 / 2, -46, w2, 92, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, 3); C.restore(); }
+    C.fillStyle = '#000'; C.fillRect(0, 0, W, 150); C.fillRect(0, H - 150, W, 150);
+  },
+};
+
 window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };

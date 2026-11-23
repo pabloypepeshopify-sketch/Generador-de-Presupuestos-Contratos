@@ -46,6 +46,7 @@ const SFX = {
   murmullo1: ['anoisesrc=c=pink:d=2.0:a=0.4', 'bandpass=f=600:w=500,tremolo=f=5:d=0.4,afade=t=in:d=0.3,afade=t=out:st=1.6:d=0.4,volume=0.35'],
   murmullo2: ['anoisesrc=c=pink:d=2.4:a=0.5', 'bandpass=f=700:w=700,tremolo=f=7:d=0.5,afade=t=in:d=0.2,afade=t=out:st=2.0:d=0.4,volume=0.6'],
   murmullo3: ['anoisesrc=c=pink:d=3.8:a=0.6', 'bandpass=f=800:w=900,tremolo=f=9:d=0.5,afade=t=in:d=0.2,afade=t=out:st=3.3:d=0.5,volume=0.8'],
+  fuego: ['anoisesrc=c=brown:d=1.4:a=0.6', 'highpass=f=300,lowpass=f=3500,tremolo=f=13:d=0.6,afade=t=in:d=0.1,afade=t=out:st=1.0:d=0.4,volume=0.8'],
   riser: ['anoisesrc=c=white:d=1.0:a=0.35', 'highpass=f=600,afade=t=in:d=0.95:curve=exp,afade=t=out:st=0.95:d=0.05,volume=0.6'],
 };
 const dirSfx = path.join(DIR, '.sfx'); await mkdir(dirSfx, { recursive: true });
