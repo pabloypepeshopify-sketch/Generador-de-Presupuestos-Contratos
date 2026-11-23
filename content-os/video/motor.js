@@ -4417,6 +4417,13 @@ function vigilarCamara(t, munecos) {
     for (let [o, r] of puntos) { o.getWorldPosition(v); if (o === m.raiz) { v.y += 1.08; r = 0.42; } const d = v.distanceTo(cam.position); if (d < r) console.warn(`CHOQUE t=${t.toFixed(2)} d=${d.toFixed(2)}`); }
   }
 }
+// Avisa si un muñeco atraviesa una mesa, una silla o a otra persona (para corregir trayectorias en las muestras).
+function vigilarPaso(t, m, mesas, otros = []) {
+  if (!m || !m.g.visible) return; const p = m.g.position;
+  for (const me of mesas) { const d = Math.hypot(p.x - me.x, p.z - me.z); if (d < 0.75 && p.y < 0.75) console.warn(`CRUCE mesa t=${t.toFixed(2)} d=${d.toFixed(2)}`);
+    for (const dz of [-0.78, 0.78]) { const dc = Math.hypot(p.x - me.x, p.z - (me.z + dz)); if (dc < 0.45 && p.y < 0.9) console.warn(`CRUCE silla t=${t.toFixed(2)} d=${dc.toFixed(2)}`); } }
+  for (const o of otros) { if (!o || o === m || !o.g.visible) continue; const q = o.g.position; const d = Math.hypot(p.x - q.x, p.z - q.z); if (d < 0.5 && Math.abs(p.y - q.y) < 1.4) console.warn(`CRUCE persona t=${t.toFixed(2)} d=${d.toFixed(2)}`); }
+}
 function mosca() {
   const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), matJ('#15151a', 0.4)));
   const ala = new THREE.MeshBasicMaterial({ color: '#dfe8ff', transparent: true, opacity: 0.6, side: THREE.DoubleSide });
@@ -5035,16 +5042,16 @@ V['esquivo'] = { ...comunCapa, estilo: 'esquivo',
     this.humo = [0, 1, 2, 3, 4, 5].map(() => { const v = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshBasicMaterial({ color: '#dddddd', transparent: true, opacity: 0.5, depthWrite: false })); r.mundo.add(v); return v; });
     this.flash = [0, 1].map(() => { const v = new THREE.Mesh(new THREE.SphereGeometry(0.6, 20, 14), new THREE.MeshBasicMaterial({ color: '#7fe8ff', transparent: true, opacity: 0, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending })); r.mundo.add(v); return v; });
     const pal = palabras; const s = this.s = [0, 1, 2, 3, 4, 5].map(i => [0, 1, 2, 3, 4, 6].map(j => pal[j].t)[i]);
-    const c = this.c = { s, cuentaFin: pal[pal.length - 1].fin, toca: pal[pal.length - 1].fin + 0.25 }; c.cae = c.toca + 0.85; c.fin = c.cae + 1.25; duracion = c.fin;
+    const cl = pal.filter(w => w.q !== 'k'), kk = pal.filter(w => w.q === 'k'); const c = this.c = { s, cuentaFin: cl[cl.length - 1].fin, toca: cl[cl.length - 1].fin + 0.25 }; c.cae = c.toca + 0.85; c.fin = Math.max(c.cae + 1.25, kk.length ? kk[kk.length - 1].fin + 0.45 : 0); duracion = c.fin;
     const cara = [M.x, 1.42, M.z - 0.72], mano = [M.x + 0.38, 1.85, M.z - 0.6];
     const T = (a, de, a2, mira, mira2, fov = 44, barrido = 0.12) => ({ a, de, a2, mira, mira2: mira2 || mira, fov, barrido });
     const caras = [[[0.9, 1.55, 0.95], [0.7, 1.5, 0.7]], [[-0.85, 1.6, 0.85], [-0.65, 1.55, 0.65]], [[0.2, 1.25, 1.0], [0.15, 1.3, 0.75]], [[1.05, 1.75, 0.55], [0.85, 1.7, 0.35]], [[-1.0, 1.4, 0.6], [-0.8, 1.42, 0.42]], [[0.0, 1.5, 0.95], [0.0, 1.48, 0.55]]];
     const accion = [
-      [[-2.2, 1.15, 3.9], [2.2, 1.15, 3.9], [-2.0, 1.0, 0.95], [2.4, 1.0, 0.95], 50],
+      [[-2.2, 1.2, 3.95], [2.2, 1.2, 3.95], [-2.0, 1.0, 1.65], [2.4, 1.0, 1.65], 50],
       [[1.3, 0.55, 2.0], [1.5, 0.6, 1.8], [-0.6, 1.8, -0.5], [0.8, 1.8, -0.5], 54],
-      [[-0.2, 2.7, -2.7], [-3.5, 2.7, -2.7], [-1.4, 1.5, -5.35], [-4.7, 1.5, -5.35], 50],
+      [[0.5, 0.75, 3.8], [-0.5, 0.75, 3.8], [0.7, 0.8, 2.2], [-0.7, 0.8, 2.2], 64],
       [[0.0, 1.9, 4.2], [0.0, 1.8, 3.85], [0.0, 1.0, -0.4], [0.0, 1.0, -0.4], 54],
-      [[0.9, 1.1, 2.3], [0.7, 1.15, 2.1], [-1.0, 2.3, -0.8], [1.0, 2.3, -0.8], 62],
+      [[0.9, 1.15, 1.2], [0.7, 1.2, 1.0], [-1.0, 2.1, -1.7], [1.0, 2.1, -1.7], 62],
     ];
     this.tomas = []; for (let i = 0; i < 6; i++) { this.tomas.push(T(s[i] - 0.05, caras[i][0], caras[i][1], cara, i === 5 ? mano : cara, 40, i === 0 ? 0 : 0.1)); if (i < 5) this.tomas.push(T(s[i] + 0.52, accion[i][0], accion[i][1], accion[i][2], accion[i][3], accion[i][4], 0.12)); }
     this.tomas.push(T(s[5] + 0.55, [1.6, 1.5, 1.2], [1.6, 1.5, 1.2], cara, cara, 46, 0)); // bullet time (la cámara la mueve actualizar)
@@ -5062,26 +5069,26 @@ V['esquivo'] = { ...comunCapa, estilo: 'esquivo',
     this.gente.forEach((g, i) => { g.reset(); g.respirar(t, i); if (Math.sin(t * 1.3 + i * 2) > 0.2) g.hablar(t + i); }); this.cocinero.reset(); this.cocinero.respirar(t, 4);
     // cliente: mano arriba cada vez más desesperado
     yo.reset(); yo.respirar(t, 1); const idx = s.filter(x => t >= x - 0.1).length - 1, deses = clamp(idx / 5);
-    const habla = palabras.some(w => t >= w.t && t < w.fin + 0.05);
+    const habla = palabras.some(w => w.q !== 'k' && t >= w.t && t < w.fin + 0.05), hablaK = palabras.some(w => w.q === 'k' && t >= w.t && t < w.fin + 0.05);
     if (t < c.toca) { const sac = Math.sin(t * (6 + idx * 3)) * (0.08 + deses * 0.2); yo.bD.hombro.rotation.set(-2.75 + sac, 0, 0.32); yo.bD.codo.rotation.x = -0.15; if (idx >= 3) { yo.bI.hombro.rotation.set(-2.6 - sac, 0, -0.3); } if (habla) yo.hablar(t, 1); yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * (0.2 + deses * 0.15))); yo.raiz.rotation.x = -0.05 * deses; }
     // camarero: 6 maneras de pasar de largo
     k.reset(); k.g.visible = true; this.pat.visible = false; this.jet.visible = false; this.humo.forEach(h => (h.visible = false)); this.flash.forEach(f => (f.material.opacity = 0));
     k.bandeja.visible = true; k.bI.codo.rotation.x = -1.5; k.bI.hombro.rotation.x = -0.15; k.bandeja.rotation.set(1.65, 0, 0); k.cabeza.rotation.y = 0;
     const a = i => prog(t, s[i] + 0.5, s[i] + 1.75), en = i => entre(t, s[i] + 0.45, s[i] + 1.8);
-    if (en(0)) { const q = (t - s[0] - 0.5) / 1.25; const x = lerp(-3.2, 3.6, q); k.g.position.set(x, 0.13, 0.95); k.g.rotation.y = Math.PI / 2; this.pat.visible = true; this.pat.position.set(x, 0, 0.95); this.pat.rotation.y = 0; k.raiz.rotation.z = -0.15; k.bD.hombro.rotation.set(-1.4, 0, 0.2); k.pI.cadera.rotation.x = 0.3; k.pD.cadera.rotation.x = -0.25; k.pD.rodilla.rotation.x = 0.4; k.cabeza.rotation.y = -0.4; }
-    else if (en(1)) { const q = (t - s[1] - 0.5) / 1.25; const x = lerp(-2.2, 2.6, q); const salto = Math.abs(Math.sin(q * Math.PI * 2)) * 1.1; k.g.position.set(x, 0.79 * (q > 0.3 && q < 0.7 ? 1 : 0) * 0 + salto, -0.35 + Math.sin(q * 6) * 0.1); k.g.rotation.y = Math.PI / 2; k.andar(t * 3, 1.3); k.pI.rodilla.rotation.x = 1.0; k.pD.rodilla.rotation.x = 1.0; k.raiz.rotation.x = Math.sin(q * Math.PI * 2) * 0.3; }
-    else if (en(2)) { const q = (t - s[2] - 0.5) / 1.25; k.g.position.set(lerp(-1.0, -5.0, ease(q)), 0.74, -5.4); k.g.rotation.y = -Math.PI / 2; [k.pI, k.pD].forEach(pp => { pp.cadera.rotation.x = 0; pp.rodilla.rotation.x = 1.6; }); k.raiz.rotation.x = -0.3; k.bD.hombro.rotation.set(-1.6, 0, 1.2); k.bI.hombro.rotation.z = -0.4; k.hablar(t, 1); }
+    if (en(0)) { const q = (t - s[0] - 0.5) / 1.25; const x = lerp(-3.4, 3.6, q); k.g.position.set(x, 0.13, 1.65); k.g.rotation.y = Math.PI / 2; this.pat.visible = true; this.pat.position.set(x, 0, 1.65); this.pat.rotation.y = 0; k.raiz.rotation.z = -0.15; k.bD.hombro.rotation.set(-1.4, 0, 0.2); k.pI.cadera.rotation.x = 0.3; k.pD.cadera.rotation.x = -0.25; k.pD.rodilla.rotation.x = 0.4; k.cabeza.rotation.y = -0.4; }
+    else if (en(1)) { const q = (t - s[1] - 0.5) / 1.25; const x = q < 0.5 ? lerp(-1.9, 0.1, q / 0.5) : lerp(0.1, 2.1, (q - 0.5) / 0.5); const u = q < 0.5 ? q / 0.5 : (q - 0.5) / 0.5; const base = q < 0.5 ? lerp(0, 0.8, u) : lerp(0.8, 0, u); const salto = base + Math.sin(u * Math.PI) * 0.75; k.g.position.set(x, salto, -0.05); k.g.rotation.y = Math.PI / 2; k.andar(t * 3, 1.3); k.pI.rodilla.rotation.x = 1.0; k.pD.rodilla.rotation.x = 1.0; k.raiz.rotation.x = Math.sin(q * Math.PI * 2) * 0.3; }
+    else if (en(2)) { const q = (t - s[2] - 0.5) / 1.25; k.g.position.set(lerp(2.4, -2.6, q), -0.42, 2.2); k.g.rotation.y = -Math.PI / 2; [k.pI, k.pD].forEach(pp => { pp.cadera.rotation.x = 0; pp.rodilla.rotation.x = 1.6; }); k.raiz.rotation.x = -0.3; k.bD.hombro.rotation.set(-1.6, 0, 1.2); k.bI.hombro.rotation.z = -0.4; k.hablar(t, 1); }
     else if (en(3)) { const q = (t - s[3] - 0.5) / 1.25; const x = q < 0.4 ? lerp(-1.3, -0.5, q / 0.4) : q < 0.55 ? -99 : lerp(0.6, 1.4, (q - 0.55) / 0.45); k.g.visible = x > -50; k.g.position.set(x, 0, 0.9); k.g.rotation.y = Math.PI / 2; k.andar(t * 2.6, 1);
       const f0 = prog(t, s[3] + 0.5 + 0.4 * 1.25 - 0.05, s[3] + 0.5 + 0.55 * 1.25), f1 = prog(t, s[3] + 0.5 + 0.55 * 1.25 - 0.05, s[3] + 0.5 + 0.7 * 1.25);
       [[f0, -0.5], [f1, 0.6]].forEach(([f, px], j) => { const fl = this.flash[j]; fl.position.set(px, 1.0, 0.9); fl.scale.setScalar(0.3 + f * 1.4); fl.material.opacity = f > 0 && f < 1 ? 0.9 * (1 - f) : 0; }); }
-    else if (en(4)) { const q = (t - s[4] - 0.5) / 1.25; k.g.position.set(lerp(-3.5, 3.5, q), 1.7 + Math.sin(q * Math.PI) * 0.6, -0.8); k.g.rotation.y = Math.PI / 2; this.jet.visible = true; this.jet.children.forEach(m => { if (m.userData.llama) m.scale.y = 0.8 + Math.random() * 0.6; });
+    else if (en(4)) { const q = (t - s[4] - 0.5) / 1.25; k.g.position.set(lerp(-3.5, 3.5, q), 1.15 + Math.sin(q * Math.PI) * 0.3, -1.7); k.g.rotation.y = Math.PI / 2; this.jet.visible = true; this.jet.children.forEach(m => { if (m.userData.llama) m.scale.y = 0.8 + Math.random() * 0.6; });
       k.raiz.rotation.z = -0.25; [k.pI, k.pD].forEach((pp, j) => { pp.cadera.rotation.x = 0.2 + j * 0.2; pp.rodilla.rotation.x = 0.3; }); k.bD.hombro.rotation.set(-0.5, 0, 0.9);
-      this.humo.forEach((h, j) => { h.visible = true; const dt = j * 0.07; h.position.set(lerp(-3.5, 3.5, q - dt * 0.8) , 1.7 + Math.sin((q - dt) * Math.PI) * 0.6 + 0.4, -0.95); h.scale.setScalar(0.6 + j * 0.35); h.material.opacity = 0.5 - j * 0.07; }); }
+      this.humo.forEach((h, j) => { h.visible = true; const dt = j * 0.07; h.position.set(lerp(-3.5, 3.5, q - dt * 0.8) , 1.15 + Math.sin((q - dt) * Math.PI) * 0.3 + 0.4, -1.85); h.scale.setScalar(0.6 + j * 0.35); h.material.opacity = 0.5 - j * 0.07; }); }
     else if (t >= s[5] + 0.45 && t < c.toca) { // bullet time: se echa hacia atrás esquivando la mano
       const q = prog(t, s[5] + 0.5, c.toca - 0.05); k.g.position.set(M.x + 0.75, 0, M.z - 0.2); k.g.rotation.y = Math.PI / 2 + 0.3; k.raiz.rotation.x = -0.15 - 0.85 * Math.sin(Math.min(1, q * 1.6) * Math.PI / 2);
       k.bD.hombro.rotation.set(-1.2 + Math.sin(t * 2) * 0.4, 0, 1.4); k.bI.hombro.rotation.set(-0.3, 0, -1.2); k.bI.codo.rotation.x = -1.5; k.pD.cadera.rotation.x = -0.5; k.pI.cadera.rotation.x = 0.4; k.cabeza.rotation.x = -0.3;
       yo.bD.hombro.rotation.set(-2.0, 0, 0.9); yo.bD.codo.rotation.x = -0.1; }
-    else if (t >= c.cae - 0.15) { const q = clamp((t - c.cae + 0.15) / 0.4); k.g.position.set(M.x + 0.7, (1 - q * q) * 3.0, M.z - 0.25); k.g.rotation.y = Math.PI / 2 + 0.6; if (q >= 1) { const d = t - c.cae - 0.25; k.raiz.position.y = -Math.max(0, 0.2 - d * 0.6); [k.pI, k.pD].forEach(pp => { pp.cadera.rotation.x = -Math.max(0, 0.8 - d * 2); pp.rodilla.rotation.x = Math.max(0, 1.4 - d * 3.5); }); k.bD.hombro.rotation.set(-1.0, 0, 0.3); k.hablar(t, 0.4); } else { k.bD.hombro.rotation.set(-2.8, 0, 0.4); k.bI.hombro.rotation.set(-2.6, 0, -0.4); } }
+    else if (t >= c.cae - 0.15) { const q = clamp((t - c.cae + 0.15) / 0.4); k.g.position.set(M.x + 0.88, (1 - q * q) * 3.0, M.z - 0.2); k.g.rotation.y = Math.PI / 2 + 0.6; if (q >= 1) { const d = t - c.cae - 0.25; k.raiz.position.y = -Math.max(0, 0.2 - d * 0.6); [k.pI, k.pD].forEach(pp => { pp.cadera.rotation.x = -Math.max(0, 0.8 - d * 2); pp.rodilla.rotation.x = Math.max(0, 1.4 - d * 3.5); }); k.bD.hombro.rotation.set(-1.0, 0, 0.3); k.hablar(t, hablaK ? 1 : 0.2); } else { k.bD.hombro.rotation.set(-2.8, 0, 0.4); k.bI.hombro.rotation.set(-2.6, 0, -0.4); } }
     else { k.g.position.set(-1.6, 0, -4.4); k.g.rotation.y = 0; k.respirar(t, 2); }
     this.ticket.visible = t > c.cae + 0.35;
     // tarjeta: se rinde, toca y aviso enviado
@@ -5090,10 +5097,11 @@ V['esquivo'] = { ...comunCapa, estilo: 'esquivo',
       this.mv.userData.pantalla(t > c.toca + 0.45 ? 'avisoEnviado' : 'bloqueo', t > c.toca + 0.45 ? {} : { hora: '23:52' }); yo.bD.hombro.rotation.set(-1.2, 0, 0); yo.bD.codo.rotation.x = -0.5; yo.cabeza.rotation.x = 0.3; yo.bD.hombro.visible = t < c.toca + 0.4; }
     else yo.bD.hombro.visible = true;
     this.on.userData.actualizar(t, movilVis && entre(t, c.toca + 0.25, c.toca + 0.9) ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
-    this.desenfoque = camara2(t, this.tomas);
+    if (!this._sinBarrido) { this.tomas.forEach(x => (x.barrido = 0)); this._sinBarrido = true; }
+    this.desenfoque = camara2(t, this.tomas); { let ini = 0; for (const x of this.tomas) if (t >= x.a) ini = x.a; const d = t - ini; if (ini > 0 && d < 0.1) this.desenfoque = Math.max(this.desenfoque, 12 * (1 - d / 0.1)); }
     if (entre(t, s[5] + 0.55, c.toca - 0.1)) { const q = (t - s[5] - 0.55) / (c.toca - 0.1 - s[5] - 0.55); const ang = 0.9 + q * Math.PI * 1.6, cx = M.x + 0.4, cz = M.z - 0.45; cam.position.set(cx + Math.sin(ang) * 2.4, 1.45 + Math.sin(q * 3) * 0.15, cz + Math.cos(ang) * 2.4); cam.lookAt(cx, 1.3, cz); this.desenfoque = 0; }
     if (t > c.fin - 0.25) this.desenfoque = Math.max(this.desenfoque, 8 * prog(t, c.fin - 0.25, c.fin));
-    vigilarCamara(t, [yo, k, ...this.gente]);
+    vigilarCamara(t, [yo, k, ...this.gente]); vigilarPaso(t, k, this.mesas, [yo, ...this.gente]);
   },
   fx(t) { const c = this.c; let temblor = 0, zoom = 1; { const d = t - (c.cae + 0.35); if (d >= 0 && d < 0.35) { temblor = (1 - d / 0.35) * 16; zoom = 1 + 0.08 * (1 - d / 0.35); } }
     const bullet = entre(t, c.s[5] + 0.55, c.toca - 0.1); const tp = [c.s[3] + 0.5 + 0.4 * 1.25, c.s[3] + 0.5 + 0.55 * 1.25].some(x => entre(t, x - 0.02, x + 0.1)); return { desenfoque: this.desenfoque, temblor, zoom, flash: entre(t, c.s[5] + 0.5, c.s[5] + 0.62) ? 0.5 : tp ? 0.7 : 0 }; },
@@ -5209,7 +5217,8 @@ V['chasquido'] = { ...comunCapa, estilo: 'chasquido',
     this.canaVuela.position.copy(ini).lerp(this.canaMesa, qv); this.canaVuela.position.y += Math.sin(qv * Math.PI) * 1.1; this.canaVuela.rotation.set(0, qv * 6, (1 - qv) * 0.6);
     if (op === 4 && t > c.llega + 0.15) { yo.bD.hombro.rotation.set(-1.0, 0, 0.1); yo.bD.codo.rotation.x = -1.3; yo.hablar(t, 0.5); }
     // cámara
-    this.desenfoque = camara2(t, this.tomas);
+    if (!this._sinBarrido) { this.tomas.forEach(x => (x.barrido = 0)); this._sinBarrido = true; }
+    this.desenfoque = camara2(t, this.tomas); { let ini = 0; for (const x of this.tomas) if (t >= x.a) ini = x.a; const d = t - ini; if (ini > 0 && d < 0.1) this.desenfoque = Math.max(this.desenfoque, 12 * (1 - d / 0.1)); }
     yo.g.updateMatrixWorld(true); const pm = this.mano.getWorldPosition(new THREE.Vector3()).lerp(new THREE.Vector3(M.x, 1.45, M.z - 0.72), 0.35).add(new THREE.Vector3(0, 0.05, 0));
     const orbita = (centro, r, a0, a1, q, y = 0.05) => { const a = lerp(a0, a1, q); cam.position.set(centro.x + Math.sin(a) * r, centro.y + y, centro.z + Math.cos(a) * r); cam.lookAt(centro); this.desenfoque = 0; };
     if (t < c.vamos - 0.06) orbita(pm, 0.95, 0.7, t < c.snap1 ? 0.7 : 0.7 + 1.6, prog(t, c.snap1, c.vamos - 0.06));
@@ -5217,7 +5226,7 @@ V['chasquido'] = { ...comunCapa, estilo: 'chasquido',
     else if (entre(t, c.error - 0.06, c.y - 0.06)) { const ck = new THREE.Vector3(1.6, 1.6, -1.7); orbita(ck, 1.2, hacia + 0.15, hacia + 0.95, prog(t, c.error - 0.06, c.y - 0.06), 0.0); }
     else if (t > c.fin - 0.35) orbita(pm, 0.95, 0.7, 0.7, 0);
     this.luzRoja.position.set(1.6, 2.6, -1.0); this.luzRoja.intensity = entre(t, c.error - 0.06, c.y - 0.06) ? 18 * (0.6 + 0.4 * Math.sin(t * 40)) : 0;
-    vigilarCamara(t, [k, ...this.gente]);
+    vigilarCamara(t, [k, ...this.gente]); vigilarPaso(t, k, this.mesas, [yo, ...this.gente]);
   },
   fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0; for (const g of [c.snap1, c.snap2, c.error]) { const d = t - g; if (d >= 0 && d < 0.3) { temblor = Math.max(temblor, (1 - d / 0.3) * 14); zoom = Math.max(zoom, 1 + 0.1 * (1 - d / 0.3)); } if (d >= 0 && d < 0.12) flash = Math.max(flash, 0.7 * (1 - d / 0.12)); }
     return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
