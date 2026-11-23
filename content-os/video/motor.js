@@ -5550,6 +5550,10 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
     this.trozos = Array.from({ length: 6 }, (_, i) => { const q = caja(0.05, 0.04, 0.05, i % 2 ? '#e7a64a' : '#c9361f', 0.012); sarten.add(q); return q; });
     sarten.position.set(0, -0.1, 0.32); k.bD.mano.add(sarten);
     this.llamas = Array.from({ length: 7 }, (_, i) => { const m = new THREE.Mesh(new THREE.ConeGeometry(0.05 + (i % 3) * 0.02, 0.3, 10), new THREE.MeshBasicMaterial({ color: i % 2 ? '#ffb020' : '#ff5a1f', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })); r.mundo.add(m); return m; });
+    // la tarjeta VISAX en la mesa del crítico (solo marca: se ve un instante, nadie habla de ella)
+    const tj = this.tjM = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(0.5, 0.79, -3.98); tj.rotation.y = 0.35; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cenM = tj.userData.centro().clone(); this.nrmM = new THREE.Vector3(Math.sin(0.35), 0, Math.cos(0.35)); this.phM = this.cenM.clone().addScaledVector(this.nrmM, 0.07);
+    this.mvM = movil(); this.mvM.scale.setScalar(0.34); r.mundo.add(this.mvM); this.mvM.visible = false; this.onM = ondas();
     const plato = this.plato = bravas(); plato.scale.setScalar(1.25); r.mundo.add(plato);
     this.vapor = Array.from({ length: 5 }, () => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.4, depthWrite: false })); r.mundo.add(m); return m; });
     const w = palabras, c = this.c = { buenas: cue('buenas'), se: cue('se'), tu: cue('tu'), que: cue('que'), aun: cue('aun'), sera: cue('sera'), me: cue('me'), critico: cue('critico'), un: cue('un'), le: cue('le') };
@@ -5558,7 +5562,7 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
     this.ruta = polilinea([[1.6, 4.7], [1.6, 3.2], [1.4, 1.0], [1.4, -1.6], [1.15, -3.0], [0.8, -3.45]]);
     this.cortes = [0, c.se - 0.1, c.tu - 0.08, c.que - 0.06, c.aun - 0.1, c.sera - 0.08, c.fogon, c.me - 0.05, c.reloj, c.lanza, c.aterriza - 0.08, c.critico + 0.1, c.un - 0.08, c.le - 0.1, c.fin - 0.3];
     efectos = [['tick', 0.05], ['hit', 0.1], ['tick', 1.05], ['clink', 0.55], ['ding', 0.6], ['tick', 2.05], ['tick', 3.05], ['hit', c.tu], ['tick', 4.05], ['tick', 5.05], ['hit', c.que + 0.6], ['tick', 6.05], ['tick', 7.05],
-      ['whoosh', c.sera - 0.1], ['riser', c.fogon - 0.5], ['hit', c.fogon], ['fuego', c.fogon], ['fuego', c.me], ['tick', c.reloj], ['tick', c.reloj + 0.25], ['tick', c.reloj + 0.5], ['whoosh', c.lanza], ['riser', c.lanza - 0.3],
+      ['whoosh', c.sera - 0.1], ['riser', c.fogon - 0.5], ['hit', c.fogon], ['fuego', c.fogon], ['fuego', c.me], ['tick', c.reloj], ['tap', c.reloj + 0.3], ['ding', c.reloj + 0.42], ['whoosh', c.lanza], ['riser', c.lanza - 0.3],
       ['hit', c.aterriza], ['clink', c.aterriza + 0.02], ['tick', c.critico + 0.3], ['pop', c.critico + 0.6], ['ding', c.un + 0.1], ['hit', c.un], ['whoosh', c.le - 0.12], ['ding', c.fin - 0.35]];
     this.musica = 'thriller_martes'; this.volMusica = 0.6;
   },
@@ -5573,7 +5577,10 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
     cr.reset(); cr.cejas.forEach(ce => (ce.rotation.z = 0)); this.carnet.visible = t > c.critico - 0.05;
     if (t < c.sienta) { cr.sentado = false; const u = clamp((t - 0.25) / (c.sienta - 0.25)); const [x, z] = this.ruta.at(u); const [x2, z2] = this.ruta.at(Math.min(1, u + 0.01)); cr.g.position.set(x, 0, z); cr.g.rotation.y = Math.atan2(x2 - x, z2 - z); cr.andar(t * 1.7, 0.9); }
     else { cr.sentar(); const q = prog(t, c.sienta, c.sienta + 0.3); cr.g.position.set(lerp(0.8, 0.2, q), 0, lerp(-3.45, -3.48, q)); cr.g.rotation.y = lerp(Math.PI * 0.85, Math.PI, q); cr.respirar(t, 1); }
-    if (entre(t, c.reloj - 0.1, c.lanza)) { cr.bI.hombro.rotation.set(-1.25, 0, 0.5); cr.bI.codo.rotation.x = -1.2; cr.cabeza.rotation.set(0.35, -0.3, 0); }
+    const toca = entre(t, c.reloj - 0.05, c.lanza); this.mvM.visible = toca; const tToque = c.reloj + 0.3;
+    if (toca) { const q = prog(t, c.reloj - 0.05, tToque); const lejos = this.phM.clone().addScaledVector(this.nrmM, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mvM.position.copy(lejos).lerp(this.phM, q); this.mvM.lookAt(this.mvM.position.clone().add(this.nrmM));
+      this.mvM.userData.pantalla(t > tToque + 0.12 ? 'cartaDesayuno' : 'bloqueo', t > tToque + 0.12 ? { mesa: 5, sel: 2 } : { hora: '23:59', dia: 'martes, 17 de noviembre' }); cr.bD.hombro.rotation.set(-1.15, 0, -0.25); cr.bD.codo.rotation.x = -0.45; cr.cabeza.rotation.set(0.3, 0.2, 0); }
+    this.onM.userData.actualizar(t, toca && t > tToque - 0.05 ? 1 : 0, this.mvM.getWorldPosition(new THREE.Vector3()), this.cenM);
     if (t > c.aterriza && t < c.critico) { cr.bD.hombro.rotation.set(-0.9 + Math.sin(t * 9) * 0.25, 0, 0); cr.bD.codo.rotation.x = -1.2; cr.cabeza.rotation.x = 0.3; }
     if (t > c.critico - 0.05) { const q = prog(t, c.critico - 0.05, c.critico + 0.25); cr.bD.hombro.rotation.set(lerp(-0.4, -1.35, q), 0, lerp(0, 0.45, q)); cr.bD.codo.rotation.x = lerp(-0.3, -0.6, q); this.carnet.position.set(lerp(0.1, 0.36, q), lerp(0.9, 1.2, q), -3.95); this.carnet.rotation.set(-0.15, Math.PI, 0.08); }
     if (t > c.un - 0.05) { cr.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * -0.2)); }
@@ -5616,7 +5623,7 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
       case 5: pon(3.5, 1.7, -5.1, 2.6, 1.35, -7.3, 46); break;
       case 6: pon(3.3, 1.95, -7.2, 2.4, 1.1, -8.1, 52); break;
       case 7: pon(2.5, 1.65, -8.6, 2.35, 1.4, -7.75, 56); break;
-      case 8: pon(0.95, 1.4, -4.35, 0.2, 1.2, -3.48, 44); break;
+      case 8: { const q = this.cenM; pon(q.x + 0.55, q.y + 0.32, q.z + 0.35 - d * 0.05, q.x - 0.02, q.y, q.z + 0.05, 44); break; }
       case 9: { pl.updateMatrixWorld(true); const pp = pl.position; pon(-0.6, 1.9, -4.9, pp.x, pp.y, pp.z, 50); break; }
       case 10: pon(0.8, 1.1, -4.35, 0.2, 0.85, -3.9, 40); break;
       case 11: pon(0.55, 1.5, -4.95, 0.15, 1.2, -3.48, 50); break;
