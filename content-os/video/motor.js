@@ -5419,7 +5419,7 @@ V['km'] = { ...comunCapa, estilo: 'km',
       ['riser', c.diez - 0.7], ['hit', c.diez], ['whoosh', c.diez + 0.05], ['hit', c.quince], ['buzz', c.quince + 0.05], ['riser', c.rebobina], ['whoosh', c.finReb - 0.05],
       ...this.tjs.map((_, i) => ['pop', c.mesa - 0.15 + i * 0.06]), ['tap', c.tarjeta], ['ding', c.tarjeta + 0.2], ['whoosh', c.sin - 0.1], ['tick', c.sin + 0.4], ['whoosh', c.sin2 - 0.1], ['tick', c.sin2 + 0.3],
       ['whoosh', c.hasta - 0.1], ['hit', c.seis], ['ding', c.seis + 0.1], ['pop', c.seis + 0.15]];
-    this.musica = 'guitarra_bar'; this.volMusica = 0.36;
+    this.musica = 'intenso_km'; this.volMusica = 0.5;
   },
   posRuta(ruta, t) { let p = ruta[0].pl.at(0); for (const r of ruta) { if (t < r.a) break; const u = clamp((t - r.a) / (r.b - r.a)); p = r.pl.at(r.lineal ? u : ease(u)); } return p; },
   tA(t) { const c = this.c; if (t < c.rebobina) return Math.min(t, this.A1); if (t < c.finReb) return lerp(this.A1, this.A0, ease(prog(t, c.rebobina, c.finReb))); return this.A0; },
@@ -5560,7 +5560,7 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
     efectos = [['tick', 0.05], ['hit', 0.1], ['tick', 1.05], ['clink', 0.55], ['ding', 0.6], ['tick', 2.05], ['tick', 3.05], ['hit', c.tu], ['tick', 4.05], ['tick', 5.05], ['hit', c.que + 0.6], ['tick', 6.05], ['tick', 7.05],
       ['whoosh', c.sera - 0.1], ['riser', c.fogon - 0.5], ['hit', c.fogon], ['fuego', c.fogon], ['fuego', c.me], ['tick', c.reloj], ['tick', c.reloj + 0.25], ['tick', c.reloj + 0.5], ['whoosh', c.lanza], ['riser', c.lanza - 0.3],
       ['hit', c.aterriza], ['clink', c.aterriza + 0.02], ['tick', c.critico + 0.3], ['pop', c.critico + 0.6], ['ding', c.un + 0.1], ['hit', c.un], ['whoosh', c.le - 0.12], ['ding', c.fin - 0.35]];
-    this.musica = 'guitarra_bar'; this.volMusica = 0.3; this.silencioMusica = [c.reloj - 0.05, c.aterriza];
+    this.musica = 'thriller_martes'; this.volMusica = 0.6;
   },
   hora(t) { const c = this.c; const s = t < c.aterriza ? lerp(23 * 3600 + 58 * 60 + 2, 23 * 3600 + 59 * 60 + 59, clamp(t / c.aterriza)) : t < c.le ? 23 * 3600 + 59 * 60 + 59 : 24 * 3600;
     const hh = Math.floor(s / 3600) % 24, mm = Math.floor(s / 60) % 60, ss = Math.floor(s) % 60; return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`; },

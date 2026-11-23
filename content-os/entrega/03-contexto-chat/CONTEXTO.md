@@ -14,7 +14,7 @@
 - Sí gustan los **muñecotes 3D** (los del POV / juguete) con fondos de bar distintos.
 - **Mucha dopamina, cortes de plano constantes y pocos efectos gráficos.**
 - **No empezar con el producto NFC.** Empezar con una curiosidad o una situación.
-- **Música:** nada que suene a anuncio. El `beat` le parecía comercial; la `guitarra_bar` le gusta.
+- **Música:** nada que suene a anuncio (el `beat` le parecía comercial). **Error mío a evitar: poner siempre la misma música (`guitarra_bar`).** Cada vídeo lleva música que encaje con su tono y sincronizada con sus momentos: thriller para suspense, electrónica intensa para explicativos rápidos, guitarra solo para historias tiernas. Se compone gratis con `video/musica/src/sinte.py` (numpy, sin ElevenLabs).
 - **Sin marca de agua** `visaxnfc.es`.
 - **Llamadas a la acción:**
   - Vídeos de curiosidad o tecnología: «Sígueme si quieres saber más sobre la tecnología NFC» (tal cual, sin más).
@@ -43,7 +43,7 @@
   - Después: `python3 alinear.py voces/<id>.mp3` y `python3 corregir.py voces/<id>.json voces/<id>.txt`.
   - En `motor.js`, `cue('palabra', n)` da el segundo en que se dice la n-ésima vez esa palabra.
   - Diálogo con varias voces: `ensamblar.py` (ver la cabecera del archivo).
-- **Música** en `musica/`: guitarra_bar (la buena), ambient_b, beat (comercial, evitar).
+- **Música** en `musica/`: guitarra_bar (solo para historias tiernas), ambient_b, beat (comercial, evitar), thriller_martes e intenso_km (compuestas a medida con `musica/src/sinte.py`; añadir un tema nuevo por vídeo).
 - **Recortes para Instagram:** `recorte_ig.py`. Corta tramos, pone el texto gancho y la píldora de «Comenta» con ffmpeg. Se ejecuta desde `content-os/salida/videos/`. Los tramos están escritos a mano para hotel y pov.
 - **Marca de agua:** ya está desactivada en `motor.js` (la línea `// marcaAgua();` en `componer`).
 

@@ -43,7 +43,7 @@
 4. **Nada de llamada a la acción hablada** (ni al final ni a mitad: en `crono` hizo caer la retención). Como texto, y mejor una pregunta que cualquiera quiera contestar que un «Comenta PALABRA».
 5. **Terminar en el momento fuerte** (le traen la cuenta, le sirven) y **enlazar el final con el principio** (bucle). Ejemplo preparado: acaba en «…y yo que llevaba…» y empieza en «Veinte minutos intentando pagar la cuenta».
 6. **Nada de tarjeta final quieta.** Cortar justo al acabar la voz.
-7. **Sin marca de agua** (`visaxnfc.es` se veía comercial) y **sin música de anuncio** (el `beat` sonaba comercial; la guitarra suave sí gusta).
+7. **Sin marca de agua** (`visaxnfc.es` se veía comercial) y **sin música de anuncio** (el `beat` sonaba comercial). **Música distinta en cada vídeo, acorde con su tono e intensidad** (repetir siempre la guitarra era un fallo): suspense → thriller, explicativo rápido → electrónica intensa con subidas en los picos, historia tierna → guitarra. Los cambios de la música (subidas, frenazos, silencios) van pegados a los momentos clave del vídeo.
 8. **Subtítulos palabra a palabra siempre**: la mayoría ve sin sonido.
 9. **Cambio de plano cada 1–3 s y voz sin pausas** (en `liado` funcionó: un corte por segundo, hablando todo el rato).
 10. **Cada vídeo con un estilo 3D distinto**, para que la cuenta tenga variedad, pero con los mismos muñecotes, que gustan.
