@@ -5157,7 +5157,7 @@ V['chasquido'] = { ...comunCapa, estilo: 'chasquido',
       T(c.peligro - 0.06, [0.35, 1.3, -0.1], [0.45, 1.3, -0.3], [1.6, 1.2, -1.7], [1.6, 1.25, -1.7], 54),
       T(c.chasquear - 0.06, [0, 0, 0], [0, 0, 0], caraYo, caraYo, 38),
       T(c.error - 0.06, [0, 0, 0], [0, 0, 0], caraK, caraK, 38), // órbita alrededor del camarero
-      T(c.y - 0.06, fr3(this.cen, [0.75, 0.45, -0.95]), fr3(this.cen, [0.45, 0.3, -0.7]), this.cen.toArray(), this.cen.toArray(), 42),
+      T(c.y - 0.06, fr3(this.cen, [0.75, 0.45, -0.95]), fr3(this.cen, [0.45, 0.3, -0.7]), this.cen.toArray(), this.cen.toArray(), 42, 0),
       T(c.ni - 0.06, [2.8, 2.2, 1.9], [2.55, 2.1, 1.6], [0.6, 1.2, -1.8], [0.6, 1.2, -1.8], 48),
       T(c.y2 - 0.08, [0.9, 2.0, 1.8], [0.7, 1.75, 1.3], [-1.6, 1.8, -3.6], this.canaMesa.toArray(), 54),
       T(c.fin - 0.35, [0, 0, 0], [0, 0, 0], caraYo, caraYo, 38, 0.08),
@@ -5191,11 +5191,11 @@ V['chasquido'] = { ...comunCapa, estilo: 'chasquido',
     k.reset(); k.g.visible = true; k.g.position.set(1.6, 0, -1.7); k.bandeja.visible = true; k.bI.codo.rotation.x = -1.5; k.bI.hombro.rotation.x = -0.15; k.bandeja.rotation.set(1.65, 0, 0);
     const hacia = Math.atan2(M.x - 1.6, (M.z - 0.72) - (-1.7)); let giro = Math.PI;
     if (t < c.vamos - 0.06) { giro = Math.PI; k.respirar(ta, 2); }
-    else if (t < c.levantar - 0.06) { giro = lerp(Math.PI, hacia + Math.PI * 2, ease(prog(t, c.vamos, c.vamos + 1.3))); k.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.3 * prog(t, c.vamos + 0.6, c.vamos + 1.3))); }
+    else if (t < c.levantar - 0.06) { giro = lerp(Math.PI, hacia + Math.PI * 2, ease(prog(t, c.vamos, c.vamos + 1.3))); k.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.35 * prog(t, c.vamos + 0.6, c.vamos + 1.3))); }
     else if (op === 0) { giro = hacia; k.respirar(t, 2); k.boca.scale.set(1.3, 0.55, 0.5); k.bD.hombro.rotation.set(-1.4, 0, 0.2); k.bD.codo.rotation.x = -1.2; }
     else if (op === 1) { giro = hacia; k.respirar(t, 2); if (t > c.aceptable - 0.06) { k.cejas[1].rotation.z = -0.5; k.cejas[1].position.y = 0.12; k.cabeza.rotation.z = 0.12; } }
-    else if (op === 2) { giro = hacia; k.respirar(t, 2); const caida = prog(t, c.peligro, c.peligro + 0.35); k.bandeja.visible = caida < 1; k.bandeja.rotation.set(1.65 + caida * 1.2, 0, caida * 0.8); k.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.35)); k.bI.hombro.rotation.x = -0.15 + caida * 0.6; }
-    else if (op === 3) { giro = hacia; k.respirar(ta, 2); k.cejas.forEach((ce, q) => { ce.rotation.z = (q ? -1 : 1) * 0.5; ce.position.y = 0.085; }); k.cabeza.rotation.x = 0.15; k.bandeja.visible = false; }
+    else if (op === 2) { giro = hacia; k.respirar(t, 2); const caida = prog(t, c.peligro, c.peligro + 0.35); k.bandeja.visible = caida < 1; k.bandeja.rotation.set(1.65 + caida * 1.2, 0, caida * 0.8); k.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.4)); k.bI.hombro.rotation.x = -0.15 + caida * 0.6; }
+    else if (op === 3) { giro = hacia; k.respirar(ta, 2); k.cejas.forEach((ce, q) => { ce.rotation.z = (q ? 1 : -1) * 0.6; ce.position.y = 0.08; }); k.cabeza.rotation.x = 0.2; k.boca.scale.set(1.3, 0.18, 0.5); k.bandeja.visible = false; }
     else { giro = Math.PI; k.respirar(t, 2); k.boca.scale.set(0.5, 0.8, 0.5); k.cabeza.rotation.y = Math.sin(t * 2) * 0.2; k.bandeja.visible = false; }
     k.g.rotation.y = giro; if (op !== 1) k.cejas[1].position.y = 0.1;
     if (op === 3 || t < c.vamos - 0.06) {} else k.cejas[0].position.y = 0.1;
@@ -5214,7 +5214,7 @@ V['chasquido'] = { ...comunCapa, estilo: 'chasquido',
     const orbita = (centro, r, a0, a1, q, y = 0.05) => { const a = lerp(a0, a1, q); cam.position.set(centro.x + Math.sin(a) * r, centro.y + y, centro.z + Math.cos(a) * r); cam.lookAt(centro); this.desenfoque = 0; };
     if (t < c.vamos - 0.06) orbita(pm, 0.95, 0.7, t < c.snap1 ? 0.7 : 0.7 + 1.6, prog(t, c.snap1, c.vamos - 0.06));
     else if (entre(t, c.chasquear - 0.06, c.error - 0.06)) orbita(pm, 0.9, 0.4, t < c.snap2 ? 0.4 : 1.8, prog(t, c.snap2, c.error - 0.06));
-    else if (entre(t, c.error - 0.06, c.y - 0.06)) { const ck = new THREE.Vector3(1.6, 1.6, -1.7); orbita(ck, 1.05, hacia - 0.9, hacia + 0.9, prog(t, c.error - 0.06, c.y - 0.06), 0.0); }
+    else if (entre(t, c.error - 0.06, c.y - 0.06)) { const ck = new THREE.Vector3(1.6, 1.6, -1.7); orbita(ck, 1.2, hacia + 0.15, hacia + 0.95, prog(t, c.error - 0.06, c.y - 0.06), 0.0); }
     else if (t > c.fin - 0.35) orbita(pm, 0.95, 0.7, 0.7, 0);
     this.luzRoja.position.set(1.6, 2.6, -1.0); this.luzRoja.intensity = entre(t, c.error - 0.06, c.y - 0.06) ? 18 * (0.6 + 0.4 * Math.sin(t * 40)) : 0;
     vigilarCamara(t, [k, ...this.gente]);
