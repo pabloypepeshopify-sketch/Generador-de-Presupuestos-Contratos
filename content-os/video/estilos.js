@@ -157,6 +157,12 @@ const ESTILOS = {
   // chasquido: bar moderno de noche; subtítulos grandes abajo (arriba va la opción y su nota)
   chasquido: { post: { brillo: 0.12, desenfoqueBrillo: 12, filtro: 'saturate(1.15) contrast(1.08)' },
     subs: { tam: 78, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d9a', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
+  // ultima: corto de cine nocturno y cálido; subtítulos sobrios abajo (personaje m en blanco, c en crema)
+  ultima: { post: { filtro: 'saturate(0.95) contrast(1.08) sepia(0.12)' },
+    subs: { tam: 54, fuente: tam => `600 ${tam}px Inter, sans-serif`, pill: ['#c98a3a', '#a8642f'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 10, y: 1560, voces: { m: '#ffffff', c: '#ffe2a8' } } },
+  // km: vista cenital con rastro de luz; subtítulos naranja/rojo abajo (arriba va el marcador)
+  km: { post: { brillo: 0.22, desenfoqueBrillo: 10, filtro: 'saturate(1.18) contrast(1.07) brightness(1.02)' },
+    subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff5a1f', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1390 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
