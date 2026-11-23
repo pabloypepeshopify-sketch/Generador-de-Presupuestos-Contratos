@@ -160,7 +160,7 @@ window.CARTA = [
           { n: 'Chicharrón de pescado', t: 6.90, r: 13.50, a: [1, 4], foto: 'ceviche-chicharron',
             d: 'Pescado marinado, empanizado y frito.',
             en: 'Pieces of marinated, breaded and fried fish.' },
-          { n: 'Arroz con mariscos', t: 7.50, r: 14.00, a: [1, 2, 4, 14], foto: 'arroz-mariscos',
+          { n: 'Arroz con mariscos', t: null, r: 18.90, a: [1, 2, 4, 14], foto: 'arroz-mariscos',
             d: 'Arroz salteado con marisco fresco, ajíes y especias.',
             en: 'Stir-fried rice with fresh seafood, chili peppers and spices.' },
           { n: 'Parihuela', t: null, r: 23.50, a: [1, 2, 4, 12, 14],
@@ -287,6 +287,23 @@ window.CARTA = [
         platos: [
           { n: 'Pisco sour', top: true, d: 'El cóctel nacional de Perú.', en: 'Peru’s national cocktail.' },
           { n: 'Sangría', d: 'Vino tinto con fruta.', en: 'Red wine with fruit.' }
+        ]
+      },
+      {
+        id: 'pb-vinos-tintos', es: 'Vinos tintos', en: 'Red wines', bebida: true, sinPrecio: true, consulta: true,
+        platos: [
+          { n: 'Ramón Bilbao', d: 'Tinto de Rioja.', en: 'Rioja red.' },
+          { n: 'Beronia', d: 'Tinto de Rioja.', en: 'Rioja red.' },
+          { n: 'Marqués de Cáceres', d: 'Tinto de Rioja.', en: 'Rioja red.' }
+        ]
+      },
+      {
+        id: 'pb-vinos-blancos', es: 'Vinos blancos', en: 'White wines', bebida: true, sinPrecio: true, consulta: true,
+        platos: [
+          { n: 'Árabe', d: '', en: '' },
+          { n: 'Verdejo', d: 'Blanco verdejo.', en: 'Verdejo white.' },
+          { n: 'Verdejo Rueda', d: 'Verdejo de Rueda.', en: 'Verdejo from Rueda.' },
+          { n: 'Frizante', d: 'Blanco de aguja, fresquito.', en: 'Lightly sparkling white.' }
         ]
       }
     ]
