@@ -87,3 +87,19 @@
 ### Ideas con esa fórmula
 - **«¿Chasquear los dedos al camarero?»** El chasquido congela el tiempo, la cámara gira 360° (*bullet time*) y el camarero se gira a cámara lenta. Luego 5 formas de llamar al camarero (silbar, «¡jefe!», mano, chasquido, tarjeta), cada una con su reacción. Cierre: «¿Cuál es de mala educación? 👇».
 - **«Yo intentando pedir la cuenta un sábado».** El camarero pasa de largo cada segundo de una forma imposible distinta (patinete, parkour por las mesas, teletransporte, mochila cohete, deslizándose por la barra…). Final en bucle.
+
+## Cola de vídeos aprobados (24 de noviembre), pendientes de empezar
+El usuario ha pedido guardarlos y **no empezarlos todavía**.
+
+### Explicativos (curiosidad: se guardan y se comparten)
+1. **«¿Cuánto gana un bar con una caña de 2 €?»** (~14 s, voz Dani, rótulo «cifras aproximadas»). Una caña gigante se va partiendo: Hacienda −0,18 · cerveza −0,60 · camarero −0,50 · alquiler y luz −0,30 · vasos, lavavajillas y tapa −0,20 → beneficio ≈ 0,22 € (moneda diminuta). Texto final: «¿Te parece caro o barato? 👇».
+2. **«¿Cuántos kilómetros anda un camarero en un sábado?»** (~13–15 s). Vista cenital y rastro de luz del camarero a cámara rápida, cuentakilómetros hasta ≈15 km («hasta ~15 km», varía según el local). **Final añadido por el usuario:** con la tarjeta NFC el contador **baja** (menos viajes a tomar nota y llevar la carta), presentado como **estimación**, sin inventar cifras exactas. Texto: «Etiqueta a un camarero 👇».
+
+### Historias con título al principio (corto de cine, 15–20 s)
+- **A. «LA ÚLTIMA MESA»:** último turno de un camarero antes de jubilarse tras 40 años, con *flashbacks* de la misma mesa década a década. Giro: el cliente de su última mesa es su primer cliente, ya anciano. Emotiva y sin producto.
+- **B. «MARTES, 23:58»:** *thriller*. La cocina cierra a medianoche, entra un cliente a las 23:58 y la tensión sube con el tic-tac. Giro: el cocinero le hace el mejor plato de la noche y resulta que es un crítico gastronómico.
+- **Bocas que se mueven:** cada personaje con su voz (diálogo a varias voces con `ensamblar.py`). Solo mueve la boca quien habla, sincronizado con sus palabras (abrir y cerrar al ritmo de la voz, no sílaba a sílaba), más gestos de cejas, cabeza y manos.
+
+### Otras ideas descartadas o aparcadas en este momento
+- «¿Por qué en España te ponen tapa gratis?» y «¿Por qué la caña lleva dos dedos de espuma?» (guiones hechos y no elegidos).
+- «EL BAR QUE NO EXISTÍA» (misterio).
