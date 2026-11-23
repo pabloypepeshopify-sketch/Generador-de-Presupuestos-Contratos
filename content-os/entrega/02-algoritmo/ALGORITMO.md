@@ -63,3 +63,27 @@
 1. **POV: pides la cuenta y tardan 20 min.** Tocas la placa → «pedir la cuenta» → el camarero la trae en 10 s. Guion y voces ya generados (borrador en `content-os/video/voces/cuenta_borrador/`: cliente = voz Dani, camarero = voz David). El usuario lo paró: está publicado otro y lo hará más adelante.
 2. POV: eres el camarero un sábado a las 22:00 y los pedidos te llegan solos al móvil.
 3. POV: no sabes la contraseña del WiFi del bar → tocas la pegatina y estás conectado.
+
+## Romper el techo de visitas (23 de noviembre)
+
+### Diagnóstico
+- Todos los vídeos se quedan en las mismas visitas. No es la calidad: **la plataforma enseña el vídeo a un primer grupo y solo lo amplía si ese grupo hace algo más que verlo** (enviarlo por privado, volver a verlo, comentar, guardar).
+- Nuestros vídeos gustan, pero casi nadie los envía ni discute. Que todos acaben en la tarjeta los hace parecer **un anuncio, y los anuncios no se reenvían**.
+- Objetivo nuevo: que el vídeo **se comparta o se discuta**, no solo que guste.
+
+### Reglas
+1. **La mitad de los vídeos sin producto** (la tarjeta como mucho de fondo). Primero crecer, luego vender.
+2. **Más cortos: 10–14 s, con final en bucle**, para que se vean dos veces (retención por encima del 100 %).
+3. **Polémica sana:** una pregunta con dos bandos («¿mala educación o normal?», «¿propina sí o no?», «¿la caña se paga al pedir o al final?»). La gente comenta para llevar la contraria.
+4. **Formatos de meme conocidos** adaptados a los muñecos, más un sonido de tendencia que añade el usuario en la app.
+5. **Probar varios ganchos:** el mismo vídeo con 3 primeros segundos distintos, usando los *Trial reels* de Instagram (solo lo ven quienes no te siguen). Repetir el que gane.
+6. **Diseñar para que se comparta:** «esto eres tú», «etiqueta a…», situaciones que todo el mundo ha vivido.
+
+### Matiz del usuario (importante): el 3D no es un vídeo grabado por una persona
+- Quien ve 3D **espera espectáculo**. Si durante 2 s no pasa nada, parece un anuncio barato y se va. Un meme pobre funciona con personas reales (lo que engancha es que es auténtico), **no con 3D**.
+- La ventaja del 3D es **enseñar lo que no se puede grabar**: cámaras imposibles, escalas absurdas (1.000.000 de manos, la Tierra), cámara lenta tipo *bullet time*, física exagerada. Por eso gustó `escala`.
+- **Fórmula:** mucha información (algo nuevo cada 1–2 s) + espectáculo imposible de grabar + motivo para compartir o discutir + corto y en bucle + sin anuncio en la mitad de los vídeos.
+
+### Ideas con esa fórmula
+- **«¿Chasquear los dedos al camarero?»** El chasquido congela el tiempo, la cámara gira 360° (*bullet time*) y el camarero se gira a cámara lenta. Luego 5 formas de llamar al camarero (silbar, «¡jefe!», mano, chasquido, tarjeta), cada una con su reacción. Cierre: «¿Cuál es de mala educación? 👇».
+- **«Yo intentando pedir la cuenta un sábado».** El camarero pasa de largo cada segundo de una forma imposible distinta (patinete, parkour por las mesas, teletransporte, mochila cohete, deslizándose por la barra…). Final en bucle.
