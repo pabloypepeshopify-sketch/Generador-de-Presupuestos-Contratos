@@ -112,3 +112,9 @@
 5. **Insultos suaves y castizos** («listo», «payaso», «me cago en la mar») dan carácter y humor sin perder alcance; los tacos fuertes pueden limitar la distribución.
 6. **Duración real de las piezas:** explicativos 14–15 s; historias 16–20 s (con diálogo cuesta bajar de 16).
 7. **Coste por vídeo:** el uso de Claude (suscripción) + ElevenLabs solo para voces (≈130–300 créditos por voz, una toma). La música y el render no cuestan nada.
+
+## Resultados (24 de noviembre)
+- **Instagram:** media de la cuenta ~2.200 visitas. Mejores: «mano levantada» (`escala`) 2.600 y «MARTES, 23:58» (`martes`) 2.500. ~45 % de la gente llega al final. Mejoran poco sobre la media: el techo sigue en Instagram.
+- **YouTube Shorts:** «¿Cuántos km anda un camarero?» (`km`) **12.000 visitas**; «mano levantada» aún más visitas pero la mitad de «me gusta». **YouTube es la mejor plataforma para estos vídeos**, sobre todo los explicativos con dato y contador.
+- **TikTok:** media ~700. Mejor: «MARTES, 23:58» con 1.500 (el doble de la media). Las historias con diálogo y giro funcionan mejor en TikTok. Es la plataforma más floja para estos vídeos.
+- **Conclusión:** explicativos con dato/contador → pensados para YouTube; historias con giro y diálogo → TikTok e Instagram. Seguir alternando los dos tipos.
