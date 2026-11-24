@@ -5787,6 +5787,150 @@ V['espera'] = { ...comunCapa, estilo: 'espera',
   },
 };
 
+// ---------- «EL ÚLTIMO CROISSANT»: duelo del Oeste en una cafetería; la señora lo pide con la placa y se lo lleva ----------
+function croissant(s = 1) { const g = new THREE.Group(); const oro = matJ('#e0a44a', 0.45), tostado = matJ('#b9732a', 0.5);
+  [[-1, 0.03], [-0.5, 0.042], [0, 0.05], [0.5, 0.042], [1, 0.03]].forEach(([u, r], i) => { const a = u * 1.1; const m = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), i % 2 ? tostado : oro); m.position.set(Math.sin(a) * 0.07, 0, -Math.cos(a) * 0.07 + 0.07); m.scale.set(1.25, 0.85, 1); m.rotation.y = a; g.add(m); });
+  g.scale.setScalar(s); g.traverse(o => { if (o.isMesh) o.castShadow = true; }); return g; }
+const fzC = (t, c) => (t >= c.freeze && t < c.choque ? c.freeze - 0.01 : t);
+V['croissant'] = { ...comunCapa, estilo: 'croissant',
+  async montar() {
+    for (const [f, peso, estilo] of [['Fraunces-SemiBold.ttf', '600', 'normal'], ['Fraunces-SemiBoldItalic.ttf', '600', 'italic']]) { const ff = new FontFace('Fraunces', `url(./fuentes/${f})`, { weight: peso, style: estilo }); await ff.load(); document.fonts.add(ff); }
+    ['croissant', 'abuelo', 'chaval', 'desenfunda', 'pasmao', 'carcamal', 'mesa'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#f3e2c4'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fff0d8'); hemi.groundColor.set('#7a5a40'); hemi.intensity = 1.6;
+    const sol = new THREE.DirectionalLight('#ffd9a0', 2.2); sol.position.set(4, 8, 4); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.1;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'clasico' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p); this.gente.forEach(g => (g.g.visible = false)); this.camarero.g.visible = false;
+    // despejar el suelo del duelo (mesa 1 y sus sillas)
+    for (const ch of r.mundo.children) if (Math.abs(ch.position.x + 2.6) < 0.01 && Math.abs(ch.position.z + 2.9) < 0.8) ch.visible = false;
+    // vitrina con el último croissant
+    const vit = this.vitrina = new THREE.Group(); vit.position.set(-3.2, 1.13, -5.2); r.mundo.add(vit);
+    vit.add(enK(new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.02, 32), matJ('#ffffff', 0.3)), 0, 0.01, 0));
+    this.campana = new THREE.Mesh(new THREE.SphereGeometry(0.21, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#dff4ff', transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0.1, depthWrite: false })); vit.add(this.campana);
+    this.cr = croissant(1.2); r.mundo.add(this.cr); this.crCasa = new THREE.Vector3(-3.2, 1.19, -5.2);
+    this.brillo = new THREE.PointLight('#ffd38a', 0, 2, 1.5); r.mundo.add(this.brillo);
+    // personajes
+    const ch = this.chaval = muneco({ camisa: '#ff8a00', pantalon: '#2f3a56', pelo: '#2a1a12', peinado: 'corto', piel: '#f0c29a' });
+    const gorra = new THREE.Group(); gorra.add(enK(new THREE.Mesh(new THREE.CylinderGeometry(0.225, 0.23, 0.12, 24), matJ('#1f4f9a', 0.6)), 0, 0.17, -0.01)); gorra.add(enK(caja(0.24, 0.02, 0.16, '#1f4f9a', 0.01), 0, 0.12, 0.2)); ch.cabeza.add(gorra);
+    const ab = this.abuelo = muneco({ camisa: '#6b4a3a', pantalon: '#3a3a3a', pelo: '#d9d9d9', peinado: 'corto', piel: '#e9b48c' }); const bg = bigote(ab, '#cfcfcf'); bg.scale.set(1.5, 1.6, 1.2);
+    const boina = new THREE.Mesh(new THREE.SphereGeometry(0.24, 24, 12), matJ('#2a2a30', 0.8)); boina.scale.set(1.05, 0.38, 1.05); boina.position.set(0, 0.18, 0); ab.cabeza.add(boina);
+    const se = this.senora = muneco({ camisa: '#9a4f7a', pantalon: '#4a3b6b', pelo: '#ececec', peinado: 'mono', piel: '#f2c49b' }); gafas(se); se.sentar();
+    const ca = this.camarera = muneco({ camisa: '#ffffff', chaleco: '#1d1b22', pantalon: '#1d1b22', pelo: '#7a3d1d', peinado: 'largo', piel: '#e9b48c' });
+    [ch, ab, se, ca].forEach(m => r.mundo.add(m.g));
+    const M = this.M = r.mesas[0]; se.g.position.set(M.x, 0, M.z + 0.72); se.g.rotation.y = Math.PI + 0.5;
+    ca.g.position.set(-3.2, 0, -5.95); this.taza = tazaCafe(); this.taza.position.set(M.x - 0.12, 0.79, M.z + 0.28); r.mundo.add(this.taza);
+    const tj = this.tjS = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(M.x + 0.22, 0.79, M.z + 0.02); tj.rotation.y = 0.5; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(0.5), 0, Math.cos(0.5)); this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07);
+    this.mv = movil(); this.mv.scale.setScalar(0.34); this.mv.visible = false; r.mundo.add(this.mv); this.on = ondas();
+    this.platoS = new THREE.Vector3(M.x + 0.02, 0.83, M.z + 0.22);
+    // bola de paja
+    const bp = this.paja = new THREE.Group(); bp.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 1), new THREE.MeshStandardMaterial({ color: '#b98a4a', wireframe: true }))); bp.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 0), new THREE.MeshStandardMaterial({ color: '#a8783a', wireframe: true }))); r.mundo.add(bp);
+    const w = palabras, c = this.c = { ese: cue('ese'), desenfunda: cue('desenfunda'), ponga: cue('pongame') };
+    const L = []; w.forEach(x => { const u = L[L.length - 1]; if (!u || u.q !== x.q || x.t - u.fin > 0.3) L.push({ q: x.q, t: x.t, fin: x.fin }); else u.fin = x.fin; }); this.L = L;
+    c.reb = 1.75; c.duelo = 2.25; c.salto = L[2].t; c.freeze = L[2].fin + 0.15; c.pide = c.freeze + 0.1; c.vuela = c.pide + 1.4; c.choque = L[3].t - 0.2; c.pelea = L[3].t; c.donde = L[5].t; c.sen = L[6].t; c.fin = w[w.length - 1].fin + 0.6; duracion = c.fin;
+    this.A = { ch: [-4.5, -4.2], ab: [-1.9, -4.2] };
+    this.cortes = [0, c.reb, c.duelo, L[1].t - 0.05, L[1].t + 1.15, L[1].fin + 0.05, c.salto - 0.55, c.salto - 0.05, c.freeze, c.pide + 0.05, c.vuela, c.choque, c.pelea - 0.05, c.donde - 0.05, c.sen - 0.1, c.fin - 0.3];
+    efectos = [['whoosh', 0.02], ['hit', 0.05], ['riser', c.reb - 0.05], ['tick', c.duelo + 0.4], ['tick', c.duelo + 1.4], ['whoosh', c.duelo + 0.05], ['tick', L[1].fin + 0.1], ['tick', L[1].fin + 0.4], ['whoosh', c.salto - 0.1], ['hit', c.freeze], ['ding', c.pide + 0.75], ['tap', c.pide + 0.6], ['whoosh', c.vuela], ['pop', c.vuela + 1.2], ['hit', c.choque + 0.15], ['clink', c.choque + 0.2], ['whoosh', c.pelea + 0.1], ['hit', c.pelea + 0.5], ['tick', c.donde + 0.1], ['pop', c.sen + 0.3], ['ding', c.fin - 0.4]];
+    this.musica = 'oeste_croissant'; this.volMusica = 0.55;
+  },
+  // salto hacia la vitrina: k 0 (de pie) → 1 (estampados en la barra)
+  salto(m, desde, lado, k) { const fin = [-3.2 + lado * 0.7, -4.95]; const x = lerp(desde[0], fin[0], k), z = lerp(desde[1], fin[1], k), y = Math.sin(Math.PI * Math.min(k, 0.75) / 0.75 * 0.5) * 0.75 * Math.min(1, k * 2);
+    m.g.position.set(x, y, z); m.g.rotation.order = 'YXZ'; m.g.rotation.y = -lado * Math.PI / 2 - lado * 0.25; m.g.rotation.x = 1.25 * clamp(k * 2.5);
+    m.bI.hombro.rotation.set(-2.9, 0, 0.15); m.bD.hombro.rotation.set(-2.9, 0, -0.15); m.bI.codo.rotation.x = m.bD.codo.rotation.x = -0.1; m.pI.cadera.rotation.x = 0.5; m.pD.cadera.rotation.x = -0.2; m.pI.rodilla.rotation.x = 0.8; m.boca.scale.set(1.5, 0.9, 0.5);
+    m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.5)); },
+  actualizar(t) {
+    const c = this.c, L = this.L, ch = this.chaval, ab = this.abuelo, se = this.senora, ca = this.camarera, A = this.A, M = this.M;
+    const habla = (...qs) => palabras.some(w => qs.includes(w.q) && t >= w.t && t < w.fin + 0.04);
+    [ch, ab, ca].forEach(m => { m.reset(); m.g.rotation.order = 'YXZ'; m.g.rotation.x = 0; m.g.position.y = 0; m.cejas.forEach(ce => (ce.rotation.z = 0)); });
+    // gancho: forcejeo por el croissant (cada uno tira de una punta, sin tocarse entre ellos); rebobinado; duelo; corren a por él; congelado; tiran del aire; se insultan
+    const TCH = [-3.84, -4.8], TAB = [-2.56, -4.8], fz = t >= c.freeze && t < c.choque ? c.freeze - 0.01 : t;
+    const tira = (m, p, lado, tt) => { const s = Math.sin(tt * 9 + (lado > 0 ? Math.PI : 0)); m.g.position.set(p[0] - lado * s * 0.05, 0, p[1]); m.g.rotation.y = -lado * Math.PI / 2;
+      m.bD.hombro.rotation.set(-1.45, 0, lado * -0.12); m.bI.hombro.rotation.set(-1.45, 0, lado * 0.12); m.bD.codo.rotation.x = m.bI.codo.rotation.x = -0.15; m.raiz.rotation.x = -0.12 - 0.08 * s; m.pI.cadera.rotation.x = 0.35; m.pD.cadera.rotation.x = -0.35;
+      m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.55)); m.boca.scale.set(1.4, 0.45, 0.5); };
+    const duelo = (m, p, lado) => { m.g.position.set(p[0], 0, p[1]); m.g.rotation.y = -lado * Math.PI / 2; m.respirar(t, lado); const tb = Math.sin(t * 60) * 0.06;
+      m.bD.hombro.rotation.set(-0.25, 0, lado * 0.35 + tb); m.bI.hombro.rotation.set(-0.25, 0, -lado * 0.35 - tb); m.bD.codo.rotation.x = m.bI.codo.rotation.x = -0.4; m.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.55)); };
+    if (t < c.reb || (t >= c.salto + 0.65 && t < c.choque)) { tira(ch, TCH, -1, fz); tira(ab, TAB, 1, fz); }
+    else if (t < c.duelo) { const q = ease((t - c.reb) / (c.duelo - c.reb)); tira(ch, TCH, -1, t); tira(ab, TAB, 1, t); ch.g.position.set(lerp(TCH[0], A.ch[0], q), 0, lerp(TCH[1], A.ch[1], q)); ab.g.position.set(lerp(TAB[0], A.ab[0], q), 0, lerp(TAB[1], A.ab[1], q)); }
+    else if (t < c.salto) { duelo(ch, A.ch, -1); duelo(ab, A.ab, 1); }
+    else if (t < c.salto + 0.65) { const q = ease((t - c.salto) / 0.65); [[ch, A.ch, TCH, -1], [ab, A.ab, TAB, 1]].forEach(([m, a0, a1, lado]) => { m.g.position.set(lerp(a0[0], a1[0], q), 0, lerp(a0[1], a1[1], q)); m.g.rotation.y = -lado * Math.PI / 2; m.andar(t * 3.5, 1.2); m.bD.hombro.rotation.set(-1.45 * q, 0, 0); m.cejas.forEach((ce, qq) => (ce.rotation.z = (qq ? 1 : -1) * 0.55)); }); }
+    else { // tiran del aire, retroceden y se insultan de lejos
+      const q = ease(clamp((t - c.choque) / 0.35)); const PCH = [lerp(TCH[0], -3.98, q), -4.6], PAB = [lerp(TAB[0], -2.42, q), -4.6];
+      ch.g.position.set(PCH[0], 0, PCH[1]); ch.g.rotation.y = Math.PI / 2; ab.g.position.set(PAB[0], 0, PAB[1]); ab.g.rotation.y = -Math.PI / 2;
+      if (t < c.pelea) { [ch, ab].forEach((m, i) => { m.raiz.rotation.x = -0.25 * (1 - q * 0.5); m.bD.hombro.rotation.set(-2.3, 0, 0); m.bI.hombro.rotation.set(-2.3, 0, 0); m.boca.scale.set(1.2, 1.0, 0.5); m.cabeza.rotation.x = 0.3; }); }
+      else if (t < c.donde - 0.05) { const s = Math.sin(t * 9); [ch, ab].forEach((m, i) => { const yo = habla(i ? 'a' : 'h'); m.respirar(t, i); m.bD.hombro.rotation.set(yo ? -1.45 + s * 0.12 : -0.3, 0, 0); m.bD.codo.rotation.x = -0.15; m.bI.hombro.rotation.set(-0.2, 0, (i ? -1 : 1) * 0.4); m.bI.codo.rotation.x = -1.4; m.raiz.rotation.x = yo ? 0.12 : -0.05; m.cejas.forEach((ce, qq) => (ce.rotation.z = (qq ? 1 : -1) * 0.55)); }); }
+      else { [ch, ab].forEach((m, i) => { m.respirar(t, i); m.cabeza.rotation.y = (i ? 1 : -1) * (0.9 + Math.sin(t * 3 + i) * 0.4); m.cejas.forEach((ce, qq) => (ce.rotation.z = (qq ? -1 : 1) * 0.3)); m.boca.scale.set(0.8, 0.8, 0.5); }); } }
+    if (habla('h', 'x')) ch.hablar(t, 1); if (habla('a', 'x')) ab.hablar(t + 0.3, 1);
+    // camarera: mira a uno y a otro; levanta la campana y lanza el croissant
+    ca.g.position.set(-3.2, 0, -5.95); ca.g.rotation.y = 0; ca.respirar(t, 3); ca.cabeza.rotation.y = entre(t, c.duelo, c.salto) ? Math.sin(t * 5) * 0.6 : 0;
+    if (entre(t, c.vuela - 0.3, c.vuela + 0.4)) { ca.bD.hombro.rotation.set(-2.2, 0, 0.2); ca.bD.codo.rotation.x = -0.3; }
+    this.campana.position.y = entre(t, c.vuela - 0.3, c.choque) ? 0.35 : 0; this.campana.visible = !(t < c.duelo || t >= c.salto + 0.4);
+    // croissant: brilla en la vitrina, vuela a la mesa de la señora, ella lo moja en el café
+    const crs = this.cr, ini = this.crCasa, fin = this.platoS; this.brillo.position.copy(ini).add(new THREE.Vector3(0, 0.3, 0.3)); this.brillo.intensity = t < c.vuela ? 3 : 0;
+    const enManos = t < c.duelo || (t >= c.salto + 0.6 && t < c.vuela); const pT = new THREE.Vector3(-3.2, 1.32, -4.85);
+    if (t < c.vuela) { if (enManos) { const s2 = Math.sin(fzC(t, c) * 9); crs.position.copy(pT).add(new THREE.Vector3(s2 * 0.05, 0, 0)); crs.rotation.set(0, Math.PI / 2, 0); crs.scale.set(2.0 * (1 + 0.3 * Math.abs(s2)), 2.0, 2.0); } else { crs.position.copy(ini); crs.rotation.set(0, t * 1.5, 0); crs.scale.setScalar(1.2); } }
+    else if (t < c.vuela + 1.25) { const q = (t - c.vuela) / 1.25; crs.scale.setScalar(1.2); crs.position.lerpVectors(pT, fin, q); crs.position.y += Math.sin(Math.PI * q) * 0.6; crs.rotation.set(q * 3, q * 9, q * 2); }
+    else if (t < c.sen + 0.2) { crs.position.copy(fin); crs.rotation.set(0, 0.4, 0); }
+    else { se.g.updateMatrixWorld(true); const boca = se.cabeza.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0.08, -0.12, -0.24)); const taza = this.taza.position.clone().add(new THREE.Vector3(0, 0.12, 0)); const q = 0.5 + 0.5 * Math.sin((t - c.sen) * 3.2 - 1.2); crs.position.lerpVectors(taza, boca, q); crs.rotation.set(0.9, 0.4, 0.3 + q * 0.4); }
+    // señora: tranquila; pide con la placa; moja el croissant y sonríe
+    se.reset(); se.sentar(); se.respirar(t, 2); se.cejas.forEach(ce => (ce.rotation.z = 0)); se.g.position.set(M.x, 0, M.z + 0.72); se.g.rotation.y = Math.PI + 0.5;
+    const toca = entre(t, c.freeze, c.vuela + 0.3); this.mv.visible = toca; const tToque = c.pide + 0.6;
+    if (toca) { const q = prog(t, c.pide, tToque); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mv.position.copy(lejos).lerp(this.ph, q); this.mv.lookAt(this.mv.position.clone().add(this.nrm));
+      const items = [['Croissant', '1,80 €', ['#e8c27a', '#b9822e']], ['Café con leche', '1,30 €', ['#c89b6d', '#7a4b2a']], ['Tostada con tomate', '2,50 €', ['#e0a24a', '#b9481f']], ['Zumo de naranja', '3,00 €', ['#ffb347', '#f57b2c']]];
+      this.mv.userData.pantalla(t > tToque + 0.12 ? 'cartaDesayuno' : 'bloqueo', t > tToque + 0.12 ? { mesa: 1, sel: t > tToque + 0.35 ? 1 : 0, items, totales: ['', '1,80', '3,10'], enviado: t > tToque + 0.6 } : { hora: '08:00', dia: 'martes' }); se.bD.hombro.rotation.set(-1.15, 0, 0.1); se.bD.codo.rotation.x = -0.5; se.cabeza.rotation.x = 0.25; }
+    this.on.userData.actualizar(t, toca && t > tToque - 0.05 && t < tToque + 0.8 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
+    if (t > c.sen - 0.1) { const moja = Math.sin((t - c.sen) * 3.2); const qm = 0.5 + 0.5 * Math.sin((t - c.sen) * 3.2 - 1.2); [se.bD, se.bI].forEach((b, i) => { if (i === 0) { b.hombro.rotation.set(-0.9 - 0.9 * qm, 0, 0.35); b.codo.rotation.x = -1.0; } }); se.cejas[0].rotation.z = -0.35; se.cabeza.rotation.z = 0.12; if (!habla('s')) se.boca.scale.set(1.6, 0.4, 0.5); }
+    if (habla('s')) se.hablar(t, 0.7);
+    // bola de paja
+    const qp = clamp((t - c.duelo) / 2.4); this.paja.visible = entre(t, c.duelo, c.duelo + 2.4); this.paja.position.set(lerp(-5.6, -0.6, qp), 0.28 + Math.abs(Math.sin(qp * 14)) * 0.25, -3.55); this.paja.rotation.z = -qp * 18;
+    // cámara (cortes secos)
+    let n = 0; this.cortes.forEach((a, i) => { if (t >= a) n = i; }); const d = t - this.cortes[n]; let fov = 45; cam.up.set(0, 1, 0);
+    const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); fov = f; };
+    const orb = (cx, cy, cz, rr, a, y, f) => pon(cx + Math.sin(a) * rr, y, cz + Math.cos(a) * rr, cx, cy, cz, f);
+    const ojos = (m, lado) => { m.g.updateMatrixWorld(true); const h = m.cabeza.getWorldPosition(new THREE.Vector3()); pon(h.x + lado * 1.05, h.y + 0.04, h.z + 0.12, h.x, h.y + 0.02, h.z, 28); };
+    switch (n) {
+      case 0: pon(-3.2 + Math.sin(t * 2) * 0.05, 1.55, -1.75 + t * 0.15, -3.2, 1.2, -4.8, 54); break;
+      case 1: pon(-3.2, 1.55, -1.7, -3.2, 1.1, -4.6, 54); break;
+      case 2: pon(-3.2, 1.05, -0.6, -3.2, 1.0, -4.4, 52); break;
+      case 3: ojos(ab, -1); break;
+      case 4: ojos(ch, 1); break;
+      case 5: { ch.g.updateMatrixWorld(true); const h = ch.bD.mano.getWorldPosition(new THREE.Vector3()); pon(h.x + 0.35, h.y + 0.15, h.z + 0.55, h.x, h.y, h.z, 40); break; }
+      case 6: pon(-3.2, 1.6, -4.85, -3.2, 1.55, -5.95, 44); break;
+      case 7: pon(-3.2, 1.55, -1.9 - d * 0.2, -3.2, 1.1, -4.6, 54); break;
+      case 8: orb(-3.2, 1.15, -4.8, 2.4, -0.1 + d * 1.2, 1.5, 52); break;
+      case 9: { const q = this.cen; pon(q.x + 0.55, q.y + 0.35, q.z + 0.5, q.x, q.y, q.z, 44); break; }
+      case 10: { const pp = this.cr.position; pon(pp.x + 1.1, pp.y + 0.35, pp.z + 1.2, pp.x, pp.y, pp.z, 52); break; }
+      case 11: case 13: pon(-3.2, 1.65, -0.55, -3.2, 1.15, -4.6, 54); break;
+      case 12: { const hab = t < L[4].t - 0.05 ? ab : ch, otro = hab === ab ? ch : ab; hab.g.updateMatrixWorld(true); otro.g.updateMatrixWorld(true); const h = hab.cabeza.getWorldPosition(new THREE.Vector3()), o = otro.cabeza.getWorldPosition(new THREE.Vector3()); const dir = o.clone().sub(h).normalize();
+        pon(o.x + dir.x * 0.55, o.y + 0.12, o.z + 0.45, h.x, h.y - 0.05, h.z, 44); break; }
+      case 14: pon(M.x - 0.45, 1.25, M.z - 0.5, M.x + 0.05, 1.0, M.z + 0.6, 52); break;
+      case 15: pon(-3.2, 1.55, -1.75, -3.2, 1.2, -4.8, 54); break;
+    }
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    this.desenfoque = n > 0 && d < 0.1 ? 10 * (1 - d / 0.1) : 0;
+    vigilarCamara(t, [ch, ab, se, ca]);
+  },
+  fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0; for (const g of [0.05, c.freeze, c.choque + 0.15, c.pelea + 0.5]) { const d = t - g; if (d >= 0 && d < 0.3) { temblor = Math.max(temblor, (1 - d / 0.3) * 12); zoom = Math.max(zoom, 1 + 0.07 * (1 - d / 0.3)); } if (d >= 0 && d < 0.1) flash = Math.max(flash, 0.5 * (1 - d / 0.1)); }
+    return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; vineta();
+    const helado = entre(t, c.freeze, c.choque) , reb = entre(t, c.reb, c.duelo);
+    if (helado) { C.save(); C.globalCompositeOperation = 'saturation'; C.fillStyle = 'rgba(128,128,128,0.55)'; C.fillRect(0, 0, W, H); C.restore(); }
+    if (reb) { C.save(); C.globalCompositeOperation = 'saturation'; C.fillStyle = 'rgba(128,128,128,0.7)'; C.fillRect(0, 0, W, H); C.restore(); C.fillStyle = 'rgba(255,255,255,0.07)'; for (let y = (t * 900) % 12; y < H; y += 12) C.fillRect(0, y, W, 3);
+      C.save(); C.font = `900 58px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillStyle = '#fff'; C.shadowColor = '#000'; C.shadowBlur = 14; C.fillText('◀◀ 8:00 H · 10 SEGUNDOS ANTES', W / 2, 980); C.restore(); }
+    const pills = (lineas, Y, k, tam = 82) => { if (k <= 0) return; C.save(); C.translate(W / 2, Y); C.scale(k, k); C.font = `900 ${tam}px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
+      lineas.forEach(([l, col], i) => { const y = i * (tam + 26), w = C.measureText(l).width + 50; C.fillStyle = col; rr(C, -w / 2, y - tam * 0.64, w, tam * 1.28, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, y + 3); }); C.restore(); };
+    if (t < c.reb) pills([['2 TÍOS.', 'rgba(255,255,255,0.95)'], ['1 CROISSANT.', '#ffd34d']], 300, entra(t, -0.45));
+    // duelo: formato panorámico del Oeste y título
+    if (entre(t, c.duelo, c.freeze)) { C.fillStyle = '#000'; C.fillRect(0, 0, W, 330); C.fillRect(0, H - 330, W, 330); }
+    if (entre(t, c.duelo, c.duelo + 1.3)) { const k = Math.min(prog(t, c.duelo, c.duelo + 0.25), 1 - prog(t, c.duelo + 1.05, c.duelo + 1.3)); C.save(); C.globalAlpha = k; C.fillStyle = 'rgba(0,0,0,0.72)'; C.fillRect(0, 660, W, 340); C.textAlign = 'center'; C.fillStyle = '#f6e7c8'; C.shadowColor = 'rgba(0,0,0,0.8)'; C.shadowBlur = 20;
+      C.font = `600 104px Fraunces, Georgia, serif`; C.fillText('EL ÚLTIMO', W / 2, 760); C.fillText('CROISSANT', W / 2, 880); C.font = `italic 600 42px Fraunces, Georgia, serif`; C.fillText('Cafetería · 8:00 h', W / 2, 960); C.restore(); }
+    if (helado && t < c.pide + 0.6) { const k = entra(t, c.freeze + 0.02); C.save(); C.translate(W / 2, 520); C.scale(k, k); C.textAlign = 'center'; C.fillStyle = '#fff'; C.shadowColor = '#000'; C.shadowBlur = 18; C.font = `italic 600 92px Fraunces, Georgia, serif`; C.fillText('Mientras tanto…', 0, 0); C.restore(); }
+    if (entre(t, c.pide + 1.2, c.vuela + 0.3)) { const [px, py] = proyectar(this.cen); pildora('PEDIDO: 1 croissant ✓', px, py - 280, entra(t, c.pide + 1.2), { tono: 'verde', tam: 44 }); }
+    if (t > c.sen + 1.6) pills([['¿Quién tenía razón? 👇', 'rgba(255,255,255,0.95)']], 330, entra(t, c.sen + 1.6), 64);
+  },
+};
+
 window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };

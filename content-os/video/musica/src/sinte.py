@@ -104,6 +104,34 @@ def tictac(cues):  # «¿Cuánto tiempo esperas al camarero?»: tic-tac que se a
     for i, t in enumerate(np.arange(para + 0.7, D, 0.25)): P.pon(t, pluck([72, 76, 79, 76][i % 4], 0.2, 3500), 0.7)
     return P.x
 
+def silbido(m, d, g=0.16):  # silbido del Oeste: seno con vibrato y algo de aire
+    n = int(d * SR); t = np.arange(n) / SR; f = nota(m) * (1 + 0.012 * np.sin(2 * np.pi * 5.8 * t) * np.minimum(1, t / 0.25)); ph = 2 * np.pi * np.cumsum(f) / SR
+    return g * (np.sin(ph) + 0.05 * hp(rng.standard_normal(n), 3000)) * env(n, 0.04, 99, 1, 0.08)
+def guitarra(m, d=0.6, g=0.22): n = int(d * SR); x = saw(nota(m), n) * 0.6 + sq(nota(m) * 2, n) * 0.2; return g * lp(x * env(n, 0.002, 0.25, 0, 0.05), 2200)
+def oeste(cues):  # «EL ÚLTIMO CROISSANT»: duelo → silencio congelado → cajita de música → pelea cómica → vals final
+    D = cues['fin'] + 0.5; P = Pista(D); reb, duelo, salto, freeze, choque, sen = cues['reb'], cues['duelo'], cues['salto'], cues['freeze'], cues['choque'], cues['sen']
+    P.pon(0, pad([45, 52, 57, 64], reb, 2500, 0.01), 1.4); P.pon(0, silbido(81, reb - 0.1, 0.2))
+    for i, t in enumerate(np.arange(0, reb, 0.09)): P.pon(t, guitarra([45, 52, 57, 52][i % 4], 0.2, 0.15))
+    src = P.x[:int(reb * SR)][::-1].copy(); n = int((duelo - reb) * SR); idx = np.cumsum(np.linspace(2.5, 0.3, n)).astype(int); idx = idx[idx < len(src)]; P.pon(reb, 0.7 * src[idx])
+    mel = [(76, 0.45), (81, 0.45), (76, 0.45), (81, 0.3), (76, 1.2), (72, 0.3), (74, 0.3), (69, 1.0)]; t = duelo + 0.1
+    for m, d in mel:
+        if t > salto - 0.2: break
+        P.pon(t, silbido(m, d * 0.95)); t += d
+    for i, t in enumerate(np.arange(duelo, salto, 0.5)): P.pon(t, guitarra([40, 45][i % 2], 0.5, 0.25)); P.pon(t + 0.25, clap(), 0.25)
+    P.pon(duelo, pad([40, 47, 52], salto - duelo, 700, 0.5), 1.2)
+    for i, t in enumerate(np.arange(salto - 0.3, freeze, 0.06)): P.pon(t, guitarra([52, 57, 64, 69][i % 4], 0.12, 0.12 + 0.1 * (t - salto + 0.3)))
+    P.pon(salto - 0.6, riser(0.6 + (freeze - salto), 0.35))
+    for i, t in enumerate(np.arange(freeze + 0.25, choque - 0.05, 0.22)): P.pon(t, pluck([84, 88, 91, 88, 86, 89, 93, 89][i % 8], 0.3, 6000), 0.8)  # cajita de música
+    P.pon(choque + 0.15, kick(1.3))
+    for i, t in enumerate(np.arange(choque + 0.25, sen - 0.15, 0.18)):                        # pelea cómica (um-pa)
+        P.pon(t, bajo([45, 45, 52, 52][i % 4] if i % 2 == 0 else 57, 0.14, 900)); 
+        if i % 2: P.pon(t, clap(), 0.4)
+        if i % 4 == 0: P.pon(t, silbido(81 + (i // 4) % 3 * 2, 0.15, 0.12))
+    for i, t in enumerate(np.arange(sen, D, 0.3)):                                             # vals final
+        P.pon(t, pluck([60, 67, 64, 60, 65, 69, 65, 60][i % 8] + (12 if i % 3 else 0), 0.35, 3000), 0.8 if i % 3 == 0 else 0.5)
+    P.pon(sen, pad([60, 64, 67], D - sen, 2000, 0.3), 0.9)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -114,4 +142,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda((tictac if tema == 'tictac' else intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste}.get(tema, intenso)(q), dst)
