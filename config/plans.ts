@@ -19,7 +19,6 @@ export type Plan = {
   tagline: string;
   /** Para quién es */
   forWho: string;
-  // TODO: confirmar precios con el equipo
   price: number | null;
   // TODO: confirmar si hay cuota de alta
   setupFee: number | null;
@@ -43,7 +42,7 @@ export const plans: Plan[] = [
     name: 'Esencial',
     tagline: 'Para empezar a modernizarse',
     forWho: 'Empresas que quieren dar los primeros pasos y empezar por lo que más se nota.',
-    price: null,
+    price: 290,
     setupFee: null,
     priceNote: null,
     details: {
@@ -64,7 +63,7 @@ export const plans: Plan[] = [
     name: 'Profesional',
     tagline: 'Para optimizar varias áreas',
     forWho: 'Empresas que quieren mejorar varias áreas a la vez y meter la IA en su día a día.',
-    price: null,
+    price: 590,
     setupFee: null,
     priceNote: null,
     featured: true,
@@ -87,7 +86,7 @@ export const plans: Plan[] = [
     name: 'Premium',
     tagline: 'Tu departamento tecnológico externo',
     forWho: 'Empresas que quieren delegar toda su evolución tecnológica en un equipo externo.',
-    price: null,
+    price: 890,
     setupFee: null,
     priceNote: null,
     details: {

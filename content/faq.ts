@@ -44,7 +44,7 @@ export const faqs: Faq[] = [
   },
   {
     q: '¿Cuánto cuesta?',
-    a: 'Depende del plan y de tu empresa. Lo vemos juntos en el diagnóstico y te damos el precio antes de empezar.',
-    pending: 'TODO: confirmar precios de los planes (config/plans.ts).',
+    a: 'El plan Esencial cuesta 290 € al mes, el Profesional 590 € y el Premium 890 €. En el diagnóstico vemos juntos cuál encaja con tu empresa.',
+    pending: 'TODO: confirmar si hay cuota de alta y si los precios llevan IVA.',
   },
 ];
