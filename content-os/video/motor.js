@@ -5652,6 +5652,141 @@ V['martes'] = { ...comunCapa, estilo: 'martes',
   },
 };
 
+// ---------- «¿Cuánto tiempo de tu vida pasas esperando al camarero?»: el cliente envejece con la mano levantada ----------
+function relojPared(r = 1.2) {
+  const g = new THREE.Group();
+  const cara = texK(512, 512, (x, w, h) => { x.fillStyle = '#fbf7ee'; x.beginPath(); x.arc(w / 2, h / 2, 250, 0, 7); x.fill(); x.lineWidth = 18; x.strokeStyle = '#1f2a2e'; x.stroke();
+    for (let i = 0; i < 60; i++) { const a = i * Math.PI / 30, l = i % 5 ? 14 : 36; x.lineWidth = i % 5 ? 4 : 10; x.beginPath(); x.moveTo(w / 2 + Math.sin(a) * (232 - l), h / 2 - Math.cos(a) * (232 - l)); x.lineTo(w / 2 + Math.sin(a) * 232, h / 2 - Math.cos(a) * 232); x.stroke(); }
+    x.fillStyle = '#1f2a2e'; x.font = '800 58px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; [12, 3, 6, 9].forEach((n, i) => { const a = i * Math.PI / 2; x.fillText(String(n), w / 2 + Math.sin(a) * 175, h / 2 - Math.cos(a) * 175); }); });
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(r * 1.06, r * 1.06, 0.08, 64), matJ('#1f6b54', 0.4)).rotateX(Math.PI / 2));
+  const f = new THREE.Mesh(new THREE.CircleGeometry(r, 64), new THREE.MeshStandardMaterial({ map: cara, roughness: 0.6 })); f.position.z = 0.045; g.add(f);
+  const aguja = (largo, ancho, color, z) => { const p = new THREE.Group(); const m = caja(ancho, largo, 0.02, color, 0.005); m.position.y = largo / 2 - 0.05; p.add(m); p.position.z = z; g.add(p); return p; };
+  const hora = aguja(r * 0.55, 0.07, '#1f2a2e', 0.07), min = aguja(r * 0.8, 0.045, '#1f2a2e', 0.09), seg = aguja(r * 0.85, 0.015, '#d6283a', 0.11);
+  g.add(enK(new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.06, 16), matJ('#d6283a')).rotateX(Math.PI / 2), 0, 0, 0.12));
+  g.userData.poner = minutos => { seg.rotation.z = -minutos * Math.PI * 2; min.rotation.z = -minutos / 60 * Math.PI * 2; hora.rotation.z = -minutos / 720 * Math.PI * 2; };
+  return g;
+}
+V['espera'] = { ...comunCapa, estilo: 'espera',
+  async montar() {
+    ['meses', 'vida', 'mano', 'diez', 'minutos', 'cuenta', 'cincuenta', 'dias', 'tarjeta', 'reloj', 'para'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#dfeee8'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fffaf0'); hemi.groundColor.set('#6a5a50'); hemi.intensity = 1.7;
+    const sol = this.sol = new THREE.DirectionalLight('#fff1dc', 2.0); sol.position.set(-4, 9, -3); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.12;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'cafeteria' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p);
+    const M = this.M = r.mesas[0];
+    // el cliente: sentado mirando a la barra, con la mano levantada toda la vida
+    const yo = this.yo = muneco({ camisa: '#ff8a3d', pantalon: '#2f3a56', pelo: '#2b1b13', peinado: 'corto', piel: '#f2c49b' }); yo.sentar(); yo.g.position.set(M.x, 0, M.z + 0.72); yo.g.rotation.y = Math.PI; r.mundo.add(yo.g);
+    this.pelo = []; yo.cabeza.traverse(o => { if (o.isMesh && o.material && o.material.color && o.material.color.getHexString() === '2b1b13') { o.material = o.material.clone(); this.pelo.push(o); } });
+    this.gafas = gafas(yo); this.bigote = bigote(yo, '#f2f2f2');
+    const baston = this.baston = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.9, 8), matJ('#5a3a26', 0.5)); baston.position.set(M.x - 0.38, 0.45, M.z + 0.55); baston.rotation.z = 0.25; r.mundo.add(baston);
+    // telarañas entre el brazo levantado y la cabeza
+    const tela = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.55 }); this.telas = new THREE.Group(); r.mundo.add(this.telas);
+    for (let i = 0; i < 7; i++) { const h = new THREE.Mesh(new THREE.CylinderGeometry(0.0025, 0.0025, 1, 4), tela); this.telas.add(h); }
+    // reloj gigante en la pared del fondo (detrás del cliente según la cámara de frente)
+    const rel = this.reloj = relojPared(1.15); rel.position.set(0, 2.15, 3.93); rel.rotation.y = Math.PI; r.mundo.add(rel);
+    // ticket interminable en la caja
+    const impr = caja(0.22, 0.12, 0.2, '#2a2d33', 0.02); impr.position.set(-1.6, 1.19, -5.08); r.mundo.add(impr);
+    this.ticket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1, 0.003), matJ('#fffdf6', 0.6)); r.mundo.add(this.ticket);
+    // tarjeta, móvil y caña voladora
+    const tj = this.tjE = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(M.x + 0.42, 0.79, M.z + 0.2); tj.rotation.y = 0.5; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(0.5), 0, Math.cos(0.5)); this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07);
+    this.mv = movil(); this.mv.scale.setScalar(0.34); this.mv.visible = false; r.mundo.add(this.mv); this.on = ondas();
+    this.canaV = cana(); this.canaV.visible = false; r.mundo.add(this.canaV); this.canaMesa = new THREE.Vector3(M.x - 0.18, 0.79, M.z + 0.3);
+    const w = palabras, c = this.c = { mano: cue('mano'), diez: cue('diez'), vean: cue('vean'), tomen: cue('tomen'), traigan: cue('traigan'), tres: cue('tres'), durante: cue('durante'), dias: cue('dias'), cin2: cue('cincuenta', 2), y: cue('y'), tocas: cue('tocas'), tarjeta: cue('tarjeta'), mesa: cue('mesa'), el: cue('el'), para: cue('para') };
+    c.fin = w[w.length - 1].fin + 0.65; duracion = c.fin; c.para0 = c.el - 0.05;
+    this.cortes = [0, c.mano - 0.06, c.diez - 0.06, c.vean - 0.08, c.tomen - 0.06, c.traigan - 0.06, c.tres - 0.06, c.durante - 0.06, c.cin2 - 0.06, c.y - 0.06, c.para0, c.fin - 0.3];
+    efectos = [['tick', 0.0], ['hit', 0.02], ['tick', 0.5], ['tick', 1.0], ['whoosh', c.mano - 0.1], ['whoosh', c.diez - 0.1], ['ding', c.diez + 0.1], ['whoosh', c.vean - 0.1], ['whoosh', c.tomen - 0.1], ['whoosh', c.traigan - 0.1],
+      ['riser', c.tres - 0.4], ['whoosh', c.tres - 0.08], ['whoosh', c.durante - 0.08], ['riser', c.cin2 - 1.0], ['hit', c.cin2], ['buzz', c.cin2 + 0.05], ['whoosh', c.y - 0.1], ['tap', c.tarjeta + 0.1], ['ding', c.tarjeta + 0.25], ['hit', c.para0], ['whoosh', c.para0 + 0.3], ['clink', c.para0 + 0.75], ['pop', c.para0 + 0.8]];
+    this.musica = 'tictac_espera'; this.volMusica = 0.55;
+  },
+  anios(t) { const c = this.c; return clamp((t - c.tres) / (c.cin2 - c.tres)) * 50; },
+  minutos(t) { const c = this.c; if (t < c.tres) return t * 2.6; if (t < c.para0) return c.tres * 2.6 + (t - c.tres) * (t < c.cin2 ? 900 : 300) * Math.min(1, (t - c.tres) / 0.8); return this._mStop ?? 0; },
+  actualizar(t) {
+    const c = this.c, M = this.M, yo = this.yo, k = this.camarero, viejo = clamp(this.anios(t) / 50);
+    // reloj
+    if (t < c.para0) this._mStop = this.minutos(t); this.reloj.userData.poner(this.minutos(t));
+    // día y noche a cámara rápida durante los años
+    const lapso = entre(t, c.tres, c.cin2); const dn = lapso ? 0.5 + 0.5 * Math.sin((t - c.tres) * 26) : 1; this.sol.intensity = 0.4 + 1.6 * dn; hemi.intensity = 0.7 + 1.0 * dn;
+    // la gente aparece y desaparece mientras pasan los años
+    this.gente.forEach((g, i) => { g.reset(); g.respirar(t, i); if (Math.sin(t * 1.3 + i * 2) > 0.2) g.hablar(t + i); g.g.visible = !lapso || Math.sin((t - c.tres) * (9 + i * 3.1) + i) > -0.2; });
+    this.cocinero.reset(); this.cocinero.respirar(t, 4);
+    // cliente: envejece
+    yo.reset(); yo.respirar(t, 1); yo.cejas.forEach(ce => (ce.rotation.z = 0));
+    const colPelo = new THREE.Color('#2b1b13').lerp(new THREE.Color('#f4f4f4'), ease(viejo)); this.pelo.forEach(m => m.material.color.copy(colPelo));
+    this.gafas.visible = viejo > 0.45; this.bigote.visible = viejo > 0.7; this.baston.visible = viejo > 0.85;
+    const toca = entre(t, c.y - 0.06, c.para0);
+    if (!toca) { yo.bD.hombro.rotation.set(-2.85, 0, -0.25); yo.bD.codo.rotation.x = -0.15 + (viejo > 0.6 ? 0.25 : 0); yo.bD.mano.rotation.z = Math.sin(t * 7) * 0.25 * (1 - viejo); }
+    yo.cabeza.rotation.y = Math.sin(t * 1.7) * 0.2; yo.raiz.rotation.x = viejo * 0.18; yo.raiz.rotation.z = -viejo * 0.06;
+    yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * (0.25 + 0.15 * viejo)));
+    if (t > c.para0 + 0.75) { yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.15)); yo.boca.scale.set(1.6, 0.4, 0.5); yo.bD.hombro.rotation.set(-1.0, 0, 0.1); yo.bD.codo.rotation.x = -1.2; }
+    // telarañas (a partir de los 54 días)
+    yo.g.updateMatrixWorld(true); const pm = yo.bD.mano.getWorldPosition(new THREE.Vector3()), pc = yo.cabeza.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 0.15, 0));
+    this.telas.visible = t > c.cin2 - 0.05 && t < c.para0 + 0.4; const Y = new THREE.Vector3(0, 1, 0);
+    this.telas.children.forEach((h, i) => { const a = pm.clone().lerp(pc, i / 7).add(new THREE.Vector3(0, -0.05 * i, 0)); const b = pc.clone().add(new THREE.Vector3(Math.sin(i) * 0.1, -0.08 * i, Math.cos(i * 2) * 0.05)); const d = b.clone().sub(a);
+      h.position.copy(a).addScaledVector(d, 0.5); h.scale.set(1, d.length(), 1); h.quaternion.setFromUnitVectors(Y, d.normalize()); });
+    // camarero: pasa sin mirar, toma nota en otra mesa
+    k.reset(); k.g.visible = true; k.bandeja.visible = true; k.bI.codo.rotation.x = -1.5; k.bI.hombro.rotation.x = -0.15; k.bandeja.rotation.set(1.65, 0, 0);
+    if (t < c.tomen - 0.06) { const ida = t < c.vean - 0.08; const q = ida ? clamp((t - c.mano + 0.3) / 1.8) : clamp((t - c.vean + 0.3) / 0.9); const x = ida ? lerp(-4.2, 4.2, q) : lerp(4.2, -4.2, q);
+      k.g.position.set(x, 0, 1.95); k.g.rotation.y = ida ? Math.PI / 2 : -Math.PI / 2; k.andar(t * 2.6, 1); k.bandeja.rotation.set(1.65, 0, 0); k.bI.codo.rotation.x = -1.5; k.cabeza.rotation.y = ida ? 0.6 : -0.6; }
+    else { k.g.position.set(2.55, 0, -0.2); k.g.rotation.y = Math.PI / 2; k.bandeja.visible = false; k.bD.hombro.rotation.set(-1.1, 0, 0.2); k.bD.codo.rotation.x = -1.1; k.bI.hombro.rotation.set(-1.0, 0, -0.2); k.bI.codo.rotation.x = -1.2 + Math.sin(t * 2) * 0.05; k.cabeza.rotation.x = 0.35; k.hablar(t, 0.3); }
+    // ticket interminable
+    const qt = clamp((t - c.traigan + 0.1) / (c.tres - c.traigan + 0.1)); const largo = 0.02 + qt * 1.15; this.ticket.visible = t > c.traigan - 0.2 && t < c.tres + 0.2; this.ticket.scale.y = largo; this.ticket.position.set(-1.6, 1.2 - largo / 2 + 0.02, -4.97); this.ticket.rotation.x = 0.04;
+    // tarjeta y móvil
+    this.tjE.visible = t > c.y - 0.1; this.mv.visible = toca; const tToque = c.tarjeta + 0.05;
+    if (toca) { const q = prog(t, c.y - 0.06, tToque); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mv.position.copy(lejos).lerp(this.ph, q); this.mv.lookAt(this.mv.position.clone().add(this.nrm));
+      this.mv.userData.pantalla(t > tToque + 0.15 ? 'cartaDesayuno' : 'bloqueo', t > tToque + 0.15 ? { mesa: 1, sel: 1, enviado: t > tToque + 0.4 } : { hora: '10:42', dia: 'dentro de 50 años' }); yo.bD.hombro.rotation.set(-1.2, 0, 0.1); yo.bD.codo.rotation.x = -0.5; yo.cabeza.rotation.x = 0.3; }
+    this.on.userData.actualizar(t, toca && t > tToque - 0.05 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
+    // la caña llega en cuanto se para el reloj
+    const qc = prog(t, c.para0 + 0.25, c.para0 + 0.8); this.canaV.visible = t > c.para0 + 0.2; const ini = new THREE.Vector3(-2.2, 1.25, -5.1); this.canaV.position.copy(ini).lerp(this.canaMesa, qc); this.canaV.position.y += Math.sin(qc * Math.PI) * 0.9; this.canaV.rotation.set(0, qc * 6, (1 - qc) * 0.5);
+    // cámara
+    let n = 0; this.cortes.forEach((a, i) => { if (t >= a) n = i; }); const d = t - this.cortes[n]; let fov = 42; cam.up.set(0, 1, 0);
+    const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); fov = f; };
+    const cara = [M.x, 1.25, M.z + 0.72];
+    switch (n) {
+      case 0: pon(M.x + 0.15, 1.42, M.z - 0.45 - d * 0.12, cara[0], 1.45, cara[2], 50); break;
+      case 1: pon(M.x - 0.9, 1.25, M.z - 1.4, M.x + 0.3, 1.35, 1.6, 52); break;
+      case 2: pon(0, 2.15, 2.6 - d * 0.15, 0, 2.15, 3.93, 50); break;
+      case 3: pon(M.x + 0.6, 0.95, M.z - 0.9, M.x, 1.4, 1.9, 56); break;
+      case 4: pon(4.45, 1.85, 0.55, 2.55, 1.3, -0.2, 42); break;
+      case 5: pon(-0.95, 1.45, -4.05 + d * 0.05, -1.6, 0.75, -4.95, 50); break;
+      case 6: pon(M.x, 1.5, M.z - 1.0 - d * 0.2, M.x, 1.75, 3.0, 54); break;
+      case 7: { const a = 0.9 - d * 0.35; pon(M.x + Math.sin(a) * 2.0, 1.5, cara[2] - Math.cos(a) * 2.0, cara[0], 1.25, cara[2], 46); break; }
+      case 8: pon(M.x + 0.35, 1.45, M.z - 0.35, cara[0], 1.4, cara[2], 48); break;
+      case 9: { const q = this.cen; pon(q.x + 0.62, q.y + 0.32, q.z + 0.42, q.x, q.y, q.z, 44); break; }
+      case 10: pon(M.x, 1.55, M.z - 1.35 - d * 0.1, M.x, 1.6, 3.0, 56); break;
+      case 11: pon(M.x + 0.15, 1.42, M.z - 0.45, cara[0], 1.45, cara[2], 50); break;
+    }
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    this.desenfoque = n > 0 && d < 0.1 ? 10 * (1 - d / 0.1) : 0; if (lapso) this.desenfoque = Math.max(this.desenfoque, 1.5);
+    vigilarCamara(t, [k, yo, ...this.gente]); vigilarPaso(t, k, this.mesas, [yo, ...this.gente]);
+  },
+  fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0; for (const g of [0.02, c.cin2, c.para0]) { const d = t - g; if (d >= 0 && d < 0.3) { temblor = Math.max(temblor, (1 - d / 0.3) * 12); zoom = Math.max(zoom, 1 + 0.08 * (1 - d / 0.3)); } if (d >= 0 && d < 0.1) flash = Math.max(flash, 0.5 * (1 - d / 0.1)); }
+    if (entre(t, c.tres, c.cin2)) temblor = Math.max(temblor, 2.5); return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; velos(); const quieto = t >= c.para0 && t < c.para0 + 0.7;
+    if (quieto) { C.save(); C.globalCompositeOperation = 'saturation'; C.fillStyle = 'rgba(128,128,128,0.8)'; C.fillRect(0, 0, W, H); C.restore(); }
+    const pills = (lineas, Y, k, tam = 76) => { C.save(); C.translate(W / 2, Y); C.scale(k, k); C.font = `900 ${tam}px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
+      lineas.forEach(([l, col], i) => { const y = i * (tam + 26), w = C.measureText(l).width + 50; C.fillStyle = col; rr(C, -w / 2, y - tam * 0.64, w, tam * 1.28, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, y + 3); }); C.restore(); };
+    if (t < c.diez - 0.06) pills([['VAS A PASAR', 'rgba(255,255,255,0.95)'], ['2 MESES DE TU VIDA', '#ffd34d'], ['ESPERANDO AL CAMARERO', 'rgba(255,255,255,0.95)']], 230, entra(t, -0.45), 64);
+    // marcador
+    if (t >= c.diez - 0.06 && t < c.fin - 0.35) { const ki = entra(t, c.diez - 0.06); C.save(); C.translate(W / 2, 250); C.scale(ki, ki); C.textAlign = 'center'; C.textBaseline = 'middle';
+      const caja2 = (txt, sub, X, color, tam) => { C.font = `900 ${tam}px Inter, ${FUENTE}`; const w = Math.max(C.measureText(txt).width + 60, 320); C.fillStyle = 'rgba(10,10,16,0.86)'; rr(C, X - w / 2, -70, w, 172, 24); C.fill(); C.lineWidth = 6; C.strokeStyle = color; rr(C, X - w / 2, -70, w, 172, 24); C.stroke(); C.fillStyle = color; C.fillText(txt, X, 0); C.font = `800 28px Inter, ${FUENTE}`; C.fillStyle = 'rgba(255,255,255,0.85)'; C.fillText(sub, X, 70); };
+      if (t < c.tres - 0.06) caja2(`+${Math.min(10, Math.floor(1 + (t - c.diez) * 4))} MIN`, 'CADA VISITA', 0, '#ffb020', 100);
+      else { const a = this.anios(t), dias = Math.round(a * 54 / 50); caja2(`AÑO ${Math.max(1, Math.round(a))}`, '3 VISITAS / SEMANA', -250, '#ffffff', 78); caja2(`${dias} DÍAS`, 'ESPERANDO', 250, dias >= 54 ? '#ff3b4d' : '#ffb020', 78); }
+      C.restore(); }
+    // hojas de calendario volando
+    if (entre(t, c.tres, c.cin2 + 0.2)) { const R = azar(3); for (let i = 0; i < 14; i++) { const v = 0.5 + R(), f = ((t - c.tres) * v * 1.4 + R()) % 1; const x = R() * W, y = 560 + f * 900; C.save(); C.translate(x + Math.sin(f * 7 + i) * 60, y); C.rotate(f * 4 + i); C.globalAlpha = 0.9 * (1 - f);
+      C.fillStyle = '#fff'; rr(C, -50, -60, 100, 120, 8); C.fill(); C.fillStyle = '#d6283a'; C.fillRect(-50, -60, 100, 30); C.fillStyle = '#111'; C.font = `900 48px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillText(String(1 + Math.floor(R() * 28)), 0, 30); C.restore(); } }
+    if (t > c.cin2 - 0.05 && t < c.y - 0.06) sello('54 DÍAS', clamp((t - c.cin2 + 0.05) / 0.25), '#ff3b4d', -0.1, 150, 820);
+    if (entre(t, c.tarjeta + 0.45, c.para0)) { const [px, py] = proyectar(this.cen); pildora('PEDIDO ENVIADO ✓', px, py - 280, entra(t, c.tarjeta + 0.45), { tono: 'verde', tam: 44 }); }
+    if (quieto || (t > c.para0 && t < c.fin - 0.3)) { const k = entra(t, c.para0 + 0.05); C.save(); C.translate(W / 2, 560); C.scale(k, k); C.font = `900 64px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const l = '⏸ RELOJ PARADO'; const w2 = C.measureText(l).width + 50; C.fillStyle = '#22e07a'; rr(C, -w2 / 2, -48, w2, 96, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, 3); C.restore(); }
+    if (t > c.para0 + 0.6) { const k = entra(t, c.para0 + 0.6); pills([['¿Cuánto es lo máximo', 'rgba(255,255,255,0.95)'], ['que has esperado tú? 👇', '#ffd34d']], 760, k, 58);
+      C.save(); C.globalAlpha = k; C.font = `600 28px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillStyle = 'rgba(255,255,255,0.92)'; C.shadowColor = '#000'; C.shadowBlur = 10; C.fillText('*estimación: 10 min por visita · 3 visitas/semana · 50 años', W / 2, 1270); C.restore(); }
+  },
+};
+
 window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };

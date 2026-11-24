@@ -84,6 +84,26 @@ def intenso(cues):  # «¿Cuántos km…?»: subida, beat 128, doble tiempo, reb
     compas(cues['hasta'], D, mayor, 1.1); P.pon(cues['hasta'], pad([60, 64, 67, 72], D - cues['hasta'], 3500, 0.02), 1.3)
     return P.x
 
+def tictac(cues):  # «¿Cuánto tiempo esperas al camarero?»: tic-tac que se acelera con los años, golpe, y silencio cuando se para el reloj
+    D = cues['fin'] + 0.5; P = Pista(D); tres, cin2, y, para = cues['tres'], cues['cin2'], cues['y'], cues['para']
+    def tic(alto): n = int(0.05 * SR); return (0.45 if alto else 0.3) * sine(2400 if alto else 1800, n) * env(n, 0.001, 0.012)
+    k = 0
+    for t in np.arange(0, tres, 0.25): P.pon(t, tic(k % 2 == 0)); k += 1                        # tic-tac (8.º de 120)
+    for i, t in enumerate(np.arange(0, tres, 0.5)):                                            # pulso: bombo + bajo
+        P.pon(t, kick(0.8)); P.pon(t + 0.25, bajo([45, 45, 48, 43][(i // 2) % 4], 0.22, 500))
+    P.pon(0, pad([57, 60, 64], tres, 900, 0.3))
+    t = tres; vel = 4.0; k = 0                                                                  # los años: cada vez más rápido
+    while t < cin2: P.pon(t, tic(k % 2 == 0)); k += 1; q = (t - tres) / (cin2 - tres); vel = 4 + 28 * q * q; t += 1 / vel
+    for i, t in enumerate(np.arange(tres, cin2, 0.125)):
+        if i % 2 == 0: P.pon(t, kick(0.9))
+        P.pon(t, bajo([45, 57, 48, 60, 43, 55, 47, 59][i % 8], 0.11, 900)); P.pon(t, pluck(69 + (i * 5) % 12, 0.12, 4000), 0.6)
+    P.pon(cin2 - 1.2, riser(1.2, 0.45)); P.pon(cin2, kick(1.3))
+    P.pon(cin2, pad([45, 52, 57], y - cin2, 1500, 0.02), 1.2)                                   # 54 días: grave y pesado
+    for i, t in enumerate(np.arange(y, para - 0.05, 0.15)): P.pon(t, pluck([72, 76, 79, 84][i % 4], 0.14, 5000), 0.9)  # la tarjeta: brillo ascendente
+    P.pon(para + 0.7, pad([60, 64, 67, 72], D - para - 0.7, 3000, 0.05), 1.3)                  # silencio al pararse el reloj y acorde final
+    for i, t in enumerate(np.arange(para + 0.7, D, 0.25)): P.pon(t, pluck([72, 76, 79, 76][i % 4], 0.2, 3500), 0.7)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -93,4 +113,5 @@ def guarda(x, dst):
 if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
-    else: import json; guarda(intenso(json.loads(sys.argv[3])), dst)
+    else:
+        import json; q = json.loads(sys.argv[3]); guarda((tictac if tema == 'tictac' else intenso)(q), dst)
