@@ -3,7 +3,6 @@ import { html, useEffect, useMemo, useState } from './preact.js';
 import {
   borrarLocal, crearLocal, editarLocal, esSocio, historial, importarLocales, useStore,
 } from './datos.js';
-import { puntosDe } from './concurso.js';
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, Interes, Seccion, TarjetaLocal, Vacio, aviso, ir, nombreDe, volver,
 } from './ui.js';
@@ -177,7 +176,6 @@ export function FichaLocal({ id }) {
 function EntradaHistorial({ x, productos, locales }) {
   const prods = productos.filter((p) => x.productos?.includes(p.id)).map((p) => p.nombre);
   const quien = x.contacto === 'nadie' ? null : x.contacto === 'dueno' ? `Habló con el dueño${x.dueno_nombre ? ` (${x.dueno_nombre})` : ''}` : `Habló con un empleado${x.empleado_nombre ? ` (${x.empleado_nombre})` : ''}`;
-  const puntos = puntosDe(x, locales);
   const deCita = x.tipo !== 'visita' ? null
     : !x.cita_origen_id ? 'Visita sin cita previa (puerta fría)'
     : x.cita_conseguida_por ? `Visita de la cita que consiguió ${nombreDe(x.cita_conseguida_por)}` : 'Visita de la cita';
@@ -190,7 +188,7 @@ function EntradaHistorial({ x, productos, locales }) {
       ${x.resultado === 'rellamar' && x.rellamar_fecha ? html` <span>${fechaRelativa(x.rellamar_fecha)}${x.rellamar_hora ? ` · ${hora(x.rellamar_hora)}` : ''}</span>` : null}
       ${x.importe ? html` <b>${euros(x.importe)}</b>` : null}
       <${Interes} n=${x.interes} />
-      ${puntos.map((pt) => html`<span class=${`punto ${pt.tipo}`}>+${pt.puntos} ${nombreDe(pt.id)}</span>`)}</div>
+</div>
     ${quien ? html`<p>${quien}</p>` : null}
     ${prods.length ? html`<div class="etqs">${prods.map((p) => html`<span class="etq">${p}</span>`)}</div>` : null}
     ${x.notas ? html`<p class="notas">${x.notas}</p>` : null}
@@ -200,8 +198,7 @@ function EntradaHistorial({ x, productos, locales }) {
 // ---------- Alta y edición ----------
 const VACIO = { nombre: '', tipo: null, telefono: '', direccion: '', zona: '', dueno_nombre: '', dueno_telefono: '', estado: 'pendiente', interes: null, productos: [], comercial_id: null, notas: '' };
 
-// Cambia el día, la hora o quién va a una cita ya conseguida. No apunta una llamada nueva,
-// así que el punto del concurso sigue siendo de quien consiguió la cita.
+// Cambia el día, la hora o quién va a una cita ya conseguida. No apunta una llamada nueva.
 function CambiarCita({ l, onListo }) {
   const s = useStore();
   const [f, setF] = useState(() => ({ fecha: l.cita_fecha || hoyISO(), hora: hora(l.cita_hora), quien: l.cita_comercial_id || s.yo.id }));
@@ -234,7 +231,7 @@ function CambiarCita({ l, onListo }) {
     <span class="campo-et">¿Quién va a ver al dueño?</span>
     <${Chips} valor=${f.quien} onCambio=${(v) => v && cambiar('quien', v)}
       opciones=${activos.map((p) => ({ v: p.id, txt: p.id === s.yo.id ? `${p.nombre} (yo)` : p.nombre, ico: html`<${Avatar} p=${p} t=${18} />` }))} />
-    <p class="ayuda">No cuenta como llamada nueva: el punto del concurso sigue siendo de quien consiguió la cita.</p>
+    <p class="ayuda">No cuenta como llamada nueva.</p>
     <div class="botones-dos">
       <button type="button" class="btn sec" onClick=${onListo} disabled=${guardando}>Cancelar</button>
       <button class="btn primario" disabled=${guardando}>${guardando ? 'Guardando…' : 'Guardar cita'}</button>

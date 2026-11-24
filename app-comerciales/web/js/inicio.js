@@ -1,7 +1,6 @@
 // Pantallas de Inicio (resumen de la semana) y Agenda (visitas y rellamadas).
 import { html, useMemo, useState } from './preact.js';
 import { AVISOS_KEY, useStore } from './datos.js';
-import { TarjetaConcurso } from './concurso.js';
 import {
   Avatar, BotonTel, Cabecera, Chips, Icono, Seccion, TarjetaLocal, Vacio, ir, nombreDe,
 } from './ui.js';
@@ -82,8 +81,6 @@ export function Inicio() {
     </div>
 
     ${avisosPendientes() ? html`<a class="alerta enlace" href="#/ajustes"><${Icono} n="tel" t=${18} /> Activa los avisos al móvil para no perderte ninguna cita. <b>Activar</b></a>` : null}
-
-    <${TarjetaConcurso} />
 
     ${d.sinResultado.length ? html`
       <${Seccion} titulo="Visitas sin resultado" enlace="/agenda">

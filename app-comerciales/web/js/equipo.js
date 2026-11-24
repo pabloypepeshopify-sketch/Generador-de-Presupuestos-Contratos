@@ -7,7 +7,6 @@ import {
 import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Seccion, Vacio, aviso, nombreDe,
 } from './ui.js';
-import { SeccionConcurso, puntosDe } from './concurso.js';
 import {
   COLORES, ESTADOS, ORDEN_ESTADOS, contrasenaAleatoria, descargarCSV, euros, hora, inicioPeriodo, isoLocal, mensajeError, pct, textoResultado,
 } from './util.js';
@@ -65,7 +64,6 @@ export function Informe() {
       <a class="icono-btn" href="#/catalogo" aria-label="Catálogo"><${Icono} n="catalogo" /></a>
       <a class="icono-btn" href="#/ajustes" aria-label="Ajustes"><${Icono} n="ajustes" /></a>
     </${Cabecera}>
-    <${SeccionConcurso} />
     <div class="seccion-cab"><h2>Actividad</h2></div>
     <${Chips} opciones=${PERIODOS} valor=${periodo} onCambio=${(v) => v && setPeriodo(v)} />
 
@@ -128,11 +126,11 @@ export function Informe() {
   function exportarLlamadas() {
     const nombreLocal = new Map(s.locales.map((l) => [l.id, l.nombre]));
     descargarCSV(`llamadas-${isoLocal(new Date())}.csv`, [
-      ['Fecha', 'Comercial', 'Local', 'Tipo', 'Habló con', 'Resultado', 'Interés', 'Dueño', 'Empleado', 'Cita día', 'Cita hora', 'Importe €', 'Cita conseguida por', 'Puntos', 'Notas'],
+      ['Fecha', 'Comercial', 'Local', 'Tipo', 'Habló con', 'Resultado', 'Interés', 'Dueño', 'Empleado', 'Cita día', 'Cita hora', 'Importe €', 'Cita conseguida por', 'Notas'],
       ...s.llamadas.map((l) => [new Date(l.creado_en).toLocaleString('es-ES'), nombreDe(l.comercial_id), nombreLocal.get(l.local_id), l.tipo,
         { nadie: 'Nadie', empleado: 'Empleado', dueno: 'Dueño' }[l.contacto], textoResultado(l), l.interes, l.dueno_nombre, l.empleado_nombre,
         l.cita_fecha, hora(l.cita_hora), l.importe, l.cita_conseguida_por ? nombreDe(l.cita_conseguida_por) : '',
-        puntosDe(l, s.locales).map((pt) => `+${pt.puntos} ${nombreDe(pt.id)}`).join(', '), l.notas]),
+        l.notas]),
     ]);
   }
 }

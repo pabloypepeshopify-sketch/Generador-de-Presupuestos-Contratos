@@ -5,7 +5,6 @@ import {
   Avatar, Cabecera, Campo, Chips, Grupo, Icono, Insignia, aviso, ir, nombreDe, volver,
 } from './ui.js';
 import { AvisoDuplicado } from './locales.js';
-import { concursoEnMarcha, puntosDe } from './concurso.js';
 import {
   ESTADOS, HORAS, INTERES, TIPOS_LOCAL, euros, fechaLarga, fechaRelativa, gcalHref, haceCuanto, hora, hoyISO, mensajeError, normTel, normTxt,
   sumarDias, whatsappHref,
@@ -218,8 +217,8 @@ export function FormLlamada({ query, tipo: tipoInicial = 'llamada' }) {
           ${citaDeLaVisita
             ? html`<span>📅</span><div>Es la cita ${quienConsiguio ? html`que consiguió <b>${nombreDe(quienConsiguio)}</b>` : 'pendiente'}
                 · ${fechaRelativa(local.cita_fecha)}${local.cita_hora ? ` ${hora(local.cita_hora)}` : ''}.
-                <small>${quienConsiguio && concursoEnMarcha() ? `Si hablas con el dueño, suma 1 punto para ${nombreDe(quienConsiguio)}.` : 'Se apunta como visita de esta cita.'}</small></div>`
-            : html`<span>🚪</span><div>Visita sin cita previa (puerta fría).${concursoEnMarcha() ? html`<small>Si vendes, suma 7 puntos.</small>` : null}</div>`}
+                <small>Se apunta como visita de esta cita.</small></div>`
+            : html`<span>🚪</span><div>Visita sin cita previa (puerta fría).</div>`}
         </div>` : null}
       <//>
 
@@ -299,7 +298,6 @@ function Hecho({ id, ll }) {
   const l = s.locales.find((x) => x.id === id);
   if (!l) return null;
   const esVisita = ll.tipo === 'visita';
-  const puntos = puntosDe(ll, s.locales);
   const frases = {
     cita: `Cita con el dueño de ${l.nombre}: ${fechaLarga(l.cita_fecha)}${l.cita_hora ? ` a las ${hora(l.cita_hora)}` : ''}. Va ${nombreDe(l.cita_comercial_id)}.`,
     rellamar: `Hay que volver a llamar a ${l.nombre}${l.rellamar_fecha ? ` ${fechaRelativa(l.rellamar_fecha).toLowerCase()}` : ''}.`,
@@ -316,8 +314,6 @@ function Hecho({ id, ll }) {
       <div class="hecho-ico" style=${`--c:${ESTADOS[l.estado].color}`}><${Icono} n="check" t=${40} /></div>
       <h1>${ll.resultado === 'vendido' ? html`¡Venta <em class="acento">cerrada!</em>` : l.estado === 'cita' ? html`¡Cita <em class="acento">conseguida!</em>` : esVisita ? html`Visita <em class="acento">apuntada</em>` : html`Llamada <em class="acento">apuntada</em>`}</h1>
       <p>${(ll.resultado === 'no_contesta' ? frases.no_contesta : frases[l.estado]) || 'Guardado.'}</p>
-      ${puntos.length ? html`<div class="puntos-ganados">${puntos.map((pt) => html`<span class=${`punto ${pt.tipo}`}>
-        +${pt.puntos} ${pt.puntos === 1 ? 'punto' : 'puntos'} para ${nombreDe(pt.id)} · ${pt.tipo === 'cita' ? 'cita hecha' : 'venta'}</span>`)}</div>` : null}
       <div class="hecho-acc">
         ${l.estado === 'cita' ? html`<a class="btn primario grande bloque" href=${gcalHref(l, nombreDe(l.cita_comercial_id))} target="_blank" rel="noopener"><${Icono} n="agenda" /> Añadir a Google Calendar</a>` : null}
         ${wa ? html`<a class="btn sec grande bloque" href=${wa} target="_blank" rel="noopener"><${Icono} n="chat" /> Confirmar por WhatsApp al dueño</a>` : null}
