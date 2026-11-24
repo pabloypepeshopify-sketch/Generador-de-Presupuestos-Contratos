@@ -88,8 +88,8 @@
 - **«¿Chasquear los dedos al camarero?»** El chasquido congela el tiempo, la cámara gira 360° (*bullet time*) y el camarero se gira a cámara lenta. Luego 5 formas de llamar al camarero (silbar, «¡jefe!», mano, chasquido, tarjeta), cada una con su reacción. Cierre: «¿Cuál es de mala educación? 👇».
 - **«Yo intentando pedir la cuenta un sábado».** El camarero pasa de largo cada segundo de una forma imposible distinta (patinete, parkour por las mesas, teletransporte, mochila cohete, deslizándose por la barra…). Final en bucle.
 
-## Cola de vídeos aprobados (24 de noviembre), pendientes de empezar
-El usuario ha pedido guardarlos y **no empezarlos todavía**.
+## Cola de vídeos aprobados (23–24 de noviembre)
+**Hechos:** «LA ÚLTIMA MESA» (`ultima`), «¿Cuántos km anda un camarero?» (`km`) y «MARTES, 23:58» (`martes`). **Pendiente:** «la caña de 2 €».
 
 ### Explicativos (curiosidad: se guardan y se comparten)
 1. **«¿Cuánto gana un bar con una caña de 2 €?»** (~14 s, voz Dani, rótulo «cifras aproximadas»). Una caña gigante se va partiendo: Hacienda −0,18 · cerveza −0,60 · camarero −0,50 · alquiler y luz −0,30 · vasos, lavavajillas y tapa −0,20 → beneficio ≈ 0,22 € (moneda diminuta). Texto final: «¿Te parece caro o barato? 👇».
@@ -103,3 +103,12 @@ El usuario ha pedido guardarlos y **no empezarlos todavía**.
 ### Otras ideas descartadas o aparcadas en este momento
 - «¿Por qué en España te ponen tapa gratis?» y «¿Por qué la caña lleva dos dedos de espuma?» (guiones hechos y no elegidos).
 - «EL BAR QUE NO EXISTÍA» (misterio).
+
+## Lo aprendido haciendo los últimos vídeos (24 de noviembre)
+1. **Música a medida en cada vídeo.** Repetir siempre la misma música fue un fallo. La música sigue a la historia: subidas en los picos, frenazo o silencio en el giro, cambio de tono en el final (thriller → triunfo → cómico). Se compone gratis con `video/musica/src/sinte.py`.
+2. **Primer fotograma legible.** Nada de empezar a oscuras: la cara del personaje iluminada y el texto gancho ya entero en el fotograma 0 (sin animación de entrada).
+3. **Marca sin anuncio.** En los vídeos sin producto, la marca aparece **un instante** (menos de 1 s: alguien acerca el móvil a la tarjeta) en mitad de la acción, sin que nadie la nombre. Deja la marca y no rompe la historia.
+4. **Historias con título de cine, diálogo y bocas.** Cada personaje con su voz y solo mueve la boca quien habla. Giro final + pregunta que divida («¿Tú le habrías dado de cenar?»).
+5. **Insultos suaves y castizos** («listo», «payaso», «me cago en la mar») dan carácter y humor sin perder alcance; los tacos fuertes pueden limitar la distribución.
+6. **Duración real de las piezas:** explicativos 14–15 s; historias 16–20 s (con diálogo cuesta bajar de 16).
+7. **Coste por vídeo:** el uso de Claude (suscripción) + ElevenLabs solo para voces (≈130–300 créditos por voz, una toma). La música y el render no cuestan nada.
