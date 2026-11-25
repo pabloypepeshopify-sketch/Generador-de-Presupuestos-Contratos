@@ -41,3 +41,14 @@ main.a-wrap { padding-top: 16px; padding-bottom: 60px; }
 
 .nl-badge main.a-wrap { padding-bottom: 110px; }
 
+
+/* Resumen de hoy */
+.hoy-strip { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 6px 0 10px; font-size: 15px; }
+.hoy-strip span { white-space: nowrap; }
+.hoy-strip b { font-size: 17px; }
+/* Opiniones */
+.op-media { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.op-media b { font-size: 34px; }
+.op-row { padding: 10px 0; border-top: 1px solid var(--line); }
+.op-row .est { color: #f2b705; letter-spacing: 1px; }
+.op-row p { margin: 4px 0 0; overflow-wrap: anywhere; }

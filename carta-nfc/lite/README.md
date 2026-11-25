@@ -13,15 +13,16 @@ sin facturación. El bar sigue cobrando con su TPV.
 
 Es un frontal **separado** de la versión completa (`../web/`, con TPV). Usa **la misma base de datos**.
 Lo propio de esta versión está en `../supabase/009_panel_bar.sql` (mapa, agotados desde el panel, cuenta de la mesa y
-código de mesa); todo viene apagado, así que los bares que ya existen siguen igual.
+código de mesa) y `../supabase/010_extras.sql` (WiFi, opciones por plato, valoraciones + reseña de Google, trivial y
+resumen "Hoy"); todo viene apagado, así que los bares que ya existen siguen igual.
 
 ## Qué incluye
 
 | Página | Para quién | Qué hace |
 |---|---|---|
-| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado), **Llamar al camarero** y **Pedir la cuenta**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
-| `cocina.html` | Móvil del bar | **Pedidos**: los nuevos en letra grande, **timbre fuerte** que se repite cada 20 s mientras haya algo sin atender, pantalla siempre encendida, **✓ Apuntado** con ↩ para deshacer, y avisos de camarero y cuenta. **Mesas**: **mapa con colores** (verde, acaba de pedir; naranja, llama o pide la cuenta; con consumo; libre); al tocar una mesa se ve lo que lleva, **🖨 Imprimir ticket**, **Cobrada · liberar mesa** y, si el bar lo usa, el **código de mesa**. **Carta**: **agotado en un toque**. **🖥 Pantalla**: cada aparato puede ver solo unas categorías (cocina sin bebidas, barra solo bebidas) con su "✓ Hecho". **📱 QR carta**, pausar pedidos y, sin internet, "Conectando…" hasta que vuelve, sin pedir la clave. |
-| `admin.html` | Dueño | Carta (productos, precios, fotos, alérgenos, **Agotado** en un toque), Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa), claves e **Informes**. |
+| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **opciones por plato** (punto de la carne, picante…: se eligen al añadir y van a cocina), **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado → 🍽 ¡Listo! → Servido), **📶 WiFi del bar** (solo desde una mesa), **🧠 Trivial** (solo el nombre, ranking del día), **Llamar al camarero** y **Pedir la cuenta**, que después pregunta **"¿Qué tal todo?"** (estrellas + comentario privado para el dueño) y ofrece a todos la **reseña de Google**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
+| `cocina.html` | Móvil del bar | **Pedidos**: los nuevos en letra grande, **timbre fuerte** que se repite cada 20 s mientras haya algo sin atender, pantalla siempre encendida, **✓ Apuntado** con ↩ para deshacer, **🍽 Listos para servir** (lo que la cocina ha terminado → **✓ Servido**) y avisos de camarero y cuenta. **Mesas**: **mapa con colores** (verde, acaba de pedir; naranja, llama o pide la cuenta; azul, listo para servir; con consumo; libre); al tocar una mesa se ve lo que lleva, **🖨 Imprimir ticket**, **Cobrada · liberar mesa** y, si el bar lo usa, el **código de mesa**. **Carta**: **agotado en un toque**. **🖥 Pantalla**: "Camarero" (lo de arriba) o **"Cocina / barra"**: tres columnas **Nuevos → Preparando → ¡Listos!** con el tiempo de cada pedido en verde/amarillo/rojo (10 y 20 min), solo las categorías que elijas (cocina sin bebidas, barra solo bebidas) y, si quieres, **recibir los pedidos solo cuando el camarero los apunta** (así no se cocina nada que no esté en el TPV). "¡Listo!" avisa al camarero con su propio timbre. **📱 QR carta**, pausar pedidos y, sin internet, "Conectando…" hasta que vuelve, sin pedir la clave. |
+| `admin.html` | Dueño | Carta (productos, precios, fotos, alérgenos, **Agotado** en un toque), Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa, código de mesa, **WiFi, enlace de reseñas de Google y trivial**), claves, **Informes**, **⭐ Opiniones** (estrellas y comentarios) y arriba el resumen **Hoy** (vendido, pedidos, mesas con consumo, ⭐ media de 30 días y quién gana el trivial). En cada plato, **opciones** ("Punto: Poco hecho, Al punto, Hecho"). |
 | `demo.html` | Tú, para vender | **Demo en directo**: la carta del cliente y el móvil del bar lado a lado (en el móvil, con pestañas). Haces un pedido y el dueño ve cómo suena y llega. Enlace: `demo.html?r=<slug>&k=<clave del panel>&m=<código de mesa>` (sale en `alta.html`). |
 | `privacidad.html` | Cliente | Qué se guarda (nada personal). Enlazada en el pie de la carta. TODO(gestoría): revisar. |
 | `kit.html` | Tú (desde Gestión → Mesas y NFC) | **Kit de instalación**: un adhesivo por mesa (nombre, QR, zona del NFC, logo) en A4 o para imprenta, y el QR de la carta general en PNG para la galería del camarero. |
@@ -50,10 +51,22 @@ stock, mover/juntar mesas, "Varios", puestos y "Corregir".
 | En la BD (`carta.pedidos.estado`) | Panel | Cliente |
 |---|---|---|
 | `nuevo` | Nuevos (suena) | Recibido |
-| `servido` | Apuntados hace poco | ✓ Apuntado |
+| `preparando` | "✓ Apuntado" → Apuntados hace poco · en la pantalla de cocina: Nuevos / Preparando | ✓ Apuntado |
+| `listo` | Cocina tocó "¡Listo!" → 🍽 Listos para servir | 🍽 ¡Listo! |
+| `servido` | "✓ Servido" | ✓ Servido |
 | `cancelado` (✕) | — | Cancelado |
 
-"Cobrada · liberar mesa" marca los pedidos y avisos de la mesa como `cerrado`.
+"Cobrada · liberar mesa" marca los pedidos y avisos de la mesa como `cerrado`. Sin pantalla de cocina el pedido se queda
+en `preparando` (✓ Apuntado) hasta liberar la mesa. Si la cocina toca "¡Listo!" antes de que el camarero lo apunte, se
+queda listo en la cocina y pasa a `listo` en cuanto el camarero lo apunta. "Preparando" en la pantalla de cocina es de
+ese aparato (no cambia nada en la BD).
+
+**Reseñas**: la carta pide la valoración a todos y ofrece Google a todos, ponga las estrellas que ponga: Google no permite
+pedir reseñas solo a los contentos ("review gating"). El comentario es privado para el dueño.
+
+**Trivial**: 44 preguntas comunes (cultura general y Sevilla) en `carta.trivia_preguntas`; cada partida son 10 al azar.
+Las respuestas buenas nunca salen al navegador: corrige el servidor y cuenta el tiempo. Solo se guarda el nombre que pone
+el cliente, la mesa y la puntuación. Máx. 8 partidas por mesa cada media hora.
 
 ### El ticket impreso
 
@@ -119,13 +132,17 @@ cd carta-nfc/tests
 node e2e-lite.mjs     # levanta su BD y su servidor (puerto 8788) → E2E LITE OK
 bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-panel.sql
                       # → TODAS LAS PRUEBAS DEL PANEL OK (mapa, agotados, cuenta de la mesa, código de mesa)
+bash db-local.sh && psql -h /tmp -p 54329 -U postgres -d carta_test -v ON_ERROR_STOP=1 -f sql-tests-extras.sql
+                      # → TODAS LAS PRUEBAS DE EXTRAS OK (WiFi, opciones, valoraciones, trivial)
 WEB_ROOT=../lite PORT=8789 node e2e-kit.mjs        # kit contra lite → E2E KIT OK
 WEB_ROOT=../lite PORT=8789 node e2e-clientes.mjs   # cuotas contra lite → E2E CLIENTES OK
 WEB_ROOT=../lite PORT=8789 node e2e-papeles.mjs    # papeles contra lite → E2E PAPELES OK
 ```
 
 Cubre: pedir desde el NFC → llega al panel con sonido → ✓ Apuntado (y deshacer) → el cliente lo ve →
-pedir la cuenta → imprimir ticket → liberar mesa; carta general eligiendo mesa; QR en el panel; tamaños
+pedir la cuenta → valorar + reseña de Google → imprimir ticket → liberar mesa; resumen Hoy y Opiniones; WiFi, opciones
+por plato y trivial; pantalla de cocina (Empezar → ¡Listo! → Listos para servir → Servido, y "solo cuando el camarero lo
+apunta"); carta general eligiendo mesa; QR en el panel; tamaños
 agrupados; tema Martínez; agotado; informe y Excel; sin scroll horizontal en el móvil; nada de TPV/cobros.
 
 ## Límites

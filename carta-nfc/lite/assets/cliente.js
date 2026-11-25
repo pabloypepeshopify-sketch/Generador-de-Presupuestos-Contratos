@@ -9,8 +9,8 @@
   const urlMesa = (ruta && ruta[1] === 'm' ? ruta[2] : qs.get('m')) || null;
   const urlSlug = (ruta && ruta[1] === 'r' ? ruta[2] : qs.get('r')) || null;
 
-  // El bar marca "✓ Apuntado" (estado servido) cuando lo pasa a su TPV.
-  const ESTADOS = { nuevo: 'Recibido', preparando: 'Recibido', listo: '✓ Apuntado', servido: '✓ Apuntado', cancelado: 'Cancelado' };
+  // El bar marca "✓ Apuntado" (preparando) al pasarlo a su TPV; si tiene pantalla de cocina, luego "¡Listo!" y "Servido".
+  const ESTADOS = { nuevo: 'Recibido', preparando: '✓ Apuntado', listo: '🍽 ¡Listo!', servido: '✓ Servido', cancelado: 'Cancelado' };
 
   let menu = null;          // respuesta de carta_menu
   let productos = {};       // id -> producto
@@ -19,6 +19,7 @@
   let enviando = false;
   let pollTimer = null;
   let cuenta = null;        // carta_mesa: lo que lleva pedido la mesa y si hace falta código
+  let info = { opciones: {} };  // carta_info: WiFi, enlace de reseñas y opciones por plato (010_extras.sql)
 
   const ses = {
     get(k, d) { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -61,8 +62,9 @@
       const guardada = ses.get(kMesa(), null);
       if (guardada && menu.mesas.some((m) => m.codigo === guardada.codigo)) mesa = guardada;
     }
+    await cargarInfo();
     carrito = ses.get(kCarrito(), {});
-    Object.keys(carrito).forEach((id) => { if (!productos[id] || !productos[id].disponible) delete carrito[id]; });
+    Object.keys(carrito).forEach((k) => { if (!productos[pidDe(k)] || !productos[pidDe(k)].disponible) delete carrito[k]; });
 
     aplicarColor(menu.restaurante.color);
     aplicarTema(menu.restaurante.slug);
@@ -78,6 +80,23 @@
     observarCategorias();
     refrescarPedidos();
     refrescarCuenta();
+  }
+
+  // WiFi (solo en una mesa), reseñas y opciones por plato. Si la base de datos aún no lo tiene, la carta va igual.
+  async function cargarInfo() {
+    try {
+      info = await rpc('carta_info', { p_slug: menu.restaurante.slug, p_mesa: mesa ? mesa.codigo : null });
+      info.opciones = info.opciones || {};
+    } catch { info = { opciones: {} }; }
+    pintarWifi();
+    $('trivia-card').hidden = !(info.trivia && mesa);
+  }
+
+  function pintarWifi() {
+    const w = $('wifi');
+    w.hidden = !info.wifi_red;
+    w.innerHTML = info.wifi_red ? `<span>📶 <b>WiFi</b> · ${esc(info.wifi_red)}${info.wifi_clave ? ` · clave <b class="num">${esc(info.wifi_clave)}</b>` : ''}</span>
+      ${info.wifi_clave ? '<button type="button" class="btn sm" id="btn-wifi">Copiar clave</button>' : ''}` : '';
   }
 
   function puedePedir() {
@@ -155,11 +174,16 @@
       </article>`;
   }
 
+  // Carrito: la clave es el id del plato o "id~opciones" (el mismo plato con distinto punto va en otra línea).
+  const pidDe = (k) => k.split('~')[0];
+  const enCarrito = (pid) => Object.entries(carrito).reduce((s, [k, l]) => s + (pidDe(k) === pid ? l.cantidad : 0), 0);
+
   function renderControl(p) {
     if (!p.disponible) return '<span class="tag-agotado">Agotado</span>';
     if (!puedePedir()) return '';
-    const n = carrito[p.id] ? carrito[p.id].cantidad : 0;
+    const n = enCarrito(p.id);
     const nombre = esc(p.nombre);
+    if (info.opciones[p.id]) return `<button class="add" type="button" data-add="${esc(p.id)}" aria-label="Añadir ${nombre} (elegir opciones)">+</button>${n ? `<span class="n-opc num" aria-label="${n} en tu pedido">${n}</span>` : ''}`;
     if (!n) return `<button class="add" type="button" data-add="${esc(p.id)}" aria-label="Añadir ${nombre}">+</button>`;
     return `<div class="stepper" role="group" aria-label="Cantidad de ${nombre}">
       <button type="button" data-menos="${esc(p.id)}" aria-label="Quitar uno">−</button>
@@ -171,20 +195,20 @@
     document.querySelectorAll(`[data-ctrl="${CSS.escape(id)}"]`).forEach((el) => { el.innerHTML = renderControl(productos[id]); });
   }
 
-  function cambiar(id, delta) {
-    const actual = carrito[id] ? carrito[id].cantidad : 0;
+  function cambiar(k, delta, opc) {
+    const actual = carrito[k] ? carrito[k].cantidad : 0;
     const n = Math.max(0, Math.min(20, actual + delta));
-    if (n === 0) delete carrito[id];
-    else carrito[id] = { cantidad: n, nota: carrito[id] ? carrito[id].nota : '' };
+    if (n === 0) delete carrito[k];
+    else carrito[k] = { cantidad: n, nota: carrito[k] ? carrito[k].nota : '', opc: carrito[k] ? carrito[k].opc : (opc || '') };
     ses.set(kCarrito(), carrito);
-    refrescarControl(id);
+    refrescarControl(pidDe(k));
     actualizarCarritoBar();
     if ($('dlg-carrito').open) renderCarrito();
   }
 
   function totales() {
     let n = 0, total = 0;
-    Object.entries(carrito).forEach(([id, l]) => { n += l.cantidad; total += l.cantidad * Number(productos[id].precio); });
+    Object.entries(carrito).forEach(([k, l]) => { n += l.cantidad; total += l.cantidad * Number(productos[pidDe(k)].precio); });
     return { n, total };
   }
 
@@ -215,19 +239,19 @@
     const m = menu.restaurante.moneda;
     const lineas = Object.entries(carrito);
     $('carrito-mesa').textContent = mesa ? 'Para ' + mesa.nombre : 'Elige tu mesa al enviar';
-    $('carrito-lineas').innerHTML = lineas.length ? lineas.map(([id, l]) => {
-      const p = productos[id];
+    $('carrito-lineas').innerHTML = lineas.length ? lineas.map(([k, l]) => {
+      const p = productos[pidDe(k)];
       return `<div class="linea">
         <div class="linea-top">
-          <span class="nom">${esc(p.nombre)}</span>
+          <span class="nom">${esc(p.nombre)}${l.opc ? `<small class="opc">${esc(l.opc)}</small>` : ''}</span>
           <div class="stepper">
-            <button type="button" data-menos="${esc(id)}" aria-label="Quitar uno">−</button>
+            <button type="button" data-menos="${esc(k)}" aria-label="Quitar uno">−</button>
             <span class="n num">${l.cantidad}</span>
-            <button type="button" data-add="${esc(id)}" aria-label="Añadir otro">+</button>
+            <button type="button" data-mas="${esc(k)}" aria-label="Añadir otro">+</button>
           </div>
           <span class="num" style="min-width:72px;text-align:right">${dinero(l.cantidad * Number(p.precio), m)}</span>
         </div>
-        <input type="text" maxlength="140" data-nota="${esc(id)}" value="${esc(l.nota || '')}" placeholder="Nota: sin cebolla, poco hecho…" aria-label="Nota para ${esc(p.nombre)}">
+        <input type="text" maxlength="100" data-nota="${esc(k)}" value="${esc(l.nota || '')}" placeholder="Nota: sin cebolla, poco hecho…" aria-label="Nota para ${esc(p.nombre)}">
       </div>`;
     }).join('') : '<p class="muted">Tu pedido está vacío.</p>';
     $('carrito-total').textContent = dinero(totales().total, m);
@@ -238,17 +262,18 @@
     if (enviando) return;
     if (!mesa) { abrirMesas(true); return; }
     if (cuenta && cuenta.codigo_mesa && !cuenta.valido) { pedirCodigo(true); return; }
-    const lineas = Object.entries(carrito).map(([id, l]) => ({ producto_id: id, cantidad: l.cantidad, nota: (l.nota || '').trim() || null }));
+    const lineas = Object.entries(carrito).map(([k, l]) => ({ producto_id: pidDe(k), cantidad: l.cantidad,
+      nota: [l.opc, (l.nota || '').trim()].filter(Boolean).join(' · ').slice(0, 140) || null, opc: l.opc || '' }));
     if (!lineas.length) return;
     enviando = true;
     $('btn-enviar').disabled = true;
     $('btn-enviar').textContent = 'Enviando…';
     try {
       const res = await rpc('carta_pedir_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null,
-        p_lineas: lineas, p_nota: $('carrito-nota').value.trim() || null });
+        p_lineas: lineas.map(({ opc, ...l }) => l), p_nota: $('carrito-nota').value.trim() || null });
       const lista = store.get(kPedidos(), []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
       lista.unshift({ token: res.token, numero: res.numero, creado: res.creado, total: res.total, estado: res.estado,
-        lineas: lineas.map((l) => [l.producto_id, l.cantidad]) });
+        lineas: lineas.map((l) => [l.producto_id, l.cantidad, l.opc]) });
       store.set(kPedidos(), lista.slice(0, 20));
       carrito = {};
       ses.set(kCarrito(), carrito);
@@ -298,6 +323,7 @@
     actualizarCabecera();
     cuenta = null;
     refrescarCuenta();
+    cargarInfo();
     Object.keys(productos).forEach(refrescarControl);
     if (enviarTrasElegir) { renderCarrito(); $('dlg-carrito').showModal(); }
   }
@@ -316,21 +342,22 @@
   async function refrescarPedidos() {
     clearTimeout(pollTimer);
     const lista = store.get(kPedidos(), []);
-    const activos = lista.filter((p) => !['servido', 'cancelado'].includes(p.estado) && Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
+    const activos = lista.filter((p) => !['servido', 'cancelado'].includes(p.estado) && Date.now() - new Date(p.creado).getTime() < 3 * 3600e3);
     if (!activos.length) return;
     if (document.visibilityState === 'visible') {
       try {
         const estados = await rpc('carta_estado', { p_tokens: activos.map((p) => p.token) });
-        let aviso = false;
+        let aviso = '';
         estados.forEach((e) => {
           const p = lista.find((x) => x.token === e.token);
           if (!p) return;
-          if (p.estado === 'nuevo' && e.estado === 'servido') aviso = true;
+          if (e.estado === 'listo' && p.estado !== 'listo') aviso = '🍽 ¡Tu pedido está listo! Te lo llevan enseguida.';
+          else if (p.estado === 'nuevo' && ['preparando', 'servido'].includes(e.estado) && !aviso) aviso = '✓ El bar ha apuntado tu pedido.';
           p.estado = e.estado;
         });
         store.set(kPedidos(), lista);
         renderEstadoPedidos();
-        if (aviso) { toast('✓ El bar ha apuntado tu pedido.'); if (navigator.vibrate) navigator.vibrate(150); }
+        if (aviso) { toast(aviso); if (navigator.vibrate) navigator.vibrate(150); }
       } catch { /* reintenta en el siguiente ciclo */ }
     }
     pollTimer = setTimeout(refrescarPedidos, 8000);
@@ -386,10 +413,11 @@
     const p = store.get(kPedidos(), []).find((x) => x.token === token);
     if (!p || !p.lineas) return;
     let n = 0;
-    p.lineas.forEach(([id, cant]) => {
+    p.lineas.forEach(([id, cant, opc]) => {
       if (!productos[id] || !productos[id].disponible) return;
-      const actual = carrito[id] ? carrito[id].cantidad : 0;
-      carrito[id] = { cantidad: Math.min(20, actual + cant), nota: carrito[id] ? carrito[id].nota : '' };
+      const k = opc ? id + '~' + opc : id;
+      const actual = carrito[k] ? carrito[k].cantidad : 0;
+      carrito[k] = { cantidad: Math.min(20, actual + cant), nota: carrito[k] ? carrito[k].nota : '', opc: opc || '' };
       n++;
       refrescarControl(id);
     });
@@ -399,6 +427,138 @@
     if (n < p.lineas.length) toast('Algún plato ya no está disponible: lo hemos quitado.');
     renderCarrito();
     $('dlg-carrito').showModal();
+  }
+
+  // ------------------------------------------------- opciones por plato ----
+  // Punto de la carne, picante, sin…: el cliente elige y va en la nota de la línea (no cambia el precio).
+  function anadir(pid) {
+    const ops = info.opciones[pid];
+    if (!ops) { cambiar(pid, +1); return; }
+    const p = productos[pid];
+    $('opc-titulo').textContent = p.nombre;
+    $('opc-grupos').innerHTML = ops.map((g, i) => `<fieldset class="opc-g"><legend>${esc(g.nombre)}</legend>
+      ${g.valores.map((v) => `<label class="chip-op"><input type="radio" name="g${i}" value="${esc(v)}" required> <span>${esc(v)}</span></label>`).join('')}
+      </fieldset>`).join('');
+    $('form-opc').dataset.pid = pid;
+    $('dlg-opc').showModal();
+  }
+
+  function confirmarOpciones(form) {
+    const pid = form.dataset.pid, ops = info.opciones[pid] || [];
+    const opc = ops.map((g, i) => `${g.nombre}: ${form.querySelector(`[name="g${i}"]:checked`).value}`).join(' · ');
+    cambiar(pid + '~' + opc, +1, opc);
+    $('dlg-opc').close();
+    toast(`Añadido: ${productos[pid].nombre}`);
+  }
+
+  // -------------------------------------------------- valorar al final ----
+  // Tras pedir la cuenta: estrellas y comentario privado para el dueño. A todos (pongan lo que pongan) se les
+  // ofrece después la reseña en Google: Google no permite pedirla solo a los contentos.
+  const kValorado = () => 'carta:valorado:' + (mesa ? mesa.codigo : '');
+  let estrellas = 0;
+  function abrirValorar() {
+    if (ses.get(kValorado(), false)) return;
+    estrellas = 0;
+    $('val-paso1').hidden = false;
+    $('val-paso2').hidden = true;
+    $('val-comentario').value = '';
+    pintarEstrellas();
+    $('dlg-valorar').showModal();
+  }
+  function pintarEstrellas() {
+    document.querySelectorAll('[data-estrella]').forEach((b) => {
+      const on = Number(b.dataset.estrella) <= estrellas;
+      b.textContent = on ? '★' : '☆';
+      b.setAttribute('aria-pressed', String(on));
+    });
+    $('val-enviar').disabled = !estrellas;
+  }
+  async function enviarValoracion() {
+    if (!estrellas || !mesa) return;
+    $('val-enviar').disabled = true;
+    try {
+      const r = await rpc('carta_valorar', { p_mesa: mesa.codigo, p_estrellas: estrellas, p_comentario: $('val-comentario').value.trim() || null });
+      ses.set(kValorado(), true);
+      $('val-paso1').hidden = true;
+      $('val-paso2').hidden = false;
+      const url = r.resena_url || info.resena_url;
+      $('val-google').hidden = !url;
+      if (url) $('val-google').href = url;
+    } catch (e) {
+      toast(e.humano || 'No se pudo enviar. Gracias igualmente.', 'error');
+      $('dlg-valorar').close();
+    }
+  }
+
+  // --------------------------------------------------------------- trivial ----
+  // Solo se pide el nombre. Las preguntas llegan sin la respuesta: corrige el servidor y guarda el ranking del día.
+  const K_NOMBRE = 'carta:trivia:nombre';
+  let partida = null;
+  const triviaRpc = (accion, datos) => rpc('carta_trivia', { p_mesa: mesa.codigo, p_accion: accion, p_datos: datos || {} });
+
+  function abrirTrivia() {
+    if (!mesa) return;
+    partida = null;
+    $('trivia-body').innerHTML = `<h2 style="margin-top:0">¿Quién sabe más hoy?</h2>
+      <p class="muted small">10 preguntas. Gana quien más acierte y, si hay empate, quien tarde menos. Solo hace falta tu nombre.</p>
+      <form id="form-trivia">
+        <label class="field"><span>Tu nombre</span><input id="trivia-nombre" maxlength="20" required autocomplete="given-name" value="${esc(store.get(K_NOMBRE, ''))}"></label>
+        <button class="btn primary block" type="submit">Empezar</button>
+      </form>
+      <div id="trivia-ranking" class="tv-rank"></div>`;
+    if (!$('dlg-trivia').open) $('dlg-trivia').showModal();
+    triviaRpc('ranking').then((r) => pintarRanking(r.ranking), () => {});
+  }
+
+  function pintarRanking(lista, yo) {
+    const el = $('trivia-ranking');
+    if (!el) return;
+    el.innerHTML = lista && lista.length ? `<h3>🏆 Ranking de hoy</h3><ol>${lista.map((x) => `<li${yo && x.nombre === yo ? ' class="yo"' : ''}>
+      <span>${esc(x.nombre)} <small class="muted">${esc(x.mesa)}</small></span><b class="num">${esc(x.puntos)}/10</b>
+      <small class="muted num">${esc(x.segundos)} s</small></li>`).join('')}</ol>` : '<p class="muted small">Nadie ha jugado hoy todavía: ¡estrena el ranking!</p>';
+  }
+
+  async function empezarTrivia() {
+    const nombre = $('trivia-nombre').value.trim();
+    if (!nombre) return;
+    store.set(K_NOMBRE, nombre);
+    try {
+      const r = await triviaRpc('empezar', { nombre });
+      partida = { id: r.partida, preguntas: r.preguntas, i: 0, resp: [], nombre: nombre.replace(/\s+/g, ' ') };
+      pintarPregunta();
+    } catch (e) { toast(e.humano, 'error'); }
+  }
+
+  function pintarPregunta() {
+    const q = partida.preguntas[partida.i], n = partida.preguntas.length;
+    $('trivia-body').innerHTML = `<div class="tv-prog" aria-hidden="true"><span style="width:${(partida.i / n) * 100}%"></span></div>
+      <p class="muted small">Pregunta ${partida.i + 1} de ${n}</p>
+      <h2 class="tv-q">${esc(q.pregunta)}</h2>
+      <div class="tv-ops">${q.opciones.map((o, j) => `<button class="btn block" type="button" data-resp="${j}">${esc(o)}</button>`).join('')}</div>`;
+  }
+
+  async function responder(j) {
+    if (!partida || partida.resp.length > partida.i) return;
+    partida.resp.push(j);
+    partida.i++;
+    if (partida.i < partida.preguntas.length) { pintarPregunta(); return; }
+    $('trivia-body').innerHTML = '<p class="muted" style="text-align:center;padding:30px 0">Corrigiendo…</p>';
+    try {
+      const r = await triviaRpc('terminar', { partida: partida.id, respuestas: partida.resp });
+      const emoji = r.puntos >= 8 ? '🏆' : r.puntos >= 5 ? '👏' : '🙂';
+      $('trivia-body').innerHTML = `<div class="tv-fin"><div class="tv-emoji" aria-hidden="true">${emoji}</div>
+        <h2>${esc(r.puntos)}/${esc(r.total)} aciertos</h2><p class="muted">${esc(partida.nombre)} · ${esc(r.segundos)} s</p></div>
+        <div id="trivia-ranking" class="tv-rank"></div>
+        <details class="tv-repaso"><summary>Ver respuestas</summary><ol>${partida.preguntas.map((q, i) => {
+          const bien = partida.resp[i] === r.correctas[i];
+          return `<li class="${bien ? 'bien' : 'mal'}">${bien ? '✓' : '✗'} ${esc(q.pregunta)} <b>${esc(q.opciones[r.correctas[i]])}</b></li>`;
+        }).join('')}</ol></details>
+        <button class="btn primary block" type="button" id="btn-trivia-otra">Jugar otra</button>`;
+      pintarRanking(r.ranking, partida.nombre);
+    } catch (e) {
+      toast(e.humano, 'error');
+      abrirTrivia();
+    }
   }
 
   // ------------------------------------------------------- buscar y alergias ----
@@ -444,6 +604,7 @@
     try {
       await rpc('carta_avisar', { p_mesa: mesa.codigo, p_tipo: tipo });
       toast(tipo === 'cuenta' ? 'Hemos avisado: te traen la cuenta enseguida.' : 'Hemos avisado al camarero. Viene enseguida.');
+      if (tipo === 'cuenta') setTimeout(abrirValorar, 1200);
     } catch (e) {
       toast(e.humano, 'error');
     } finally {
@@ -455,8 +616,16 @@
   document.addEventListener('click', (ev) => {
     const t = ev.target.closest('button');
     if (!t) return;
-    if (t.dataset.add) cambiar(t.dataset.add, +1);
+    if (t.dataset.add) anadir(t.dataset.add);
+    else if (t.dataset.mas) cambiar(t.dataset.mas, +1);
     else if (t.dataset.menos) cambiar(t.dataset.menos, -1);
+    else if (t.dataset.estrella) { estrellas = Number(t.dataset.estrella); pintarEstrellas(); }
+    else if (t.id === 'val-enviar') enviarValoracion();
+    else if (t.id === 'btn-trivia' || t.id === 'btn-trivia-otra') abrirTrivia();
+    else if (t.dataset.resp !== undefined) responder(Number(t.dataset.resp));
+    else if (t.id === 'btn-wifi') {
+      navigator.clipboard.writeText(info.wifi_clave).then(() => toast('Clave del WiFi copiada'), () => toast('Clave: ' + info.wifi_clave));
+    }
     else if (t.dataset.mesa) elegirMesa(t.dataset.mesa);
     else if (t.dataset.cat !== undefined && t.classList.contains('tab')) {
       document.getElementById('cat-' + t.dataset.cat).scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -482,6 +651,8 @@
   });
   document.addEventListener('input', (ev) => { if (ev.target.id === 'buscar') filtrar(); });
   $('form-codigo').addEventListener('submit', (ev) => { ev.preventDefault(); comprobarCodigo(); });
+  $('form-opc').addEventListener('submit', (ev) => { ev.preventDefault(); confirmarOpciones(ev.target); });
+  document.addEventListener('submit', (ev) => { if (ev.target.id === 'form-trivia') { ev.preventDefault(); empezarTrivia(); } });
   setInterval(() => { if (menu && mesa && document.visibilityState === 'visible') refrescarCuenta(); }, 10000);
   document.addEventListener('input', (ev) => {
     const id = ev.target.dataset && ev.target.dataset.nota;

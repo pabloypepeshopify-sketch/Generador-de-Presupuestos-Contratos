@@ -30,6 +30,12 @@
     filtro_no_valido: 'Revisa las fechas del filtro.',
     pedido_no_encontrado: 'Ese pedido ya no existe.',
     codigo_mesa: 'Para pedir necesitas el código de tu mesa: pídeselo al camarero.',
+    web_no_valida: 'El enlace debe empezar por https://',
+    opciones_no_validas: 'Opciones no válidas: máx. 4 líneas, de 2 a 8 opciones cortas (30 letras).',
+    valoracion_no_valida: 'Elige de 1 a 5 estrellas.',
+    trivia_no_disponible: 'El trivial no está activo ahora mismo.',
+    nombre_no_valido: 'Pon tu nombre (máx. 20 letras).',
+    partida_no_valida: 'La partida ha caducado. Empieza otra.',
     no_encontrado: 'No encontrado. Recarga la página.',
     red: 'Sin conexión. Revisa el WiFi/datos e inténtalo de nuevo.',
   };

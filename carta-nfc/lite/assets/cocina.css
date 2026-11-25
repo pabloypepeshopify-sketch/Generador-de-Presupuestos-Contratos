@@ -90,6 +90,7 @@ body { background: var(--bg); overflow-x: hidden; }
 .ley.pide { background: #9be15d; border-color: #9be15d; }
 .ley.espera { background: #ff9f1a; border-color: #ff9f1a; }
 .ley.ocupada { background: var(--surface); border-color: var(--brand); }
+.ley.listo { background: #5aa9ff; border-color: #5aa9ff; }
 .mapa { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(46%, 150px), 1fr)); gap: 10px; }
 .mesa-tile {
   display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 4px; min-height: 96px;
@@ -101,6 +102,8 @@ body { background: var(--bg); overflow-x: hidden; }
 .mesa-tile .t-total { font-size: 17px; font-weight: 700; color: var(--text); }
 .mesa-tile.ocupada { background: var(--surface); border-color: var(--brand); }
 .mesa-tile.pide { background: #9be15d; border-color: #9be15d; color: #13310a; animation: llega-mesa 1.6s ease-in-out infinite; }
+.mesa-tile.listo { background: #5aa9ff; border-color: #5aa9ff; color: #06223f; }
+.mesa-tile.listo b, .mesa-tile.listo .t-total { color: #111; }
 .mesa-tile.espera { background: #ff9f1a; border-color: #ff9f1a; color: #3a2000; animation: llega-mesa 1.6s ease-in-out infinite; }
 .mesa-tile.pide b, .mesa-tile.pide .t-total, .mesa-tile.espera b, .mesa-tile.espera .t-total { color: #111; }
 @keyframes llega-mesa { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--warn) 25%, transparent); } }
@@ -118,7 +121,44 @@ body { background: var(--bg); overflow-x: hidden; }
 .ag small { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--ok); flex: none; }
 .ag.fuera { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); border-color: var(--danger); text-decoration: line-through; }
 .ag.fuera small { color: var(--danger); text-decoration: none; }
-.puesto-cats { display: grid; gap: 2px; padding-left: 26px; margin: 4px 0 8px; }
+.puesto-cats { display: grid; gap: 2px; padding: 6px 0 0 26px; margin: 4px 0 8px; border: 0; }
+.puesto-cats legend { padding: 0; }
+#puesto-form .check { align-items: flex-start; }
+
+/* Camarero: lo que la cocina ya tiene listo */
+.listos-servir { border: 2px solid #2f7de1; border-radius: 16px; padding: 10px 14px; background: color-mix(in srgb, #2f7de1 10%, var(--surface)); }
+.listos-servir h2 { font-size: 18px; margin: 0 0 4px; }
+.listo-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 17px; }
+.listo-item:first-child { border-top: 0; }
+.listo-item span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.listo-item .btn { flex: none; min-height: 52px; }
+.listo-item.recien { animation: llega 1.2s ease-out 3; }
+.apuntado .chip { font-size: 11px; padding: 1px 7px; }
+
+/* Pantalla de cocina: Nuevos → Preparando → ¡Listos! */
+.kanban { display: grid; gap: 12px; padding: 12px 12px 40px; align-items: start; }
+@media (min-width: 900px) { .kanban { grid-template-columns: 1fr 1fr minmax(0, .8fr); } }
+.kanban .col { min-width: 0; }
+.kanban h2 { display: flex; align-items: center; gap: 8px; font-size: 15px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px; }
+.kanban .count { min-width: 26px; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text); text-align: center; font-size: 14px; }
+.kanban .count:empty { display: none; }
+.kanban .list { display: grid; gap: 10px; }
+.kanban .vacio { padding: 20px 8px; font-size: 15px; }
+.kc { background: var(--surface); border: 1px solid var(--line); border-top: 8px solid var(--ok); border-radius: 14px; padding: 10px 14px 12px; box-shadow: var(--shadow); min-width: 0; }
+.kc.t-amarillo { border-top-color: #f2b705; }
+.kc.t-rojo { border-top-color: var(--danger); background: color-mix(in srgb, var(--danger) 7%, var(--surface)); }
+.kc.hecho { border-top-color: #2f7de1; opacity: .75; }
+.kc.recien { animation: llega 1.2s ease-out 3; }
+.kc-head { display: flex; align-items: center; gap: 8px; }
+.kc-mesa { font-size: 26px; font-weight: 800; line-height: 1.1; margin-right: auto; overflow-wrap: anywhere; }
+.kc-t { font-size: 20px; font-weight: 800; }
+.kc.t-amarillo .kc-t { color: #b98900; }
+.kc.t-rojo .kc-t { color: var(--danger); }
+.kc-meta { font-size: 13px; }
+.kc .p-lineas { font-size: 20px; margin-top: 6px; }
+.kc-res { margin: 6px 0 0; font-size: 15px; color: var(--muted); }
+.kc > .btn { margin-top: 10px; min-height: 56px; font-size: 19px; }
+.kc > .btn.listo { background: #2f7de1; border-color: #2f7de1; color: #fff; }
 
 @media (max-width: 560px) {
   .k-actions .lbl { display: none; }

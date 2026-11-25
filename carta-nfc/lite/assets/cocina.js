@@ -1,12 +1,15 @@
 // Panel del bar (versión "Solo pedidos"): los pedidos de las mesas llegan con sonido al móvil junto al TPV.
-// El camarero los pasa a su TPV y toca "✓ Apuntado". Avisos de camarero/cuenta, mapa de mesas con colores
-// (ticket, liberar y código de mesa), agotados en un toque y modo "pantalla" (cocina, barra…) por categorías.
+// El camarero los pasa a su TPV y toca "✓ Apuntado" (estado preparando). Avisos de camarero/cuenta, mapa de mesas
+// con colores (ticket, liberar y código de mesa), agotados en un toque y modo "pantalla de cocina" (Nuevos →
+// Preparando → ¡Listo!), que puede ver solo unas categorías y recibir los pedidos al momento o cuando el camarero
+// los apunta. "¡Listo!" pasa el pedido a listo y el camarero lo ve en "Listos para servir".
 (function () {
   const { rpc, esc, dinero, hace, hora, toast, aplicarColor, aplicarTema, store, urlRestaurante, qr, imprimir } = window.Carta;
   const $ = (id) => document.getElementById(id);
   const K_SESION = 'carta:cocina';
   const K_SONIDO = 'carta:cocina:sonido';
   const RECORDAR_MS = 20000;   // mientras haya pedidos o avisos sin atender, vuelve a sonar
+  const RECORDAR_COCINA_MS = 60000;
   // TODO(gestoría): pie del ticket impreso. Es una pre-cuenta, no una factura: si un día se cobra con este
   // ticket porque falla el TPV, el bar debe emitir después su factura en el TPV.
   const PIE_TICKET = 'IVA incluido. Pre-cuenta: no válida como factura.';
@@ -23,8 +26,12 @@
   let wakeLock = null;
   let ultimoPitido = 0;
   let mesaAbierta = null;  // mesa del diálogo abierto (id o 'n:<nombre>')
-  let puesto = { cats: null };   // qué ve esta pantalla: todo o solo unas categorías (cocina, barra…)
-  let hechos = new Map();        // en modo pantalla: pedidos marcados "Hecho" aquí (id → hora)
+  // Qué es esta pantalla: 'todo' (camarero junto al TPV) o 'cocina' (Nuevos → Preparando → ¡Listo!).
+  // cats: solo esas categorías (null = todas). esperar: la cocina recibe el pedido cuando el camarero lo apunta.
+  let puesto = { modo: 'todo', cats: null, esperar: false, desde: 0 };
+  let hechos = new Map();        // en la pantalla de cocina: id → { e: 'prep' | 'listo', t }
+  let vistosListo = null;        // camarero: pedidos listos ya avisados
+  const sincronizando = new Set();
   const recien = new Set();
 
   const kPuesto = () => 'carta:puesto:' + sesion.slug;
@@ -72,8 +79,9 @@
       return mostrarConectando(e.code === 'red' ? '' : e.humano);
     }
     store.set(K_SESION, sesion);
-    puesto = Object.assign({ cats: null }, store.get(kPuesto(), {}));
-    hechos = new Map(store.get(kHechos(), []).filter(([, t]) => Date.now() - t < 18 * 3600e3));
+    puesto = leerPuesto();
+    hechos = new Map(store.get(kHechos(), []).map(([id, v]) => [id, typeof v === 'number' ? { e: 'listo', t: v } : v])
+      .filter(([, v]) => v && Date.now() - v.t < 18 * 3600e3));
     $('login').hidden = true;
     $('conectando').hidden = true;
     $('panel').hidden = false;
@@ -133,15 +141,33 @@
   }
 
   // ---------------------------------------------------------- pantalla ----
-  // Una pantalla puede ver solo unas categorías (cocina sin bebidas, barra solo bebidas). Lo que no tiene
-  // categoría se ve en todas. En ese modo "✓ Hecho" es de esta pantalla; "✓ Apuntado" lo marca el panel completo.
-  const enPuesto = () => !!(puesto.cats && puesto.cats.length);
+  // Una pantalla de cocina puede ver solo unas categorías (cocina sin bebidas, barra solo bebidas). Lo que no tiene
+  // categoría se ve en todas. "Empezar" es de esta pantalla; "¡Listo!" avisa al camarero (estado listo).
+  function leerPuesto() {
+    const g = store.get(kPuesto(), {}) || {};
+    const modo = g.modo || (g.cats && g.cats.length ? 'cocina' : 'todo');  // pantallas guardadas con la versión anterior
+    return { modo, cats: g.cats && g.cats.length ? g.cats : null, esperar: !!g.esperar, desde: g.desde || 0 };
+  }
+  const enPuesto = () => puesto.modo === 'cocina';
   function lineasPuesto(p) {
-    if (!enPuesto()) return p.lineas;
+    if (!enPuesto() || !puesto.cats) return p.lineas;
     return p.lineas.filter((l) => !l.categoria_id || puesto.cats.includes(l.categoria_id));
   }
   const relevante = (p) => (p.tipo === 'pedido' ? lineasPuesto(p).length > 0 : !enPuesto());
-  const pendiente = (p) => !p.cerrado && p.estado === 'nuevo' && relevante(p) && !(enPuesto() && hechos.has(p.id));
+
+  // Columna de un pedido en la pantalla de cocina: 'nuevo' | 'prep' | 'listo' | null (no se ve aquí).
+  function columna(p) {
+    if (p.tipo !== 'pedido' || p.cerrado || p.estado === 'cancelado' || !lineasPuesto(p).length) return null;
+    const h = hechos.get(p.id);
+    if (h) return h.e;
+    if (p.estado === 'nuevo') return puesto.esperar ? null : 'nuevo';
+    if (p.estado === 'preparando') return 'nuevo';
+    // Listo o servido por otra pantalla: si llegó después de configurar esta, aquí aún falta lo suyo.
+    return new Date(p.creado).getTime() > puesto.desde ? 'nuevo' : null;
+  }
+
+  const pendiente = (p) => !p.cerrado && (enPuesto() ? columna(p) === 'nuevo' : p.estado === 'nuevo');
+  const listoServir = (p) => !enPuesto() && p.tipo === 'pedido' && !p.cerrado && p.estado === 'listo';
 
   function guardarHechos() { store.set(kHechos(), [...hechos.entries()]); }
 
@@ -150,15 +176,40 @@
     $('k-conn').className = 'dot ok';
     $('k-offline').hidden = true;
     const nuevos = d.pedidos.filter(pendiente);
+    const listos = d.pedidos.filter(listoServir);
     if (vistos === null) {
-      vistos = new Set(d.pedidos.map((p) => p.id));
+      vistos = new Set(nuevos.map((p) => p.id));
+      vistosListo = new Set(listos.map((p) => p.id + p.actualizado));
     } else {
       const llegan = nuevos.filter((p) => !vistos.has(p.id));
-      d.pedidos.forEach((p) => vistos.add(p.id));
-      llegan.forEach((p) => { recien.add(p.id); setTimeout(() => recien.delete(p.id), 5000); });
+      const salen = listos.filter((p) => !vistosListo.has(p.id + p.actualizado));
+      nuevos.forEach((p) => vistos.add(p.id));
+      listos.forEach((p) => vistosListo.add(p.id + p.actualizado));
+      llegan.concat(salen).forEach((p) => { recien.add(p.id); setTimeout(() => recien.delete(p.id), 5000); });
       if (llegan.length) avisarLlegada(llegan);
-      else if (nuevos.length && Date.now() - ultimoPitido > RECORDAR_MS) pitar(nuevos.some((p) => p.tipo === 'pedido'));
+      else if (salen.length) { pitar('listo'); toast(`🍽 Listo para servir · ${salen[0].mesa}`); }
+      else if ((nuevos.length || listos.length) && Date.now() - ultimoPitido > (enPuesto() ? RECORDAR_COCINA_MS : RECORDAR_MS)) {
+        pitar(nuevos.some((p) => p.tipo === 'pedido') ? 'pedido' : nuevos.length ? 'aviso' : 'listo');
+      }
     }
+    if (enPuesto()) sincronizarListos();
+    pintar();
+  }
+
+  // Si la cocina terminó algo que el camarero aún no había apuntado, al apuntarlo pasa a listo solo.
+  function sincronizarListos() {
+    datos.pedidos.forEach((p) => {
+      const h = hechos.get(p.id);
+      if (h && h.e === 'listo' && p.estado === 'preparando' && !sincronizando.has(p.id)) {
+        sincronizando.add(p.id);
+        accion('estado', { id: p.id, estado: 'listo' }).finally(() => sincronizando.delete(p.id));
+      }
+    });
+  }
+
+  function marcar(id, e) {
+    if (e) hechos.set(id, { e, t: Date.now() }); else hechos.delete(id);
+    guardarHechos();
     pintar();
   }
 
@@ -172,13 +223,17 @@
     pausa.innerHTML = r.pedidos_abiertos ? '📲 <span class="lbl">Pedidos: </span>abiertos' : '⏸ <span class="lbl">Pedidos: </span>PAUSADOS';
     pausa.setAttribute('aria-label', pausa.textContent);
     pausa.className = 'btn sm ' + (r.pedidos_abiertos ? 'abiertos' : 'pausados');
-    const nombresCat = enPuesto() && panel ? panel.categorias.filter((c) => puesto.cats.includes(c.id)).map((c) => c.nombre) : [];
+    const nombresCat = enPuesto() && puesto.cats && panel ? panel.categorias.filter((c) => puesto.cats.includes(c.id)).map((c) => c.nombre) : [];
     $('k-puesto-chip').hidden = !enPuesto();
-    $('k-puesto-chip').textContent = '🖥 ' + (nombresCat.join(', ') || 'Pantalla filtrada');
+    $('k-puesto-chip').textContent = '🖥 Cocina' + (nombresCat.length ? ': ' + nombresCat.join(', ') : '');
 
     const avisos = enPuesto() ? [] : d.pedidos.filter((p) => p.tipo !== 'pedido' && p.estado === 'nuevo');
     const pedidos = d.pedidos.filter((p) => p.tipo === 'pedido');
     const nuevos = pedidos.filter(pendiente);
+    $('v-pedidos').hidden = vista !== 'pedidos' || enPuesto();
+    $('v-cocina').hidden = vista !== 'pedidos' || !enPuesto();
+    document.querySelector('[data-vista="mesas"]').hidden = enPuesto();
+    if (enPuesto() && vista === 'mesas') cambiarVista('pedidos');
 
     $('k-avisos').innerHTML = avisos.map((a) => {
       const totalMesa = pedidos.filter((p) => mismaMesa(p, a) && p.estado !== 'cancelado').reduce((s, p) => s + Number(p.total), 0);
@@ -189,18 +244,8 @@
       </div>`;
     }).join('');
 
-    $('l-nuevos').innerHTML = nuevos.length ? nuevos.map((p) => tarjeta(p, ahora, r.moneda)).join('')
-      : `<div class="vacio">${r.pedidos_abiertos ? 'Esperando pedidos…' : '⏸ Pedidos por el móvil pausados'}</div>`;
-
-    // Lo último atendido, con ↩ para deshacer un toque por error.
-    const atendidos = enPuesto()
-      ? pedidos.filter((p) => hechos.has(p.id) && relevante(p)).sort((a, b) => hechos.get(b.id) - hechos.get(a.id))
-      : pedidos.filter((p) => ['preparando', 'listo', 'servido'].includes(p.estado)).sort((a, b) => new Date(b.actualizado) - new Date(a.actualizado));
-    $('apuntados-tit').textContent = enPuesto() ? 'Hechos hace poco' : 'Apuntados hace poco';
-    $('apuntados').hidden = !atendidos.length;
-    $('l-apuntados').innerHTML = atendidos.slice(0, 8).map((p) => `<div class="apuntado">
-      <span><b>${esc(p.mesa)}</b> · #${esc(p.numero)} · ${lineasPuesto(p).map((l) => `${esc(l.cantidad)}× ${esc(l.nombre)}`).join(', ')}</span>
-      <button class="btn sm ghost" type="button" data-deshacer="${esc(p.id)}" aria-label="Deshacer: volver a nuevo">↩</button></div>`).join('');
+    if (enPuesto()) pintarCocina(pedidos, ahora);
+    else pintarCamarero(pedidos, nuevos, ahora, r);
 
     $('n-pedidos').textContent = nuevos.length || '';
     pintarMapa(ahora, r.moneda);
@@ -209,6 +254,65 @@
 
     const n = nuevos.length + avisos.length;
     document.title = (n ? `(${n}) ` : '') + 'Pedidos · ' + r.nombre;
+  }
+
+  const resumen = (p) => lineasPuesto(p).map((l) => `${esc(l.cantidad)}× ${esc(l.nombre)}`).join(', ');
+
+  function pintarCamarero(pedidos, nuevos, ahora, r) {
+    $('l-nuevos').innerHTML = nuevos.length ? nuevos.map((p) => tarjeta(p, ahora, r.moneda)).join('')
+      : `<div class="vacio">${r.pedidos_abiertos ? 'Esperando pedidos…' : '⏸ Pedidos por el móvil pausados'}</div>`;
+
+    // Lo que la cocina ha terminado: el camarero lo lleva a la mesa y toca "Servido".
+    const listos = pedidos.filter(listoServir).sort((a, b) => new Date(a.actualizado) - new Date(b.actualizado));
+    $('listos').hidden = !listos.length;
+    $('l-listos').innerHTML = listos.map((p) => `<div class="listo-item${recien.has(p.id) ? ' recien' : ''}">
+      <span><b>${esc(p.mesa)}</b> · #${esc(p.numero)} · ${resumen(p)} <small class="muted">${hace(p.actualizado, ahora)}</small></span>
+      <button class="btn primary" type="button" data-servido="${esc(p.id)}">✓ Servido</button></div>`).join('');
+
+    // Lo último apuntado, con ↩ para deshacer un toque por error.
+    const atendidos = pedidos.filter((p) => ['preparando', 'listo', 'servido'].includes(p.estado))
+      .sort((a, b) => new Date(b.actualizado) - new Date(a.actualizado));
+    $('apuntados').hidden = !atendidos.length;
+    $('l-apuntados').innerHTML = atendidos.slice(0, 8).map((p) => `<div class="apuntado">
+      <span><b>${esc(p.mesa)}</b> · #${esc(p.numero)} · ${resumen(p)}${p.estado === 'preparando' ? '' : ` <span class="chip">${p.estado === 'listo' ? 'listo' : 'servido'}</span>`}</span>
+      <button class="btn sm ghost" type="button" data-deshacer="${esc(p.id)}" aria-label="Deshacer: volver a nuevo">↩</button></div>`).join('');
+  }
+
+  // Pantalla de cocina: tres columnas con el tiempo que lleva esperando cada pedido (verde, amarillo, rojo).
+  function pintarCocina(pedidos, ahora) {
+    const col = { nuevo: [], prep: [], listo: [] };
+    pedidos.forEach((p) => { const c = columna(p); if (c) col[c].push(p); });
+    const porLlegada = (a, b) => new Date(a.creado) - new Date(b.creado);
+    col.nuevo.sort(porLlegada);
+    col.prep.sort(porLlegada);
+    col.listo = col.listo.filter((p) => Date.now() - hechos.get(p.id).t < 30 * 60e3)
+      .sort((a, b) => hechos.get(b.id).t - hechos.get(a.id).t).slice(0, 8);
+    $('k-nuevo').innerHTML = col.nuevo.map((p) => tarjetaCocina(p, ahora, 'nuevo')).join('')
+      || `<div class="vacio">${puesto.esperar ? 'Llegan aquí cuando el camarero los apunta.' : 'Esperando pedidos…'}</div>`;
+    $('k-prep').innerHTML = col.prep.map((p) => tarjetaCocina(p, ahora, 'prep')).join('') || '<div class="vacio">—</div>';
+    $('k-listo').innerHTML = col.listo.map((p) => tarjetaCocina(p, ahora, 'listo')).join('') || '<div class="vacio">—</div>';
+    $('c-nuevo').textContent = col.nuevo.length || '';
+    $('c-prep').textContent = col.prep.length || '';
+    $('c-listo').textContent = col.listo.length || '';
+  }
+
+  function tarjetaCocina(p, ahora, c) {
+    const min = Math.max(0, Math.floor((ahora - new Date(p.creado).getTime()) / 60000));
+    const color = c === 'listo' ? 'hecho' : min >= 20 ? 't-rojo' : min >= 10 ? 't-amarillo' : 't-verde';
+    const lineas = lineasPuesto(p), otras = p.lineas.length - lineas.length;
+    const boton = c === 'nuevo' ? `<button class="btn primary block" type="button" data-empezar="${esc(p.id)}">▶ Empezar</button>`
+      : c === 'prep' ? `<button class="btn primary block listo" type="button" data-listo="${esc(p.id)}">✓ ¡Listo!</button>`
+        : '';
+    return `<article class="kc ${color}${recien.has(p.id) ? ' recien' : ''}" data-id="${esc(p.id)}">
+      <div class="kc-head"><span class="kc-mesa">${esc(p.mesa)}</span>
+        <span class="kc-t num">${c === 'listo' ? '✓ ' + hora(new Date(hechos.get(p.id).t).toISOString()) : min + ' min'}</span>
+        ${c !== 'nuevo' ? `<button class="btn sm ghost" type="button" data-volver="${esc(p.id)}" aria-label="Deshacer">↩</button>` : ''}</div>
+      <div class="kc-meta muted">#${esc(p.numero)} · ${hora(p.creado)}</div>
+      ${c === 'listo' ? `<p class="kc-res">${resumen(p)}</p>` : `<ul class="p-lineas">${lineas.map((l) => `<li><b>${esc(l.cantidad)}×</b> ${esc(l.nombre)}${l.nota ? `<em>→ ${esc(l.nota)}</em>` : ''}</li>`).join('')}</ul>
+      ${otras ? `<p class="p-otros">+ ${otras} línea${otras === 1 ? '' : 's'} de otra pantalla</p>` : ''}
+      ${p.nota ? `<p class="p-nota">📝 ${esc(p.nota)}</p>` : ''}`}
+      ${boton}
+    </article>`;
   }
 
   function tarjeta(p, ahora, moneda) {
@@ -222,10 +326,9 @@
       ${otras ? `<p class="p-otros">+ ${otras} línea${otras === 1 ? '' : 's'} de otra pantalla</p>` : ''}
       ${p.nota ? `<p class="p-nota">📝 ${esc(p.nota)}</p>` : ''}
       <div class="p-foot">
-        ${enPuesto() ? '<span class="p-total"></span>' : `<span class="p-total num">${dinero(p.total, moneda)}</span>
-        <button class="btn ghost danger" type="button" data-cancelar="${esc(p.id)}" aria-label="Cancelar pedido de ${esc(p.mesa)}">✕</button>`}
-        ${enPuesto() ? `<button class="btn primary apuntar" type="button" data-hecho="${esc(p.id)}">✓ Hecho</button>`
-                     : `<button class="btn primary apuntar" type="button" data-apuntar="${esc(p.id)}">✓ Apuntado</button>`}
+        <span class="p-total num">${dinero(p.total, moneda)}</span>
+        <button class="btn ghost danger" type="button" data-cancelar="${esc(p.id)}" aria-label="Cancelar pedido de ${esc(p.mesa)}">✕</button>
+        <button class="btn primary apuntar" type="button" data-apuntar="${esc(p.id)}">✓ Apuntado</button>
       </div>
     </article>`;
   }
@@ -248,6 +351,7 @@
       todos, pedidos, validos, items: Object.values(items),
       total: validos.reduce((s, p) => s + Number(p.total), 0),
       nuevos: validos.filter((p) => p.estado === 'nuevo').length,
+      listos: validos.filter((p) => p.estado === 'listo').length,
       cuenta: todos.some((p) => p.tipo === 'cuenta' && p.estado === 'nuevo'),
       camarero: todos.some((p) => p.tipo === 'camarero' && p.estado === 'nuevo'),
       ultimo: validos.reduce((m, p) => Math.max(m, new Date(p.creado).getTime()), 0),
@@ -266,6 +370,7 @@
   function estadoMesa(g) {
     if (g.cuenta || g.camarero) return 'espera';
     if (g.nuevos) return 'pide';
+    if (g.listos) return 'listo';
     if (g.validos.length) return 'ocupada';
     return 'libre';
   }
@@ -278,6 +383,7 @@
       if (est !== 'libre') ocupadas++;
       const detalle = est === 'espera' ? (g.cuenta ? '🧾 Pide la cuenta' : '🙋 Llama')
         : est === 'pide' ? `🔔 ${g.nuevos} nuevo${g.nuevos === 1 ? '' : 's'}`
+          : est === 'listo' ? '🍽 Listo para servir'
           : est === 'ocupada' ? `${Math.max(0, Math.round((ahora - g.ultimo) / 60000))} min` : (m.codigo ? `🔑 ${esc(m.codigo)}` : 'Libre');
       return `<button type="button" class="mesa-tile ${est}" data-mesa="${esc(m.clave)}" aria-label="${esc(m.nombre)}: ${esc(detalle)}">
         <b>${esc(m.nombre)}</b>
@@ -312,6 +418,7 @@
             ${g.cuenta ? '<span class="chip">🧾 Pide la cuenta</span>' : ''}${g.camarero ? '<span class="chip">🙋 Llama al camarero</span>' : ''}
             <span class="chip">${g.validos.length} pedido${g.validos.length === 1 ? '' : 's'}</span>
             ${g.nuevos ? `<span class="chip alerta">${g.nuevos} sin apuntar</span>` : ''}
+            ${g.listos ? `<span class="chip">🍽 ${g.listos} listo${g.listos === 1 ? '' : 's'} para servir</span>` : ''}
           </div>
           <ul>${g.items.map((i) => `<li><span>${i.cantidad}× ${esc(i.nombre)}</span><span class="num">${dinero(i.cantidad * i.precio, mon)}</span></li>`).join('')}</ul>
           <div class="mesa-acc">
@@ -355,7 +462,7 @@
   function pintarCarta() {
     $('tab-carta').hidden = !panel;
     if (!panel) return;
-    const cats = enPuesto() ? panel.categorias.filter((c) => puesto.cats.includes(c.id)) : panel.categorias;
+    const cats = enPuesto() && puesto.cats ? panel.categorias.filter((c) => puesto.cats.includes(c.id)) : panel.categorias;
     const agotados = panel.categorias.reduce((s, c) => s + c.productos.filter((p) => !p.disponible).length, 0);
     $('n-agotados').textContent = agotados || '';
     $('agotados').innerHTML = cats.length ? cats.map((c) => `<section class="ag-cat"><h3>${esc(c.nombre)}</h3><div class="ag-lista">
@@ -370,26 +477,34 @@
     $('dlg-puesto').innerHTML = `
       <div class="dlg-head"><h2 id="puesto-titulo">🖥 Esta pantalla</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
       <form class="dlg-body" id="puesto-form">
-        <p class="muted small" style="margin-top:0">Si en el bar hay varias pantallas, cada una puede ver solo lo suyo. Ejemplo: la de cocina sin
-          Bebidas y la de la barra solo Bebidas. Se guarda solo en este aparato.</p>
-        <label class="check"><input type="radio" name="modo" value="todo" ${enPuesto() ? '' : 'checked'}> Todo: pedidos, avisos y "✓ Apuntado" (móvil junto al TPV)</label>
-        <label class="check"><input type="radio" name="modo" value="cats" ${enPuesto() ? 'checked' : ''}> Solo estas categorías (cocina, barra…):</label>
-        <div class="puesto-cats">${cats.map((c) => `<label class="check"><input type="checkbox" name="cat" value="${esc(c.id)}"
-          ${enPuesto() && puesto.cats.includes(c.id) ? 'checked' : ''}> ${esc(c.nombre)}</label>`).join('') || '<p class="muted small">No hay categorías en la carta.</p>'}</div>
+        <p class="muted small" style="margin-top:0">Se guarda solo en este aparato. Cada pantalla del bar puede ser una cosa distinta.</p>
+        <label class="check"><input type="radio" name="modo" value="todo" ${enPuesto() ? '' : 'checked'}> <span><b>Camarero</b>: pedidos, avisos,
+          "✓ Apuntado" y "Listos para servir" (móvil junto al TPV)</span></label>
+        <label class="check"><input type="radio" name="modo" value="cocina" ${enPuesto() ? 'checked' : ''}> <span><b>Cocina / barra</b>:
+          Nuevos → Preparando → ¡Listo! con el tiempo de cada pedido</span></label>
+        <fieldset class="puesto-cats"><legend class="small muted">Qué ve esta pantalla</legend>
+          ${cats.map((c) => `<label class="check"><input type="checkbox" name="cat" value="${esc(c.id)}"
+          ${!puesto.cats || puesto.cats.includes(c.id) ? 'checked' : ''}> ${esc(c.nombre)}</label>`).join('') || '<p class="muted small">No hay categorías en la carta.</p>'}
+          <label class="check"><input type="checkbox" name="esperar" ${puesto.esperar ? 'checked' : ''}> Recibir los pedidos solo cuando el camarero
+            los apunta (así no se cocina nada que no esté en el TPV)</label>
+        </fieldset>
         <div class="dlg-foot" style="padding:12px 0 0"><button class="btn primary block" type="submit">Guardar</button></div>
       </form>`;
     $('dlg-puesto').showModal();
   }
 
   function guardarPuesto(form) {
+    const todas = form.querySelectorAll('[name="cat"]');
     const cats = [...form.querySelectorAll('[name="cat"]:checked')].map((i) => i.value);
-    if (form.modo.value === 'cats' && !cats.length) { toast('Marca al menos una categoría.', 'error'); return; }
-    puesto = { cats: form.modo.value === 'cats' ? cats : null };
+    const cocina = form.modo.value === 'cocina';
+    if (cocina && todas.length && !cats.length) { toast('Marca al menos una categoría.', 'error'); return; }
+    puesto = { modo: cocina ? 'cocina' : 'todo', cats: cocina && cats.length < todas.length ? cats : null,
+               esperar: cocina && form.esperar.checked, desde: puesto.modo === 'cocina' && cocina ? puesto.desde : Date.now() };
     store.set(kPuesto(), puesto);
     $('dlg-puesto').close();
     vistos = null;  // sin pitidos por lo que ya había
     procesar(datos);
-    toast(enPuesto() ? 'Esta pantalla: solo sus categorías' : 'Esta pantalla: todo');
+    toast(cocina ? '🖥 Pantalla de cocina' : '📱 Pantalla del camarero');
   }
 
   function abrirQr() {
@@ -401,7 +516,8 @@
   function cambiarVista(v) {
     vista = v;
     document.querySelectorAll('[data-vista]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.vista === vista)));
-    $('v-pedidos').hidden = vista !== 'pedidos';
+    $('v-pedidos').hidden = vista !== 'pedidos' || enPuesto();
+    $('v-cocina').hidden = vista !== 'pedidos' || !enPuesto();
     $('v-mesas').hidden = vista !== 'mesas';
     $('v-carta').hidden = vista !== 'carta';
     if (vista !== 'pedidos') cargarPanel();
@@ -424,12 +540,13 @@
     pintarSonido();
   }
 
-  // Timbre fuerte (onda cuadrada, volumen alto), dos veces para pedidos.
-  function pitar(esPedido) {
+  // Timbre fuerte (onda cuadrada, volumen alto), dos veces para pedidos; escalera hacia arriba para "listo".
+  function pitar(tipo) {
     ultimoPitido = Date.now();
     if (navigator.vibrate) navigator.vibrate([300, 150, 300]);
     if (!sonando()) return;
-    const notas = esPedido ? [988, 1319, 988, 1319, 0, 988, 1319, 988, 1319] : [784, 784, 784];
+    const notas = tipo === 'pedido' ? [988, 1319, 988, 1319, 0, 988, 1319, 988, 1319]
+      : tipo === 'listo' ? [1047, 1319, 1568, 2093, 0, 1047, 1319, 1568, 2093] : [784, 784, 784];
     let t = audio.currentTime;
     notas.forEach((f) => {
       if (f) {
@@ -446,8 +563,7 @@
   }
 
   function avisarLlegada(llegan) {
-    const hayPedido = llegan.some((p) => p.tipo === 'pedido');
-    pitar(hayPedido);
+    pitar(llegan.some((p) => p.tipo === 'pedido') ? 'pedido' : 'aviso');
     const p = llegan[0];
     toast(p.tipo === 'pedido' ? `Nuevo pedido · ${p.mesa}` : p.tipo === 'cuenta' ? `${p.mesa} pide la cuenta` : `${p.mesa} llama al camarero`);
   }
@@ -480,11 +596,19 @@
     if (!b) return;
     const ds = b.dataset;
     if (ds.vista) cambiarVista(ds.vista);
-    else if (ds.apuntar) { b.disabled = true; await accion('estado', { id: ds.apuntar, estado: 'servido' }); }
-    else if (ds.hecho) { hechos.set(ds.hecho, Date.now()); guardarHechos(); pintar(); }
-    else if (ds.deshacer) {
-      if (enPuesto()) { hechos.delete(ds.deshacer); guardarHechos(); pintar(); }
-      else { b.disabled = true; await accion('estado', { id: ds.deshacer, estado: 'nuevo' }); }
+    else if (ds.apuntar) { b.disabled = true; await accion('estado', { id: ds.apuntar, estado: 'preparando' }); }
+    else if (ds.servido) { b.disabled = true; await accion('estado', { id: ds.servido, estado: 'servido' }); }
+    else if (ds.deshacer) { b.disabled = true; await accion('estado', { id: ds.deshacer, estado: 'nuevo' }); }
+    else if (ds.empezar) marcar(ds.empezar, 'prep');
+    else if (ds.listo) {
+      const p = datos.pedidos.find((x) => x.id === ds.listo);
+      marcar(ds.listo, 'listo');
+      // Sin apuntar todavía: se queda listo aquí y pasa a listo en cuanto el camarero lo apunte.
+      if (p && p.estado !== 'nuevo' && p.estado !== 'listo') await accion('estado', { id: p.id, estado: 'listo' });
+    } else if (ds.volver) {
+      const h = hechos.get(ds.volver), p = datos.pedidos.find((x) => x.id === ds.volver);
+      marcar(ds.volver, h && h.e === 'listo' ? 'prep' : null);
+      if (h && h.e === 'listo' && p && p.estado === 'listo') await accion('estado', { id: p.id, estado: 'preparando' });
     } else if (ds.atender) { b.disabled = true; await accion('estado', { id: ds.atender, estado: 'servido' }); }
     else if (ds.cancelar) {
       if (confirm('¿Cancelar este pedido? No contará en la cuenta de la mesa.')) await accion('estado', { id: ds.cancelar, estado: 'cancelado' });
@@ -500,12 +624,12 @@
     else if (b.id === 'k-qr') abrirQr();
     else if (b.id === 'k-puesto') { if (!panel) await cargarPanel(); abrirPuesto(); }
     else if (b.id === 'reintentar') entrar();
-    else if (b.id === 'k-activar') { sonidoOn = true; store.set(K_SONIDO, true); activarAudio(); setTimeout(() => pitar(false), 150); }
+    else if (b.id === 'k-activar') { sonidoOn = true; store.set(K_SONIDO, true); activarAudio(); setTimeout(() => pitar('aviso'), 150); }
     else if (b.id === 'k-sonido') {
       sonidoOn = !sonando();
       store.set(K_SONIDO, sonidoOn);
       activarAudio();
-      if (sonidoOn) setTimeout(() => pitar(false), 150);
+      if (sonidoOn) setTimeout(() => pitar('aviso'), 150);
       pintarSonido();
     } else if (b.id === 'k-pausa') {
       const abrirPedidos = !datos.restaurante.pedidos_abiertos;

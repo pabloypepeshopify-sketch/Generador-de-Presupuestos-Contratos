@@ -64,6 +64,10 @@
     <section id="k-avisos" class="avisos" aria-live="assertive"></section>
 
     <main id="v-pedidos" class="pedidos">
+      <section class="listos-servir" id="listos" hidden>
+        <h2>🍽 Listos para servir</h2>
+        <div id="l-listos"></div>
+      </section>
       <div id="l-nuevos"></div>
       <section class="apuntados" id="apuntados" hidden>
         <h2 id="apuntados-tit">Apuntados hace poco</h2>
@@ -71,10 +75,16 @@
       </section>
     </main>
 
+    <main id="v-cocina" class="kanban" hidden>
+      <section class="col" id="col-nuevo"><h2>Nuevos <span class="count" id="c-nuevo"></span></h2><div class="list" id="k-nuevo"></div></section>
+      <section class="col"><h2>Preparando <span class="count" id="c-prep"></span></h2><div class="list" id="k-prep"></div></section>
+      <section class="col"><h2>¡Listos! <span class="count" id="c-listo"></span></h2><div class="list" id="k-listo"></div></section>
+    </main>
+
     <main id="v-mesas" class="v-mesas" hidden>
       <div class="leyenda small">
         <span><i class="ley pide"></i>Acaba de pedir</span><span><i class="ley espera"></i>Llama / cuenta</span>
-        <span><i class="ley ocupada"></i>Con consumo</span><span><i class="ley libre"></i>Libre</span>
+        <span><i class="ley listo"></i>Listo para servir</span><span><i class="ley ocupada"></i>Con consumo</span><span><i class="ley libre"></i>Libre</span>
       </div>
       <div id="mapa" class="mapa"></div>
     </main>

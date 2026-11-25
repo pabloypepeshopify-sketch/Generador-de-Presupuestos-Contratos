@@ -103,3 +103,47 @@
 .codigo-body input { width: 100%; margin: 12px 0 4px; min-height: 64px; text-align: center; font-size: 34px; letter-spacing: .4em; font-weight: 800;
   border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); }
 .codigo-body .btn { margin-top: 8px; }
+
+/* WiFi del bar */
+.wifi { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 14px; margin: 10px 0; font-size: 15px; }
+.wifi span { overflow-wrap: anywhere; }
+
+/* Opciones por plato */
+.n-opc { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-left: 6px; padding: 0 6px; border-radius: 999px;
+  background: var(--brand); color: var(--brand-ink); font-size: 13px; font-weight: 700; vertical-align: middle; }
+.opc-g { border: 0; padding: 0; margin: 0 0 14px; }
+.opc-g legend { font-weight: 700; margin-bottom: 6px; }
+.chip-op { display: inline-flex; align-items: center; margin: 0 6px 6px 0; cursor: pointer; }
+.chip-op input { position: absolute; opacity: 0; pointer-events: none; }
+.chip-op span { padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip-op input:checked + span { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 700; }
+.chip-op input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }
+.linea .opc { display: block; font-size: 13px; color: var(--muted); font-weight: 400; }
+
+/* Valorar al final */
+.val-body { text-align: center; }
+.val-body h2 { margin-top: 4px; }
+.val-body .btn { margin-top: 8px; }
+.val-body .field { text-align: left; }
+.estrellas { display: flex; justify-content: center; gap: 4px; margin: 6px 0 12px; }
+.estrellas button { font-size: 40px; line-height: 1; padding: 4px; border: 0; background: none; color: #f2b705; cursor: pointer; min-width: 48px; min-height: 48px; }
+
+/* Trivial */
+.trivia-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; margin: 10px 0; }
+.tv-prog { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-bottom: 8px; }
+.tv-prog span { display: block; height: 100%; background: var(--brand); transition: width .2s; }
+.tv-q { font-size: 21px; margin: 6px 0 14px; }
+.tv-ops { display: grid; gap: 8px; }
+.tv-ops .btn { min-height: 52px; font-size: 17px; justify-content: flex-start; text-align: left; }
+.tv-fin { text-align: center; }
+.tv-fin h2 { margin: 4px 0; }
+.tv-emoji { font-size: 52px; }
+.tv-rank h3 { font-size: 16px; margin: 14px 0 6px; }
+.tv-rank ol { margin: 0; padding-left: 22px; }
+.tv-rank li { padding: 4px 0; }
+.tv-rank li > span { display: inline-block; min-width: 50%; overflow-wrap: anywhere; }
+.tv-rank li.yo { font-weight: 700; color: var(--brand); }
+.tv-repaso { margin: 12px 0; font-size: 14px; }
+.tv-repaso li { margin: 4px 0; }
+.tv-repaso li.bien { color: var(--ok); }
+.tv-repaso li.mal { color: var(--danger); }

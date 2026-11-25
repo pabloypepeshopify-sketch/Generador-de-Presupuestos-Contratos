@@ -20,7 +20,7 @@ execSync('bash ./db-local.sh', { cwd: DIR, stdio: 'ignore' });
 const srv = spawn('node', ['servidor-local.mjs'], { cwd: DIR, env: { ...process.env, PORT, WEB_ROOT: path.resolve(DIR, '../lite') }, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 1500));
 psql("select carta._alta('Martínez Bar (demo)', 'martinez-demo', 4, 'admin-l', 'cocina-l')");
-psql("update carta.restaurantes set color = '#FCA80C' where slug = 'martinez-demo'");
+psql("update carta.restaurantes set color = '#FCA80C', resena_url = 'https://g.page/r/martinez-demo/review' where slug = 'martinez-demo'");
 const rpcAdmin = (accion, datos) => psql(`set role anon; select public.carta_admin('martinez-demo','admin-l','${accion}','${JSON.stringify(datos).replace(/"/g, '\\"')}'::jsonb)`);
 const patatas = JSON.parse(rpcAdmin('categoria', { nombre: 'Con patatas' })).id;
 const burgers = JSON.parse(rpcAdmin('categoria', { nombre: 'Burgers' })).id;
@@ -119,8 +119,8 @@ try {
   await ped.getByRole('button', { name: '✓ Apuntado' }).click();
   await ped.waitFor({ state: 'detached' });
   ok(true, 'deshacer devuelve el pedido a nuevos');
-  ok(psql("select estado from carta.pedidos where tipo = 'pedido'") === 'servido', 'apuntado = estado servido en la BD');
-  await m.locator('.estado.servido', { hasText: 'Apuntado' }).waitFor({ timeout: 12000 });
+  ok(psql("select estado from carta.pedidos where tipo = 'pedido'") === 'preparando', 'apuntado = estado preparando en la BD');
+  await m.locator('.estado.preparando', { hasText: 'Apuntado' }).waitFor({ timeout: 12000 });
   ok(true, 'el cliente ve "✓ Apuntado"');
   await m.locator('#cuenta-mesa', { hasText: 'Lo que habéis pedido' }).waitFor({ timeout: 12000 });
   ok((await m.locator('#cuenta-mesa .cm-total').innerText()).includes('17,80'), 'el cliente ve la cuenta de la mesa: 17,80 €');
@@ -133,6 +133,15 @@ try {
   await shot(k, 'lite-03-panel-cuenta');
   await aviso.getByRole('button', { name: 'Atendido' }).click();
   await aviso.waitFor({ state: 'detached' });
+  await m.locator('#dlg-valorar[open]').waitFor();
+  await m.locator('[data-estrella="4"]').click();
+  await m.fill('#val-comentario', 'Todo buenísimo');
+  await m.click('#val-enviar');
+  await m.locator('#val-paso2').waitFor();
+  ok(await m.locator('#val-google').isVisible() && await m.locator('#val-google').getAttribute('href') === 'https://g.page/r/martinez-demo/review',
+    'tras pedir la cuenta: "¿Qué tal todo?" y, después, la reseña de Google para todos');
+  await shot(m, 'lite-12-valorar');
+  await m.locator('#val-paso2 [data-cerrar]').click();
   await m.click('#btn-camarero');
   await k.locator('.aviso.camarero', { hasText: 'Mesa 2' }).waitFor({ timeout: 8000 });
   await k.locator('.aviso.camarero').getByRole('button', { name: 'Atendido' }).click();
@@ -188,7 +197,10 @@ try {
   await a.goto(`${BASE}/admin.html?r=martinez-demo&k=admin-l`);
   await a.getByRole('heading', { name: 'Martínez Bar (demo)' }).waitFor();
   const tabs = await a.locator('[data-tab]').allTextContents();
-  ok(tabs.join('|') === 'Carta|Mesas y NFC|Ajustes y claves|📊 Informes', 'gestión: Carta, Mesas y NFC, Ajustes, Informes (sin Facturación ni Stock)');
+  ok(tabs.join('|') === 'Carta|Mesas y NFC|Ajustes y claves|📊 Informes|⭐ Opiniones', 'gestión: Carta, Mesas y NFC, Ajustes, Informes, Opiniones (sin Facturación ni Stock)');
+  await a.locator('#hoy-strip', { hasText: 'vendido' }).waitFor();
+  const hoy = await a.locator('#hoy-strip').innerText();
+  ok(hoy.includes('27,80') && hoy.includes('1/4') && hoy.includes('4,0'), 'resumen de hoy: 27,80 €, 1/4 mesas con consumo, ⭐ 4,0 · ' + hoy.replace(/\s+/g, ' '));
   ok(await sinScroll(a), 'gestión en el móvil: sin scroll lateral');
   await a.locator('.prod-row', { hasText: 'McTínez' }).getByRole('button', { name: /Disponible/ }).click();
   await a.locator('.prod-row', { hasText: 'McTínez' }).getByRole('button', { name: /Agotado/ }).waitFor();
@@ -211,6 +223,57 @@ try {
   ok(await sinScroll(a), 'informe en el móvil: sin scroll lateral');
   await shot(a, 'lite-05-informe');
 
+  // ------------------------------------------------------------ OPINIONES, WIFI, OPCIONES Y TRIVIAL
+  console.log('EXTRAS');
+  await a.getByRole('tab', { name: '⭐ Opiniones' }).click();
+  await a.locator('#opiniones .op-row', { hasText: 'Todo buenísimo' }).waitFor();
+  ok((await a.locator('#opiniones .op-row').first().innerText()).includes('★★★★☆'), 'Opiniones: 4 estrellas de la Mesa 2 con su comentario');
+  await a.getByRole('tab', { name: 'Ajustes y claves' }).click();
+  await a.fill('#ex-wifi-red', 'Martinez-Clientes');
+  await a.fill('#ex-wifi-clave', 'cañas2026');
+  await a.locator('#ex-trivia').check();
+  await a.locator('#form-extras button[type="submit"]').click();
+  await a.getByText('Guardado', { exact: true }).waitFor();
+  await a.getByRole('tab', { name: 'Carta' }).click();
+  await a.locator('.prod-row', { hasText: 'Burger extra 3' }).getByRole('button', { name: 'Editar' }).click();
+  await a.fill('#p-opciones', 'Punto: Poco hecho, Al punto, Hecho');
+  await a.click('#p-guardar');
+  await a.locator('.prod-row', { hasText: 'Burger extra 3' }).locator('.chip', { hasText: 'opciones' }).waitFor();
+  ok(true, 'Gestión: WiFi, trivial y opciones de un plato guardados');
+  await m.evaluate(() => sessionStorage.clear());
+  await m.reload();
+  await m.locator('#wifi', { hasText: 'Martinez-Clientes' }).waitFor();
+  ok((await m.locator('#wifi').innerText()).includes('cañas2026'), 'la carta de la mesa enseña la WiFi');
+  await m.getByRole('button', { name: 'Añadir Burger extra 3 (elegir opciones)' }).click();
+  await m.locator('#dlg-opc[open]').waitFor();
+  await shot(m, 'lite-13-opciones');
+  await m.locator('#dlg-opc label', { hasText: 'Al punto' }).click();
+  await m.locator('#form-opc button[type="submit"]').click();
+  await m.click('#cart-open');
+  ok((await m.locator('#carrito-lineas').innerText()).includes('Punto: Al punto'), 'opciones: "Punto: Al punto" en el carrito');
+  await m.click('#btn-enviar');
+  await m.locator('#dlg-ok[open]').waitFor();
+  await m.locator('#dlg-ok [data-cerrar]').click();
+  const po = k.locator('#l-nuevos .ped', { hasText: 'Burger extra 3' });
+  await po.waitFor({ timeout: 8000 });
+  ok((await po.innerText()).includes('Punto: Al punto'), 'la opción elegida llega al panel con el plato');
+  await po.getByRole('button', { name: '✓ Apuntado' }).click();
+  await po.waitFor({ state: 'detached' });
+  await m.click('#btn-trivia');
+  await m.fill('#trivia-nombre', 'Paco');
+  await m.locator('#form-trivia button[type="submit"]').click();
+  for (let i = 1; i <= 10; i++) {
+    await m.locator('#trivia-body').getByText(`Pregunta ${i} de 10`).waitFor();
+    await m.locator('#trivia-body [data-resp="0"]').click();
+  }
+  await m.locator('#trivia-body .tv-fin').waitFor();
+  const aciertos = (await m.locator('.tv-fin h2').innerText()).split('/')[0].trim();
+  ok(psql("select puntos from carta.trivia_partidas where nombre = 'Paco'") === aciertos, `trivial: solo con el nombre, corrige el servidor (${aciertos}/10)`);
+  ok(await m.locator('#trivia-ranking li.yo', { hasText: 'Paco' }).count() === 1, 'trivial: sale en el ranking de hoy');
+  ok(await sinScroll(m), 'trivial en el móvil: sin scroll lateral');
+  await shot(m, 'lite-11-trivial');
+  await m.locator('#dlg-trivia [data-cerrar]').click();
+
   // ------------------------------------------------------------ PANTALLAS (cocina / barra)
   console.log('PANTALLAS');
   const k2 = await (await browser.newContext({ ...devices['Pixel 7'] })).newPage();
@@ -218,24 +281,59 @@ try {
   await k2.goto(`${BASE}/cocina.html?r=martinez-demo&k=cocina-l`);
   await k2.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).waitFor();
   await k2.click('#k-puesto');
-  await k2.locator('#dlg-puesto [value="cats"]').check();
-  await k2.locator('#dlg-puesto label', { hasText: 'Con patatas' }).locator('input').check();
+  await k2.locator('#dlg-puesto [value="cocina"]').check();
+  await k2.locator('#dlg-puesto label', { hasText: 'Burgers' }).locator('input').uncheck();
   await k2.locator('#dlg-puesto button[type="submit"]').click();
-  await k2.getByText('Esperando pedidos…').waitFor();
-  ok(await k2.locator('#k-puesto-chip', { hasText: 'Con patatas' }).isVisible(), 'pantalla de cocina: solo "Con patatas" (la burger de la Mesa 3 no sale aquí)');
+  await k2.locator('#k-nuevo').getByText('Esperando pedidos…').waitFor();
+  ok(await k2.locator('#k-puesto-chip', { hasText: 'Con patatas' }).isVisible() && await k2.locator('#v-pedidos').isHidden(),
+    'pantalla de cocina: Nuevos → Preparando → ¡Listos!, solo "Con patatas" (la burger de la Mesa 3 no sale aquí)');
   ok(await k.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).count() === 1, 'el panel completo sigue viendo la Mesa 3');
+  await k.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).getByRole('button', { name: '✓ Apuntado' }).click();
+  await k.locator('#l-nuevos .ped', { hasText: 'Mesa 3' }).waitFor({ state: 'detached' });
   if (await g.locator('#dlg-ok[open]').count()) await g.locator('#dlg-ok [data-cerrar]').click();
   await g.locator('.prod', { hasText: 'Ensaladilla rusa' }).getByRole('button', { name: 'Añadir Ensaladilla rusa · Media' }).click();
   await g.getByRole('button', { name: 'Añadir Burger extra 1', exact: true }).click();
   await g.click('#cart-open'); await g.click('#btn-enviar'); await g.locator('#dlg-ok[open]').waitFor();
   await g.locator('#dlg-ok [data-cerrar]').click();
-  const pc = k2.locator('#l-nuevos .ped', { hasText: 'Ensaladilla' });
+  const pc = k2.locator('#k-nuevo .kc', { hasText: 'Ensaladilla' });
   await pc.waitFor({ timeout: 8000 });
   ok(!(await pc.innerText()).includes('Burger extra 1') && (await pc.innerText()).includes('de otra pantalla'), 'cocina ve solo la ensaladilla del pedido');
-  await pc.getByRole('button', { name: '✓ Hecho' }).click();
-  await pc.waitFor({ state: 'detached' });
-  ok(await k.locator('#l-nuevos .ped', { hasText: 'Burger extra 1' }).count() === 1, '"✓ Hecho" en cocina no lo quita del panel del camarero');
+  ok(await pc.evaluate((el) => el.classList.contains('t-verde')), 'tiempo en verde (recién llegado)');
+  await pc.getByRole('button', { name: '▶ Empezar' }).click();
+  const pp = k2.locator('#k-prep .kc', { hasText: 'Ensaladilla' });
+  await pp.getByRole('button', { name: '✓ ¡Listo!' }).click();
+  await k2.locator('#k-listo .kc', { hasText: 'Mesa 3' }).waitFor();
+  const idListo = psql("select id from carta.pedidos p where exists (select 1 from carta.pedido_lineas l where l.pedido_id = p.id and l.nombre = 'Burger extra 1')");
+  ok(psql(`select estado from carta.pedidos where id = '${idListo}'`) === 'nuevo' && await k.locator('#l-nuevos .ped', { hasText: 'Burger extra 1' }).count() === 1,
+    'listo en cocina sin apuntar: el camarero aún lo tiene que apuntar en el TPV');
   await shot(k2, 'lite-08-pantalla-cocina');
+  await k.locator('#l-nuevos .ped', { hasText: 'Burger extra 1' }).getByRole('button', { name: '✓ Apuntado' }).click();
+  const li = k.locator('#l-listos .listo-item', { hasText: 'Mesa 3' });
+  await li.waitFor({ timeout: 12000 });
+  ok(psql(`select estado from carta.pedidos where id = '${idListo}'`) === 'listo', 'al apuntarlo pasa solo a "🍽 Listos para servir" (la cocina ya lo tenía)');
+  await g.locator('.estado.listo').waitFor({ timeout: 12000 });
+  ok(true, 'el cliente ve "🍽 ¡Listo!"');
+  await k.getByRole('tab', { name: 'Mesas' }).click();
+  ok(await k.locator('.mesa-tile.listo', { hasText: 'Mesa 3' }).count() === 1, 'mapa: Mesa 3 en azul (listo para servir)');
+  await k.getByRole('tab', { name: 'Pedidos' }).click();
+  await shot(k, 'lite-14-listos');
+  await li.getByRole('button', { name: '✓ Servido' }).click();
+  await li.waitFor({ state: 'detached' });
+  ok(psql(`select estado from carta.pedidos where id = '${idListo}'`) === 'servido', '"✓ Servido" → estado servido');
+  // La cocina recibe el pedido solo cuando el camarero lo apunta
+  await k2.click('#k-puesto');
+  await k2.locator('#dlg-puesto [name="esperar"]').check();
+  await k2.locator('#dlg-puesto button[type="submit"]').click();
+  await g.getByRole('button', { name: 'Añadir Ensaladilla rusa · Tapa', exact: true }).click();
+  await g.click('#cart-open'); await g.click('#btn-enviar'); await g.locator('#dlg-ok[open]').waitFor();
+  await g.locator('#dlg-ok [data-cerrar]').click();
+  const pt = k.locator('#l-nuevos .ped', { hasText: 'Ensaladilla rusa · Tapa' });
+  await pt.waitFor({ timeout: 8000 });
+  await k2.waitForTimeout(3500);
+  ok(await k2.locator('#k-nuevo .kc', { hasText: 'Tapa' }).count() === 0, 'modo "cuando el camarero lo apunta": la cocina aún no lo ve');
+  await pt.getByRole('button', { name: '✓ Apuntado' }).click();
+  await k2.locator('#k-nuevo .kc', { hasText: 'Tapa' }).waitFor({ timeout: 8000 });
+  ok(true, 'al apuntarlo en el TPV, llega a cocina');
 
   // ------------------------------------------------------------ AGOTADO DESDE EL PANEL
   await k.getByRole('tab', { name: 'Carta' }).click();

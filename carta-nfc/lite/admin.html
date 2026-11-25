@@ -30,11 +30,13 @@
           <button class="btn sm ghost" id="a-salir" type="button">Salir</button>
         </div>
       </div>
+      <div class="a-wrap"><div id="hoy-strip" class="hoy-strip" hidden aria-live="polite"></div></div>
       <div class="a-wrap"><div class="tabs" role="tablist">
         <button class="tab" role="tab" type="button" data-tab="carta" aria-selected="true">Carta</button>
         <button class="tab" role="tab" type="button" data-tab="mesas" aria-selected="false">Mesas y NFC</button>
         <button class="tab" role="tab" type="button" data-tab="ajustes" aria-selected="false">Ajustes y claves</button>
         <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">📊 Informes</button>
+        <button class="tab" role="tab" type="button" data-tab="opiniones" aria-selected="false" id="tab-opiniones">⭐ Opiniones</button>
       </div></div>
     </header>
 
@@ -86,6 +88,19 @@
           <label class="check"><input type="checkbox" id="aj-codigo"> 🔑 Pedir con código de mesa: el camarero abre la mesa en el panel y da un código de 4 cifras (nadie pide desde fuera del bar)</label>
           <button class="btn primary" type="submit" style="margin-top:12px">Guardar</button>
         </form>
+        <form id="form-extras" class="card pad">
+          <h2>WiFi, reseñas y trivial</h2>
+          <p class="muted small">La WiFi solo la ven los clientes que entran desde una mesa del bar. Al pedir la cuenta, la carta pregunta
+            "¿Qué tal todo?" y después ofrece a <b>todos</b> dejar su reseña en Google (Google no permite pedírsela solo a los contentos).</p>
+          <div class="fila">
+            <label class="field"><span>Nombre de la WiFi</span><input type="text" id="ex-wifi-red" maxlength="60" autocomplete="off"></label>
+            <label class="field"><span>Clave de la WiFi</span><input type="text" id="ex-wifi-clave" maxlength="80" autocomplete="off"></label>
+          </div>
+          <label class="field"><span>Enlace para dejar reseña en Google</span><input type="url" id="ex-resena" placeholder="https://g.page/r/…/review"></label>
+          <p class="muted small">Se saca en Google Business Profile → <b>Pedir reseñas</b> → copiar enlace.</p>
+          <label class="check"><input type="checkbox" id="ex-trivia"> 🧠 Trivial para los clientes: 10 preguntas mientras esperan, solo con su nombre y ranking del día (ideal para regalar un chupito al ganador)</label>
+          <button class="btn primary" type="submit">Guardar</button>
+        </form>
         <div class="card pad">
           <h2>Panel del bar (móvil junto al TPV)</h2>
           <p class="muted small">Genera el enlace del panel para el móvil de la barra. Al generar uno nuevo, el anterior deja de funcionar.</p>
@@ -98,6 +113,11 @@
           <button class="btn danger" id="clave-admin" type="button">Cambiar clave de admin</button>
           <div id="clave-admin-out"></div>
         </div>
+      </section>
+
+      <!-- OPINIONES -->
+      <section id="t-opiniones" hidden>
+        <div class="card pad" id="opiniones"><p class="muted">Cargando…</p></div>
       </section>
 
       <!-- INFORMES -->
@@ -119,6 +139,9 @@
         </div>
         <label class="field"><span>Descripción</span><textarea id="p-descripcion" maxlength="300"></textarea></label>
         <fieldset class="alerg-set"><legend>Alérgenos</legend><div id="p-alergenos" class="alerg-grid"></div></fieldset>
+        <label class="field" id="p-opciones-box"><span>Opciones que elige el cliente (opcional, una por línea)</span>
+          <textarea id="p-opciones" rows="3" placeholder="Punto: Poco hecho, Al punto, Hecho&#10;Picante: Nada, Poco, Mucho"></textarea>
+          <small class="muted">Llegan a cocina con el pedido. No cambian el precio. Máx. 4 líneas de 2 a 8 opciones.</small></label>
         <label class="field"><span>Foto (URL https, opcional)</span><input type="url" id="p-imagen" placeholder="https://…"></label>
         <label class="check"><input type="checkbox" id="p-disponible" checked> Disponible (desmarcar = agotado)</label>
       </div>

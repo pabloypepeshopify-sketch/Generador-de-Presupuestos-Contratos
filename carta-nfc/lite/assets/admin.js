@@ -39,6 +39,7 @@
     $('app').hidden = false;
     pintar();
     cargarCodigoMesa();
+    cargarHoy();
   }
 
   async function op(accion, datos, okMsg) {
@@ -88,7 +89,7 @@
         <div class="card">
           ${prods.length ? prods.map((p) => `
             <div class="prod-row${p.disponible ? '' : ' agotado'}">
-              <div class="nom"><strong>${esc(p.nombre)}</strong>
+              <div class="nom"><strong>${esc(p.nombre)}</strong>${extras && extras.opciones && extras.opciones[p.id] ? ' <span class="chip">⚙ opciones</span>' : ''}
                 <span class="muted small">${p.alergenos.length ? p.alergenos.map((a) => ALERGENOS[a] || a).join(', ') : 'Sin alérgenos marcados'}</span></div>
               <span class="num" style="font-weight:700">${dinero(p.precio, m)}</span>
               <button class="btn sm sw ${p.disponible ? 'on' : 'off'}" data-disp="${p.id}" aria-pressed="${!p.disponible}">${p.disponible ? '● Disponible' : '○ Agotado'}</button>
@@ -140,13 +141,78 @@
     if (codigoMesa !== null) $('aj-codigo').checked = codigoMesa;
   }
 
-  // Código de mesa (009_panel_bar.sql): se lee y se cambia con carta_panel, con la clave del dueño.
+  // Código de mesa (009), WiFi, reseñas y opciones por plato (010): se leen y se cambian con carta_panel.
   let codigoMesa = null;
+  let extras = null;  // carta_panel con la clave del dueño (null si la base de datos aún no tiene 010)
+  const panel = (accion, datos) => rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: accion || 'datos', p_datos: datos || {} });
   async function cargarCodigoMesa() {
     try {
-      codigoMesa = !!(await rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: 'datos', p_datos: {} })).codigo_mesa;
+      const r = await panel();
+      codigoMesa = !!r.codigo_mesa;
       $('aj-codigo').checked = codigoMesa;
+      extras = 'opciones' in r ? r : null;
     } catch { $('aj-codigo').closest('label').hidden = true; }
+    pintarExtras();
+    pintarCarta();
+  }
+
+  function pintarExtras() {
+    $('form-extras').hidden = !extras;
+    $('tab-opiniones').hidden = !extras;
+    $('p-opciones-box').hidden = !extras;
+    if (!extras || $('form-extras').contains(document.activeElement)) return;
+    $('ex-wifi-red').value = extras.wifi_red || '';
+    $('ex-wifi-clave').value = extras.wifi_clave || '';
+    $('ex-resena').value = extras.resena_url || '';
+    $('ex-trivia').checked = !!extras.trivia;
+  }
+
+  // "Hoy": ventas y pedidos (carta_informe de hoy), mesas con consumo y valoración de los últimos 30 días.
+  async function cargarHoy() {
+    try {
+      const [inf, pan] = await Promise.all([
+        rpc('carta_informe', { p_slug: sesion.slug, p_clave: sesion.clave, p_filtro: {} }),
+        panel().catch(() => null),
+      ]);
+      const m = d.restaurante.moneda, k = inf.kpis;
+      const val = pan && pan.valoracion && pan.valoracion.n ? pan.valoracion : null;
+      $('hoy-strip').innerHTML = `<span class="muted">Hoy</span>
+        <span><b class="num">${dinero(k.ventas, m)}</b> vendido</span>
+        <span><b class="num">${esc(k.pedidos)}</b> pedido${k.pedidos === 1 ? '' : 's'}</span>
+        ${pan && 'mesas_activas' in pan ? `<span><b class="num">${esc(pan.mesas_activas)}/${esc(pan.mesas.length)}</b> mesas con consumo</span>` : ''}
+        ${val ? `<span>⭐ <b class="num">${media1(val.media)}</b> <small class="muted">(${esc(val.n)} opiniones, 30 días)</small></span>` : ''}
+        ${pan && pan.trivia_top && pan.trivia_top.length ? `<span>🧠 Trivial: <b>${esc(pan.trivia_top[0].nombre)}</b> <small class="muted">${esc(pan.trivia_top[0].mesa)} · ${esc(pan.trivia_top[0].puntos)}/10</small></span>` : ''}`;
+      $('hoy-strip').hidden = false;
+    } catch { $('hoy-strip').hidden = true; }
+  }
+
+  const media1 = (x) => Number(x).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  async function cargarOpiniones() {
+    try {
+      const r = await panel('opiniones');
+      const ops = r.opiniones || [], val = r.valoracion;
+      const fecha = (t) => new Date(t).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      $('opiniones').innerHTML = `
+        ${val && val.n ? `<div class="op-media"><b class="num">⭐ ${media1(val.media)}</b><span class="muted">${esc(val.n)} opiniones en los últimos 30 días</span></div>` : ''}
+        ${extras && !extras.resena_url ? '<p class="small muted">Consejo: pon tu enlace de reseñas de Google en Ajustes → WiFi, reseñas y trivial.</p>' : ''}
+        ${ops.length ? ops.map((o) => `<div class="op-row"><span class="est" aria-label="${esc(o.estrellas)} de 5">${'★'.repeat(o.estrellas)}${'☆'.repeat(5 - o.estrellas)}</span>
+          <span class="muted small"> · ${esc(o.mesa)} · ${fecha(o.creado)}</span>${o.comentario ? `<p>${esc(o.comentario)}</p>` : ''}</div>`).join('')
+          : '<p class="muted">Aún no hay opiniones. Salen al pedir la cuenta desde la carta.</p>'}`;
+    } catch (e) { $('opiniones').innerHTML = `<p class="muted">${esc(e.humano || 'No se pudieron cargar las opiniones.')}</p>`; }
+  }
+
+  // "Punto: Poco hecho, Al punto, Hecho" ⇄ [{ nombre, valores }]
+  const opcionesATexto = (ops) => (ops || []).map((g) => `${g.nombre}: ${g.valores.join(', ')}`).join('\n');
+  function textoAOpciones(txt) {
+    const lineas = txt.split('\n').map((l) => l.trim()).filter(Boolean);
+    return lineas.map((l) => {
+      const i = l.indexOf(':');
+      if (i < 1) throw new Error('Cada línea: "Nombre: opción, opción". Ejemplo: Punto: Poco hecho, Al punto, Hecho');
+      const valores = l.slice(i + 1).split(',').map((v) => v.trim()).filter(Boolean);
+      if (valores.length < 2) throw new Error(`"${l.slice(0, i)}" necesita al menos 2 opciones separadas por comas.`);
+      return { nombre: l.slice(0, i).trim(), valores };
+    });
   }
 
   // ------------------------------------------------------------ productos ----
@@ -161,6 +227,7 @@
     $('p-categoria').innerHTML = '<option value="">Sin categoría</option>' + d.categorias.map((c) =>
       `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
     $('p-categoria').value = p ? p.categoria_id || '' : (d.categorias[0] ? d.categorias[0].id : '');
+    $('p-opciones').value = p && extras && extras.opciones ? opcionesATexto(extras.opciones[p.id]) : '';
     const sel = new Set(p ? p.alergenos : []);
     $('p-alergenos').innerHTML = Object.entries(ALERGENOS).map(([k, v]) =>
       `<label class="check"><input type="checkbox" value="${k}" ${sel.has(k) ? 'checked' : ''}> ${v}</label>`).join('');
@@ -183,8 +250,20 @@
       alergenos: [...$('p-alergenos').querySelectorAll('input:checked')].map((i) => i.value),
     };
     if (p.imagen_url && !/^https:\/\//.test(p.imagen_url)) { toast('La foto debe ser un enlace https://', 'error'); return; }
+    let opciones = null;
+    if (extras) {
+      try { opciones = textoAOpciones($('p-opciones').value); } catch (e) { toast(e.message, 'error'); return; }
+    }
     $('p-guardar').disabled = true;
     const ok = await op('producto', p, 'Producto guardado');
+    if (ok && extras) {
+      const id = p.id || ok.id;
+      const antes = JSON.stringify(extras.opciones[id] || []);
+      if (id && antes !== JSON.stringify(opciones)) {
+        try { extras = await panel('opciones', { id, opciones }); pintarCarta(); }
+        catch (e) { toast(e.humano, 'error'); $('p-guardar').disabled = false; return; }
+      }
+    }
     $('p-guardar').disabled = false;
     if (ok) $('dlg-producto').close();
   }
@@ -304,6 +383,21 @@
     }
   });
 
+  $('form-extras').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const resena = $('ex-resena').value.trim();
+    if (resena && !/^https:\/\/\S+$/.test(resena)) { toast('El enlace debe empezar por https://', 'error'); return; }
+    document.activeElement.blur();
+    try {
+      extras = await panel('extras', { wifi_red: $('ex-wifi-red').value.trim(), wifi_clave: $('ex-wifi-clave').value.trim(),
+        resena_url: resena, trivia: $('ex-trivia').checked });
+      pintarExtras();
+      cargarHoy();
+      toast('Guardado');
+    } catch (e) { toast(e.humano, 'error'); }
+  });
+  setInterval(() => { if (sesion && d && document.visibilityState === 'visible') cargarHoy(); }, 60000);
+
   document.addEventListener('click', async (ev) => {
     const b = ev.target.closest('button');
     if (!b) return;
@@ -313,7 +407,8 @@
 
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
-      ['carta', 'mesas', 'ajustes', 'hoy'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      ['carta', 'mesas', 'ajustes', 'hoy', 'opiniones'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      if (ds.tab === 'opiniones') cargarOpiniones();
       if (ds.tab === 'hoy') {
         if (informes) informes.recargar();
         else informes = window.CartaInformes.montar($('informes'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });
