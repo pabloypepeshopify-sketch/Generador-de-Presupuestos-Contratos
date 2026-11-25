@@ -172,6 +172,12 @@ const ESTILOS = {
   // croissant: duelo del Oeste en una cafetería; tono cálido de película y subtítulos abajo (chaval h, abuelo a, señora s)
   croissant: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'sepia(0.22) saturate(1.2) contrast(1.12)' },
     subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#c8402a', '#e8a91c'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 14, y: 1500, voces: { h: '#ffe08a', a: '#ffffff', x: '#ffd0a0', s: '#ffc9e3' } } },
+  // gato: terror nocturno; subtítulos blancos con píldora roja abajo
+  gato: { post: { brillo: 0.25, desenfoqueBrillo: 12, filtro: 'saturate(1.05) contrast(1.15)' },
+    subs: { tam: 66, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#d62839', '#8a1020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.95)', radio: 14, y: 1500 } },
+  // paises: carrera de cafés por países; subtítulos grandes abajo (arriba va la clasificación)
+  paises: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.2) contrast(1.07)' },
+    subs: { tam: 72, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d6e', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1420 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

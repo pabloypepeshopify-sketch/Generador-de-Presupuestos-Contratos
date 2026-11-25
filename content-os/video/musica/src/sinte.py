@@ -132,6 +132,40 @@ def oeste(cues):  # «EL ÚLTIMO CROISSANT»: duelo → silencio congelado → c
     P.pon(sen, pad([60, 64, 67], D - sen, 2000, 0.3), 0.9)
     return P.x
 
+def terror(cues):  # «03:33»: zumbido, latido que se acelera, golpes con los avisos, silencio con la luz, final cómico
+    D = cues['fin'] + 0.5; P = Pista(D); luz, con = cues['luz'], cues['con']
+    n = int(luz * SR); t = np.arange(n) / SR; dr = 0.22 * (np.sin(2 * np.pi * 41 * t) + 0.5 * np.sin(2 * np.pi * 43.5 * t)) * np.minimum(1, t / 1.0); P.pon(0, dr)
+    P.pon(0, cuerdas(80, luz, 0.025, 6000)); P.pon(2.0, cuerdas(81, luz - 2.0, 0.02, 6000))           # cuerdas agudas disonantes
+    tt = 0.3
+    while tt < luz - 0.05: P.pon(tt, kick(0.75)); P.pon(tt + 0.18, kick(0.45)); q = tt / luz; tt += 1.0 - 0.6 * q   # latido que se acelera
+    P.pon(luz - 1.5, riser(1.5, 0.45))
+    for i, t0 in enumerate(np.arange(con, D, 0.22)): P.pon(t0, pluck([67, 64, 60, 64, 67, 72][i % 6], 0.18, 3500), 0.9 if i % 2 == 0 else 0.6)  # cómico
+    P.pon(con, bajo(36, 0.3, 500)); P.pon(con + 0.44, bajo(43, 0.3, 500))
+    return P.x
+
+def acordeon(ms, d, g=0.05): n = int(d * SR); t = np.arange(n) / SR; x = sum(sq(nota(m), n) * (1 + 0.3 * np.sin(2 * np.pi * 6 * t)) for m in ms); return g * lp(x * env(n, 0.02, 99, 1, 0.03), 2500)
+def carrera(cues):  # «países»: ritmo de carrera con un toque de cada país, frenazo en España y subidón final
+    D = cues['fin'] + 0.5; P = Pista(D); b = 0.25; it, jp, us, fr, es, ahora, pero, treinta = (cues[k] for k in ('it', 'jp', 'us', 'fr', 'es', 'ahora', 'pero', 'treinta'))
+    for i, t in enumerate(np.arange(0, ahora, b)):                                               # base de carrera
+        if i % 2 == 0: P.pon(t, kick(0.85))
+        P.pon(t, hat(), 0.5); 
+        if i % 4 == 2: P.pon(t, clap(), 0.6)
+    for t in np.arange(0, it, 0.125): P.pon(t, pluck(76, 0.1, 5000), 0.5)                          # gancho: tic-tac agudo
+    P.pon(it - 0.6, riser(0.6, 0.35))
+    for i, t in enumerate(np.arange(it, jp, 0.0625)): P.pon(t, pluck([76, 79, 84, 79][(i // 2) % 4], 0.07, 6000), 0.7)        # Italia: mandolina (trémolo)
+    for i, t in enumerate(np.arange(jp, us, 0.25)): P.pon(t, pluck([69, 71, 74, 76, 79, 76, 74, 71][i % 8], 0.35, 3500), 1.0)  # Japón: pentatónica
+    for i, t in enumerate(np.arange(us, fr, 0.25)): P.pon(t, 0.6 * np.tanh(4 * guitarra([40, 40, 43, 45][(i // 2) % 4], 0.24, 0.5)))  # EE. UU.: rock
+    for i, t in enumerate(np.arange(fr, es, 0.5)): P.pon(t, acordeon([[57, 61, 64], [55, 59, 62]][i % 2], 0.48))              # Francia: acordeón
+    for i, t in enumerate(np.arange(es, ahora, 0.125)): P.pon(t, guitarra([52, 56, 59, 64][i % 4], 0.12, 0.2)); P.pon(t, clap(), 0.25 if i % 2 else 0)  # España: rasgueo y palmas
+    src = P.x[int((ahora - 1.0) * SR):int(ahora * SR)].copy(); n = int(0.6 * SR); idx = np.cumsum(np.linspace(1.0, 0.05, n)).astype(int); idx = idx[idx < len(src)]; P.pon(ahora, 0.8 * src[idx])  # frenazo de cinta
+    P.pon(pero - 0.2, riser(treinta - pero + 0.2, 0.35))
+    for i, t in enumerate(np.arange(treinta, D, 0.125)):                                          # subidón final
+        if i % 4 == 0: P.pon(t, kick(1.0))
+        if i % 8 == 4: P.pon(t, clap(), 0.8)
+        P.pon(t, hat(), 0.5); P.pon(t, guitarra([52, 56, 59, 64, 68, 64, 59, 56][i % 8], 0.12, 0.18))
+    P.pon(treinta, pad([52, 56, 59, 64], D - treinta, 3000, 0.02), 1.3)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -142,4 +176,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste}.get(tema, intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera}.get(tema, intenso)(q), dst)
