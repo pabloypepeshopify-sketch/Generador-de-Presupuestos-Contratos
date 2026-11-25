@@ -45,7 +45,6 @@
 .stepper button { width: 40px; height: 40px; border: 0; background: transparent; font-size: 20px; font-weight: 700; cursor: pointer; color: var(--text); }
 .stepper .n { min-width: 22px; text-align: center; font-weight: 700; }
 
-.ayuda { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 22px 0 6px; }
 .pie { text-align: center; margin: 12px 0 120px; }
 
 .cart-bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 20; }
@@ -104,9 +103,25 @@
   border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); }
 .codigo-body .btn { margin-top: 8px; }
 
+/* Menú fijo de abajo: camarero, cuenta, WiFi, reseña, trivial */
+.menu-abajo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; display: flex; justify-content: center; gap: 2px;
+  padding: 4px 6px calc(4px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line);
+  box-shadow: 0 -6px 18px rgb(0 0 0 / .08); }
+.menu-abajo button { flex: 1 1 0; max-width: 120px; min-width: 0; min-height: 58px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; padding: 6px 2px; border: 0; border-radius: 12px; background: none; color: var(--text);
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.menu-abajo button span { font-size: 23px; line-height: 1; }
+.menu-abajo button:active { background: var(--surface-2); }
+.menu-abajo button:disabled { opacity: .5; }
+.con-menu .cart-bar { bottom: calc(66px + env(safe-area-inset-bottom)); padding-bottom: 8px; }
+.con-menu .pie { margin-bottom: 200px; }
+.con-menu .toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+
 /* WiFi del bar */
-.wifi { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 14px; margin: 10px 0; font-size: 15px; }
-.wifi span { overflow-wrap: anywhere; }
+.wifi-body { text-align: center; }
+.wifi-body p { margin: 2px 0; }
+.wifi-dato { font-size: 24px; font-weight: 800; overflow-wrap: anywhere; margin-bottom: 10px !important; }
+.wifi-body .btn { margin-top: 8px; }
 
 /* Opciones por plato */
 .n-opc { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-left: 6px; padding: 0 6px; border-radius: 999px;
@@ -129,7 +144,6 @@
 .estrellas button { font-size: 40px; line-height: 1; padding: 4px; border: 0; background: none; color: #f2b705; cursor: pointer; min-width: 48px; min-height: 48px; }
 
 /* Trivial */
-.trivia-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; margin: 10px 0; }
 .tv-prog { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-bottom: 8px; }
 .tv-prog span { display: block; height: 100%; background: var(--brand); transition: width .2s; }
 .tv-q { font-size: 21px; margin: 6px 0 14px; }

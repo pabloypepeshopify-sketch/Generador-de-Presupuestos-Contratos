@@ -112,6 +112,10 @@ body { background: var(--bg); overflow-x: hidden; }
 .codigo-mesa b { font-size: 48px; letter-spacing: .18em; line-height: 1; }
 .p-otros { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 .k-brand .chip { font-size: 12px; }
+.codigo-dia { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; cursor: pointer;
+  border: 2px solid var(--brand); background: color-mix(in srgb, var(--brand) 16%, var(--surface)); color: var(--text); font: inherit; font-size: 15px; }
+.codigo-dia b { font-size: 20px; letter-spacing: .12em; }
+#dlg-codigo-dia .codigo-mesa { margin: 0; }
 
 /* Agotados en un toque */
 .ag-cat h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 16px 0 8px; }
@@ -161,7 +165,7 @@ body { background: var(--bg); overflow-x: hidden; }
 .kc > .btn.listo { background: #2f7de1; border-color: #2f7de1; color: #fff; }
 
 @media (max-width: 560px) {
-  .k-actions .lbl { display: none; }
+  .k-actions .lbl, .codigo-dia .lbl { display: none; }
   .k-top .tabs { order: 3; width: 100%; }
   .k-top .tab { flex: 1; justify-content: center; }
   .mesa-acc { grid-template-columns: 1fr; }

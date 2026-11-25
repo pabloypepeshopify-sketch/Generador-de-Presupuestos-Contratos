@@ -29,6 +29,14 @@
   const kMesa = () => 'carta:mesa:' + menu.restaurante.slug;
   const kPedidos = () => 'carta:pedidos:' + menu.restaurante.slug;
   const kCodigo = () => 'carta:codigo:' + (mesa ? mesa.codigo : '');
+  // Código del día (011): vale para todo el bar hasta las 5:00, así que se guarda en el móvil (no solo en la pestaña).
+  const kCodigoDia = () => 'carta:codigo-dia:' + menu.restaurante.slug;
+  const esCodigoDia = () => !!(cuenta && cuenta.codigo_dia);
+  const leerCodigo = () => ses.get(kCodigo(), '') || store.get(kCodigoDia(), '') || null;
+  function guardarCodigo(cod) {
+    if (esCodigoDia()) { store.set(kCodigoDia(), cod); ses.set(kCodigo(), ''); } else ses.set(kCodigo(), cod);
+  }
+  function borrarCodigo() { ses.set(kCodigo(), ''); store.del(kCodigoDia()); }
 
   function mostrarError(titulo, texto) {
     $('cargando').hidden = true;
@@ -82,21 +90,32 @@
     refrescarCuenta();
   }
 
-  // WiFi (solo en una mesa), reseñas y opciones por plato. Si la base de datos aún no lo tiene, la carta va igual.
+  // WiFi (solo en una mesa), reseñas, trivial y opciones por plato. Si la base de datos aún no lo tiene, la carta va igual.
   async function cargarInfo() {
     try {
       info = await rpc('carta_info', { p_slug: menu.restaurante.slug, p_mesa: mesa ? mesa.codigo : null });
       info.opciones = info.opciones || {};
     } catch { info = { opciones: {} }; }
-    pintarWifi();
-    $('trivia-card').hidden = !(info.trivia && mesa);
+    pintarMenuAbajo();
   }
 
-  function pintarWifi() {
-    const w = $('wifi');
-    w.hidden = !info.wifi_red;
-    w.innerHTML = info.wifi_red ? `<span>📶 <b>WiFi</b> · ${esc(info.wifi_red)}${info.wifi_clave ? ` · clave <b class="num">${esc(info.wifi_clave)}</b>` : ''}</span>
-      ${info.wifi_clave ? '<button type="button" class="btn sm" id="btn-wifi">Copiar clave</button>' : ''}` : '';
+  // Menú fijo de abajo: Camarero, Cuenta, WiFi (si el bar la ha puesto), Reseña y Trivial (si está activo).
+  function pintarMenuAbajo() {
+    const r = menu.restaurante;
+    const ver = !!mesa || !!(r.mesa_libre && menu.mesas.length);
+    $('menu-abajo').hidden = !ver;
+    document.body.classList.toggle('con-menu', ver);
+    $('btn-wifi').hidden = !info.wifi_red;
+    $('btn-resena').hidden = !mesa;
+    $('btn-trivia').hidden = !(info.trivia && mesa);
+  }
+
+  function abrirWifi() {
+    $('wifi-red').textContent = info.wifi_red || '';
+    $('wifi-clave').textContent = info.wifi_clave || '';
+    $('wifi-clave-box').hidden = !info.wifi_clave;
+    $('btn-wifi-copiar').hidden = !info.wifi_clave;
+    $('dlg-wifi').showModal();
   }
 
   function puedePedir() {
@@ -117,7 +136,7 @@
     }
     $('banner-cerrado').hidden = r.pedidos_abiertos;
     $('banner-sin-mesa').hidden = !(r.pedidos_abiertos && !mesa && !(r.mesa_libre && menu.mesas.length));
-    $('ayuda').hidden = !mesa && !(r.mesa_libre && menu.mesas.length);
+    pintarMenuAbajo();
     actualizarCarritoBar();
   }
 
@@ -261,7 +280,7 @@
   async function enviar() {
     if (enviando) return;
     if (!mesa) { abrirMesas(true); return; }
-    if (cuenta && cuenta.codigo_mesa && !cuenta.valido) { pedirCodigo(true); return; }
+    if (cuenta && (cuenta.codigo_mesa || cuenta.codigo_dia) && !cuenta.valido) { pedirCodigo(true); return; }
     const lineas = Object.entries(carrito).map(([k, l]) => ({ producto_id: pidDe(k), cantidad: l.cantidad,
       nota: [l.opc, (l.nota || '').trim()].filter(Boolean).join(' · ').slice(0, 140) || null, opc: l.opc || '' }));
     if (!lineas.length) return;
@@ -269,7 +288,7 @@
     $('btn-enviar').disabled = true;
     $('btn-enviar').textContent = 'Enviando…';
     try {
-      const res = await rpc('carta_pedir_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null,
+      const res = await rpc('carta_pedir_mesa', { p_mesa: mesa.codigo, p_codigo: leerCodigo(),
         p_lineas: lineas.map(({ opc, ...l }) => l), p_nota: $('carrito-nota').value.trim() || null });
       const lista = store.get(kPedidos(), []).filter((p) => Date.now() - new Date(p.creado).getTime() < 12 * 3600e3);
       lista.unshift({ token: res.token, numero: res.numero, creado: res.creado, total: res.total, estado: res.estado,
@@ -287,11 +306,12 @@
       refrescarPedidos();
       refrescarCuenta();
     } catch (e) {
-      if (e.code === 'codigo_mesa') {
-        ses.set(kCodigo(), '');
-        if (cuenta) cuenta.valido = false;
+      if (e.code === 'codigo_mesa' || e.code === 'codigo_dia') {
+        borrarCodigo();
+        if (cuenta) { cuenta.valido = false; cuenta.codigo_dia = e.code === 'codigo_dia'; cuenta.codigo_mesa = e.code === 'codigo_mesa'; }
         $('dlg-carrito').close();
-        pedirCodigo(true, 'El código no es correcto o la mesa se ha cerrado. Pídeselo otra vez al camarero.');
+        pedirCodigo(true, e.code === 'codigo_dia' ? 'El código ha cambiado (cambia cada día). Pídeselo otra vez al camarero.'
+          : 'El código no es correcto o la mesa se ha cerrado. Pídeselo otra vez al camarero.');
         return;
       }
       toast(e.humano || 'No se pudo enviar el pedido.', 'error');
@@ -370,7 +390,7 @@
     if (!mesa) return;
     const antes = cuenta && cuenta.lineas ? cuenta.lineas.length : 0;
     try {
-      cuenta = await rpc('carta_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null });
+      cuenta = await rpc('carta_mesa', { p_mesa: mesa.codigo, p_codigo: leerCodigo() });
     } catch { return; }
     pintarCuenta();
     if (antes && !(cuenta.lineas && cuenta.lineas.length) && !document.querySelector('dialog[open]')) abrirValorar();
@@ -378,11 +398,13 @@
 
   function pintarCuenta() {
     const c = cuenta, m = menu.restaurante.moneda;
-    const falta = !!(c && c.codigo_mesa && !c.valido && menu.restaurante.pedidos_abiertos);
+    const falta = !!(c && (c.codigo_mesa || c.codigo_dia) && !c.valido && menu.restaurante.pedidos_abiertos);
     $('banner-codigo').hidden = !falta;
-    $('banner-codigo').innerHTML = falta ? (c.abierta
+    $('banner-codigo').innerHTML = !falta ? '' : c.codigo_dia
+      ? '🔑 Para pedir necesitas el <b>código de hoy</b>: pídeselo al camarero. <button type="button" class="btn sm" id="btn-codigo">Tengo el código</button>'
+      : (c.abierta
       ? '🔑 Para pedir necesitas el <b>código de tu mesa</b>: pídeselo al camarero. <button type="button" class="btn sm" id="btn-codigo">Tengo el código</button>'
-      : '🔑 Pide al camarero que <b>abra tu mesa</b> para poder pedir desde aquí.') : '';
+      : '🔑 Pide al camarero que <b>abra tu mesa</b> para poder pedir desde aquí.');
     const ver = c && c.lineas && c.lineas.length;
     $('cuenta-mesa').hidden = !ver;
     $('cuenta-mesa').innerHTML = ver ? `<h2>Lo que habéis pedido · ${esc(mesa.nombre)}</h2>
@@ -395,6 +417,9 @@
     enviarTrasCodigo = !!despuesEnviar;
     $('codigo-input').value = '';
     $('codigo-error').textContent = msg || '';
+    $('codigo-titulo').textContent = esCodigoDia() ? 'Código de hoy' : 'Código de tu mesa';
+    $('codigo-texto').textContent = esCodigoDia() ? 'Pídeselo al camarero: cambia cada día, así nadie pide desde casa.'
+      : 'Pídeselo al camarero: así solo se pide desde las mesas del bar.';
     if ($('dlg-carrito').open) $('dlg-carrito').close();
     $('dlg-codigo').showModal();
     $('codigo-input').focus();
@@ -403,11 +428,15 @@
   async function comprobarCodigo() {
     const cod = $('codigo-input').value.trim();
     if (!/^[0-9]{4}$/.test(cod)) { $('codigo-error').textContent = 'Son 4 cifras.'; return; }
-    ses.set(kCodigo(), cod);
+    guardarCodigo(cod);
     await refrescarCuenta();
-    if (!cuenta || !cuenta.valido) { ses.set(kCodigo(), ''); $('codigo-error').textContent = 'Ese código no es el de tu mesa.'; return; }
+    if (!cuenta || !cuenta.valido) {
+      borrarCodigo();
+      $('codigo-error').textContent = esCodigoDia() ? 'Ese no es el código de hoy.' : 'Ese código no es el de tu mesa.';
+      return;
+    }
     $('dlg-codigo').close();
-    toast('✓ Mesa abierta: ya puedes pedir.');
+    toast('✓ Listo: ya puedes pedir.');
     if (enviarTrasCodigo && Object.keys(carrito).length) enviar();
   }
 
@@ -455,13 +484,14 @@
   }
 
   // -------------------------------------------------- valorar al final ----
-  // Al pedir la cuenta o al liberar la mesa: estrellas y comentario privado para el dueño. A todos (pongan lo que pongan) se les
+  // Cuando el bar cobra y libera la mesa (o con ⭐ Reseña del menú): estrellas y comentario privado para el dueño. A todos se les
   // ofrece después la reseña en Google: Google no permite pedirla solo a los contentos.
   const kValorado = () => 'carta:valorado:' + (mesa ? mesa.codigo : '');
   let estrellas = 0;
-  function abrirValorar() {
-    if (ses.get(kValorado(), false)) return;
-    ses.set(kValorado(), true);  // se pregunta una sola vez por móvil y mesa (al pedir la cuenta o al liberar la mesa)
+  function abrirValorar(aMano) {
+    if (!mesa) { abrirMesas(false); return; }
+    if (!aMano && ses.get(kValorado(), false)) return;
+    ses.set(kValorado(), true);  // sola, una vez por móvil y mesa: cuando el bar cobra y libera la mesa
     estrellas = 0;
     $('val-paso1').hidden = false;
     $('val-paso2').hidden = true;
@@ -608,7 +638,6 @@
     try {
       await rpc('carta_avisar', { p_mesa: mesa.codigo, p_tipo: tipo });
       toast(tipo === 'cuenta' ? 'Hemos avisado: te traen la cuenta enseguida.' : 'Hemos avisado al camarero. Viene enseguida.');
-      if (tipo === 'cuenta') setTimeout(abrirValorar, 1200);
     } catch (e) {
       toast(e.humano, 'error');
     } finally {
@@ -627,8 +656,10 @@
     else if (t.id === 'val-enviar') enviarValoracion();
     else if (t.id === 'btn-trivia' || t.id === 'btn-trivia-otra') abrirTrivia();
     else if (t.dataset.resp !== undefined) responder(Number(t.dataset.resp));
-    else if (t.id === 'btn-wifi') {
-      navigator.clipboard.writeText(info.wifi_clave).then(() => toast('Clave del WiFi copiada'), () => toast('Clave: ' + info.wifi_clave));
+    else if (t.id === 'btn-wifi') abrirWifi();
+    else if (t.id === 'btn-resena') abrirValorar(true);
+    else if (t.id === 'btn-wifi-copiar') {
+      navigator.clipboard.writeText(info.wifi_clave).then(() => toast('Contraseña copiada'), () => toast('Contraseña: ' + info.wifi_clave));
     }
     else if (t.dataset.mesa) elegirMesa(t.dataset.mesa);
     else if (t.dataset.cat !== undefined && t.classList.contains('tab')) {

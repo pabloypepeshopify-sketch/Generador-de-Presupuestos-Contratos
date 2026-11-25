@@ -225,6 +225,14 @@
     pausa.className = 'btn sm ' + (r.pedidos_abiertos ? 'abiertos' : 'pausados');
     const nombresCat = enPuesto() && puesto.cats && panel ? panel.categorias.filter((c) => puesto.cats.includes(c.id)).map((c) => c.nombre) : [];
     $('k-puesto-chip').hidden = !enPuesto();
+    // Código del día (011): siempre a la vista para decírselo a los clientes.
+    const codDia = panel && panel.codigo_dia && panel.clave_dia;
+    $('k-codigo-dia').hidden = !codDia;
+    if (codDia) {
+      $('k-codigo-dia').innerHTML = `🔑 <span class="lbl">Código de hoy </span><b class="num">${esc(panel.clave_dia)}</b>`;
+      $('k-codigo-dia').setAttribute('aria-label', 'Código de hoy: ' + panel.clave_dia);
+      if ($('dlg-codigo-dia').open) $('cd-codigo').textContent = panel.clave_dia;
+    }
     $('k-puesto-chip').textContent = '🖥 Cocina' + (nombresCat.length ? ': ' + nombresCat.join(', ') : '');
 
     const avisos = enPuesto() ? [] : d.pedidos.filter((p) => p.tipo !== 'pedido' && p.estado === 'nuevo');
@@ -622,6 +630,13 @@
     else if (ds.disp) { b.disabled = true; await cargarPanel('disponible', { id: ds.disp, disponible: ds.valor === 'true' }); }
     else if (b.hasAttribute('data-cerrar')) b.closest('dialog').close();
     else if (b.id === 'k-qr') abrirQr();
+    else if (b.id === 'k-codigo-dia') { $('cd-codigo').textContent = panel.clave_dia; $('dlg-codigo-dia').showModal(); }
+    else if (b.id === 'cd-nuevo') {
+      if (confirm('¿Cambiar el código de hoy? El anterior deja de valer al momento: los clientes que estén pidiendo tendrán que poner el nuevo.')) {
+        const r = await cargarPanel('nueva_clave_dia');
+        if (r) toast('Código nuevo: ' + r.clave_dia);
+      }
+    }
     else if (b.id === 'k-puesto') { if (!panel) await cargarPanel(); abrirPuesto(); }
     else if (b.id === 'reintentar') entrar();
     else if (b.id === 'k-activar') { sonidoOn = true; store.set(K_SONIDO, true); activarAudio(); setTimeout(() => pitar('aviso'), 150); }

@@ -165,20 +165,27 @@
     $('aj-color').value = r.color;
     $('aj-abiertos').checked = r.pedidos_abiertos;
     $('aj-libre').checked = r.mesa_libre;
-    if (codigoMesa !== null) $('aj-codigo').checked = codigoMesa;
+    if (modoCodigo !== null) marcarModo(modoCodigo);
   }
 
-  // Código de mesa (009), WiFi, reseñas y opciones por plato (010): se leen y se cambian con carta_panel.
-  let codigoMesa = null;
+  // Código para pedir: 'ninguno' | 'dia' (011, cambia solo cada día) | 'mesa' (009, el camarero abre cada mesa).
+  function marcarModo(modo) {
+    const i = document.querySelector(`[name="aj-modo"][value="${modo}"]`);
+    if (i) i.checked = true;
+  }
+
+  // Código para pedir (009 y 011), WiFi, reseñas y opciones por plato (010): se leen y se cambian con carta_panel.
+  let modoCodigo = null;
   let extras = null;  // carta_panel con la clave del dueño (null si la base de datos aún no tiene 010)
   const panel = (accion, datos) => rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: accion || 'datos', p_datos: datos || {} });
   async function cargarCodigoMesa() {
     try {
       const r = await panel();
-      codigoMesa = !!r.codigo_mesa;
-      $('aj-codigo').checked = codigoMesa;
+      modoCodigo = r.codigo_dia ? 'dia' : r.codigo_mesa ? 'mesa' : 'ninguno';
+      $('aj-modo-dia').hidden = !('codigo_dia' in r);  // base de datos sin 011
+      marcarModo(modoCodigo);
       extras = 'opciones' in r ? r : null;
-    } catch { $('aj-codigo').closest('label').hidden = true; }
+    } catch { $('aj-codigo').hidden = true; }
     pintarExtras();
     pintarCarta();
   }
@@ -395,17 +402,19 @@
   $('form-ajustes').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     document.activeElement.blur();
-    const quiereCodigo = $('aj-codigo').checked;  // se lee antes: al guardar se repintan los ajustes
+    const sel = document.querySelector('[name="aj-modo"]:checked');  // se lee antes: al guardar se repintan los ajustes
+    const quiereModo = sel ? sel.value : modoCodigo;
     await op('ajustes', {
       nombre: $('aj-nombre').value.trim(), mensaje: $('aj-mensaje').value.trim(), color: $('aj-color').value,
       pedidos_abiertos: $('aj-abiertos').checked, mesa_libre: $('aj-libre').checked,
     }, 'Ajustes guardados');
-    if (codigoMesa !== null && quiereCodigo !== codigoMesa) {
+    if (modoCodigo !== null && quiereModo !== modoCodigo) {
       try {
-        codigoMesa = !!(await rpc('carta_panel', { p_slug: sesion.slug, p_clave: sesion.clave, p_accion: 'ajuste_codigo',
-          p_datos: { activo: quiereCodigo } })).codigo_mesa;
-        $('aj-codigo').checked = codigoMesa;
-        toast(codigoMesa ? '🔑 Código de mesa activado' : 'Código de mesa desactivado');
+        const r = await panel('ajuste_codigo', quiereModo === 'dia' ? { modo: 'dia' } : quiereModo === 'mesa' ? { activo: true } : { modo: 'ninguno' });
+        modoCodigo = r.codigo_dia ? 'dia' : r.codigo_mesa ? 'mesa' : 'ninguno';
+        marcarModo(modoCodigo);
+        toast(modoCodigo === 'dia' ? `🔑 Código del día activado (hoy: ${r.clave_dia})`
+          : modoCodigo === 'mesa' ? '🔑 Código de mesa activado' : 'Código para pedir desactivado');
       } catch (e) { toast(e.humano, 'error'); }
     }
   });

@@ -53,4 +53,7 @@ main.a-wrap { padding-top: 16px; padding-bottom: 60px; }
 .op-row .est { color: #f2b705; letter-spacing: 1px; }
 .op-row p { margin: 4px 0 0; overflow-wrap: anywhere; }
 .aviso-carta { margin: 4px 0 12px; }
+.codigo-set { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 10px 0 0; }
+.codigo-set legend { font-size: 14px; font-weight: 700; padding: 0 4px; }
+.codigo-set .check { align-items: flex-start; }
 #editor-toolbar { align-items: center; }

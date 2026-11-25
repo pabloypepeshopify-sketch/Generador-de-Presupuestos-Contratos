@@ -90,7 +90,12 @@
           <label class="field"><span>Color de la carta</span><input type="color" id="aj-color"></label>
           <label class="check"><input type="checkbox" id="aj-abiertos"> Aceptar pedidos por el móvil</label>
           <label class="check"><input type="checkbox" id="aj-libre"> Sin NFC de mesa, el cliente puede elegir su mesa de una lista</label>
-          <label class="check"><input type="checkbox" id="aj-codigo"> 🔑 Pedir con código de mesa: el camarero abre la mesa en el panel y da un código de 4 cifras (nadie pide desde fuera del bar)</label>
+          <fieldset class="codigo-set" id="aj-codigo"><legend>🔑 Código para pedir (que nadie pida desde casa)</legend>
+            <label class="check"><input type="radio" name="aj-modo" value="ninguno"> Sin código</label>
+            <label class="check" id="aj-modo-dia"><input type="radio" name="aj-modo" value="dia"> <span><b>Código del día</b>: 4 cifras que cambian solas cada día
+              y se ven en el panel del bar. El camarero lo dice o se pone en la pizarra (recomendado)</span></label>
+            <label class="check"><input type="radio" name="aj-modo" value="mesa"> <span><b>Código por mesa</b>: el camarero abre cada mesa en el panel y le da su código</span></label>
+          </fieldset>
           <button class="btn primary" type="submit" style="margin-top:12px">Guardar</button>
         </form>
         <form id="form-extras" class="card pad">

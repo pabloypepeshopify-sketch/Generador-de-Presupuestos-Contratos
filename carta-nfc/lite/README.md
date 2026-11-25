@@ -14,13 +14,14 @@ sin facturación. El bar sigue cobrando con su TPV.
 Es un frontal **separado** de la versión completa (`../web/`, con TPV). Usa **la misma base de datos**.
 Lo propio de esta versión está en `../supabase/009_panel_bar.sql` (mapa, agotados desde el panel, cuenta de la mesa y
 código de mesa) y `../supabase/010_extras.sql` (WiFi, opciones por plato, valoraciones + reseña de Google, trivial y
-resumen "Hoy"); todo viene apagado, así que los bares que ya existen siguen igual.
+resumen "Hoy") y `../supabase/011_codigo_dia.sql` (código del día); todo viene apagado, así que los bares que ya
+existen siguen igual.
 
 ## Qué incluye
 
 | Página | Para quién | Qué hace |
 |---|---|---|
-| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **opciones por plato** (punto de la carne, picante…: se eligen al añadir y van a cocina), **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado → 🍽 ¡Listo! → Servido), **📶 WiFi del bar** (solo desde una mesa), **🧠 Trivial** (solo el nombre, ranking del día), **Llamar al camarero** y **Pedir la cuenta**. Al pedir la cuenta o cuando el bar libera la mesa (una sola vez por móvil) pregunta **"¿Qué tal todo?"** (estrellas + comentario privado para el dueño) y ofrece a todos la **reseña de Google**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
+| `index.html` (`/m/<codigo>`, `/r/<slug>`) | Cliente | Carta por categorías con fotos, precios y alérgenos. Tamaños (Tapa / Media / Ración) en una sola tarjeta. **Buscador**, filtro **"Sin gluten / sin lácteos…"** (según los alérgenos marcados), carrito con nota por plato, **opciones por plato** (punto de la carne, picante…: se eligen al añadir y van a cocina), **Enviar pedido**, **🔁 Repetir** (otra ronda en un toque), estado (Recibido → ✓ Apuntado → 🍽 ¡Listo! → Servido), **menú fijo abajo** (siempre a la vista): **🙋 Camarero**, **🧾 Cuenta**, **📶 WiFi** (si el bar la ha puesto; red y contraseña), **⭐ Reseña** y **🧠 Trivial** (solo el nombre, ranking del día). Cuando el bar cobra y libera la mesa (una sola vez por móvil, y siempre desde ⭐ Reseña) pregunta **"¿Qué tal todo?"** (estrellas + comentario privado para el dueño) y ofrece a todos la **reseña de Google**. Con la carta general (`/r/<slug>`) el cliente elige su mesa. |
 | `cocina.html` | Móvil del bar | **Pedidos**: los nuevos en letra grande, **timbre fuerte** que se repite cada 20 s mientras haya algo sin atender, pantalla siempre encendida, **✓ Apuntado** con ↩ para deshacer, **🍽 Listos para servir** (lo que la cocina ha terminado → **✓ Servido**) y avisos de camarero y cuenta. **Mesas**: **mapa con colores** (verde, acaba de pedir; naranja, llama o pide la cuenta; azul, listo para servir; con consumo; libre); al tocar una mesa se ve lo que lleva, **🖨 Imprimir ticket**, **Cobrada · liberar mesa** y, si el bar lo usa, el **código de mesa**. **Carta**: **agotado en un toque**. **🖥 Pantalla**: "Camarero" (lo de arriba) o **"Cocina / barra"**: tres columnas **Nuevos → Preparando → ¡Listos!** con el tiempo de cada pedido en verde/amarillo/rojo (10 y 20 min), solo las categorías que elijas (cocina sin bebidas, barra solo bebidas) y, si quieres, **recibir los pedidos solo cuando el camarero los apunta** (así no se cocina nada que no esté en el TPV). "¡Listo!" avisa al camarero con su propio timbre. **📱 QR carta**, pausar pedidos y, sin internet, "Conectando…" hasta que vuelve, sin pedir la clave. |
 | `admin.html` | Dueño | Carta: el dueño solo marca **Agotado** en un toque; **no puede crear, editar ni cambiar precios** (lo haces tú, va en la cuota: **🔒 Modo VISAX**, abajo en Carta, con tu clave de plataforma, guardada solo en esa pestaña). Mesas y NFC (grabar NFC desde Chrome Android, QR por mesa, hoja de QR para imprimir con la carta general), Ajustes (nombre, mensaje, color, abrir/pausar pedidos, elegir mesa, código de mesa, **WiFi, enlace de reseñas de Google y trivial**), claves, **Informes**, **⭐ Opiniones** (estrellas y comentarios) y arriba el resumen **Hoy** (vendido, pedidos, mesas con consumo, ⭐ media de 30 días y quién gana el trivial). En Modo VISAX, en cada plato, **opciones** ("Punto: Poco hecho, Al punto, Hecho"). |
 | `demo.html` | Tú, para vender | **Demo en directo**: la carta del cliente y el móvil del bar lado a lado (en el móvil, con pestañas). Haces un pedido y el dueño ve cómo suena y llega. Enlace: `demo.html?r=<slug>&k=<clave del panel>&m=<código de mesa>` (sale en `alta.html`). |
@@ -30,7 +31,12 @@ resumen "Hoy"); todo viene apagado, así que los bares que ya existen siguen igu
 | `clientes.html` | Tú | **Mis clientes y cobros**: cuota de cada bar (29 €/mes por defecto), quién debe, marcar "Pagado" y desactivar por impago (`supabase/008_cuotas.sql`). |
 | `papeles/` | Tú | Hoja de venta (con QR a la demo), guía del camarero, checklist de instalación y contrato (TODO gestoría). |
 
-**Código de mesa** (opcional, Gestión → Ajustes): el camarero abre la mesa en el panel y le sale un código de 4 cifras
+**Código del día** (Gestión → Ajustes → Código para pedir, recomendado): 4 cifras que cambian solas cada día a las 5:00
+(hora del bar) y salen arriba en el panel del bar (🔑 1234). El camarero lo dice o lo pone en la pizarra; el cliente lo
+mete una vez y vale todo el día. Sin él no se pide, así nadie pide desde casa con el enlace de otro día. Si alguien lo
+filtra (el típico niño), tocar 🔑 en el panel → **↻ Cambiar ahora**: el anterior deja de valer al momento.
+
+**Código de mesa** (la otra opción, Gestión → Ajustes): el camarero abre la mesa en el panel y le sale un código de 4 cifras
 que da a los clientes. Sin él no se puede pedir, así nadie pide desde fuera del bar con la foto del QR. Al liberar la mesa
 el código deja de valer, y caduca a las 12 horas. Viene apagado: frena un poco al cliente, así que conviene solo en bares
 con terraza abierta o con problemas de bromas.

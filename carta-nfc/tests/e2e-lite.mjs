@@ -134,13 +134,16 @@ try {
   await shot(k, 'lite-03-panel-cuenta');
   await aviso.getByRole('button', { name: 'Atendido' }).click();
   await aviso.waitFor({ state: 'detached' });
+  ok(await m.locator('#dlg-valorar[open]').count() === 0, 'pedir la cuenta ya no abre la reseña (sale al liberar la mesa)');
+  ok(await m.locator('#menu-abajo').isVisible() && (await m.locator('#menu-abajo').innerText()).includes('Camarero'), 'menú fijo abajo: Camarero, Cuenta, Reseña…');
+  await m.click('#btn-resena');
   await m.locator('#dlg-valorar[open]').waitFor();
   await m.locator('[data-estrella="4"]').click();
   await m.fill('#val-comentario', 'Todo buenísimo');
   await m.click('#val-enviar');
   await m.locator('#val-paso2').waitFor();
   ok(await m.locator('#val-google').isVisible() && await m.locator('#val-google').getAttribute('href') === 'https://g.page/r/martinez-demo/review',
-    'tras pedir la cuenta: "¿Qué tal todo?" y, después, la reseña de Google para todos');
+    '⭐ Reseña del menú: "¿Qué tal todo?" y, después, la reseña de Google para todos');
   await shot(m, 'lite-12-valorar');
   await m.locator('#val-paso2 [data-cerrar]').click();
   await m.click('#btn-camarero');
@@ -256,8 +259,13 @@ try {
   ok(await a.getByRole('button', { name: 'Editar' }).count() === 0, 'Gestión: WiFi, trivial y opciones guardados; al salir del modo VISAX, sin editar');
   await m.evaluate(() => sessionStorage.clear());
   await m.reload();
-  await m.locator('#wifi', { hasText: 'Martinez-Clientes' }).waitFor();
-  ok((await m.locator('#wifi').innerText()).includes('cañas2026'), 'la carta de la mesa enseña la WiFi');
+  await m.locator('#btn-wifi').waitFor();
+  await m.click('#btn-wifi');
+  await m.locator('#dlg-wifi[open]').waitFor();
+  ok(await m.locator('#wifi-red').innerText() === 'Martinez-Clientes' && await m.locator('#wifi-clave').innerText() === 'cañas2026',
+    '📶 WiFi en el menú de abajo: red y contraseña');
+  await shot(m, 'lite-15-wifi');
+  await m.locator('#dlg-wifi [data-cerrar]').click();
   await m.getByRole('button', { name: 'Añadir Burger extra 3 (elegir opciones)' }).click();
   await m.locator('#dlg-opc[open]').waitFor();
   await shot(m, 'lite-13-opciones');
@@ -374,7 +382,7 @@ try {
   // ------------------------------------------------------------ CÓDIGO DE MESA
   console.log('CÓDIGO DE MESA');
   await a.getByRole('tab', { name: 'Ajustes y claves' }).click();
-  await a.locator('#aj-codigo').check();
+  await a.locator('[name="aj-modo"][value="mesa"]').check();
   await a.locator('#form-ajustes button[type="submit"]').click();
   await a.getByText('Código de mesa activado').waitFor();
   ok(psql("select codigo_mesa from carta.restaurantes where slug = 'martinez-demo'") === 't', 'Gestión: código de mesa activado');
@@ -410,9 +418,43 @@ try {
   await k.locator('#dlg-mesa').waitFor({ state: 'hidden' });
   ok(psql("select coalesce(clave_sesion, 'null') from carta.mesas where nombre = 'Mesa 2' and restaurante_id = (select id from carta.restaurantes where slug = 'martinez-demo')") === 'null',
     'al liberar la mesa el código deja de valer');
-  await a.locator('#aj-codigo').uncheck();
+
+  // ------------------------------------------------------------ CÓDIGO DEL DÍA
+  console.log('CÓDIGO DEL DÍA');
+  await a.locator('[name="aj-modo"][value="dia"]').check();
   await a.locator('#form-ajustes button[type="submit"]').click();
-  await a.getByText('Código de mesa desactivado').waitFor();
+  await a.getByText('Código del día activado').waitFor();
+  ok(psql("select codigo_dia::text || codigo_mesa::text from carta.restaurantes where slug = 'martinez-demo'") === 'truefalse', 'Gestión: código del día (y el de mesa apagado)');
+  await k.getByRole('tab', { name: 'Pedidos' }).click();
+  await k.locator('#k-codigo-dia').waitFor({ timeout: 35000 });
+  const hoy1 = (await k.locator('#k-codigo-dia b').innerText()).trim();
+  ok(/^[0-9]{4}$/.test(hoy1), 'el panel del bar enseña el código de hoy: ' + hoy1);
+  await shot(k, 'lite-16-codigo-dia');
+  await m.reload();
+  await m.locator('#banner-codigo', { hasText: 'código de hoy' }).waitFor();
+  if (await m.locator('#cart-bar').isHidden()) await m.getByRole('button', { name: 'Añadir Ensaladilla rusa · Tapa', exact: true }).click();
+  await m.click('#cart-open'); await m.click('#btn-enviar');
+  await m.locator('#dlg-codigo[open]', { hasText: 'Código de hoy' }).waitFor();
+  await m.fill('#codigo-input', hoy1 === '0000' ? '1111' : '0000');
+  await m.locator('#form-codigo button[type="submit"]').click();
+  await m.locator('#codigo-error', { hasText: 'no es el código de hoy' }).waitFor();
+  ok(true, 'sin el código de hoy no se pide');
+  await m.fill('#codigo-input', hoy1);
+  await m.locator('#form-codigo button[type="submit"]').click();
+  await m.locator('#dlg-ok[open]').waitFor();
+  await m.locator('#dlg-ok [data-cerrar]').click();
+  await k.locator('#l-nuevos .ped', { hasText: 'Mesa 2' }).waitFor({ timeout: 8000 });
+  ok(true, 'con el código de hoy el pedido llega');
+  await k.click('#k-codigo-dia');
+  k.once('dialog', (dd) => dd.accept());
+  await k.click('#cd-nuevo');
+  await k.getByText('Código nuevo:').waitFor();
+  const hoy2 = (await k.locator('#cd-codigo').innerText()).trim();
+  ok(/^[0-9]{4}$/.test(hoy2) && psql(`select count(*) from carta.restaurantes where slug = 'martinez-demo'`) === '1', '↻ en el panel: código nuevo al momento (' + hoy2 + ')');
+  await k.locator('#dlg-codigo-dia [data-cerrar]').click();
+  await a.locator('[name="aj-modo"][value="ninguno"]').check();
+  await a.locator('#form-ajustes button[type="submit"]').click();
+  await a.getByText('Código para pedir desactivado').waitFor();
   await k.getByRole('tab', { name: 'Pedidos' }).click();
 
   // ------------------------------------------------------------ SIN CONEXIÓN: no pide la clave

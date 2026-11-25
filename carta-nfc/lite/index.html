@@ -34,13 +34,8 @@
       <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y llamar al camarero.</div>
       <div id="banner-sin-mesa" class="banner" hidden>Escanea el NFC (o el QR) de tu mesa para poder pedir desde aquí.</div>
       <div id="banner-codigo" class="banner banner-codigo" hidden></div>
-      <section id="wifi" class="wifi card" hidden></section>
       <section id="mis-pedidos" class="mis-pedidos card" hidden aria-live="polite"></section>
       <section id="cuenta-mesa" class="cuenta-mesa card" hidden aria-live="polite"></section>
-      <section id="trivia-card" class="trivia-card card" hidden>
-        <span>🧠 <b>Trivial del bar</b><br><small class="muted">10 preguntas. ¿Quién sabe más hoy?</small></span>
-        <button type="button" class="btn primary" id="btn-trivia">Jugar</button>
-      </section>
       <div class="filtros" id="filtros" hidden>
         <input type="search" id="buscar" placeholder="🔍 Buscar en la carta…" aria-label="Buscar en la carta" autocomplete="off">
         <button type="button" class="btn sm" id="btn-alerg" aria-expanded="false" hidden>⚠️ Alergias</button>
@@ -51,10 +46,6 @@
       </div>
       <p id="sin-resultados" class="muted" hidden>Nada coincide. Prueba con otra palabra o quita algún filtro.</p>
       <main id="menu"></main>
-      <section class="ayuda" id="ayuda">
-        <button id="btn-camarero" class="btn" type="button">🙋 Llamar al camarero</button>
-        <button id="btn-cuenta" class="btn" type="button">🧾 Pedir la cuenta</button>
-      </section>
       <p class="pie muted small">Si tienes alguna alergia o intolerancia, consulta al personal antes de pedir.<br>
         <a href="/privacidad.html">Privacidad</a> · Carta digital por VISAX AI</p>
     </div>
@@ -66,6 +57,15 @@
         <span id="cart-total" class="num"></span>
       </button>
     </div>
+
+    <!-- Menú fijo de abajo: lo de la mesa siempre a mano -->
+    <nav class="menu-abajo" id="menu-abajo" aria-label="Servicios de la mesa" hidden>
+      <button type="button" id="btn-camarero"><span aria-hidden="true">🙋</span>Camarero</button>
+      <button type="button" id="btn-cuenta"><span aria-hidden="true">🧾</span>Cuenta</button>
+      <button type="button" id="btn-wifi" hidden><span aria-hidden="true">📶</span>WiFi</button>
+      <button type="button" id="btn-resena" hidden><span aria-hidden="true">⭐</span>Reseña</button>
+      <button type="button" id="btn-trivia" hidden><span aria-hidden="true">🧠</span>Trivial</button>
+    </nav>
   </div>
 
   <dialog id="dlg-carrito" aria-labelledby="carrito-titulo">
@@ -100,7 +100,7 @@
     <form class="dlg-body codigo-body" id="form-codigo">
       <div class="tick" aria-hidden="true">🔑</div>
       <h2 id="codigo-titulo">Código de tu mesa</h2>
-      <p class="muted">Pídeselo al camarero: así solo se pide desde las mesas del bar.</p>
+      <p class="muted" id="codigo-texto">Pídeselo al camarero: así solo se pide desde las mesas del bar.</p>
       <input id="codigo-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required aria-label="Código de 4 cifras" placeholder="····">
       <p id="codigo-error" class="small" style="color:var(--danger)" role="alert"></p>
       <button class="btn primary block" type="submit">Entrar y pedir</button>
@@ -142,6 +142,18 @@
   <dialog id="dlg-trivia" aria-label="Trivial del bar">
     <div class="dlg-head"><strong>🧠 Trivial</strong><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
     <div class="dlg-body" id="trivia-body"></div>
+  </dialog>
+
+  <dialog id="dlg-wifi" aria-labelledby="wifi-titulo">
+    <div class="dlg-body wifi-body">
+      <div class="tick" aria-hidden="true">📶</div>
+      <h2 id="wifi-titulo">WiFi del bar</h2>
+      <p class="muted small">Red</p>
+      <p class="wifi-dato" id="wifi-red"></p>
+      <div id="wifi-clave-box"><p class="muted small">Contraseña</p><p class="wifi-dato num" id="wifi-clave"></p></div>
+      <button class="btn primary block" type="button" id="btn-wifi-copiar">Copiar contraseña</button>
+      <button class="btn ghost block" type="button" data-cerrar>Cerrar</button>
+    </div>
   </dialog>
 
   <dialog id="dlg-ok" aria-labelledby="ok-titulo">
