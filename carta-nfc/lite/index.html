@@ -31,10 +31,9 @@
     <nav class="cats-bar" aria-label="Categorías"><div class="wrap"><div id="cats" class="tabs"></div></div></nav>
 
     <div class="wrap">
-      <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y llamar al camarero.</div>
+      <div id="banner-cerrado" class="banner" hidden>Ahora mismo no se aceptan pedidos por el móvil. Puedes ver la carta y pedir al camarero.</div>
       <div id="banner-sin-mesa" class="banner" hidden>Escanea el NFC (o el QR) de tu mesa para poder pedir desde aquí.</div>
       <div id="banner-codigo" class="banner banner-codigo" hidden></div>
-      <section id="wifi" class="wifi card" hidden></section>
       <section id="mis-pedidos" class="mis-pedidos card" hidden aria-live="polite"></section>
       <section id="cuenta-mesa" class="cuenta-mesa card" hidden aria-live="polite"></section>
       <section id="trivia-card" class="trivia-card card" hidden>
@@ -52,7 +51,6 @@
       <p id="sin-resultados" class="muted" hidden>Nada coincide. Prueba con otra palabra o quita algún filtro.</p>
       <main id="menu"></main>
       <section class="ayuda" id="ayuda">
-        <button id="btn-camarero" class="btn" type="button">🙋 Llamar al camarero</button>
         <button id="btn-cuenta" class="btn" type="button">🧾 Pedir la cuenta</button>
       </section>
       <p class="pie muted small">Si tienes alguna alergia o intolerancia, consulta al personal antes de pedir.<br>
@@ -114,29 +112,6 @@
       <div class="dlg-body" id="opc-grupos"></div>
       <div class="dlg-foot"><button class="btn primary block" type="submit">Añadir al pedido</button></div>
     </form>
-  </dialog>
-
-  <dialog id="dlg-valorar" aria-labelledby="val-titulo">
-    <div class="dlg-body val-body">
-      <div id="val-paso1">
-        <h2 id="val-titulo">¿Qué tal todo?</h2>
-        <p class="muted small">Tu opinión le llega al bar. Solo un toque.</p>
-        <div class="estrellas" role="group" aria-label="Valoración de 1 a 5 estrellas">
-          <button type="button" data-estrella="1" aria-label="1 estrella">☆</button><button type="button" data-estrella="2" aria-label="2 estrellas">☆</button><button type="button" data-estrella="3" aria-label="3 estrellas">☆</button><button type="button" data-estrella="4" aria-label="4 estrellas">☆</button><button type="button" data-estrella="5" aria-label="5 estrellas">☆</button>
-        </div>
-        <label class="field"><span>¿Algo que contarle al bar? (opcional)</span>
-          <textarea id="val-comentario" maxlength="500" placeholder="Lo que más te ha gustado, o lo que mejorarías"></textarea></label>
-        <button class="btn primary block" type="button" id="val-enviar" disabled>Enviar</button>
-        <button class="btn ghost block" type="button" data-cerrar>Ahora no</button>
-      </div>
-      <div id="val-paso2" hidden>
-        <div class="tick" aria-hidden="true">♥</div>
-        <h2>¡Gracias!</h2>
-        <p class="muted">Si te apetece, deja también tu reseña en Google: al bar le ayuda muchísimo.</p>
-        <a class="btn primary block" id="val-google" href="#" target="_blank" rel="noopener" hidden>⭐ Dejar reseña en Google</a>
-        <button class="btn ghost block" type="button" data-cerrar>Cerrar</button>
-      </div>
-    </div>
   </dialog>
 
   <dialog id="dlg-trivia" aria-label="Trivial del bar">

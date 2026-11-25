@@ -20,7 +20,8 @@ execSync('bash ./db-local.sh', { cwd: DIR, stdio: 'ignore' });
 const srv = spawn('node', ['servidor-local.mjs'], { cwd: DIR, env: { ...process.env, PORT, WEB_ROOT: path.resolve(DIR, '../lite') }, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 1500));
 psql("select carta._alta('Martínez Bar (demo)', 'martinez-demo', 4, 'admin-l', 'cocina-l')");
-psql("update carta.restaurantes set color = '#FCA80C', resena_url = 'https://g.page/r/martinez-demo/review' where slug = 'martinez-demo'");
+psql("update carta.restaurantes set color = '#FCA80C' where slug = 'martinez-demo'");
+psql("select carta.fijar_clave_plataforma('plataforma-de-pruebas')");
 const rpcAdmin = (accion, datos) => psql(`set role anon; select public.carta_admin('martinez-demo','admin-l','${accion}','${JSON.stringify(datos).replace(/"/g, '\\"')}'::jsonb)`);
 const patatas = JSON.parse(rpcAdmin('categoria', { nombre: 'Con patatas' })).id;
 const burgers = JSON.parse(rpcAdmin('categoria', { nombre: 'Burgers' })).id;
@@ -133,19 +134,8 @@ try {
   await shot(k, 'lite-03-panel-cuenta');
   await aviso.getByRole('button', { name: 'Atendido' }).click();
   await aviso.waitFor({ state: 'detached' });
-  await m.locator('#dlg-valorar[open]').waitFor();
-  await m.locator('[data-estrella="4"]').click();
-  await m.fill('#val-comentario', 'Todo buenísimo');
-  await m.click('#val-enviar');
-  await m.locator('#val-paso2').waitFor();
-  ok(await m.locator('#val-google').isVisible() && await m.locator('#val-google').getAttribute('href') === 'https://g.page/r/martinez-demo/review',
-    'tras pedir la cuenta: "¿Qué tal todo?" y, después, la reseña de Google para todos');
-  await shot(m, 'lite-12-valorar');
-  await m.locator('#val-paso2 [data-cerrar]').click();
-  await m.click('#btn-camarero');
-  await k.locator('.aviso.camarero', { hasText: 'Mesa 2' }).waitFor({ timeout: 8000 });
-  await k.locator('.aviso.camarero').getByRole('button', { name: 'Atendido' }).click();
-  ok(true, 'avisos de cuenta y camarero, atendidos');
+  ok(await m.locator('#btn-camarero').count() === 0 && await m.locator('#dlg-valorar').count() === 0,
+    'aviso de cuenta atendido (sin "Llamar al camarero" ni ventana de reseña)');
 
   // ------------------------------------------------------------ MESAS: TICKET Y LIBERAR
   await k.getByRole('tab', { name: 'Mesas' }).click();
@@ -197,10 +187,13 @@ try {
   await a.goto(`${BASE}/admin.html?r=martinez-demo&k=admin-l`);
   await a.getByRole('heading', { name: 'Martínez Bar (demo)' }).waitFor();
   const tabs = await a.locator('[data-tab]').allTextContents();
-  ok(tabs.join('|') === 'Carta|Mesas y NFC|Ajustes y claves|📊 Informes|⭐ Opiniones', 'gestión: Carta, Mesas y NFC, Ajustes, Informes, Opiniones (sin Facturación ni Stock)');
+  ok(tabs.join('|') === 'Carta|Mesas y NFC|Ajustes y claves|📊 Informes', 'gestión: Carta, Mesas y NFC, Ajustes, Informes (sin Facturación ni Stock)');
+  ok(await a.locator('#nuevo-producto').isHidden() && await a.getByRole('button', { name: 'Editar' }).count() === 0
+    && await a.locator('[data-cat-renombrar]').count() === 0 && await a.locator('#aviso-carta').isVisible(),
+    'el dueño no puede crear, editar ni cambiar precios (solo Agotado)');
   await a.locator('#hoy-strip', { hasText: 'vendido' }).waitFor();
   const hoy = await a.locator('#hoy-strip').innerText();
-  ok(hoy.includes('27,80') && hoy.includes('1/4') && hoy.includes('4,0'), 'resumen de hoy: 27,80 €, 1/4 mesas con consumo, ⭐ 4,0 · ' + hoy.replace(/\s+/g, ' '));
+  ok(hoy.includes('27,80') && hoy.includes('1/4') && !hoy.includes('⭐'), 'resumen de hoy: 27,80 €, 1/4 mesas con consumo · ' + hoy.replace(/\s+/g, ' '));
   ok(await sinScroll(a), 'gestión en el móvil: sin scroll lateral');
   await a.locator('.prod-row', { hasText: 'McTínez' }).getByRole('button', { name: /Disponible/ }).click();
   await a.locator('.prod-row', { hasText: 'McTínez' }).getByRole('button', { name: /Agotado/ }).waitFor();
@@ -225,25 +218,31 @@ try {
 
   // ------------------------------------------------------------ OPINIONES, WIFI, OPCIONES Y TRIVIAL
   console.log('EXTRAS');
-  await a.getByRole('tab', { name: '⭐ Opiniones' }).click();
-  await a.locator('#opiniones .op-row', { hasText: 'Todo buenísimo' }).waitFor();
-  ok((await a.locator('#opiniones .op-row').first().innerText()).includes('★★★★☆'), 'Opiniones: 4 estrellas de la Mesa 2 con su comentario');
   await a.getByRole('tab', { name: 'Ajustes y claves' }).click();
-  await a.fill('#ex-wifi-red', 'Martinez-Clientes');
-  await a.fill('#ex-wifi-clave', 'cañas2026');
+  ok(await a.locator('#form-extras input').count() === 1, 'Ajustes: sin WiFi ni enlace de reseñas (solo el trivial)');
   await a.locator('#ex-trivia').check();
   await a.locator('#form-extras button[type="submit"]').click();
   await a.getByText('Guardado', { exact: true }).waitFor();
   await a.getByRole('tab', { name: 'Carta' }).click();
+  a.once('dialog', (dd) => dd.accept('mal'));
+  await a.click('#editor-entrar');
+  await a.getByText('Clave de VISAX incorrecta.').waitFor();
+  ok(await a.locator('#nuevo-producto').isHidden(), 'Modo VISAX: con una clave mala no se edita');
+  a.once('dialog', (dd) => dd.accept('plataforma-de-pruebas'));
+  await a.click('#editor-entrar');
+  await a.locator('#nuevo-producto').waitFor();
+  ok(await a.getByRole('button', { name: 'Editar' }).count() === 13, 'Modo VISAX (tu clave de plataforma): crear, editar y precios');
   await a.locator('.prod-row', { hasText: 'Burger extra 3' }).getByRole('button', { name: 'Editar' }).click();
   await a.fill('#p-opciones', 'Punto: Poco hecho, Al punto, Hecho');
   await a.click('#p-guardar');
   await a.locator('.prod-row', { hasText: 'Burger extra 3' }).locator('.chip', { hasText: 'opciones' }).waitFor();
-  ok(true, 'Gestión: WiFi, trivial y opciones de un plato guardados');
+  await a.click('#editor-salir');
+  await a.locator('#nuevo-producto').waitFor({ state: 'hidden' });
+  ok(await a.getByRole('button', { name: 'Editar' }).count() === 0, 'Gestión: trivial y opciones de un plato guardados; al salir del modo VISAX, sin editar');
   await m.evaluate(() => sessionStorage.clear());
   await m.reload();
-  await m.locator('#wifi', { hasText: 'Martinez-Clientes' }).waitFor();
-  ok((await m.locator('#wifi').innerText()).includes('cañas2026'), 'la carta de la mesa enseña la WiFi');
+  await m.locator('#trivia-card').waitFor();
+  ok(await m.locator('#wifi').count() === 0, 'la carta no enseña WiFi');
   await m.getByRole('button', { name: 'Añadir Burger extra 3 (elegir opciones)' }).click();
   await m.locator('#dlg-opc[open]').waitFor();
   await shot(m, 'lite-13-opciones');
@@ -413,7 +412,6 @@ try {
 
   // ------------------------------------------------------------ ALTA (plataforma)
   console.log('ALTA');
-  psql("select carta.fijar_clave_plataforma('plataforma-de-pruebas')");
   const al = await (await browser.newContext({ viewport: { width: 1000, height: 800 } })).newPage();
   vigilar(al, 'alta');
   await al.goto(`${BASE}/alta.html`);

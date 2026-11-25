@@ -1,4 +1,5 @@
-// Gestión del restaurante (Solo pedidos): carta, alérgenos, agotados, mesas + NFC/QR, ajustes, claves e informes.
+// Gestión del restaurante (Solo pedidos): agotados, mesas + NFC/QR, ajustes, claves e informes.
+// La carta y los precios solo se editan en "Modo VISAX" (con la clave de plataforma): lo hace VISAX AI, va en la cuota.
 (function () {
   const { rpc, esc, dinero, toast, aplicarColor, aplicarTema, store, ALERGENOS, urlMesa, urlRestaurante, qr, imprimir } = window.Carta;
   const $ = (id) => document.getElementById(id);
@@ -40,6 +41,7 @@
     pintar();
     cargarCodigoMesa();
     cargarHoy();
+    if (leerVisax()) comprobarEditor(leerVisax());
   }
 
   async function op(accion, datos, okMsg) {
@@ -78,7 +80,7 @@
       <div class="cat-block">
         <div class="cat-head">
           <h2>${c ? esc(c.nombre) : 'Sin categoría'} ${c && !c.activa ? '<span class="chip">Oculta</span>' : ''}</h2>
-          ${c ? `<div class="acc">
+          ${c && editor ? `<div class="acc">
             <button class="btn sm ghost" data-cat-subir="${c.id}" ${i === 0 ? 'disabled' : ''} aria-label="Subir categoría">↑</button>
             <button class="btn sm ghost" data-cat-bajar="${c.id}" ${i >= d.categorias.length - 1 ? 'disabled' : ''} aria-label="Bajar categoría">↓</button>
             <button class="btn sm" data-cat-renombrar="${c.id}">Renombrar</button>
@@ -93,13 +95,38 @@
                 <span class="muted small">${p.alergenos.length ? p.alergenos.map((a) => ALERGENOS[a] || a).join(', ') : 'Sin alérgenos marcados'}</span></div>
               <span class="num" style="font-weight:700">${dinero(p.precio, m)}</span>
               <button class="btn sm sw ${p.disponible ? 'on' : 'off'}" data-disp="${p.id}" aria-pressed="${!p.disponible}">${p.disponible ? '● Disponible' : '○ Agotado'}</button>
-              <div class="acc">
+              ${editor ? `<div class="acc">
                 <button class="btn sm" data-editar="${p.id}">Editar</button>
                 <button class="btn sm ghost danger" data-borrar-prod="${p.id}" aria-label="Borrar ${esc(p.nombre)}">🗑</button>
-              </div>
+              </div>` : ''}
             </div>`).join('') : '<div class="prod-row muted small">Sin productos todavía.</div>'}
         </div>
-      </div>`).join('') : '<div class="card pad"><p>Tu carta está vacía. Empieza creando una categoría (Tapas, Bebidas…) y luego añade productos.</p></div>';
+      </div>`).join('') : `<div class="card pad"><p>${editor ? 'La carta está vacía. Crea una categoría (Tapas, Bebidas…) y luego los productos.'
+      : 'Tu carta aún está vacía: te la montamos nosotros.'}</p></div>`;
+  }
+
+  // Modo VISAX: solo con la clave de plataforma salen los botones para crear, editar, borrar y cambiar precios.
+  // Se guarda solo en esta pestaña (sessionStorage), igual que en alta.html.
+  const K_VISAX = 'carta:plataforma';
+  let editor = false;
+  const leerVisax = () => { try { return sessionStorage.getItem(K_VISAX); } catch { return null; } };
+  async function comprobarEditor(clave) {
+    editor = false;
+    if (clave) {
+      try {
+        await rpc('carta_plataforma', { p_clave: clave, p_accion: 'listar', p_datos: {} });
+        editor = true;
+        try { sessionStorage.setItem(K_VISAX, clave); } catch { /* */ }
+      } catch (e) {
+        if (e.code === 'clave_incorrecta') { try { sessionStorage.removeItem(K_VISAX); } catch { /* */ } }
+        toast(e.code === 'clave_incorrecta' ? 'Clave de VISAX incorrecta.' : e.humano, 'error');
+      }
+    }
+    $('editor-toolbar').hidden = !editor;
+    $('editor-entrar').hidden = editor;
+    $('aviso-carta').hidden = editor;
+    if (d) pintarCarta();
+    return editor;
   }
 
   function pintarMesas() {
@@ -158,16 +185,12 @@
 
   function pintarExtras() {
     $('form-extras').hidden = !extras;
-    $('tab-opiniones').hidden = !extras;
     $('p-opciones-box').hidden = !extras;
     if (!extras || $('form-extras').contains(document.activeElement)) return;
-    $('ex-wifi-red').value = extras.wifi_red || '';
-    $('ex-wifi-clave').value = extras.wifi_clave || '';
-    $('ex-resena').value = extras.resena_url || '';
     $('ex-trivia').checked = !!extras.trivia;
   }
 
-  // "Hoy": ventas y pedidos (carta_informe de hoy), mesas con consumo y valoración de los últimos 30 días.
+  // "Hoy": ventas y pedidos (carta_informe de hoy), mesas con consumo y quién gana el trivial.
   async function cargarHoy() {
     try {
       const [inf, pan] = await Promise.all([
@@ -175,31 +198,13 @@
         panel().catch(() => null),
       ]);
       const m = d.restaurante.moneda, k = inf.kpis;
-      const val = pan && pan.valoracion && pan.valoracion.n ? pan.valoracion : null;
       $('hoy-strip').innerHTML = `<span class="muted">Hoy</span>
         <span><b class="num">${dinero(k.ventas, m)}</b> vendido</span>
         <span><b class="num">${esc(k.pedidos)}</b> pedido${k.pedidos === 1 ? '' : 's'}</span>
         ${pan && 'mesas_activas' in pan ? `<span><b class="num">${esc(pan.mesas_activas)}/${esc(pan.mesas.length)}</b> mesas con consumo</span>` : ''}
-        ${val ? `<span>⭐ <b class="num">${media1(val.media)}</b> <small class="muted">(${esc(val.n)} opiniones, 30 días)</small></span>` : ''}
         ${pan && pan.trivia_top && pan.trivia_top.length ? `<span>🧠 Trivial: <b>${esc(pan.trivia_top[0].nombre)}</b> <small class="muted">${esc(pan.trivia_top[0].mesa)} · ${esc(pan.trivia_top[0].puntos)}/10</small></span>` : ''}`;
       $('hoy-strip').hidden = false;
     } catch { $('hoy-strip').hidden = true; }
-  }
-
-  const media1 = (x) => Number(x).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-  async function cargarOpiniones() {
-    try {
-      const r = await panel('opiniones');
-      const ops = r.opiniones || [], val = r.valoracion;
-      const fecha = (t) => new Date(t).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-      $('opiniones').innerHTML = `
-        ${val && val.n ? `<div class="op-media"><b class="num">⭐ ${media1(val.media)}</b><span class="muted">${esc(val.n)} opiniones en los últimos 30 días</span></div>` : ''}
-        ${extras && !extras.resena_url ? '<p class="small muted">Consejo: pon tu enlace de reseñas de Google en Ajustes → WiFi, reseñas y trivial.</p>' : ''}
-        ${ops.length ? ops.map((o) => `<div class="op-row"><span class="est" aria-label="${esc(o.estrellas)} de 5">${'★'.repeat(o.estrellas)}${'☆'.repeat(5 - o.estrellas)}</span>
-          <span class="muted small"> · ${esc(o.mesa)} · ${fecha(o.creado)}</span>${o.comentario ? `<p>${esc(o.comentario)}</p>` : ''}</div>`).join('')
-          : '<p class="muted">Aún no hay opiniones. Salen al pedir la cuenta desde la carta.</p>'}`;
-    } catch (e) { $('opiniones').innerHTML = `<p class="muted">${esc(e.humano || 'No se pudieron cargar las opiniones.')}</p>`; }
   }
 
   // "Punto: Poco hecho, Al punto, Hecho" ⇄ [{ nombre, valores }]
@@ -385,12 +390,9 @@
 
   $('form-extras').addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const resena = $('ex-resena').value.trim();
-    if (resena && !/^https:\/\/\S+$/.test(resena)) { toast('El enlace debe empezar por https://', 'error'); return; }
     document.activeElement.blur();
     try {
-      extras = await panel('extras', { wifi_red: $('ex-wifi-red').value.trim(), wifi_clave: $('ex-wifi-clave').value.trim(),
-        resena_url: resena, trivia: $('ex-trivia').checked });
+      extras = await panel('extras', { trivia: $('ex-trivia').checked });
       pintarExtras();
       cargarHoy();
       toast('Guardado');
@@ -407,8 +409,7 @@
 
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
-      ['carta', 'mesas', 'ajustes', 'hoy', 'opiniones'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
-      if (ds.tab === 'opiniones') cargarOpiniones();
+      ['carta', 'mesas', 'ajustes', 'hoy'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
       if (ds.tab === 'hoy') {
         if (informes) informes.recargar();
         else informes = window.CartaInformes.montar($('informes'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });
@@ -416,6 +417,12 @@
     } else if (ds.cerrar !== undefined) {
       if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; }
       b.closest('dialog').close();
+    } else if (b.id === 'editor-entrar') {
+      const clave = prompt('Clave de plataforma de VISAX AI:');
+      if (clave && await comprobarEditor(clave.trim())) toast('✏️ Modo VISAX: ya puedes editar la carta y los precios');
+    } else if (b.id === 'editor-salir') {
+      try { sessionStorage.removeItem(K_VISAX); } catch { /* */ }
+      comprobarEditor(null);
     } else if (b.id === 'nuevo-producto') abrirProducto(null);
     else if (b.id === 'nueva-categoria') {
       const n = prompt('Nombre de la categoría (ej.: Tapas, Bebidas, Postres):');
