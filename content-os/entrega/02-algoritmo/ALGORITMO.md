@@ -118,3 +118,11 @@
 - **YouTube Shorts:** «¿Cuántos km anda un camarero?» (`km`) **12.000 visitas**; «mano levantada» aún más visitas pero la mitad de «me gusta». **YouTube es la mejor plataforma para estos vídeos**, sobre todo los explicativos con dato y contador.
 - **TikTok:** media ~700. Mejor: «MARTES, 23:58» con 1.500 (el doble de la media). Las historias con diálogo y giro funcionan mejor en TikTok. Es la plataforma más floja para estos vídeos.
 - **Conclusión:** explicativos con dato/contador → pensados para YouTube; historias con giro y diálogo → TikTok e Instagram. Seguir alternando los dos tipos.
+
+## Guardado para hacer cuando lo pida el usuario (25 de noviembre)
+**«¿En qué país tardan más en ponerte un café?»** (explicativo para YouTube, ~15 s, voz Dani, rótulo «*en clave de humor»):
+> «¿En qué país tardan más en ponerte un café? ¡Italia: quince segundos… y de pie! Japón: cuarenta y cinco… con reverencia. Estados Unidos: tres minutos… y escriben mal tu nombre. Francia: seis minutos… si te miran. ¿Y España? *¡Ahora voy!*… ocho minutos. Pero con la tarjeta de la mesa… ¡treinta segundos! Solo nos gana Italia.»
+- Gancho: 5 tazas con banderas y 5 cronómetros a la vez, texto «5 PAÍSES. 1 CAFÉ. ¿QUIÉN TARDA MÁS?».
+- Un país por corte (Italia de pie en barra, Japón con reverencia, EE. UU. vaso «HOSÉ», Francia camarero que pasa de largo, España «¡AHORA VOY!») y una clasificación arriba que se va llenando; España cae al último y con la tarjeta sube al 2.º.
+- Cierre: «¿Qué país falta? 👇» y bucle a las 5 tazas. Música con un toque de cada país.
+- **Lo que gustó del 23:58** (para las historias): premisa con reloj y tensión, alguien con autoridad que se pone borde e insulta, giro que cambia quién manda, final cómico humillante y pregunta que divide.
