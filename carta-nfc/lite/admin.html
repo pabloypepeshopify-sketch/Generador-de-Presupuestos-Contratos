@@ -36,6 +36,7 @@
         <button class="tab" role="tab" type="button" data-tab="mesas" aria-selected="false">Mesas y NFC</button>
         <button class="tab" role="tab" type="button" data-tab="ajustes" aria-selected="false">Ajustes y claves</button>
         <button class="tab" role="tab" type="button" data-tab="hoy" aria-selected="false">📊 Informes</button>
+        <button class="tab" role="tab" type="button" data-tab="opiniones" aria-selected="false" id="tab-opiniones">⭐ Opiniones</button>
       </div></div>
     </header>
 
@@ -93,7 +94,15 @@
           <button class="btn primary" type="submit" style="margin-top:12px">Guardar</button>
         </form>
         <form id="form-extras" class="card pad">
-          <h2>Trivial</h2>
+          <h2>WiFi, reseñas y trivial</h2>
+          <p class="muted small">La WiFi solo la ven los clientes que entran desde una mesa del bar. Al pedir la cuenta o al liberar la mesa,
+            la carta pregunta "¿Qué tal todo?" y después ofrece a <b>todos</b> dejar su reseña en Google (Google no permite pedírsela solo a los contentos).</p>
+          <div class="fila">
+            <label class="field"><span>Nombre de la WiFi</span><input type="text" id="ex-wifi-red" maxlength="60" autocomplete="off"></label>
+            <label class="field"><span>Clave de la WiFi</span><input type="text" id="ex-wifi-clave" maxlength="80" autocomplete="off"></label>
+          </div>
+          <label class="field"><span>Enlace para dejar reseña en Google</span><input type="url" id="ex-resena" placeholder="https://g.page/r/…/review"></label>
+          <p class="muted small">Se saca en Google Business Profile → <b>Pedir reseñas</b> → copiar enlace.</p>
           <label class="check"><input type="checkbox" id="ex-trivia"> 🧠 Trivial para los clientes: 10 preguntas mientras esperan, solo con su nombre y ranking del día (ideal para regalar un chupito al ganador)</label>
           <button class="btn primary" type="submit">Guardar</button>
         </form>
@@ -109,6 +118,11 @@
           <button class="btn danger" id="clave-admin" type="button">Cambiar clave de admin</button>
           <div id="clave-admin-out"></div>
         </div>
+      </section>
+
+      <!-- OPINIONES -->
+      <section id="t-opiniones" hidden>
+        <div class="card pad" id="opiniones"><p class="muted">Cargando…</p></div>
       </section>
 
       <!-- INFORMES -->

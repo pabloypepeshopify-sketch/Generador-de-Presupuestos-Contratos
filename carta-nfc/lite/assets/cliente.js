@@ -19,7 +19,7 @@
   let enviando = false;
   let pollTimer = null;
   let cuenta = null;        // carta_mesa: lo que lleva pedido la mesa y si hace falta código
-  let info = { opciones: {} };  // carta_info: trivial y opciones por plato (010_extras.sql)
+  let info = { opciones: {} };  // carta_info: WiFi, enlace de reseñas y opciones por plato (010_extras.sql)
 
   const ses = {
     get(k, d) { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -82,13 +82,21 @@
     refrescarCuenta();
   }
 
-  // Trivial y opciones por plato. Si la base de datos aún no lo tiene, la carta va igual.
+  // WiFi (solo en una mesa), reseñas y opciones por plato. Si la base de datos aún no lo tiene, la carta va igual.
   async function cargarInfo() {
     try {
       info = await rpc('carta_info', { p_slug: menu.restaurante.slug, p_mesa: mesa ? mesa.codigo : null });
       info.opciones = info.opciones || {};
     } catch { info = { opciones: {} }; }
+    pintarWifi();
     $('trivia-card').hidden = !(info.trivia && mesa);
+  }
+
+  function pintarWifi() {
+    const w = $('wifi');
+    w.hidden = !info.wifi_red;
+    w.innerHTML = info.wifi_red ? `<span>📶 <b>WiFi</b> · ${esc(info.wifi_red)}${info.wifi_clave ? ` · clave <b class="num">${esc(info.wifi_clave)}</b>` : ''}</span>
+      ${info.wifi_clave ? '<button type="button" class="btn sm" id="btn-wifi">Copiar clave</button>' : ''}` : '';
   }
 
   function puedePedir() {
@@ -357,12 +365,15 @@
 
   // ------------------------------------------------- cuenta de la mesa ----
   // "Lo que habéis pedido": todo lo de la mesa (todos los móviles) sin cobrar. Con código de mesa, solo con el código.
+  // Si la mesa tenía consumo y se queda a cero, el bar la ha liberado (cobrada): es el momento de "¿Qué tal todo?".
   async function refrescarCuenta() {
     if (!mesa) return;
+    const antes = cuenta && cuenta.lineas ? cuenta.lineas.length : 0;
     try {
       cuenta = await rpc('carta_mesa', { p_mesa: mesa.codigo, p_codigo: ses.get(kCodigo(), '') || null });
     } catch { return; }
     pintarCuenta();
+    if (antes && !(cuenta.lineas && cuenta.lineas.length) && !document.querySelector('dialog[open]')) abrirValorar();
   }
 
   function pintarCuenta() {
@@ -441,6 +452,46 @@
     cambiar(pid + '~' + opc, +1, opc);
     $('dlg-opc').close();
     toast(`Añadido: ${productos[pid].nombre}`);
+  }
+
+  // -------------------------------------------------- valorar al final ----
+  // Al pedir la cuenta o al liberar la mesa: estrellas y comentario privado para el dueño. A todos (pongan lo que pongan) se les
+  // ofrece después la reseña en Google: Google no permite pedirla solo a los contentos.
+  const kValorado = () => 'carta:valorado:' + (mesa ? mesa.codigo : '');
+  let estrellas = 0;
+  function abrirValorar() {
+    if (ses.get(kValorado(), false)) return;
+    ses.set(kValorado(), true);  // se pregunta una sola vez por móvil y mesa (al pedir la cuenta o al liberar la mesa)
+    estrellas = 0;
+    $('val-paso1').hidden = false;
+    $('val-paso2').hidden = true;
+    $('val-comentario').value = '';
+    pintarEstrellas();
+    $('dlg-valorar').showModal();
+  }
+  function pintarEstrellas() {
+    document.querySelectorAll('[data-estrella]').forEach((b) => {
+      const on = Number(b.dataset.estrella) <= estrellas;
+      b.textContent = on ? '★' : '☆';
+      b.setAttribute('aria-pressed', String(on));
+    });
+    $('val-enviar').disabled = !estrellas;
+  }
+  async function enviarValoracion() {
+    if (!estrellas || !mesa) return;
+    $('val-enviar').disabled = true;
+    try {
+      const r = await rpc('carta_valorar', { p_mesa: mesa.codigo, p_estrellas: estrellas, p_comentario: $('val-comentario').value.trim() || null });
+      ses.set(kValorado(), true);
+      $('val-paso1').hidden = true;
+      $('val-paso2').hidden = false;
+      const url = r.resena_url || info.resena_url;
+      $('val-google').hidden = !url;
+      if (url) $('val-google').href = url;
+    } catch (e) {
+      toast(e.humano || 'No se pudo enviar. Gracias igualmente.', 'error');
+      $('dlg-valorar').close();
+    }
   }
 
   // --------------------------------------------------------------- trivial ----
@@ -550,13 +601,14 @@
     $('btn-alerg').classList.toggle('primary', sinAlerg.length > 0);
   }
 
-  async function pedirCuenta() {
+  async function avisar(tipo) {
     if (!mesa) { abrirMesas(false); return; }
-    const btn = $('btn-cuenta');
+    const btn = $(tipo === 'cuenta' ? 'btn-cuenta' : 'btn-camarero');
     btn.disabled = true;
     try {
-      await rpc('carta_avisar', { p_mesa: mesa.codigo, p_tipo: 'cuenta' });
-      toast('Hemos avisado: te traen la cuenta enseguida.');
+      await rpc('carta_avisar', { p_mesa: mesa.codigo, p_tipo: tipo });
+      toast(tipo === 'cuenta' ? 'Hemos avisado: te traen la cuenta enseguida.' : 'Hemos avisado al camarero. Viene enseguida.');
+      if (tipo === 'cuenta') setTimeout(abrirValorar, 1200);
     } catch (e) {
       toast(e.humano, 'error');
     } finally {
@@ -571,9 +623,13 @@
     if (t.dataset.add) anadir(t.dataset.add);
     else if (t.dataset.mas) cambiar(t.dataset.mas, +1);
     else if (t.dataset.menos) cambiar(t.dataset.menos, -1);
+    else if (t.dataset.estrella) { estrellas = Number(t.dataset.estrella); pintarEstrellas(); }
+    else if (t.id === 'val-enviar') enviarValoracion();
     else if (t.id === 'btn-trivia' || t.id === 'btn-trivia-otra') abrirTrivia();
     else if (t.dataset.resp !== undefined) responder(Number(t.dataset.resp));
-
+    else if (t.id === 'btn-wifi') {
+      navigator.clipboard.writeText(info.wifi_clave).then(() => toast('Clave del WiFi copiada'), () => toast('Clave: ' + info.wifi_clave));
+    }
     else if (t.dataset.mesa) elegirMesa(t.dataset.mesa);
     else if (t.dataset.cat !== undefined && t.classList.contains('tab')) {
       document.getElementById('cat-' + t.dataset.cat).scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -581,7 +637,8 @@
     else if (t.id === 'cart-open') { renderCarrito(); $('dlg-carrito').showModal(); }
     else if (t.id === 'btn-enviar') enviar();
     else if (t.id === 'mesa-btn') abrirMesas(false);
-    else if (t.id === 'btn-cuenta') pedirCuenta();
+    else if (t.id === 'btn-camarero') avisar('camarero');
+    else if (t.id === 'btn-cuenta') avisar('cuenta');
     else if (t.dataset.repetir) repetir(t.dataset.repetir);
     else if (t.id === 'btn-codigo') pedirCodigo(false);
     else if (t.id === 'btn-alerg') {

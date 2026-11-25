@@ -185,12 +185,16 @@
 
   function pintarExtras() {
     $('form-extras').hidden = !extras;
+    $('tab-opiniones').hidden = !extras;
     $('p-opciones-box').hidden = !extras;
     if (!extras || $('form-extras').contains(document.activeElement)) return;
+    $('ex-wifi-red').value = extras.wifi_red || '';
+    $('ex-wifi-clave').value = extras.wifi_clave || '';
+    $('ex-resena').value = extras.resena_url || '';
     $('ex-trivia').checked = !!extras.trivia;
   }
 
-  // "Hoy": ventas y pedidos (carta_informe de hoy), mesas con consumo y quién gana el trivial.
+  // "Hoy": ventas y pedidos (carta_informe de hoy), mesas con consumo, valoración de 30 días y quién gana el trivial.
   async function cargarHoy() {
     try {
       const [inf, pan] = await Promise.all([
@@ -198,13 +202,31 @@
         panel().catch(() => null),
       ]);
       const m = d.restaurante.moneda, k = inf.kpis;
+      const val = pan && pan.valoracion && pan.valoracion.n ? pan.valoracion : null;
       $('hoy-strip').innerHTML = `<span class="muted">Hoy</span>
         <span><b class="num">${dinero(k.ventas, m)}</b> vendido</span>
         <span><b class="num">${esc(k.pedidos)}</b> pedido${k.pedidos === 1 ? '' : 's'}</span>
         ${pan && 'mesas_activas' in pan ? `<span><b class="num">${esc(pan.mesas_activas)}/${esc(pan.mesas.length)}</b> mesas con consumo</span>` : ''}
+        ${val ? `<span>⭐ <b class="num">${media1(val.media)}</b> <small class="muted">(${esc(val.n)} opiniones, 30 días)</small></span>` : ''}
         ${pan && pan.trivia_top && pan.trivia_top.length ? `<span>🧠 Trivial: <b>${esc(pan.trivia_top[0].nombre)}</b> <small class="muted">${esc(pan.trivia_top[0].mesa)} · ${esc(pan.trivia_top[0].puntos)}/10</small></span>` : ''}`;
       $('hoy-strip').hidden = false;
     } catch { $('hoy-strip').hidden = true; }
+  }
+
+  const media1 = (x) => Number(x).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  async function cargarOpiniones() {
+    try {
+      const r = await panel('opiniones');
+      const ops = r.opiniones || [], val = r.valoracion;
+      const fecha = (t) => new Date(t).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      $('opiniones').innerHTML = `
+        ${val && val.n ? `<div class="op-media"><b class="num">⭐ ${media1(val.media)}</b><span class="muted">${esc(val.n)} opiniones en los últimos 30 días</span></div>` : ''}
+        ${extras && !extras.resena_url ? '<p class="small muted">Consejo: pon tu enlace de reseñas de Google en Ajustes → WiFi, reseñas y trivial.</p>' : ''}
+        ${ops.length ? ops.map((o) => `<div class="op-row"><span class="est" aria-label="${esc(o.estrellas)} de 5">${'★'.repeat(o.estrellas)}${'☆'.repeat(5 - o.estrellas)}</span>
+          <span class="muted small"> · ${esc(o.mesa)} · ${fecha(o.creado)}</span>${o.comentario ? `<p>${esc(o.comentario)}</p>` : ''}</div>`).join('')
+          : '<p class="muted">Aún no hay opiniones. Salen al pedir la cuenta o al liberar la mesa.</p>'}`;
+    } catch (e) { $('opiniones').innerHTML = `<p class="muted">${esc(e.humano || 'No se pudieron cargar las opiniones.')}</p>`; }
   }
 
   // "Punto: Poco hecho, Al punto, Hecho" ⇄ [{ nombre, valores }]
@@ -390,9 +412,12 @@
 
   $('form-extras').addEventListener('submit', async (ev) => {
     ev.preventDefault();
+    const resena = $('ex-resena').value.trim();
+    if (resena && !/^https:\/\/\S+$/.test(resena)) { toast('El enlace debe empezar por https://', 'error'); return; }
     document.activeElement.blur();
     try {
-      extras = await panel('extras', { trivia: $('ex-trivia').checked });
+      extras = await panel('extras', { wifi_red: $('ex-wifi-red').value.trim(), wifi_clave: $('ex-wifi-clave').value.trim(),
+        resena_url: resena, trivia: $('ex-trivia').checked });
       pintarExtras();
       cargarHoy();
       toast('Guardado');
@@ -409,7 +434,8 @@
 
     if (ds.tab) {
       document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
-      ['carta', 'mesas', 'ajustes', 'hoy'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      ['carta', 'mesas', 'ajustes', 'hoy', 'opiniones'].forEach((t) => { $('t-' + t).hidden = t !== ds.tab; });
+      if (ds.tab === 'opiniones') cargarOpiniones();
       if (ds.tab === 'hoy') {
         if (informes) informes.recargar();
         else informes = window.CartaInformes.montar($('informes'), { sesion: () => sesion, moneda: () => (d ? d.restaurante.moneda : 'EUR') });
