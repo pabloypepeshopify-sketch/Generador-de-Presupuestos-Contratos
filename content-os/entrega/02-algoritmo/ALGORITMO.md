@@ -126,3 +126,11 @@
 - Un país por corte (Italia de pie en barra, Japón con reverencia, EE. UU. vaso «HOSÉ», Francia camarero que pasa de largo, España «¡AHORA VOY!») y una clasificación arriba que se va llenando; España cae al último y con la tarjeta sube al 2.º.
 - Cierre: «¿Qué país falta? 👇» y bucle a las 5 tazas. Música con un toque de cada país.
 - **Lo que gustó del 23:58** (para las historias): premisa con reloj y tensión, alguien con autoridad que se pone borde e insulta, giro que cambia quién manda, final cómico humillante y pregunta que divide.
+
+## «El último croissant»: le fue muy mal (25 de noviembre)
+Posibles causas (a confirmar con la curva de retención):
+1. **Gancho confuso:** dos muñecos de frente con las manos sobre la barra; el croissant apenas se ve. No se entiende qué pasa en el primer segundo.
+2. **Rebobinado + rótulo de título + duelo lento (≈4 s sin avanzar la historia)** justo después del gancho: ahí se va la gente.
+3. **Parodia (western) que no es una situación real del bar.** El 23:58 funcionó porque la cocina que cierra y el cliente de última hora le ha pasado a todo el mundo; un duelo por un croissant no.
+4. **Sin reloj ni tensión real**, y el giro (la abuela lo pide con la placa) se intuye y parece anuncio.
+**Regla:** historias sobre situaciones reales que la gente ha vivido, con tensión desde el segundo 1, sin rótulos ni rebobinados que paren la historia, y la marca de fondo, no como giro.
