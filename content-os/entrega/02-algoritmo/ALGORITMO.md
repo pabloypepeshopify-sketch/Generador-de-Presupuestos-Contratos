@@ -134,3 +134,8 @@ Posibles causas (a confirmar con la curva de retención):
 3. **Parodia (western) que no es una situación real del bar.** El 23:58 funcionó porque la cocina que cierra y el cliente de última hora le ha pasado a todo el mundo; un duelo por un croissant no.
 4. **Sin reloj ni tensión real**, y el giro (la abuela lo pide con la placa) se intuye y parece anuncio.
 **Regla:** historias sobre situaciones reales que la gente ha vivido, con tensión desde el segundo 1, sin rótulos ni rebobinados que paren la historia, y la marca de fondo, no como giro.
+
+## Resultados «países» (26 de noviembre)
+- **Instagram: 4.200 visitas, el doble de la media (2.000–2.100) y el récord de la cuenta.** Pocos «me gusta» (en todas las plataformas).
+- YouTube: algo por encima de la media, normal. TikTok: 600 (normal; los dos anteriores pasaron de 1.500).
+- **Conclusión:** la **comparativa entre países** funciona en Instagram (pique, se comparte con amigos de fuera). Repetir el formato con otros temas («Parte 2»).
