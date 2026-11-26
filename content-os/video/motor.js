@@ -6394,6 +6394,111 @@ V['paco'] = { ...comunCapa, estilo: 'paco',
   },
 };
 
+// ---------- «VIERNES, 14:59»: una despedida de 20 pide desde la mesa justo antes de cerrar la cocina… y la novia es la hija del cocinero ----------
+V['viernes'] = { ...comunCapa, estilo: 'viernes',
+  async montar() {
+    ['veinte', 'leche', 'sinvergüenzas', 'desgraciada', 'papá', 'princesa'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#1b1713'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fff4e6'); hemi.groundColor.set('#5a4a40'); hemi.intensity = 1.7;
+    const sol = new THREE.DirectionalLight('#ffe8cc', 2.0); sol.position.set(-4, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.1;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'clasico' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false;
+    const p = poblar(r.mundo, r.mesas); Object.assign(this, p); this.gente.forEach(g => (g.g.visible = false)); this.camarero.g.visible = false;
+    // mesa larga de la despedida en el centro (fuera la mesa 0 y sus sillas)
+    const M0 = r.mesas[0]; for (const ch of r.mundo.children) if (Math.abs(ch.position.x - M0.x) < 0.01 && Math.abs(ch.position.z - M0.z) < 0.8) ch.visible = false;
+    const mesa = new THREE.Group(); mesa.add(enK(caja(3.4, 0.06, 0.95, '#fbf6ee', 0.01), 0, 0.76, 0)); [-1.5, 1.5].forEach(x => [-0.35, 0.35].forEach(z => mesa.add(enK(caja(0.06, 0.74, 0.06, '#6b3a22', 0.01), x, 0.37, z)))); mesa.position.set(0, 0, -0.35); r.mundo.add(mesa); mesa.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
+    const camisas = ['#ff4d8d', '#7c3aed', '#22b8cf', '#ffb020', '#3fa34d', '#e85d4a', '#3f7dfb', '#d6567a'], pelos = ['#2a1a12', '#d9a441', '#7a3d1d', '#111111'];
+    this.chicas = []; let k = 0;
+    for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { const m = muneco({ camisa: camisas[k % 8], pantalon: '#24324a', pelo: pelos[k % 4], peinado: k % 3 ? 'largo' : 'mono', piel: ['#f5cfac', '#e9b48c', '#c98d63', '#f0c29a'][k % 4] }); m.sentar();
+      m.g.position.set(-1.2 + i * 0.75, 0, -0.35 + s * 0.72); m.g.rotation.y = s > 0 ? Math.PI : 0; r.mundo.add(m.g);
+      const dia = new THREE.Group(); if (k % 2) [-1, 1].forEach(q => { const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.1, 10), matJ('#e0263a', 0.5)); c.position.set(0.1 * q, 0.25, 0); c.rotation.z = -0.3 * q; dia.add(c); });
+      else { const h = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), matJ('#ff4d8d', 0.5)); h.scale.set(1.2, 1, 0.6); h.position.set(0, 0.3, 0); dia.add(h); } m.cabeza.add(dia); this.chicas.push(m); k++; }
+    // la novia en la cabecera: vestido blanco, velo, banda y gafas de sol
+    const nv = this.novia = muneco({ camisa: '#ffffff', pantalon: '#ffffff', pelo: '#3a2418', peinado: 'largo', piel: '#f2c49b' }); nv.sentar(); nv.g.position.set(1.95, 0, -0.35); nv.g.rotation.y = -Math.PI / 2; r.mundo.add(nv.g);
+    const velo = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.6, 20, 1, true), new THREE.MeshStandardMaterial({ color: '#ffffff', transparent: true, opacity: 0.55, side: THREE.DoubleSide })); velo.position.set(0, 0.05, -0.12); nv.cabeza.add(velo);
+    const banda = caja(0.06, 0.6, 0.02, '#e0263a', 0.01); banda.position.set(0, 0.05, 0.2); banda.rotation.z = 0.6; nv.raiz.add(banda);
+    const gaf = this.gafasSol = new THREE.Group(); [-1, 1].forEach(q => gaf.add(enK(caja(0.11, 0.07, 0.02, '#111111', 0.01), 0.075 * q, 0.03, 0.21))); gaf.add(enK(caja(0.06, 0.015, 0.02, '#111111', 0.005), 0, 0.045, 0.21)); nv.cabeza.add(gaf);
+    // tarjeta, móvil, platos voladores
+    const tj = this.tjV = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(-0.85, 0.79, -0.55); tj.rotation.y = 0.3; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(0.3), 0, Math.cos(0.3)); this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07);
+    this.mv = movil(); this.mv.scale.setScalar(0.34); this.mv.visible = false; r.mundo.add(this.mv); this.on = ondas();
+    this.platos = Array.from({ length: 10 }, (_, i) => { const b = bravas(); b.scale.setScalar(1.1); r.mundo.add(b); return b; });
+    // cocinero: sartén y llamas
+    const kc = this.cocinero; const sarten = this.sarten = new THREE.Group(); sarten.add(enK(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.05, 24), matJ('#26262b', 0.4)), 0, 0, 0)); sarten.add(enK(caja(0.04, 0.025, 0.3, '#1a1a1e', 0.01), 0, 0.01, -0.28));
+    this.trozos = Array.from({ length: 6 }, (_, i) => { const q = caja(0.05, 0.04, 0.05, i % 2 ? '#e7a64a' : '#c9861f', 0.012); sarten.add(q); return q; }); sarten.position.set(0, -0.1, 0.32); kc.bD.mano.add(sarten);
+    this.llamas = Array.from({ length: 7 }, (_, i) => { const m = new THREE.Mesh(new THREE.ConeGeometry(0.05 + (i % 3) * 0.02, 0.3, 10), new THREE.MeshBasicMaterial({ color: i % 2 ? '#ffb020' : '#ff5a1f', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })); r.mundo.add(m); return m; });
+    this.fuegoLuz = new THREE.PointLight('#ff7a1a', 0, 4, 1.5); this.fuegoLuz.position.set(2.5, 1.5, -8.0); scene.add(this.fuegoLuz);
+    this.platoK = bravas(); this.platoK.scale.setScalar(1.2); kc.bD.mano.add(this.platoK); this.platoK.position.set(0, -0.08, 0.1);
+    const w = palabras, c = this.c = { veinte: cue('veinte'), ya: cue('ya'), me: cue('me'), y: cue('y'), hola: cue('hola'), quereis: cue('quereis') };
+    c.frenesi = c.y - 3.3; c.fin = w[w.length - 1].fin + 1.6; duracion = c.fin;
+    this.cortes = [0, c.ya - 0.08, c.me - 0.08, c.frenesi, c.frenesi + 0.8, c.frenesi + 1.6, c.frenesi + 2.5, c.y - 0.08, c.hola - 0.3, c.hola + 0.85, c.quereis + 0.9, c.fin - 0.3];
+    efectos = [['hit', 0.02], ['buzz', 0.05], ['pop', 0.15], ['pop', 0.3], ['pop', 0.45], ['pop', 0.6], ['whoosh', c.ya - 0.1], ['tap', c.ya + 0.2], ['ding', c.ya + 0.4], ['whoosh', c.me - 0.1], ['riser', c.frenesi - 0.4], ['hit', c.frenesi], ['fuego', c.frenesi + 0.05], ['fuego', c.frenesi + 0.9],
+      ['tick', c.frenesi + 0.5], ['tick', c.frenesi + 1.0], ['tick', c.frenesi + 1.5], ['whoosh', c.frenesi + 1.6], ...[0, 1, 2, 3, 4].map(i => ['clink', c.frenesi + 2.4 + i * 0.12]), ['hit', c.y - 0.05], ['hit', c.hola + 0.05], ['ding', c.quereis + 0.1], ['pop', c.quereis + 1.0], ['pop', c.quereis + 1.1]];
+    this.musica = 'viernes_cocina'; this.volMusica = 0.55;
+  },
+  hora(t) { const c = this.c; const s = 14 * 3600 + 59 * 60 + Math.min(59, Math.floor(t / (c.quereis + 0.5) * 60)); return t >= c.quereis + 0.5 ? '15:00:00' : `14:59:${String(s % 60).padStart(2, '0')}`; },
+  actualizar(t) {
+    const c = this.c, kc = this.cocinero, nv = this.novia;
+    const habla = q => palabras.some(w => w.q === q && t >= w.t && t < w.fin + 0.04);
+    // chicas: fiesta (brazos arriba, hablan)
+    this.chicas.forEach((m, i) => { m.reset(); m.sentar(); m.respirar(t, i); if (Math.sin(t * 2 + i) > 0) m.hablar(t + i, 0.8); const fiesta = t < c.y - 0.1 || t > c.quereis + 0.6; if (fiesta && i % 2 === 0) { m.bD.hombro.rotation.set(-2.6 + Math.sin(t * 6 + i) * 0.2, 0, -0.2); }
+      if (t > c.hola - 0.3 && t < c.quereis + 0.6) { m.cabeza.rotation.y = (m.g.position.z > -0.35 ? -1 : 1) * 0.9; m.boca.scale.set(0.8, 0.9, 0.5); } });
+    const am = this.chicas[1]; const toca = entre(t, c.ya - 0.1, c.me); this.mv.visible = toca; const tT = c.ya + 0.2;
+    if (toca) { const q = prog(t, c.ya - 0.1, tT); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mv.position.copy(lejos).lerp(this.ph, q); this.mv.lookAt(this.mv.position.clone().add(this.nrm)); this.mv.userData.pantalla(t > tT + 0.1 ? 'cartaDesayuno' : 'bloqueo', t > tT + 0.1 ? { mesa: 7, titulo: 'Casa Antonio', sub: 'menú del día', items: [['Croquetas ×20', '…', ['#e0a24a', '#b9481f']], ['Bravas ×20', '…', ['#e8c27a', '#c9361f']], ['Calamares ×20', '…', ['#e8c27a', '#b9822e']], ['Cañas ×20', '…', ['#f2c94c', '#c88a1a']]], sel: 4, totales: ['', '…', '…'], enviado: t > tT + 0.3 } : { hora: '14:59', dia: 'viernes' }); am.bD.hombro.rotation.set(-1.3, 0, 0.1); am.bD.codo.rotation.x = -0.4; }
+    this.on.userData.actualizar(t, toca && t > tT - 0.05 && t < tT + 0.6 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
+    // novia
+    nv.reset(); nv.sentar(); nv.respirar(t, 3); nv.g.rotation.y = t > c.y - 0.1 ? Math.PI : -Math.PI / 2; nv.cejas.forEach(ce => (ce.rotation.z = 0)); const qg = prog(t, c.hola - 0.25, c.hola + 0.05); this.gafasSol.position.y = qg * 0.15; this.gafasSol.rotation.x = -qg * 0.6;
+    if (t > c.hola - 0.3 && t < c.hola + 0.1) { nv.bD.hombro.rotation.set(-2.6, 0, -0.3); nv.bD.codo.rotation.x = -1.2; } if (t > c.hola) { nv.boca.scale.set(1.3, 0.4, 0.5); nv.cejas[1].rotation.z = -0.3; } if (habla('s') && t > c.hola - 0.1) nv.hablar(t, 0.7);
+    // cocinero: en el pase, gritando, cocina, y sale a la mesa
+    kc.reset(); kc.cejas.forEach(ce => { ce.rotation.z = 0; ce.position.y = 0.1; }); this.sarten.visible = false; this.platoK.visible = false;
+    if (t < c.frenesi) { kc.g.position.set(2.8, 0, -6.85); kc.g.rotation.y = 0; kc.respirar(t, 4); kc.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.6)); if (t < c.ya) { kc.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.5)); kc.boca.scale.set(1.4, 1.0, 0.5); } if (t > c.me - 0.1) { kc.bD.hombro.rotation.set(-1.6, 0, 0.1); kc.bD.codo.rotation.x = -0.3 + Math.sin(t * 10) * 0.15; } }
+    else if (t < c.y - 0.08) { kc.g.position.set(2.35, 0, -7.75); kc.g.rotation.y = Math.PI; this.sarten.visible = true; const s = Math.sin(t * 16); kc.bD.hombro.rotation.set(-1.0 + s * 0.35, 0, 0.1); kc.bD.codo.rotation.x = -0.7; kc.bI.hombro.rotation.set(-1.4, 0, -0.3 + Math.sin(t * 21) * 0.4); kc.raiz.rotation.z = Math.sin(t * 8) * 0.06; kc.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.6));
+      this.trozos.forEach((q, i) => { const f = (t * 2.2 + i / 6) % 1; q.position.set(Math.cos(i * 2.1) * 0.08, 0.04 + Math.sin(Math.PI * f) * 0.35, Math.sin(i * 2.1) * 0.08); q.rotation.set(t * 9 + i, t * 7, 0); }); }
+    else { kc.g.position.set(1.95, 0, -1.45); kc.g.rotation.y = 0; kc.respirar(t, 4); this.platoK.visible = t < c.hola - 0.3; kc.bD.hombro.rotation.set(-0.8, 0, 0.2); kc.bD.codo.rotation.x = -0.6;
+      if (t < c.hola) { kc.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.6)); } else { kc.bD.hombro.rotation.set(-0.3, 0, 0.2); } if (t > c.hola + 0.3) { kc.cejas.forEach((ce, q) => { ce.rotation.z = (q ? -1 : 1) * 0.35; ce.position.y = 0.13; }); kc.cabeza.rotation.z = 0.15; if (!habla('k')) kc.boca.scale.set(1.7, 0.4, 0.5); kc.bI.hombro.rotation.set(-0.9, 0, 0.6); kc.bD.hombro.rotation.set(-0.9, 0, -0.6); kc.bI.codo.rotation.x = kc.bD.codo.rotation.x = -1.4; } }
+    if (habla('k')) kc.hablar(t, 1);
+    // llamas y platos voladores
+    const fuego = entre(t, c.frenesi, c.frenesi + 1.6); this.fuegoLuz.intensity = fuego ? 10 + Math.sin(t * 37) * 4 : 0; kc.g.updateMatrixWorld(true); const ps = this.sarten.getWorldPosition(new THREE.Vector3());
+    this.llamas.forEach((m, i) => { m.visible = fuego; const f = (t * 3 + i / 7) % 1; m.position.set(ps.x + Math.cos(i * 2.3) * 0.08, ps.y + 0.12 + f * 0.35 * (1 + (i % 3) * 0.4), ps.z + Math.sin(i * 2.3) * 0.08); m.scale.setScalar(1.2 * (1 - f) + 0.2); m.material.opacity = 0.9 * (1 - f); });
+    const ini = new THREE.Vector3(2.75, 1.45, -6.45);
+    this.platos.forEach((b, i) => { const a = c.frenesi + 1.6 + i * 0.12, q = clamp((t - a) / 0.9); const dest = new THREE.Vector3(-1.3 + (i % 5) * 0.62, 0.8, -0.35 + (i < 5 ? -0.2 : 0.2)); b.visible = t > a; b.position.lerpVectors(ini, dest, q); b.position.y += Math.sin(Math.PI * q) * 1.4; b.rotation.y = q * 8; });
+    // cámara
+    let n = 0; this.cortes.forEach((a, i) => { if (t >= a) n = i; }); const d = t - this.cortes[n]; let fov = 44; cam.up.set(0, 1, 0);
+    const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); fov = f; };
+    const cara = m => { m.g.updateMatrixWorld(true); return m.cabeza.getWorldPosition(new THREE.Vector3()); };
+    switch (n) {
+      case 0: case 11: pon(2.75, 1.65, -4.7 + d * 0.15, 2.8, 1.62, -6.85, 42); break;
+      case 1: { const q = this.cen; pon(q.x + 0.75, q.y + 0.55, -0.3, q.x - 0.05, q.y + 0.1, q.z, 52); break; }
+      case 2: pon(2.3, 1.05, -4.7, 2.8, 1.65, -6.85, 46); break;
+      case 3: pon(3.3, 1.95, -7.2, 2.4, 1.1, -8.1, 52); break;
+      case 4: pon(2.5, 1.65, -8.6, 2.35, 1.4, -7.75, 56); break;
+      case 5: pon(-1.0, 2.2, -2.0, 1.8, 1.8, -4.0, 56); break;
+      case 6: pon(-2.6, 1.7, 1.6, 0, 0.9, -0.35, 50); break;
+      case 7: { const hk = cara(kc), hn = cara(nv); pon(hn.x + 0.35, hn.y + 0.2, hn.z + 0.7, hk.x, hk.y, hk.z, 42); break; }
+      case 8: { const hn = cara(nv); pon(hn.x + 0.55, hn.y + 0.05, hn.z - 0.95, hn.x, hn.y + 0.02, hn.z, 36); break; }
+      case 9: { const hk = cara(kc); pon(hk.x + 0.65, hk.y + 0.05, hk.z + 1.35 - d * 0.12, hk.x, hk.y - 0.05, hk.z, 38); break; }
+      case 10: pon(3.3, 1.8, 1.0, 1.5, 1.2, -0.8, 54); break;
+    }
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    this.desenfoque = n > 0 && d < 0.1 ? 10 * (1 - d / 0.1) : 0;
+    vigilarCamara(t, [kc, nv, ...this.chicas]);
+  },
+  fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0; for (const g of [0.02, c.frenesi, c.y - 0.05, c.hola]) { const d = t - g; if (d >= 0 && d < 0.3) { temblor = Math.max(temblor, (1 - d / 0.3) * 12); zoom = Math.max(zoom, 1 + 0.07 * (1 - d / 0.3)); } if (d >= 0 && d < 0.1) flash = Math.max(flash, 0.5 * (1 - d / 0.1)); }
+     return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; velos();
+    // reloj
+    C.save(); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `800 60px "DejaVu Sans Mono", monospace`; const rojo = t > c.frenesi && t < c.quereis + 0.5 && Math.sin(t * 6.3) > 0; C.fillStyle = 'rgba(0,0,0,0.6)'; rr(C, W / 2 - 180, 150, 360, 86, 16); C.fill(); C.fillStyle = t >= c.quereis + 0.5 ? '#3ddc84' : rojo ? '#ff3b4d' : '#fff'; C.fillText(this.hora(t), W / 2, 195); C.restore();
+    // gancho: lluvia de comandas
+    if (t < c.ya) { const tickets = ['MESA 7 · 20 × Croquetas', 'MESA 7 · 20 × Bravas', 'MESA 7 · 20 × Calamares', 'MESA 7 · 20 × Cañas', 'MESA 7 · 20 × Tortilla', 'MESA 7 · 20 × Ensalada'];
+      tickets.forEach((tx, i) => { const a = 0.1 + i * 0.15; if (t < a) return; const k = entra(t, a); C.save(); C.translate(W / 2 + (i % 2 ? 40 : -40), 330 + i * 92); C.rotate((i % 2 ? 1 : -1) * 0.04); C.scale(k, k); C.font = `900 46px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const w2 = C.measureText(tx).width + 50; C.fillStyle = '#fffbe8'; rr(C, -w2 / 2, -38, w2, 76, 10); C.fill(); C.fillStyle = '#c8102e'; C.fillText(tx, 0, 3); C.restore(); });
+      C.save(); C.font = `900 44px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillStyle = '#fff'; C.shadowColor = '#000'; C.shadowBlur = 14; C.fillText('LA COCINA CIERRA A LAS 15:00', W / 2, 290); C.restore(); }
+    if (entre(t, c.ya + 0.5, c.me)) { const [px, py] = proyectar(this.cen); pildora('PEDIDO ENVIADO ✓ · 20 personas', px, py - 300, entra(t, c.ya + 0.5), { tono: 'verde', tam: 40 }); }
+    if (entre(t, c.quereis + 0.9, c.fin - 0.3)) { const k = entra(t, c.quereis + 0.9); C.save(); C.translate(W / 2, 640); C.scale(k, k); C.font = `900 90px Inter, ${FUENTE}`; C.textAlign = 'center'; C.fillStyle = '#ff4d8d'; C.shadowColor = '#000'; C.shadowBlur = 16; C.fillText('¡¡OOOOH!!', 0, 0); C.restore();
+      const k2 = entra(t, c.quereis + 1.1); C.save(); C.translate(W / 2, 800); C.scale(k2, k2); C.font = `900 58px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const l = '¿Tú les habrías dado de comer? 👇'; const w2 = C.measureText(l).width + 50; C.fillStyle = 'rgba(255,255,255,0.95)'; rr(C, -w2 / 2, -46, w2, 92, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, 3); C.restore(); }
+  },
+};
+
 window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };

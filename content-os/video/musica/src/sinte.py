@@ -200,6 +200,21 @@ def pacobar(cues):  # «El bar de Paco»: lluvia y guitarra triste → corte →
     P.pon(arranca, kick(1.3)); P.pon(arranca, pad([52, 56, 59, 64], D - arranca, 3000, 0.02), 1.3)
     return P.x
 
+def viernes(cues):  # «Viernes, 14:59»: golpe + tensión, frenesí de cocina, silencio en «Hola, papá», final tierno
+    D = cues['fin'] + 0.5; P = Pista(D); me, fr, y, hola, qu = cues['me'], cues['frenesi'], cues['y'], cues['hola'], cues['quereis']
+    P.pon(0, kick(1.2)); P.pon(0, pad([45, 51, 57], fr, 900, 0.05), 1.1)
+    for i, t in enumerate(np.arange(0.5, fr, 0.25)): P.pon(t, bajo([45, 45, 48, 45, 50, 45, 48, 44][i % 8], 0.22, 500)); P.pon(t, hat(), 0.4)
+    for i, t in enumerate(np.arange(fr, y - 0.1, 0.125)):
+        P.pon(t, bajo([45, 45, 57, 45, 48, 45, 60, 47][i % 8], 0.11, 900))
+        if i % 4 == 0: P.pon(t, kick(0.9))
+        if i % 4 == 2: P.pon(t, clap(), 0.8)
+        P.pon(t, hat(), 0.8)
+        if i % 8 == 6: P.pon(t, tom(130)); P.pon(t + 0.06, tom(100))
+    P.pon(y - 0.05, kick(1.2)); P.pon(y, pad([45, 52, 57], hola - y - 0.1, 1200, 0.05), 1.0)
+    P.pon(qu - 0.1, pad([60, 64, 67, 72], D - qu, 3000, 0.2), 1.2)
+    for i, t in enumerate(np.arange(qu, D, 0.25)): P.pon(t, pluck([72, 76, 79, 84, 79, 76][i % 6], 0.3, 4000), 0.8)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -210,4 +225,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma, 'pacobar': pacobar}.get(tema, intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma, 'pacobar': pacobar, 'viernes': viernes}.get(tema, intenso)(q), dst)

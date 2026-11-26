@@ -184,6 +184,9 @@ const ESTILOS = {
   // paco: historia de bar de pueblo; subtítulos sobrios (Paco p en blanco, nieto n en azul claro)
   paco: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.1) contrast(1.06)' },
     subs: { tam: 62, fuente: tam => `800 ${tam}px Inter, sans-serif`, pill: ['#e8a91c', '#c8402a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 14, y: 1480, voces: { p: '#ffffff', n: '#a9d8ff' } } },
+  // viernes: comedia de cocina; subtítulos (cocinero k blanco, chicas s rosa)
+  viernes: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.15) contrast(1.08)' },
+    subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d6e', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 14, y: 1500, voces: { k: '#ffffff', s: '#ffc2e0' } } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
