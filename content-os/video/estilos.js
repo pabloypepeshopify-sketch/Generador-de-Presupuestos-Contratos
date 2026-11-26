@@ -187,6 +187,9 @@ const ESTILOS = {
   // viernes: comedia de cocina; subtítulos (cocinero k blanco, chicas s rosa)
   viernes: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.15) contrast(1.08)' },
     subs: { tam: 64, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d6e', '#ff8a3d'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 14, y: 1500, voces: { k: '#ffffff', s: '#ffc2e0' } } },
+  // llamar: concurso de TV; subtítulos amarillos/negros abajo
+  llamar: { post: { brillo: 0.15, desenfoqueBrillo: 10, filtro: 'saturate(1.25) contrast(1.08)' },
+    subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ffd34d', '#ffb020'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.9)', radio: 18, y: 1430 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

@@ -215,6 +215,34 @@ def viernes(cues):  # «Viernes, 14:59»: golpe + tensión, frenesí de cocina, 
     for i, t in enumerate(np.arange(qu, D, 0.25)): P.pon(t, pluck([72, 76, 79, 84, 79, 76][i % 6], 0.3, 4000), 0.8)
     return P.x
 
+def carrera2(cues):  # como «carrera» pero con el orden de países que diga el vídeo: segs = [[t0, t1, país], ...]
+    D = cues['fin'] + 0.5; P = Pista(D); b = 0.25; ahora, pero, treinta = cues['ahora'], cues['pero'], cues['treinta']; t_ini = cues['segs'][0][0]
+    for i, t in enumerate(np.arange(0, ahora, b)):
+        if i % 2 == 0: P.pon(t, kick(0.85))
+        P.pon(t, hat(), 0.5)
+        if i % 4 == 2: P.pon(t, clap(), 0.6)
+    for t in np.arange(0, t_ini, 0.125): P.pon(t, pluck(76, 0.1, 5000), 0.5)
+    P.pon(t_ini - 0.6, riser(0.6, 0.35))
+    for t0, t1, k in cues['segs']:
+        if k == 'it':
+            for i, t in enumerate(np.arange(t0, t1, 0.0625)): P.pon(t, pluck([76, 79, 84, 79][(i // 2) % 4], 0.07, 6000), 0.7)
+        elif k == 'jp':
+            for i, t in enumerate(np.arange(t0, t1, 0.25)): P.pon(t, pluck([69, 71, 74, 76, 79, 76, 74, 71][i % 8], 0.35, 3500), 1.0)
+        elif k == 'us':
+            for i, t in enumerate(np.arange(t0, t1, 0.25)): P.pon(t, 0.6 * np.tanh(4 * guitarra([40, 40, 43, 45][(i // 2) % 4], 0.24, 0.5)))
+        elif k == 'fr':
+            for i, t in enumerate(np.arange(t0, t1, 0.5)): P.pon(t, acordeon([[57, 61, 64], [55, 59, 62]][i % 2], 0.48))
+        elif k == 'es':
+            for i, t in enumerate(np.arange(t0, t1, 0.125)): P.pon(t, guitarra([52, 56, 59, 64][i % 4], 0.12, 0.2)); P.pon(t, clap(), 0.25 if i % 2 else 0)
+    src = P.x[int((ahora - 1.0) * SR):int(ahora * SR)].copy(); n = int(0.6 * SR); idx = np.cumsum(np.linspace(1.0, 0.05, n)).astype(int); idx = idx[idx < len(src)]; P.pon(ahora, 0.8 * src[idx])
+    P.pon(pero - 0.2, riser(treinta - pero + 0.2, 0.35))
+    for i, t in enumerate(np.arange(treinta, D, 0.125)):
+        if i % 4 == 0: P.pon(t, kick(1.0))
+        if i % 8 == 4: P.pon(t, clap(), 0.8)
+        P.pon(t, hat(), 0.5); P.pon(t, guitarra([52, 56, 59, 64, 68, 64, 59, 56][i % 8], 0.12, 0.18))
+    P.pon(treinta, pad([52, 56, 59, 64], D - treinta, 3000, 0.02), 1.3)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -225,4 +253,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma, 'pacobar': pacobar, 'viernes': viernes}.get(tema, intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma, 'pacobar': pacobar, 'viernes': viernes, 'carrera2': carrera2}.get(tema, intenso)(q), dst)
