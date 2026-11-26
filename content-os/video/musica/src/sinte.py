@@ -166,6 +166,26 @@ def carrera(cues):  # «países»: ritmo de carrera con un toque de cada país, 
     P.pon(treinta, pad([52, 56, 59, 64], D - treinta, 3000, 0.02), 1.3)
     return P.x
 
+def caoscalma(cues):  # «antes y después»: caos acelerado y disonante → frenazo → groove tranquilo y alegre
+    D = cues['fin'] + 0.5; P = Pista(D); hasta, calma = cues['hasta'], cues['calma']
+    for i, t in enumerate(np.arange(0, hasta, 0.1)):
+        if i % 2 == 0: P.pon(t, kick(0.8))
+        P.pon(t, hat(), 0.6); P.pon(t, bajo([45, 46, 45, 51][(i // 4) % 4], 0.09, 1200), 0.8)
+        if i % 3 == 0: P.pon(t, pluck(69 + (i * 7) % 13, 0.08, 6000), 0.5)
+    P.pon(0, pad([57, 58, 63], hasta, 1500, 0.2), 1.1)
+    src = P.x[int((hasta - 0.8) * SR):int(hasta * SR)].copy(); n = int(0.5 * SR); idx = np.cumsum(np.linspace(1.0, 0.05, n)).astype(int); idx = idx[idx < len(src)]; P.pon(hasta, 0.8 * src[idx])
+    for i, t in enumerate(np.arange(hasta + 0.35, calma, 0.22)): P.pon(t, pluck([72, 76, 79, 84, 79, 76, 72, 67][i % 8], 0.2, 5000), 0.9)   # tarjetas: tac tac
+    mayor = [[48, 60, 64, 67], [45, 57, 60, 64], [41, 53, 57, 60], [43, 55, 59, 62]]
+    for i, t in enumerate(np.arange(calma, D, 0.25)):
+        a = mayor[(i // 8) % 4]
+        if i % 4 == 0: P.pon(t, kick(0.7))
+        if i % 4 == 2: P.pon(t, clap(), 0.5)
+        P.pon(t, hat(), 0.35); 
+        if i % 2 == 1: P.pon(t, bajo(a[0] - 12, 0.22, 700))
+        P.pon(t, pluck(a[1 + i % 3] + 12, 0.25, 3500), 0.7)
+    P.pon(calma, pad([60, 64, 67], D - calma, 2500, 0.3), 1.0)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -176,4 +196,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera}.get(tema, intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma}.get(tema, intenso)(q), dst)

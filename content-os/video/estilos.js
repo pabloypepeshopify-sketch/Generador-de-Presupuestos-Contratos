@@ -178,6 +178,9 @@ const ESTILOS = {
   // paises: carrera de cafés por países; subtítulos grandes abajo (arriba va la clasificación)
   paises: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.2) contrast(1.07)' },
     subs: { tam: 72, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff3d6e', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1420 } },
+  // antes: antes y después en la taberna; subtítulos grandes abajo
+  antes: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.18) contrast(1.07)' },
+    subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff5a1f', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1420 } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
