@@ -6369,7 +6369,7 @@ V['paco'] = { ...comunCapa, estilo: 'paco',
       case 0: pon(-3.05, 1.5, -4.75 + d * 0.08, -3.2, 1.45, -5.95, 46); break;
       case 1: pon(0.35, 1.6, 2.3, 1.75, 1.45, 3.8, 46); break;
       case 2: pon(1.2, 1.7, 0.2, 1.4, 1.2, 3.0, 52); break;
-      case 3: frente(pa, 1.6, 0.15, 0.05, 44); break;
+      case 3: { const hp = cara(pa), hn = cara(ni); const dir = hp.clone().sub(hn).normalize(); pon(hn.x - dir.x * 1.0 + dir.z * 0.6, hn.y + 0.2, hn.z - dir.z * 1.0 - dir.x * 0.6, hp.x, hp.y - 0.05, hp.z, 40); break; }
       case 4: { const hp = cara(pa), hn = cara(ni); const dir = hn.clone().sub(hp).normalize(); pon(hp.x - dir.x * 0.85 - dir.z * 0.4, hp.y + 0.15, hp.z - dir.z * 0.85 + dir.x * 0.4, hn.x, hn.y, hn.z, 40); break; }
       case 5: case 6: { const pn = ni.g.position; pon(pn.x * 0.6, 5.2, pn.z * 0.6 + 3.0, pn.x * 0.8, 0.6, pn.z * 0.8 - 0.4, 50); break; }
       case 7: { const q = this.cen; pon(q.x + 0.55, q.y + 0.35, q.z + 0.55, q.x, q.y, q.z, 44); if (d > 0.9) pon(-3.0, 1.7, -3.9, -4.7, 1.6, -5.25, 40); break; }
