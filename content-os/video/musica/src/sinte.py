@@ -186,6 +186,20 @@ def caoscalma(cues):  # «antes y después»: caos acelerado y disonante → fre
     P.pon(calma, pad([60, 64, 67], D - calma, 2500, 0.3), 1.0)
     return P.x
 
+def pacobar(cues):  # «El bar de Paco»: lluvia y guitarra triste → corte → tensión → tac tac → rumba alegre → subidón
+    D = cues['fin'] + 0.5; P = Pista(D); abuelo, tu, mes, arranca = cues['abuelo'], cues['tu'], cues['mes'], cues['arranca']
+    n = int(mes * SR); P.pon(0, 0.06 * lp(hp(rng.standard_normal(n), 800), 5000) * np.minimum(1, np.arange(n) / SR / 0.5))  # lluvia
+    for i, t in enumerate(np.arange(0, abuelo - 0.1, 0.42)): P.pon(t, guitarra([57, 64, 60, 64, 55, 62, 59, 62][i % 8], 0.6, 0.16))
+    P.pon(abuelo, kick(1.1)); P.pon(abuelo + 0.2, pad([45, 52, 57], tu - abuelo - 0.2, 900, 0.3), 1.0)
+    for i, t in enumerate(np.arange(tu + 0.3, mes, 0.22)): P.pon(t, pluck([72, 76, 79, 84, 79, 76][i % 6], 0.2, 5000), 0.9)
+    P.pon(mes - 0.6, riser(0.6, 0.4))
+    for i, t in enumerate(np.arange(mes + 0.1, D, 0.125)):                                    # rumba
+        if i % 8 in (0, 3, 6): P.pon(t, kick(0.8))
+        if i % 4 == 2: P.pon(t, clap(), 0.7)
+        P.pon(t, guitarra([52, 56, 59, 64, 57, 61, 64, 69][(i // 8) % 2 * 4 + i % 4], 0.12, 0.17))
+    P.pon(arranca, kick(1.3)); P.pon(arranca, pad([52, 56, 59, 64], D - arranca, 3000, 0.02), 1.3)
+    return P.x
+
 def guarda(x, dst):
     x = x / (np.max(np.abs(x)) + 1e-9) * 0.9; d = int(0.011 * SR); L = x; R = np.concatenate([np.zeros(d), x[:-d]]) * 0.92 + x * 0.08
     pcm = (np.stack([L, R], 1) * 32767).astype(np.int16); tmp = dst + '.wav'
@@ -196,4 +210,4 @@ if __name__ == '__main__':
     tema, dst = sys.argv[1], sys.argv[2]
     if tema == 'thriller': guarda(thriller(), dst)
     else:
-        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma}.get(tema, intenso)(q), dst)
+        import json; q = json.loads(sys.argv[3]); guarda({'tictac': tictac, 'oeste': oeste, 'terror': terror, 'carrera': carrera, 'caoscalma': caoscalma, 'pacobar': pacobar}.get(tema, intenso)(q), dst)

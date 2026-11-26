@@ -181,6 +181,9 @@ const ESTILOS = {
   // antes: antes y después en la taberna; subtítulos grandes abajo
   antes: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.18) contrast(1.07)' },
     subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ff5a1f', '#ffb020'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.85)', radio: 18, y: 1420 } },
+  // paco: historia de bar de pueblo; subtítulos sobrios (Paco p en blanco, nieto n en azul claro)
+  paco: { post: { brillo: 0.12, desenfoqueBrillo: 10, filtro: 'saturate(1.1) contrast(1.06)' },
+    subs: { tam: 62, fuente: tam => `800 ${tam}px Inter, sans-serif`, pill: ['#e8a91c', '#c8402a'], texto: '#ffffff', textoClave: '#ffffff', sombra: 'rgba(0,0,0,0.9)', radio: 14, y: 1480, voces: { p: '#ffffff', n: '#a9d8ff' } } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {
