@@ -188,7 +188,7 @@ def caoscalma(cues):  # «antes y después»: caos acelerado y disonante → fre
 
 def pacobar(cues):  # «El bar de Paco»: lluvia y guitarra triste → corte → tensión → tac tac → rumba alegre → subidón
     D = cues['fin'] + 0.5; P = Pista(D); abuelo, tu, mes, arranca = cues['abuelo'], cues['tu'], cues['mes'], cues['arranca']
-    n = int(mes * SR); P.pon(0, 0.06 * lp(hp(rng.standard_normal(n), 800), 5000) * np.minimum(1, np.arange(n) / SR / 0.5))  # lluvia
+    n = int(mes * SR); P.pon(0, 0.012 * lp(hp(rng.standard_normal(n), 1500), 4000) * np.minimum(1, np.arange(n) / SR / 0.5))  # lluvia
     for i, t in enumerate(np.arange(0, abuelo - 0.1, 0.42)): P.pon(t, guitarra([57, 64, 60, 64, 55, 62, 59, 62][i % 8], 0.6, 0.16))
     P.pon(abuelo, kick(1.1)); P.pon(abuelo + 0.2, pad([45, 52, 57], tu - abuelo - 0.2, 900, 0.3), 1.0)
     for i, t in enumerate(np.arange(tu + 0.3, mes, 0.22)): P.pon(t, pluck([72, 76, 79, 84, 79, 76][i % 6], 0.2, 5000), 0.9)
