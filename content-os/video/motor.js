@@ -6560,6 +6560,8 @@ V['llamar'] = { ...comunCapa, estilo: 'llamar',
         if (t > c.jefe - 0.1) { yo.bD.hombro.rotation.set(-2.85, 0, -0.25); yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.4)); } if (entre(t, c.jefe, c.jefe + 0.35) || entre(t, c.psst, c.psst + 0.3)) yo.hablar(t, 1); }
       else { const qa = prog(t, c.llamas, c.diez); k.g.position.set(lerp(-2.2, M.x - 0.75, qa), 0, lerp(M.z - 1.55, M.z + 0.3, qa)); k.g.rotation.y = qa < 1 ? Math.atan2(M.x - 0.75 + 2.2, M.z + 0.3 - M.z + 1.55) : Math.PI / 2; if (qa > 0 && qa < 1) k.andar(t * 4, 1.2); if (qa >= 1) { k.bD.hombro.rotation.set(-1.0, 0, 0); k.boca.scale.set(1.5, 0.4, 0.5); }
         if (t > c.diez) { yo.boca.scale.set(1.5, 0.4, 0.5); yo.bD.hombro.rotation.set(-2.6, 0, -0.4); } }
+      if (P === 'gancho') { yo.bD.hombro.rotation.set(-2.9, 0, -0.2 + Math.sin(t * 9) * 0.12); yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.45)); yo.boca.scale.set(1.3, 0.5, 0.5); }
+      this.tjE.visible = P !== 'gancho';
       const toca = entre(t, c.pero - 0.05, c.llamas + 0.2); this.mv.visible = toca; const tT = c.pero + 0.6;
       if (toca) { const q = prog(t, c.pero - 0.05, tT); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mv.position.copy(lejos).lerp(this.ph, q); this.mv.lookAt(this.mv.position.clone().add(this.nrm)); this.mv.userData.pantalla(t > tT + 0.1 ? 'avisoEnviado' : 'bloqueo', t > tT + 0.1 ? {} : { hora: '14:20', dia: 'sábado' }); yo.bD.hombro.rotation.set(-1.15, 0, 0.1); yo.bD.codo.rotation.x = -0.5; yo.cabeza.rotation.x = 0.25; }
       this.on.userData.actualizar(t, toca && t > tT - 0.05 && t < tT + 0.6 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen); }
@@ -6568,7 +6570,7 @@ V['llamar'] = { ...comunCapa, estilo: 'llamar',
     const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px + off, py, pz); cam.lookAt(lx + off, ly, lz); fov = f; };
     const cara = [M.x, 1.25, M.z + 0.72];
     switch (n) {
-      case 0: pon(0.3, 2.6 - d * 0.3, 3.2 - d * 0.4, 0, 0.9, -1.5, 54); break;
+      case 0: pon(M.x + 0.55 - d * 0.15 + Math.sin(t * 31) * 0.006, 1.15 + d * 0.05, M.z - 1.9 + d * 0.45, M.x, 1.75, M.z + 0.72, 60); break;
       case 1: pon(M.x - 1.1, 1.5, M.z + 1.7 - d * 0.1, M.x + 0.55, 1.15, M.z + 0.25, 50); break;
       case 2: pon(M.x - 0.2, 1.75, M.z - 1.0 - d * 0.1, M.x, 1.1, M.z + 0.9, 54); break;
       case 3: pon(M.x + 1.6, 1.3, M.z + 1.9 - d * 0.1, M.x + 0.3, 1.25, M.z + 0.5, 48); break;
@@ -6590,8 +6592,13 @@ V['llamar'] = { ...comunCapa, estilo: 'llamar',
   capa(t) {
     const c = this.c, P = this.pais(t); const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
     // gancho: título de concurso
-    if (P === 'gancho') { const k = entra(t, -0.45); C.save(); C.translate(W / 2, 260); C.scale(k, k); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `900 74px Inter, ${FUENTE}`;
-      [['¿CÓMO SE LLAMA', 'rgba(255,255,255,0.95)'], ['AL CAMARERO', 'rgba(255,255,255,0.95)'], ['EN 5 PAÍSES?', '#ffd34d']].forEach(([l, col], i) => { const w2 = C.measureText(l).width + 50; C.fillStyle = col; rr(C, -w2 / 2, i * 96 - 46, w2, 92, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, i * 96 + 3); }); C.restore(); }
+    if (P === 'gancho') { const k = entra(t, -0.45); C.save(); C.translate(W / 2, 230); C.scale(k, k); C.textAlign = 'center'; C.textBaseline = 'middle'; C.font = `900 70px Inter, ${FUENTE}`;
+      [['¿CÓMO SE LLAMA', '#fff'], ['AL CAMARERO', '#fff'], ['EN 5 PAÍSES?', '#ffd34d']].forEach(([l, col], i) => { const w2 = C.measureText(l).width + 50; C.fillStyle = col; rr(C, -w2 / 2, i * 92 - 44, w2, 88, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, i * 92 + 3); }); C.restore();
+      // 5 banderas que caen una a una con su cronómetro girando
+      ['jp', 'us', 'it', 'fr', 'es'].forEach((p, i) => { const t0 = -0.2 + i * 0.16; if (t < t0) return; const q = clamp((t - t0) / 0.3), sc = q < 1 ? 0.4 + 0.75 * Math.sin(q * Math.PI * 0.75) / Math.sin(Math.PI * 0.75) : 1; const x = W / 2 + (i - 2) * 196, y = 640 + (1 - Math.min(1, q * 1.6)) * -160;
+        C.save(); C.translate(x, y); C.rotate((i % 2 ? 1 : -1) * 0.06); C.scale(sc, sc); C.fillStyle = '#fff'; C.shadowColor = 'rgba(0,0,0,0.45)'; C.shadowBlur = 18; rr(C, -86, -100, 172, 200, 20); C.fill(); C.shadowBlur = 0;
+        pintaBandera(C, p, -70, -86, 140, 94); C.fillStyle = '#111'; rr(C, -74, 22, 148, 64, 12); C.fill(); const sp = Math.floor((t - t0) * [37, 29, 41, 23, 31][i] + i * 11); C.fillStyle = ['#3ddc84', '#ffb020', '#ff3b4d'][(sp >> 2) % 3]; C.font = `800 44px 'JetBrains Mono', monospace`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillText(`${sp % 9}:${String((sp * 13) % 60).padStart(2, '0')}`, 0, 55); C.restore(); });
+      if (t > 0.6) { const k2 = entra(t, 0.6); C.save(); C.translate(W / 2, 820); C.scale(k2, k2); C.font = `900 56px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const l = '¿QUIÉN TARDA MÁS? ⏱'; const w2 = C.measureText(l).width + 48; C.fillStyle = '#ff3b4d'; rr(C, -w2 / 2, -42, w2, 84, 42); C.fill(); C.fillStyle = '#fff'; C.fillText(l, 0, 3); C.restore(); } }
     // cartel del país (tercio inferior) y cronómetro LED
     const nombres = { jp: 'JAPÓN', us: 'EE. UU.', it: 'ITALIA', fr: 'FRANCIA', es: 'ESPAÑA' }, colores = { jp: '#bc002d', us: '#3c3b6e', it: '#009246', fr: '#0055a4', es: '#c60b1e' };
     if (P !== 'gancho') { const a = c[P] - 0.15, k = entra(t, a + 0.05); C.save(); C.translate(lerp(-W, 0, Math.min(1, k)), 0); C.fillStyle = colores[P]; C.beginPath(); C.moveTo(0, 1100); C.lineTo(760, 1100); C.lineTo(700, 1210); C.lineTo(0, 1210); C.fill(); pintaBandera(C, P, 40, 1115, 120, 80); C.fillStyle = '#fff'; C.font = `900 76px Inter, ${FUENTE}`; C.textAlign = 'left'; C.textBaseline = 'middle'; C.fillText(nombres[P], 190, 1157); C.restore();
