@@ -90,12 +90,12 @@ if (muestras) {
 // audio: voz + música (baja cuando habla la voz) + efectos colocados en su segundo, todo normalizado a -14 LUFS
 // entrada 0 = fotogramas; 1 = voz (o silencio); 2 = música (si hay); luego efectos
 const entradas = conVoz ? ['-i', voz] : ['-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=stereo'];
-const filtros = ['[1:a]aformat=sample_rates=44100:channel_layouts=stereo,asplit=2[voz][vozsc]'];
+const filtros = [`[1:a]aformat=sample_rates=44100:channel_layouts=stereo,apad=whole_dur=${dur},asplit=2[voz][vozsc]`];
 const etiquetas = ['[voz]']; let idx = 2;
 const musica = info.musica ? path.join(DIR, 'musica', `${info.musica}.mp3`) : null;
 if (musica && await existe(musica)) {
   entradas.push('-stream_loop', '-1', '-t', String(dur), '-i', musica);
-  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volMusica ?? 0.5}${info.silencioMusica ? `,volume='if(between(t,${info.silencioMusica[0].toFixed(2)},${info.silencioMusica[1].toFixed(2)}),0,1)':eval=frame` : ''},afade=t=in:d=0.2,afade=t=out:st=${(dur - 1.2).toFixed(2)}:d=1.2[mus0]`,
+  filtros.push(`[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${info.volMusica ?? 0.5}${info.silencioMusica ? `,volume='if(between(t,${info.silencioMusica[0].toFixed(2)},${info.silencioMusica[1].toFixed(2)}),0,1)':eval=frame` : ''},afade=t=in:d=0.2,afade=t=out:st=${(dur - 0.4).toFixed(2)}:d=0.4[mus0]`,
     '[mus0][vozsc]sidechaincompress=threshold=0.04:ratio=5:attack=15:release=350[mus]');
   etiquetas.push('[mus]'); idx = 3;
 } else filtros[0] = '[1:a]aformat=sample_rates=44100:channel_layouts=stereo[voz]';
