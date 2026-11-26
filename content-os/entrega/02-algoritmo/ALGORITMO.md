@@ -139,3 +139,8 @@ Posibles causas (a confirmar con la curva de retención):
 - **Instagram: 4.200 visitas, el doble de la media (2.000–2.100) y el récord de la cuenta.** Pocos «me gusta» (en todas las plataformas).
 - YouTube: algo por encima de la media, normal. TikTok: 600 (normal; los dos anteriores pasaron de 1.500).
 - **Conclusión:** la **comparativa entre países** funciona en Instagram (pique, se comparte con amigos de fuera). Repetir el formato con otros temas («Parte 2»).
+
+## Resultados (27 de noviembre)
+- **«Países»** (¿en qué país tardan más en ponerte un café?): **15.000 en YouTube** (pegó un tirón tras días) y **4.500 en Instagram** (récord). Formato ganador: comparativa entre países con cronómetro, un bar por país, clasificación arriba y España con giro final.
+- **«Viernes, 14:59»** (historia con insultos fuertes): no gustó.
+- **Decisión del usuario:** explotar el estilo «países» (comparativas entre países con contador y clasificación).
