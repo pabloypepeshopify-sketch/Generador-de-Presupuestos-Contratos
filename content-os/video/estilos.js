@@ -190,6 +190,9 @@ const ESTILOS = {
   // llamar: concurso de TV; subtítulos amarillos/negros abajo
   llamar: { post: { brillo: 0.15, desenfoqueBrillo: 10, filtro: 'saturate(1.25) contrast(1.08)' },
     subs: { tam: 70, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ffd34d', '#ffb020'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.9)', radio: 18, y: 1430 } },
+  // bocina: mano / bocina / tarjeta; subtítulos (Dani d blanco, camarero k naranja)
+  bocina: { post: { brillo: 0.14, desenfoqueBrillo: 10, filtro: 'saturate(1.2) contrast(1.07)' },
+    subs: { tam: 68, fuente: tam => `900 ${tam}px Inter, sans-serif`, pill: ['#ffd34d', '#ffb020'], texto: '#ffffff', textoClave: '#111111', sombra: 'rgba(0,0,0,0.9)', radio: 18, y: 1440, voces: { d: '#ffffff', k: '#ffb27a' } } },
   nocheIso: { post: { brillo: 0.4, desenfoqueBrillo: 16, filtro: 'saturate(1.25) contrast(1.08)' } },
   maquetaDoble: {
     aplicar(scene, mundo, saltar, renderer) {

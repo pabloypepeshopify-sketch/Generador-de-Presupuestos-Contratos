@@ -6619,6 +6619,120 @@ V['llamar'] = { ...comunCapa, estilo: 'llamar',
   },
 };
 
+// ---------- «¿Cómo llamarías al camarero? ¿Mano, bocina de barco o tarjeta?»: lo normal, lo exagerado y lo práctico ----------
+V['bocina'] = { ...comunCapa, estilo: 'bocina',
+  async montar() {
+    ['mano', 'bocina', 'barco', 'tonto', 'tarjeta', 'aviso', 'viene', 'usarias'].forEach(w => CLAVES.add(w));
+    scene.background = new THREE.Color('#1b1713'); scene.fog = null; pared.visible = suelo.visible = bokeh.visible = false;
+    foco.intensity = relleno.intensity = lampara.intensity = contra.intensity = 0; hemi.color.set('#fff4e6'); hemi.groundColor.set('#5a4a40'); hemi.intensity = 1.75;
+    const sol = new THREE.DirectionalLight('#ffe8cc', 1.9); sol.position.set(-4, 9, 5); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); Object.assign(sol.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); sol.shadow.bias = -0.0005; scene.add(sol);
+    renderer.toneMappingExposure = 1.1;
+    const r = construirRestaurante(scene, { pantalla3D, tpv, movil, tarjetaMenu, placaCuadrada, tema: 'taberna' }); Object.assign(this, r); r.placa.visible = false; r.tj.visible = false; r.pantBarra.visible = false; r.movCam.visible = false;
+    const p = poblar(r.mundo, r.mesas); this.gente = p.gente; this.cam1 = p.camarero; this.cocinero = p.cocinero;
+    const M = this.M = r.mesas[0], S = this.S = r.mesas[4];
+    // fuera los clientes de la mesa de la señora
+    this.gente.forEach(g => { if (Math.abs(g.g.position.x - S.x) < 0.1 && Math.abs(g.g.position.z - S.z) < 1) g.g.visible = false; });
+    // nuestro cliente
+    const yo = this.yo = muneco({ camisa: '#3f7dfb', pantalon: '#24324a', pelo: '#2a1a12', peinado: 'corto', piel: '#f0c29a' }); yo.sentar(); yo.g.position.set(M.x, 0, M.z + 0.72); yo.g.rotation.y = Math.PI; r.mundo.add(yo.g);
+    // la señora de la mesa de al lado
+    const se = this.se = muneco({ camisa: '#d6567a', pantalon: '#3a2a40', pelo: '#9aa0a8', peinado: 'mono', piel: '#f2c49b' }); se.sentar(); se.g.position.set(S.x, 0, S.z + 0.72); se.g.rotation.y = Math.PI; r.mundo.add(se.g);
+    const tj = this.tjS = tarjetaMenu(); tj.scale.setScalar(0.3); tj.position.set(S.x - 0.3, 0.79, S.z + 0.12); tj.rotation.y = -1.0; r.mundo.add(tj);
+    r.mundo.updateMatrixWorld(true); this.cen = tj.userData.centro().clone(); this.nrm = new THREE.Vector3(Math.sin(-1.0), 0, Math.cos(-1.0)); this.ph = this.cen.clone().addScaledVector(this.nrm, 0.07);
+    this.mv = movil(); this.mv.scale.setScalar(0.34); this.mv.visible = false; r.mundo.add(this.mv); this.on = ondas();
+    // la bocina de barco: pabellón dorado, tubo y pera roja
+    const bo = this.boc = new THREE.Group(); const oro = new THREE.MeshStandardMaterial({ color: '#e8b830', metalness: 0.85, roughness: 0.22, side: THREE.DoubleSide });
+    const pab = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.36, 0.75, 40, 1, true), oro); pab.rotation.x = Math.PI / 2; pab.position.z = -0.38; bo.add(pab);
+    const aro = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.025, 10, 40), oro); aro.position.z = -0.755; bo.add(aro);
+    const tubo = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.28, 20), oro); tubo.rotation.x = Math.PI / 2; tubo.position.z = 0.12; bo.add(tubo);
+    const pera = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 16), matJ('#d42a2a', 0.5)); pera.scale.set(1, 1, 1.4); pera.position.z = 0.33; bo.add(pera); this.pera = pera;
+    bo.scale.setScalar(0.55); bo.traverse(o => { if (o.isMesh) o.castShadow = true; }); r.mundo.add(bo);
+    // copas y cañas en las mesas: revientan con la bocina
+    this.copas = []; r.mesas.forEach((m, i) => { if (i === 4) return; [-0.15, 0.18].forEach((dx, j) => { const c = cana(); c.position.set(m.x + dx, 0.79, m.z + (j ? 0.12 : -0.1)); r.mundo.add(c); this.copas.push({ c, o: c.position.clone() }); }); });
+    const vidrio = new THREE.MeshStandardMaterial({ color: '#dff3ff', transparent: true, opacity: 0.8, roughness: 0.1, metalness: 0.2 });
+    this.trozos = this.copas.map(() => Array.from({ length: 6 }, (_, k) => { const q = new THREE.Mesh(new THREE.TetrahedronGeometry(0.03), vidrio); q.visible = false; r.mundo.add(q); return q; }));
+    // pelo de punta del camarero tras la bocina
+    this.punta = new THREE.Group(); for (let i = 0; i < 9; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.2, 8), matJ('#3a2418', 0.8)); const a = (i / 9) * Math.PI * 2; c.position.set(Math.cos(a) * 0.12, 0.25, Math.sin(a) * 0.12); c.rotation.set(Math.sin(a) * 0.6, 0, -Math.cos(a) * 0.6); this.punta.add(c); } this.punta.visible = false; this.cam1.cabeza.add(this.punta);
+    const w = palabras, c = this.c = { mano: cue('mano'), con: cue('con', 2), barco: cue('barco'), tu: cue('tu'), tonto: cue('tonto'), o: cue('o', 2), tarjeta: cue('tarjeta'), le: cue('le'), viene: cue('viene'), tu2: cue('tu', 2) };
+    c.boom = c.barco + 0.62; c.fin = w[w.length - 1].fin + 0.75; duracion = c.fin;
+    this.cortes = [0, c.mano - 0.35, c.con - 0.08, c.boom - 0.02, c.boom + 0.7, c.boom + 1.25, c.tu - 0.35, c.o - 0.08, c.le - 0.1, c.tu2 - 0.1];
+    efectos = [['hit', 0.02], ['pop', 0.25], ['pop', 0.45], ['pop', 0.65], ['whoosh', c.mano - 0.4], ['buzz', c.mano + 0.5], ['whoosh', c.con - 0.12], ['riser', c.boom - 0.6], ['bocina', c.boom], ['hit', c.boom],
+      ['cristales', c.boom + 0.7], ...[0, 1, 2, 3, 4, 5].map(i => ['clink', c.boom + 0.72 + i * 0.07]), ['hit', c.boom + 1.3], ['whoosh', c.o - 0.12], ['tap', c.tarjeta + 0.35], ['ding', c.tarjeta + 0.5], ['pop', c.viene + 0.1], ['ding', c.viene + 0.3], ['whoosh', c.tu2 - 0.12], ['pop', c.tu2 + 0.4], ['pop', c.tu2 + 0.55], ['pop', c.tu2 + 0.7]];
+    this.musica = 'bocina_bar'; this.volMusica = 0.5;
+  },
+  actualizar(t) {
+    const c = this.c, M = this.M, S = this.S, yo = this.yo, se = this.se, k = this.cam1, kc = this.cocinero;
+    const habla = q => palabras.some(w => w.q === q && t >= w.t && t < w.fin + 0.04);
+    this.gente.forEach((g, i) => { g.reset(); g.sentar(); g.respirar(t, i); if (t < c.boom && Math.sin(t * 1.3 + i * 2) > 0.2) g.hablar(t + i); if (t > c.boom && t < c.o) { g.cabeza.rotation.y = (g.g.position.x > 0 ? 1 : -1) * 0.5; g.boca.scale.set(1.2, 1.3, 0.5); g.bD.hombro.rotation.set(-2.2, 0, -0.9); g.bI.hombro.rotation.set(-2.2, 0, 0.9); } });
+    // cliente
+    yo.reset(); yo.sentar(); yo.respirar(t, 1); yo.cejas.forEach(ce => (ce.rotation.z = 0)); yo.g.position.z = M.z + 0.72;
+    const bo = this.boc; bo.visible = t > c.con - 0.1 && t < c.o - 0.1 || t > c.le;
+    if (t < c.con - 0.1) { yo.bD.hombro.rotation.set(-2.85, 0, -0.2 + Math.sin(t * 7) * 0.1); if (t > c.mano + 0.3) { yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? 1 : -1) * 0.4)); yo.boca.scale.set(1.3, 0.45, 0.5); } }
+    else { const sube = ease(prog(t, c.con - 0.1, c.barco + 0.2)); bo.position.set(M.x, lerp(0.5, 1.2, sube), M.z + 0.02); bo.rotation.set(lerp(1.2, 0.3, sube), lerp(0, -0.75, sube), 0, 'YXZ'); if (t > c.le) { bo.position.set(M.x + 0.25, 0.86, M.z + 0.0); bo.rotation.set(0.0, 0.5, 0.0); }
+      yo.bD.hombro.rotation.set(-1.45, 0, 0.35); yo.bI.hombro.rotation.set(-1.45, 0, -0.35); yo.bD.codo.rotation.x = yo.bI.codo.rotation.x = -0.6; yo.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.25));
+      const sopla = entre(t, c.boom - 0.05, c.boom + 1.25); this.pera.scale.set(sopla ? 0.7 : 1, sopla ? 0.7 : 1, 1.4); if (sopla) { yo.g.position.z = M.z + 0.72 + Math.min(0.2, (t - c.boom) * 0.6); yo.raiz.rotation.x = -0.1; }
+      if (t > c.boom + 1.25) { yo.boca.scale.set(0.8, 0.5, 0.5); yo.cabeza.rotation.x = 0.15; } if (t > c.le) { yo.bD.hombro.rotation.set(-0.4, 0, 0); yo.bI.hombro.rotation.set(-0.4, 0, 0); yo.cabeza.rotation.y = 0.6; } }
+    // copas que revientan
+    this.copas.forEach(({ c: cp, o }, i) => { const a = c.boom + 0.7 + (i % 6) * 0.05, q = t - a; cp.visible = q < 0; this.trozos[i].forEach((tr, j) => { tr.visible = q >= 0 && q < 1.2; if (!tr.visible) return; const ang = j * 1.05 + i; tr.position.set(o.x + Math.cos(ang) * q * 0.9, o.y + 0.1 + q * 1.6 - 4.9 * q * q * 0.6, o.z + Math.sin(ang) * q * 0.9); tr.rotation.set(q * 12 + j, q * 9, 0); }); });
+    // camarero
+    k.reset(); k.cejas.forEach(ce => { ce.rotation.z = 0; ce.position.y = 0.1; }); k.bandeja.visible = true; k.bI.codo.rotation.x = -1.5; k.bI.hombro.rotation.x = -0.15; k.bandeja.rotation.set(1.65, 0, 0); this.punta.visible = t > c.boom + 0.15;
+    if (t < c.con) { const q = clamp(t / (c.con + 0.3)); k.g.position.set(lerp(-3.0, 3.0, q), 0, M.z + 1.85); k.g.rotation.y = Math.PI / 2; k.andar(t * 2.4, 1); k.cabeza.rotation.y = 0.8; }
+    else if (t < c.o - 0.1) { k.g.position.set(M.x + 0.95, 0, M.z - 0.9); k.g.rotation.y = -0.64; k.respirar(t, 2);
+      if (entre(t, c.boom, c.boom + 1.25)) { const s = (t - c.boom); k.raiz.rotation.x = -0.25; k.g.position.x += Math.min(0.12, s * 0.5); k.g.position.z -= Math.min(0.12, s * 0.5); k.bandeja.rotation.set(1.65 + Math.min(2.5, s * 8), 0, 0); k.bandeja.visible = s < 0.5; k.boca.scale.set(1.3, 1.5, 0.5); }
+      if (t > c.boom + 1.25) { k.bandeja.visible = false; k.g.position.set(M.x + 1.25, 0, M.z - 1.2); k.cejas.forEach((ce, q) => { ce.rotation.z = (q ? 1 : -1) * 0.55; ce.position.y = 0.09; }); k.bI.hombro.rotation.set(-0.3, 0, 0.5); k.bI.codo.rotation.x = -1.8; k.bD.hombro.rotation.set(-0.3, 0, -0.5); k.bD.codo.rotation.x = -1.8; } }
+    else { const q = ease(prog(t, c.tarjeta + 0.5, c.viene)); k.g.position.set(lerp(S.x + 2.0, S.x + 0.75, q), 0, lerp(S.z - 1.6, S.z + 0.45, q)); k.g.rotation.y = q < 1 ? Math.atan2(-1.25, 2.05) : -Math.PI / 2 - 0.3; if (q > 0 && q < 1) k.andar(t * 3, 1); else k.respirar(t, 2); if (q >= 1) { k.boca.scale.set(1.4, 0.4, 0.5); k.raiz.rotation.x = 0.12; } }
+    if (habla('k')) k.hablar(t, 1.2);
+    // cocinero: cae de espaldas en el pase
+    kc.reset(); kc.g.position.set(2.8, 0, -6.85); kc.g.rotation.y = 0; kc.respirar(t, 4); kc.g.updateMatrixWorld(true); this.kcA = kc.cabeza.getWorldPosition(new THREE.Vector3()); if (t > c.boom + 0.6) { kc.boca.scale.set(1.3, 1.5, 0.5); kc.cejas.forEach((ce, q) => (ce.rotation.z = (q ? -1 : 1) * 0.4)); kc.bD.hombro.rotation.set(-2.4, 0, -0.9); kc.bI.hombro.rotation.set(-2.4, 0, 0.9); kc.bD.codo.rotation.x = kc.bI.codo.rotation.x = -1.2; } if (t > c.boom + 1.45) { const q = clamp((t - c.boom - 1.45) / 0.3); kc.raiz.rotation.x = -1.35 * ease(q); kc.raiz.position.y = -0.35 * q; kc.bD.hombro.rotation.set(-2.6, 0, -0.6); kc.bI.hombro.rotation.set(-2.6, 0, 0.6); kc.boca.scale.set(1.2, 1.4, 0.5); }
+    // señora
+    se.reset(); se.sentar(); se.respirar(t, 3); se.cejas.forEach(ce => (ce.rotation.z = 0)); if (t > c.boom && t < c.o) { se.cabeza.rotation.y = -0.9; se.boca.scale.set(1, 1.3, 0.5); }
+    const toca = entre(t, c.o - 0.05, c.viene + 0.3); this.mv.visible = toca; const tT = c.tarjeta + 0.35;
+    if (toca) { const q = prog(t, c.o - 0.05, tT); const lejos = this.ph.clone().addScaledVector(this.nrm, 0.42).add(new THREE.Vector3(0, -0.04, 0)); this.mv.position.copy(lejos).lerp(this.ph, q); this.mv.lookAt(this.mv.position.clone().add(this.nrm)); this.mv.userData.pantalla(t > tT + 0.1 ? 'avisoEnviado' : 'bloqueo', t > tT + 0.1 ? {} : { hora: '13:42', dia: 'sábado' }); se.bD.hombro.rotation.set(-1.15, 0, -0.1); se.bD.codo.rotation.x = -0.5; se.cabeza.rotation.x = 0.25; }
+    if (t > c.viene) { se.boca.scale.set(1.4, 0.45, 0.5); se.cabeza.rotation.y = -0.5; }
+    this.on.userData.actualizar(t, toca && t > tT - 0.05 && t < tT + 0.6 ? 1 : 0, this.mv.getWorldPosition(new THREE.Vector3()), this.cen);
+    // cámara
+    let n = 0; this.cortes.forEach((a, i) => { if (t >= a) n = i; }); const d = t - this.cortes[n]; let fov = 46; cam.up.set(0, 1, 0);
+    const pon = (px, py, pz, lx, ly, lz, f) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); fov = f; };
+    const cara = m => { m.g.updateMatrixWorld(true); return m.cabeza.getWorldPosition(new THREE.Vector3()); };
+    const hy = cara(yo);
+    switch (n) {
+      case 0: pon(M.x + 0.45 - d * 0.12, 1.25, M.z - 1.55 + d * 0.3, hy.x, hy.y + 0.15, hy.z + 0.6, 56); break;
+      case 1: pon(M.x - 0.9, 1.45, M.z - 1.5, M.x + 0.3, 1.2, M.z + 1.2, 52); break;
+      case 2: pon(M.x - 2.46 + d * 0.15, 1.5, M.z - 1.81 + d * 0.1, M.x + 0.47, 1.12, M.z - 0.09, 62); break;
+      case 3: { const sh = Math.sin(t * 60) * 0.02; pon(M.x - 2.46 + sh, 1.5 + sh, M.z - 1.81, M.x + 0.62, 1.15, M.z - 0.45, 64); break; }
+      case 4: pon(-1.4, 2.1, M.z + 2.2, 1.0, 0.9, -3.0, 60); break;
+      case 5: { const hk = this.kcA; pon(-1.4, 2.1, M.z + 2.2, hk.x, 1.3, hk.z, 20); break; }
+      case 6: { const hk = cara(k); pon(hk.x - 0.65, hk.y + 0.05, hk.z + 1.05 - d * 0.08, hk.x, hk.y - 0.02, hk.z, 40); break; }
+      case 7: { const q = this.cen, nn = this.nrm; pon(q.x + nn.x * 0.8 + 0.1, q.y + 0.45, q.z + nn.z * 0.8 - 0.25, q.x, q.y + 0.05, q.z, 48); break; }
+      case 8: pon(S.x - 1.6, 1.55, S.z - 1.4, S.x + 0.1, 1.05, S.z + 0.5, 50); break;
+      case 9: pon(-1.2, 1.6, -3.0 + d * 0.15, 0.8, 1.0, 0.3, 62); break;
+    }
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+    this.desenfoque = n > 0 && d < 0.1 ? 10 * (1 - d / 0.1) : 0;
+    vigilarCamara(t, [k, kc, yo, se, ...this.gente]);
+  },
+  fx(t) { const c = this.c; let temblor = 0, zoom = 1, flash = 0;
+    for (const [g, f] of [[c.boom, 26], [c.boom + 0.7, 14], [c.boom + 1.25, 8]]) { const d = t - g; if (d >= 0 && d < 0.45) { temblor = Math.max(temblor, (1 - d / 0.45) * f); zoom = Math.max(zoom, 1 + 0.004 * f * (1 - d / 0.45)); } if (d >= 0 && d < 0.1) flash = Math.max(flash, 0.6 * (1 - d / 0.1)); }
+    if (entre(t, c.boom, c.boom + 0.7)) temblor = Math.max(temblor, 14);
+    return { desenfoque: this.desenfoque, temblor, zoom, flash }; },
+  capa(t) {
+    const c = this.c; velos();
+    const chip = (txt, y, k, fondo, tinta = '#111', tam = 58) => { C.save(); C.translate(W / 2, y); C.scale(k, k); C.font = `900 ${tam}px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const w2 = C.measureText(txt).width + 54; C.fillStyle = fondo; C.shadowColor = 'rgba(0,0,0,0.45)'; C.shadowBlur = 16; rr(C, -w2 / 2, -tam * 0.8, w2, tam * 1.6, 18); C.fill(); C.shadowBlur = 0; C.fillStyle = tinta; C.fillText(txt, 0, 3); C.restore(); return w2; };
+    const opciones = (y, t0, rev) => { const ops = ['🙋', '📯', rev ? '📱' : '❓']; ops.forEach((e, i) => { const a = t0 + i * 0.15; if (t < a) return; const k = entra(t, a); C.save(); C.translate(W / 2 + (i - 1) * 230, y); C.rotate((i - 1) * 0.06); C.scale(k, k); C.fillStyle = '#fff'; C.shadowColor = 'rgba(0,0,0,0.5)'; C.shadowBlur = 18; rr(C, -90, -90, 180, 180, 28); C.fill(); C.shadowBlur = 0; C.font = `110px ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillStyle = '#111'; C.fillText(e, 0, 8); C.restore(); }); };
+    // gancho
+    if (t < c.mano - 0.35) { const k = entra(t, -0.4); C.save(); C.translate(W / 2, 250); C.scale(k, k); C.font = `900 76px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle';
+      [['¿CÓMO LLAMARÍAS', '#fff'], ['AL CAMARERO?', '#ffd34d']].forEach(([l, col], i) => { const w2 = C.measureText(l).width + 50; C.fillStyle = col; rr(C, -w2 / 2, i * 100 - 48, w2, 94, 16); C.fill(); C.fillStyle = '#111'; C.fillText(l, 0, i * 100 + 3); }); C.restore(); opciones(600, -0.6, false); }
+    // rótulos de cada opción
+    if (entre(t, c.mano - 0.35, c.con - 0.08)) { chip('🙋 LA MANO', 1180, entra(t, c.mano - 0.3), '#ffffff'); if (t > c.mano + 0.5) { const k = entra(t, c.mano + 0.5); C.save(); C.translate(W / 2 + 230, 1120); C.rotate(-0.2); C.scale(k, k); C.font = `900 140px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; C.fillStyle = '#ff3b4d'; C.shadowColor = '#000'; C.shadowBlur = 12; C.fillText('✗', 0, 0); C.restore(); } }
+    if (entre(t, c.con - 0.08, c.boom)) chip('📯 BOCINA DE BARCO · 150 dB', 1180, entra(t, c.con), '#ffd34d');
+    // onda expansiva de la bocina
+    if (entre(t, c.boom, c.boom + 0.9)) { const q = t - c.boom; const [bx, by] = proyectar(this.boc.localToWorld(new THREE.Vector3(0, 0, -0.76))); C.save(); for (let i = 0; i < 4; i++) { const r0 = ((q * 2.6 + i * 0.25) % 1); C.strokeStyle = `rgba(255,255,255,${0.7 * (1 - r0)})`; C.lineWidth = 26 * (1 - r0) + 4; C.beginPath(); C.arc(bx, by, 80 + r0 * 900, 0, 7); C.stroke(); } C.restore(); }
+    if (entre(t, c.o - 0.08, c.le + 0.8)) chip('📱 LA TARJETA DE LA MESA', 1180, entra(t, c.o), '#3ddc84');
+    if (entre(t, c.viene, c.tu2 - 0.1)) { const k = entra(t, c.viene); C.save(); C.translate(W / 2, 1180); C.scale(k, k); C.font = `900 60px Inter, ${FUENTE}`; C.textAlign = 'center'; C.textBaseline = 'middle'; const l = '✓ AVISO RECIBIDO · VIENE'; const w2 = C.measureText(l).width + 54; C.fillStyle = '#3ddc84'; rr(C, -w2 / 2, -48, w2, 96, 18); C.fill(); C.fillStyle = '#0b2a17'; C.fillText(l, 0, 3); C.restore(); }
+    // final: las tres opciones
+    if (t > c.tu2 - 0.1) { chip('¿TÚ CUÁL USARÍAS? 👇', 330, entra(t, c.tu2 - 0.1), '#ffffff', '#111', 64); opciones(560, c.tu2 + 0.3, true); }
+  },
+};
+
 window.init = async (id, pal, dur) => {
   palabras = pal || []; duracion = dur || 0; efectos = [];
   cue = (p, n = 1) => { const q = norm(p); let k = 0; for (const w of palabras) if (norm(w.p) === q && ++k === n) return w.t; console.warn('cue no encontrado', p, n); return 9999; };

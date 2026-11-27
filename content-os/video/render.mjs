@@ -48,6 +48,8 @@ const SFX = {
   murmullo3: ['anoisesrc=c=pink:d=3.8:a=0.6', 'bandpass=f=800:w=900,tremolo=f=9:d=0.5,afade=t=in:d=0.2,afade=t=out:st=3.3:d=0.5,volume=0.8'],
   fuego: ['anoisesrc=c=brown:d=1.4:a=0.6', 'highpass=f=300,lowpass=f=3500,tremolo=f=13:d=0.6,afade=t=in:d=0.1,afade=t=out:st=1.0:d=0.4,volume=0.8'],
   miau: ['aevalsrc=0.5*(sin(2*PI*(520+380*sin(PI*t/0.55))*t)+0.35*sin(4*PI*(520+380*sin(PI*t/0.55))*t))*sin(PI*t/0.55):d=0.55', 'lowpass=f=3500,volume=0.9'],
+  bocina: ['aevalsrc=0.3*(sgn(sin(2*PI*98*t))+0.9*sgn(sin(2*PI*123.5*t))+0.6*sgn(sin(2*PI*147*t)))*min(1\\,t*12):d=1.7', 'lowpass=f=1400,afade=t=out:st=1.35:d=0.35,volume=1.1'],
+  cristales: ['anoisesrc=c=white:d=0.8:a=0.7', 'highpass=f=2500,afade=t=out:st=0.05:d=0.75:curve=exp,volume=0.9'],
   riser: ['anoisesrc=c=white:d=1.0:a=0.35', 'highpass=f=600,afade=t=in:d=0.95:curve=exp,afade=t=out:st=0.95:d=0.05,volume=0.6'],
 };
 const dirSfx = path.join(DIR, '.sfx'); await mkdir(dirSfx, { recursive: true });
