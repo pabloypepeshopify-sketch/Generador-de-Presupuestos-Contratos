@@ -15,6 +15,7 @@
 - **Mucha dopamina, cortes de plano constantes y pocos efectos gráficos.**
 - **No empezar con el producto NFC.** Empezar con una curiosidad o una situación.
 - **Música:** nada que suene a anuncio (el `beat` le parecía comercial). **Error mío a evitar: poner siempre la misma música (`guitarra_bar`).** Cada vídeo lleva música que encaje con su tono y sincronizada con sus momentos: thriller para suspense, electrónica intensa para explicativos rápidos, guitarra solo para historias tiernas. Se compone gratis con `video/musica/src/sinte.py` (numpy, sin ElevenLabs).
+- **Entrega fija:** cada vez que se haga un vídeo, mandar el vídeo y justo después las etiquetas para YouTube (título, descripción y etiquetas), sin esperar a que las pida.
 - **Sin marca de agua** `visaxnfc.es`.
 - **Llamadas a la acción:**
   - Vídeos de curiosidad o tecnología: «Sígueme si quieres saber más sobre la tecnología NFC» (tal cual, sin más).
